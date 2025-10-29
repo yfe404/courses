@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Framework For System Design Interviews - System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../system-design-interview.html">System Design Interview</a> /
+        A Framework For System Design Interviews
+    </div>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="back-of-the-envelope-estimation.html">← Previous</a>
+        <a href="design-a-rate-limiter.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">04</span> A Framework For System Design Interviews
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/a-framework-for-system-design-interviews" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">04</strong><h1>A Framework For System Design Interviews</h1></header><p>You have just landed a coveted on-site interview at your dream company. The hiring coordinator sends you a schedule for that day. Scanning down the list, you feel pretty good about it until your eyes land on this interview session - System Design Interview.</p>
+<p>System design interviews are often intimidating. It could be as vague as “designing a well-known product X?”. The questions are ambiguous and seem unreasonably broad. Your weariness is understandable. After all, how could anyone design a popular product in an hour that has taken hundreds if not thousands of engineers to build?</p>
+<p>The good news is that no one expects you to. Real-world system design is extremely complicated. For example, Google search is deceptively simple; however, the amount of technology that underpins that simplicity is truly astonishing. If no one expects you to design a real-world system in an hour, what is the benefit of a system design interview?</p>
+<p>The system design interview simulates real-life problem solving where two co-workers collaborate on an ambiguous problem and come up with a solution that meets their goals. The problem is open-ended, and there is no perfect answer. The final design is less important compared to the work you put in the design process. This allows you to demonstrate your design skill, defend your design choices, and respond to feedback in a constructive manner.</p>
+<p>Let us flip the table and consider what goes through the interviewer’s head as she walks into the conference room to meet you. The primary goal of the interviewer is to accurately assess your abilities. The last thing she wants is to give an inconclusive evaluation because the session has gone poorly and there are not enough signals. What is an interviewer looking for in a system design interview?</p>
+<p>Many think that system design interview is all about a person's technical design skills. It is much more than that. An effective system design interview gives strong signals about a person's ability to collaborate, to work under pressure, and to resolve ambiguity constructively. The ability to ask good questions is also an essential skill, and many interviewers specifically look for this skill.</p>
+<p>A good interviewer also looks for red flags. Over-engineering is a real disease of many engineers as they delight in design purity and ignore tradeoffs. They are often unaware of the compounding costs of over-engineered systems, and many companies pay a high price for that ignorance. You certainly do not want to demonstrate this tendency in a system design interview. Other red flags include narrow mindedness, stubbornness, etc.</p>
+<p>In this chapter, we will go over some useful tips and introduce a simple and effective framework to solve system design interview problems.</p>
+<h2 id="a-4-step-process-for-effective-system-design-interview">A 4-step process for effective system design interview</h2>
+<p>Every system design interview is different. A great system design interview is open-ended and there is no one-size-fits-all solution. However, there are steps and common ground to cover in every system design interview.</p>
+<h3 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the problem and establish design scope</h3>
+<p>"Why did the tiger roar?"</p>
+<p>A hand shot up in the back of the class.</p>
+<p>"Yes, Jimmy?", the teacher responded.</p>
+<p>"Because he was HUNGRY".</p>
+<p>"Very good Jimmy."</p>
+
+<p>Throughout his childhood, Jimmy has always been the first to answer questions in the class. Whenever the teacher asks a question, there is always a kid in the classroom who loves to take a crack at the question, no matter if he knows the answer or not. That is Jimmy.</p>
+<p>Jimmy is an ace student. He takes pride in knowing all the answers fast. In exams, he is usually the first person to finish the questions. He is a teacher's top choice for any academic competition.</p>
+<p>DON'T be like Jimmy.</p>
+<p>In a system design interview, giving out an answer quickly without thinking gives you no bonus points. Answering without a thorough understanding of the requirements is a huge red flag as the interview is not a trivia contest. There is no right answer.</p>
+<p>So, do not jump right in to give a solution. Slow down. Think deeply and ask questions to clarify requirements and assumptions. This is extremely important.</p>
+<p>As an engineer, we like to solve hard problems and jump into the final design; however, this approach is likely to lead you to design the wrong system. One of the most important skills as an engineer is to ask the right questions, make the proper assumptions, and gather all the information needed to build a system. So, do not be afraid to ask questions.</p>
+<p>When you ask a question, the interviewer either answers your question directly or asks you to make your assumptions. If the latter happens, write down your assumptions on the whiteboard or paper. You might need them later.</p>
+<p>What kind of questions to ask? Ask questions to understand the exact requirements. Here is a list of questions to help you get started:</p>
+<ul>
+<li>
+<p>What specific features are we going to build?</p>
+</li>
+<li>
+<p>How many users does the product have?</p>
+</li>
+<li>
+<p>How fast does the company anticipate to scale up? What are the anticipated scales in 3 months, 6 months, and a year?</p>
+</li>
+<li>
+<p>What is the company’s technology stack? What existing services you might leverage to simplify the design?</p>
+</li>
+</ul>
+<h4 id="example">Example</h4>
+<p>If you are asked to design a news feed system, you want to ask questions that help you clarify the requirements. The conversation between you and the interviewer might look like this:</p>
+<p><strong>Candidate</strong>: Is this a mobile app? Or a web app? Or both?<br>
+<strong>Interviewer</strong>: Both.</p>
+<p><strong>Candidate</strong>: What are the most important features for the product?<br>
+<strong>Interviewer</strong>: Ability to make a post and see friends’ news feed.</p>
+<p><strong>Candidate</strong>: Is the news feed sorted in reverse chronological order or a particular order? The particular order means each post is given a different weight. For instance, posts from your close friends are more important than posts from a group.<br>
+<strong>Interviewer</strong>: To keep things simple, let us assume the feed is sorted by reverse chronological order.</p>
+<p><strong>Candidate</strong>: How many friends can a user have?<br>
+<strong>Interviewer</strong>: 5000</p>
+<p><strong>Candidate</strong>: What is the traffic volume?<br>
+<strong>Interviewer</strong>: 10 million daily active users (DAU)</p>
+<p><strong>Candidate</strong>: Can feed contain images, videos, or just text?<br>
+<strong>Interviewer</strong>: It can contain media files, including both images and videos.</p>
+<p>Above are some sample questions that you can ask your interviewer. It is important to understand the requirements and clarify ambiguities</p>
+<h3 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose high-level design and get buy-in</h3>
+<p>In this step, we aim to develop a high-level design and reach an agreement with the interviewer on the design. It is a great idea to collaborate with the interviewer during the process.</p>
+<ul>
+<li>
+<p>Come up with an initial blueprint for the design. Ask for feedback. Treat your interviewer as a teammate and work together. Many good interviewers love to talk and get involved.</p>
+</li>
+<li>
+<p>Draw box diagrams with key components on the whiteboard or paper. This might include clients (mobile/web), APIs, web servers, data stores, cache, CDN, message queue, etc.</p>
+</li>
+<li>
+<p>Do back-of-the-envelope calculations to evaluate if your blueprint fits the scale constraints. Think out loud. Communicate with your interviewer if back-of-the-envelope is necessary before diving into it.</p>
+</li>
+</ul>
+<p>If possible, go through a few concrete use cases. This will help you frame the high-level design. It is also likely that the use cases would help you discover edge cases you have not yet considered.</p>
+<p>Should we include API endpoints and database schema here? This depends on the problem. For large design problems like “Design Google search engine”, this is a bit of too low level. For a problem like designing the backend for a multi-player poker game, this is a fair game. Communicate with your interviewer.</p>
+<h4 id="example-1">Example</h4>
+<p>Let us use “Design a news feed system” to demonstrate how to approach the high-level design. Here you are not required to understand how the system actually works. All the details will be explained in the "Design A News Feed System" chapter.</p>
+<p>At the high level, the design is divided into two flows: feed publishing and news feed building.</p>
+<ul>
+<li>
+<p>Feed publishing: when a user publishes a post, corresponding data is written into cache/database, and the post will be populated into friends’ news feed.</p>
+</li>
+<li>
+<p>Newsfeed building: the news feed is built by aggregating friends’ posts in a reverse chronological order.</p>
+</li>
+</ul>
+<p>Figure 1 and Figure 2 present high-level designs for feed publishing and news feed building flows, respectively.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram showing the flow of a user request for a news feed.  A user, accessing via either a web browser or mobile app, initiates a request that first resolves through a DNS server. This request, containing parameters like `v1/me/feed?content=Hello&amp;auth_token={auth_token}`, is then directed to a load balancer which distributes the traffic across multiple web servers.  These web servers communicate with three distinct services: a Post Service, a Fanout Service, and a Notification Service. The Post Service retrieves data from a Post Cache, which in turn accesses a Post DB if necessary.  The Fanout Service interacts with a News Feed Cache to provide the news feed content.  The Notification Service is shown but its interaction details are not depicted.  The diagram illustrates a client-server architecture with load balancing and caching mechanisms to improve performance and scalability.  The dashed lines around the web servers and caches suggest these components may be clustered or replicated." loading="lazy" width="500" height="803" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-1-ZIAGKIG7.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1</figcaption></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a news feed service.  A user, accessing via a web browser or mobile app, initiates a request (labeled 'v1/me/feed') which first resolves through a DNS server.  The request then reaches a load balancer, distributing the traffic across multiple web servers. These web servers communicate with a 'News Feed Service,' which in turn retrieves data from a 'News Feed Cache' (represented as three stacked cache units).  The entire flow is unidirectional, starting from the user and ending at the cache, implying a read-only operation to fetch the news feed.  The dashed lines around the web servers suggest a cluster or pool of servers, while the solid lines indicate the data flow direction." loading="lazy" width="400" height="598" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(400px, 100vw), (max-width: 1200px) min(400px, 80vw), min(400px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-2-4TY6XZV7.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2</figcaption></div></figure>
+<h3 id="step-3---design-deep-dive">Step 3 - Design deep dive</h3>
+<p>At this step, you and your interviewer should have already achieved the following objectives:</p>
+<ul>
+<li>
+<p>Agreed on the overall goals and feature scope</p>
+</li>
+<li>
+<p>Sketched out a high-level blueprint for the overall design</p>
+</li>
+<li>
+<p>Obtained feedback from your interviewer on the high-level design</p>
+</li>
+<li>
+<p>Had some initial ideas about areas to focus on in deep dive based on her feedback</p>
+</li>
+</ul>
+<p>You shall work with the interviewer to identify and prioritize components in the architecture. It is worth stressing that every interview is different. Sometimes, the interviewer may give off hints that she likes focusing on high-level design. Sometimes, for a senior candidate interview, the discussion could be on the system performance characteristics, likely focusing on the bottlenecks and resource estimations. In most cases, the interviewer may want you to dig into details of some system components. For URL shortener, it is interesting to dive into the hash function design that converts a long URL to a short one. For a chat system, how to reduce latency and how to support online/offline status are two interesting topics.</p>
+<p>Time management is essential as it is easy to get carried away with minute details that do not demonstrate your abilities. You must be armed with signals to show your interviewer. Try not to get into unnecessary details. For example, talking about the EdgeRank algorithm of Facebook feed ranking in detail is not ideal during a system design interview as this takes much precious time and does not prove your ability in designing a scalable system.</p>
+<h4 id="example-2">Example</h4>
+<p>At this point, we have discussed the high-level design for a news feed system, and the interviewer is happy with your proposal. Next, we will investigate two of the most important use cases:</p>
+<p>1. Feed publishing</p>
+<p>2. News feed retrieval</p>
+<p>Figure 3 and Figure 4 show the detailed design for the two use cases, which will be explained in detail in the "Design A News Feed System" chapter.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a news feed application.  A user, accessing via web browser or mobile app, initiates a request (v1/me/feed?content=Hello&amp;auth_token={auth_token}) that first resolves through a DNS server. The request then hits a load balancer, distributing traffic to multiple web servers.  These servers handle authentication and rate limiting before interacting with a Post Service, which retrieves data from a Post Cache or Post DB.  The web servers also communicate with a Fanout Service, which, labeled with (1), requests friend IDs from a Graph DB.  The Fanout Service then, labeled with (2), retrieves friends' data from the User Cache or User DB. This data is then placed into a Message Queue (3).  Fanout Workers (4) process the messages from the queue, updating the News Feed Cache (5) before the updated feed is sent back to the user.  A Notification Service is also triggered by the web servers.  The entire system utilizes caching mechanisms (Post Cache, User Cache, News Feed Cache) to improve performance.  Numbered labels (1-5) indicate the flow of data and processing steps within the system." loading="lazy" width="750" height="928" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-3-OEFRG37K.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3</figcaption></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a news feed service.  A user, accessing via web browser or mobile app, initiates a request (labeled '/v1/me/feed') which first resolves through a DNS server. This request then hits a load balancer (1), distributing the traffic across multiple web servers (2).  The web servers handle authentication and rate limiting before forwarding the request to the News Feed Service (3). The News Feed Service accesses data from a News Feed Cache (4), which in turn may access a database if the data is not cached.  The News Feed Service also sends data to a User Cache (5) and a Post Cache (5), which store user-specific and post-specific information respectively. These caches can access their corresponding User DB and Post DB if necessary.  The entire system is fronted by a CDN (6), improving performance and scalability by caching content closer to the users.  Numbers in parentheses indicate the flow of requests." loading="lazy" width="600" height="603" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fa-framework-for-system-design-interviews%2Ffigure-3-4-4ZXFIXDU.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4</figcaption></div></figure>
+<h3 id="step-4---wrap-up">Step 4 - Wrap up</h3>
+<p>In this final step, the interviewer might ask you a few follow-up questions or give you the freedom to discuss other additional points. Here are a few directions to follow:</p>
+<ul>
+<li>
+<p>The interviewer might want you to identify the system bottlenecks and discuss potential improvements. Never say your design is perfect and nothing can be improved. There is always something to improve upon. This is a great opportunity to show your critical thinking and leave a good final impression.</p>
+</li>
+<li>
+<p>It could be useful to give the interviewer a recap of your design. This is particularly important if you suggested a few solutions. Refreshing your interviewer’s memory can be helpful after a long session.</p>
+</li>
+<li>
+<p>Error cases (server failure, network loss, etc.) are interesting to talk about.</p>
+</li>
+<li>
+<p>Operation issues are worth mentioning. How do you monitor metrics and error logs? How to roll out the system?</p>
+</li>
+<li>
+<p>How to handle the next scale curve is also an interesting topic. For example, if your current design supports 1 million users, what changes do you need to make to support 10 million users?</p>
+</li>
+<li>
+<p>Propose other refinements you need if you had more time.</p>
+</li>
+</ul>
+<p>To wrap up, we summarize a list of the Dos and Don’ts.</p>
+<p>Dos</p>
+<ul>
+<li>
+<p>Always ask for clarification. Do not assume your assumption is correct.</p>
+</li>
+<li>
+<p>Understand the requirements of the problem.</p>
+</li>
+<li>
+<p>There is neither the right answer nor the best answer. A solution designed to solve the problems of a young startup is different from that of an established company with millions of users. Make sure you understand the requirements.</p>
+</li>
+<li>
+<p>Let the interviewer know what you are thinking. Communicate with your interview.</p>
+</li>
+<li>
+<p>Suggest multiple approaches if possible.</p>
+</li>
+<li>
+<p>Once you agree with your interviewer on the blueprint, go into details on each component. Design the most critical components first.</p>
+</li>
+<li>
+<p>Bounce ideas off the interviewer. A good interviewer works with you as a teammate.</p>
+</li>
+<li>
+<p>Never give up.</p>
+</li>
+</ul>
+<p>Don’ts</p>
+<ul>
+<li>
+<p>Don't be unprepared for typical interview questions.</p>
+</li>
+<li>
+<p>Don’t jump into a solution without clarifying the requirements and assumptions.</p>
+</li>
+<li>
+<p>Don’t go into too much detail on a single component in the beginning. Give the high-level design first then drills down.</p>
+</li>
+<li>
+<p>If you get stuck, don't hesitate to ask for hints.</p>
+</li>
+<li>
+<p>Again, communicate. Don't think in silence.</p>
+</li>
+<li>
+<p>Don’t think your interview is done once you give the design. You are not done until your interviewer says you are done. Ask for feedback early and often.</p>
+</li>
+</ul>
+<h3 id="time-allocation-on-each-step">Time allocation on each step</h3>
+<p>System design interview questions are usually very broad, and 45 minutes or an hour is not enough to cover the entire design. Time management is essential. How much time should you spend on each step? The following is a very rough guide on distributing your time in a 45-minute interview session. Please remember this is a rough estimate, and the actual time distribution depends on the scope of the problem and the requirements from the interviewer.</p>
+<p>Step 1 Understand the problem and establish design scope: 3 - 10 minutes</p>
+<p>Step 2 Propose high-level design and get buy-in: 10 - 15 minutes</p>
+<p>Step 3 Design deep dive: 10 - 25 minutes</p>
+<p>Step 4 Wrap: 3 - 5 minutes</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="back-of-the-envelope-estimation.html">← Previous</a>
+        <a href="design-a-rate-limiter.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

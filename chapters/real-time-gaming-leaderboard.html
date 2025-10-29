@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>26 - Real-time Gaming Leaderboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="s3-like-object-storage.html">← Previous</a>
+        <a href="payment-system.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">26</span> Real-time Gaming Leaderboard
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/real-time-gaming-leaderboard" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">26</strong><h1>Real-time Gaming Leaderboard</h1></header><p>In this chapter, we are going to walk through the challenge of designing a leaderboard for an online mobile game.</p>
+<p>What is a leaderboard? Leaderboards are common in gaming and elsewhere to show who is leading a particular tournament or competition. Users are assigned points for completing tasks or challenges, and whoever has the most points is at the top of the leaderboard. Figure 1 shows an example of a mobile game leaderboard. The leaderboard shows the ranking of the leading competitors and also displays the position of the user on it.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a leaderboard displaying the rankings of four teams in a competition.  The leaderboard is structured as a table with three columns: 'Rank', 'Player', and 'Points'.  A light pink header row indicates the column names.  Below the header, four rows present the data for each team. Each row begins with a star; the color of the star changes from red to light pink as the rank decreases.  The 'Rank' column shows the numerical position (1, 2, 3, 4). The 'Player' column lists the team names: Aquaboys, B team, Berlin's Angels, and GrendelTeam.  The 'Points' column displays the corresponding score for each team: 976, 956, 890, and 878 respectively.  The data is arranged in descending order of points, with the highest-scoring team at the top.  There are no connections or information flow between the rows; each row represents an independent entry in the leaderboard." width="500" height="202" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-1-leaderboard-NWJTV4ZV.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1 Leaderboard</figcaption></div></figure>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the Problem and Establish Design Scope</h2>
+<p>Leaderboards can be pretty straightforward, but there are a number of different matters that can add complexity. We should clarify the requirements.</p>
+<p><strong>Candidate:</strong> How is the score calculated for the leaderboard?<br>
+<strong>Interviewer:</strong> The user gets a point when they win a match. We can go with a simple point system in which each user has a score associated with them. Each time the user wins a match, we should add a point to their total score.</p>
+<p><strong>Candidate:</strong> Are all players included in the leaderboard?<br>
+<strong>Interviewer:</strong> Yes.</p>
+<p><strong>Candidate:</strong> Is there a time segment associated with the leaderboard?<br>
+<strong>Interviewer:</strong> Each month, a new tournament kicks off which starts a new leaderboard.</p>
+<p><strong>Candidate:</strong> Can we assume we only care about the top 10 users?<br>
+<strong>Interviewer:</strong> We want to display the top 10 users as well as the position of a specific user on the leaderboard. If time allows, let’s also discuss how to return users who are four places above and below a specific user.</p>
+
+<p><strong>Candidate:</strong> How many users are in a tournament?<br>
+<strong>Interviewer:</strong> Average of 5 million daily active users (DAU) and 25 million monthly active users (MAU).</p>
+<p><strong>Candidate:</strong> How many matches are played on average during a tournament?<br>
+<strong>Interviewer:</strong> Each player plays 10 matches per day on average.</p>
+<p><strong>Candidate:</strong> How do we determine the rank if two players have the same score?<br>
+<strong>Interviewer:</strong> In this case, their ranks are the same. If time allows, we can talk about ways to break ties.</p>
+<p><strong>Candidate:</strong> Does the leaderboard need to be real-time?<br>
+<strong>Interviewer:</strong> Yes, we want to present real-time results, or as close as possible. It is not okay to present a batched history of results.</p>
+<p>Now that we’ve gathered all the requirements, let’s list the functional requirements.</p>
+<ul>
+<li>
+<p>Display top 10 players on the leaderboard.</p>
+</li>
+<li>
+<p>Show a user’s specific rank.</p>
+</li>
+<li>
+<p>Display players who are four places above and below the desired user (bonus).</p>
+</li>
+</ul>
+<p>Other than clarifying functional requirements, it’s important to understand non-functional requirements.</p>
+<p><strong>Non-functional requirements</strong></p>
+<ul>
+<li>
+<p>Real-time update on scores.</p>
+</li>
+<li>
+<p>Score update is reflected on the leaderboard in real-time.</p>
+</li>
+<li>
+<p>General scalability, availability, and reliability requirements.</p>
+</li>
+</ul>
+<h3 id="back-of-the-envelope-estimation">Back-of-the-envelope estimation</h3>
+<p>Let’s take a look at some back-of-the-envelope calculations to determine the potential scale and challenges our solution will need to address.</p>
+<p>With 5 million DAU, if the game had an even distribution of players during a 24-hour period, we would have an average of 50 users per second (5,000,000 DAU / 10^5 seconds = ~50). However, we know that usages most likely aren’t evenly distributed, and potentially there are peaks during evenings when many people across different time zones have time to play. To account for this, we could assume that peak load would be 5 times the average. Therefore we’d want to allow for a peak load of 250 users per second.</p>
+<p>QPS for users scoring a point: if a user plays 10 games per day on average, the QPS for users scoring a point is: 50 * 10 = ~500. Peak QPS is 5x of the average: 500 * 5 = 2,500.</p>
+<p>QPS for fetching the top 10 leaderboard: assume a user opens the game once a day and the top 10 leaderboard is loaded only when a user first opens the game. The QPS for this is around 50.</p>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose High-Level Design and Get Buy-In</h2>
+<p>In this section, we will discuss API design, high-level architecture, and data models.</p>
+<h3 id="api-design">API design</h3>
+<p>At a high level, we need the following three APIs:</p>
+<p><strong>POST /v1/scores</strong></p>
+<p>Update a user’s position on the leaderboard when a user wins a game. The request parameters are listed below. This should be an internal API that can only be called by the game servers. The client should not be able to update the leaderboard score directly.</p>
+<table><thead><tr><th><strong>Field</strong></th><th><strong>Description</strong></th></tr></thead><tbody><tr><td>user_id</td><td>The user who wins a game.</td></tr><tr><td>points</td><td>The number of points a user gained by winning a game.</td></tr></tbody></table>
+<p class="tableCaption">Table 1</p>
+<p>Response:</p>
+<table><thead><tr><th><strong>Name</strong></th><th><strong>Description</strong></th></tr></thead><tbody><tr><td>200 OK</td><td>Successfully updated a user’s score.</td></tr><tr><td>400 Bad Request</td><td>Failed to update a user’s score.</td></tr></tbody></table>
+<p class="tableCaption">Table 2</p>
+<p><strong>GET /v1/scores</strong></p>
+<p>Fetch the top 10 players from the leaderboard.</p>
+<p>Sample response:</p>
+<pre><code>{
+  "data": [
+    {
+      "user_id": "user_id1",
+      "user_name": "alice",
+      "rank": 1,
+      "score": 12543
+    },
+    {
+      "user_id": "user_id2",
+      "user_name": "bob",
+      "rank": 2,
+      "score": 11500
+    }
+  ],
+  ...
+  "total": 10
+}
+</code></pre>
+<p><strong>GET /v1/scores/{:user_id}</strong></p>
+<p>Fetch the rank of a specific user.</p>
+<table><thead><tr><th><strong>Field</strong></th><th><strong>Description</strong></th></tr></thead><tbody><tr><td>user_id</td><td>The ID of the user whose rank we would like to fetch.</td></tr></tbody></table>
+<p class="tableCaption">Table 3</p>
+<p>Sample response:</p>
+<pre><code>{
+    "user_info": {
+        "user_id": "user5",
+        "score": 1000,
+        "rank": 6,
+    }
+}
+</code></pre>
+<h3 id="high-level-architecture">High-level architecture</h3>
+<p>The high-level design diagram is shown in Figure 2. There are two services in this design. The game service allows users to play the game and the leaderboard service creates and displays a leaderboard.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating the flow of information in a leaderboard system for a game.  The diagram begins with a top-level box depicting a user (represented by a person icon) interacting with a mobile device (represented by a phone icon).  This user initiates two main actions:  '1) Win a game,' which triggers a flow to the 'Game service' box.  The 'Game service' then sends an '2) Update score' message to the 'Leaderboard service' box.  Simultaneously, the user can also request '4 a. Get leaderboard' and '4 b. Get player_rank' from the 'Leaderboard service.'  The 'Leaderboard service' receives the score update and processes it, subsequently updating the 'Leaderboard Store' (represented by a database cylinder) via a '3) Update score' action.  The numbered circles indicate the sequential order of operations, while the lettered items under number 4 represent sub-actions within a single user request.  The arrows show the direction of data flow between the components." loading="lazy" width="360" height="404" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-2-high-level-design-XQWDCF72.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2 High-level design</figcaption></div></figure>
+<ol>
+<li>
+<p>When a player wins a game, the client sends a request to the game service.</p>
+</li>
+<li>
+<p>The game service ensures the win is valid and calls the leaderboard service to update the score.</p>
+</li>
+<li>
+<p>The leaderboard service updates the user’s score in the leaderboard store.</p>
+</li>
+<li>
+<p>A player makes a call to the leaderboard service directly to fetch leaderboard data, including:</p>
+<p>a. top 10 leaderboard.</p>
+<p>b. the rank of the player on the leaderboard.</p>
+</li>
+</ol>
+<p>Before settling on this design, we considered a few alternatives and decided against them. It might be helpful to go through the thought process of this and to compare different options.</p>
+<p><strong>Should the client talk to the leaderboard service directly?</strong></p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two alternative system designs for updating a leaderboard after a game is won.  The 'Current Option' shows a sequential process: a user (represented by a person icon and a phone icon) wins a game (step 1), triggering a call to the 'Game service.'  The 'Game service' then updates the score (step 2) by calling the 'Leaderboard service.'  The 'Alternative Option' presents a different approach: the user's action (represented by the same user icon and phone icon) directly sets a score (step 1). This action directly calls the 'Leaderboard service' to update the score (step 2), bypassing the intermediary 'Game service.'  Both diagrams use numbered steps to indicate the flow of information and actions.  The dashed lines around each option delineate the separate design proposals." loading="lazy" width="500" height="419" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-3-who-sets-the-leaderboard-score-O6AIP5UI.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3 Who sets the leaderboard score</figcaption></div></figure>
+<p>In the alternative design, the score is set by the client. This option is not secure because it is subject to man-in-the-middle attack [x], where players can put in a proxy and change scores at will. Therefore, we need the score to be set on the server-side.</p>
+<p>Note that for server authoritative games such as online poker, the client may not need to call the game server explicitly to set scores. The game server handles all game logic, and it knows when the game finishes and could set the score without any client intervention.</p>
+<p><strong>Do we need a message queue between the game service and the leaderboard service?</strong></p>
+<p>The answer to this question highly depends on how the game scores are used. If the data is used in other places or supports multiple functionalities, then it might make sense to put data in Kafka as shown in Figure 4. This way, the same data can be consumed by multiple consumers, such as leaderboard service, analytics service, push notification service, etc. This is especially true when the game is a turn-based or multi-player game in which we need to notify other players about the score update. As this is not an explicit requirement based on the conversation with the interviewer, we do not use a message queue in our design.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating data flow using Apache Kafka as a message broker.  A 'Game service' component produces data, which is sent as messages to a central 'Kafka' component.  Kafka acts as a distributed streaming platform, receiving and storing these messages.  From Kafka, the data is then consumed by three separate services: a 'Leaderboard service,' an 'Analytic service,' and a 'Push Notification service.'  Each of these consumer services receives a stream of messages from Kafka, allowing for parallel processing and independent updates to the leaderboard, analytics, and user notifications based on the game data.  The arrows indicate the unidirectional flow of data from the producer (Game service) to Kafka, and then from Kafka to each of the three consumer services." loading="lazy" width="500" height="182" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-4-game-scores-are-used-by-multiple-services-UWBWILEE.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4 Game scores are used by multiple services</figcaption></div></figure>
+<h3 id="data-models">Data models</h3>
+<p>One of the key components in the system is the leaderboard store. We will discuss three potential solutions: relational database, Redis, and NoSQL (NoSQL solution is explained in deep dive).</p>
+<h4 id="relational-database-solution">Relational database solution</h4>
+<p>First, let’s take a step back and start with the simplest solution. What if the scale doesn’t matter and we have only a few users?</p>
+<p>We would most likely opt to have a simple leaderboard solution using a relational database system (RDS). Each monthly leaderboard could be represented as a database table containing user id and score columns. When the user wins a match, either award the user 1 point if they are new, or increase their existing score by 1 point. To determine a user’s ranking on the leaderboard, we would sort the table by the score in descending order. The details are explained below.</p>
+<p>Leaderboard DB table:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple database table schema diagram for a leaderboard. The diagram is a rectangular box with a header and a body. The header, positioned at the top, boldly displays the table name 'leaderboard'.  The body, separated from the header by a horizontal line, contains two rows defining the table's columns. The first row specifies a column named 'user_id' with a data type of 'varchar,' indicating it will store variable-length strings representing user identifiers. The second row defines a column named 'score' with a data type of 'int,' signifying it will store integer values representing user scores.  No connections or information flow is depicted beyond the table's internal structure." loading="lazy" width="335" height="218" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(335px, 100vw), (max-width: 1200px) min(335px, 80vw), min(335px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-5-leaderboard-table-WGJD5HTB.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5 Leaderboard table</figcaption></div></figure>
+<p>In reality, the leaderboard table has additional information, such as a game_id, a timestamp, etc. However, the underlying logic of how to query and update the leaderboard remains the same. For simplicity, we assume only the current month’s leaderboard data is stored in the leaderboard table.</p>
+<p><strong>A user wins a point:</strong></p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram showing data flow between a Leaderboard service and a database.  A rectangular box labeled 'Leaderboard service' is depicted on the left, representing a software component responsible for managing leaderboard data. A directed arrow originates from this box, indicating data flow.  The arrow is labeled 'Insert or update DB,' signifying that the Leaderboard service sends data to the database for insertion or updating.  This arrow connects to a cylindrical shape on the right, representing a database (DB), which receives and stores the leaderboard data. The overall diagram illustrates a unidirectional data flow from the Leaderboard service to the database, suggesting a process where the service updates the persistent storage with leaderboard information." loading="lazy" width="500" height="74" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-6-a-user-wins-a-point-FN3VKT66.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6 A user wins a point</figcaption></div></figure>
+<p>Assume every score update would be an increment of 1. If a user doesn’t yet have an entry in the leaderboard for the month, the first insert would be:</p>
+<pre><code>INSERT INTO leaderboard (user_id, score) VALUES ('mary1934', 1);
+</code></pre>
+<p>An update to the user’s score would be:</p>
+<pre><code>UPDATE leaderboard set score=score + 1 where user_id='mary1934';
+</code></pre>
+<p><strong>Find a user’s leaderboard position:</strong></p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram showing data retrieval for a leaderboard.  A rectangular box labeled 'Leaderboard service' is depicted on the left, representing a service responsible for managing and displaying leaderboard information.  A directed arrow extends from this box to the right, labeled 'Fetch from DB, sorted by rank,' indicating that the service retrieves data from a database.  This arrow connects to a cylindrical shape on the right, representing a database (DB). The arrow and label clearly show that the data fetched from the database is sorted by rank before being presumably used by the Leaderboard service.  The overall diagram illustrates a simple data flow from a database to a service responsible for presenting a ranked leaderboard." loading="lazy" width="500" height="79" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-7-find-a-users-leaderboard-position-6WVQDZK3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7 Find a user’s leaderboard position</figcaption></div></figure>
+<p>To fetch the user rank, we would sort the leaderboard table and rank by the score:</p>
+<pre><code>SELECT (@rownum := @rownum + 1) AS rank, user_id, score
+FROM leaderboard
+ORDER BY score DESC;
+</code></pre>
+<p>The result of the SQL query looks like this:</p>
+<table><thead><tr><th><strong>rank</strong></th><th><strong>user_id</strong></th><th><strong>score</strong></th></tr></thead><tbody><tr><td>1</td><td>happy_tomato</td><td>987</td></tr><tr><td>2</td><td>mallow</td><td>902</td></tr><tr><td>3</td><td>smith</td><td>870</td></tr><tr><td>4</td><td>mary1934</td><td>850</td></tr></tbody></table>
+<p class="tableCaption">Table 4 Result sorted by score</p>
+<p>This solution works when the data set is small, but the query becomes very slow when there are millions of rows. Let’s take a look at why.</p>
+<p>To figure out the rank of a user, we need to sort every single player into their correct spot on the leaderboard so we can determine exactly what the correct rank is. Remember that there can be duplicate scores as well, so the rank isn’t just the position of the user in the list.</p>
+<p>SQL databases are not performant when we have to process large amounts of continuously changing information. Attempting to do a rank operation over millions of rows is going to take 10s of seconds, which is not acceptable for the desired real-time approach. Since the data is constantly changing, it is also not feasible to consider a cache.</p>
+<p>A relational database is not designed to handle the high load of read queries this implementation would require. An RDS could be used successfully if done as a batch operation, but that would not align with the requirement to return a real-time position for the user on the leaderboard.</p>
+<p>One optimization we can do is to add an index and limit the number of pages to scan with the LIMIT clause. The query looks like this:</p>
+<pre><code>SELECT (@rownum := @rownum + 1) AS rank, user_id, score
+FROM leaderboard
+ORDER BY score DESC
+LIMIT 10
+</code></pre>
+<p>However, this approach doesn’t scale well. First, finding a user's rank is not performant because it essentially requires a table scan to determine the rank. Second, this approach doesn’t provide a straightforward solution for determining the rank of a user who is not at the top of the leaderboard.</p>
+<h4 id="redis-solution">Redis solution</h4>
+<p>We want to find a solution that gives us predictable performance even for millions of users and allows us to have easy access to common leaderboard operations, without needing to fall back on complex DB queries.</p>
+<p>Redis provides a potential solution to our problem. Redis is an in-memory data store supporting key-value pairs. Since it works in memory, it allows for fast reads and writes. Redis has a specific data type called <strong>sorted sets</strong> that are ideal for solving leaderboard system design problems.</p>
+<h5 id="what-are-sorted-sets">What are sorted sets?</h5>
+<p>A sorted set is a data type similar to a set. Each member of a sorted set is associated with a score. The members of a set must be unique, but scores may repeat. The score is used to rank the sorted set in ascending order.</p>
+<p>Our leaderboard use case maps perfectly to sorted sets. Internally, a sorted set is implemented by two data structures: a hash table and a skip list [1]. The hash table maps users to scores and the skip list maps scores to users. In sorted sets, users are sorted by scores. A good way to understand a sorted set is to picture it as a table with score and member columns as shown in Figure 8. The table is sorted by score in descending order.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple data flow diagram showing a leaderboard for February 2021.  A rectangular box labeled 'leaderboard_feb_2021' acts as the source, with a directed arrow pointing to a table. This table is structured with two columns: 'score' (representing numerical scores) and 'member' (representing usernames, e.g., 'user10,' 'user20'). The table contains nine rows, each showing a user's score and corresponding username, ordered from highest to lowest score.  The arrow indicates that the data within the 'leaderboard_feb_2021' box is the source of the information displayed in the score and member columns of the table, effectively representing a leaderboard's data structure and how it might be accessed or displayed." loading="lazy" width="500" height="285" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-8-february-leaderboard-is-represented-by-the-sorted-set-G3APTESM.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8 February leaderboard is represented by the sorted set</figcaption></div></figure>
+<p>In this chapter, we don’t go into the full detail of the sorted set implementation, but we do go over the high-level ideas.</p>
+<p>A skip list is a list structure that allows for fast search. It consists of a base sorted linked list and multi-level indexes. Let’s take a look at an example. In Figure 9, the base list is a sorted singly-linked list. The time complexity of insertion, removal, and search operations is <em>O(n)</em>.</p>
+<p>How can we make those operations faster? One idea is to get to the middle quickly, as the binary search algorithm does. To achieve that, we add a level 1 index that skips every other node, and then a level 2 index that skips every other node of the level 1 indexes. We keep introducing additional levels, with each new level skipping every other nodes of the previous level. We stop this addition when the distance between nodes is n/2 - 1, where n is the total number of nodes. As shown in Figure 9, searching for number 45 is a lot faster when we have multi-level indexes.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a multi-level indexing scheme for a sorted list.  The top section shows a 'Base list' containing the sorted numbers 1, 4, 8, 10, 15, 26, 36, 45, 60, and 68, arranged sequentially with arrows indicating the order.  Below this, 'Level 1 index' shows a sparser representation where only some numbers from the base list are present (1, 8, 15, 36, 60), connected by arrows.  A second, parallel list under this shows the remaining numbers from the base list (1, 4, 8, 10, 15, 26, 36, 45, 60, 68).  The bottom section, 'Level 2 index,' further reduces the representation, showing only 1, 15, and 60 connected.  Below this is another 'Level 1 index' mirroring the structure of the previous Level 1 index, and finally, a complete base list is shown again at the very bottom.  Arrows indicate the connections between levels, showing how the indices point to subsets of the base list.  The number 45 is highlighted in pink in all levels to illustrate its consistent presence across all levels.  The overall structure demonstrates a hierarchical indexing approach, likely for efficient searching or retrieval within a large dataset." loading="lazy" width="500" height="448" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-9-skip-list-WNOCIURA.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9 Skip list</figcaption></div></figure>
+<p>When the data set is small, the speed improvement using the skip list isn’t obvious. Figure 10 shows an example of a skip list with 5 levels of indexes. In the base linked list, it needs to travel 62 nodes to reach the correct node. In the skip list, it only needs to traverse 11 nodes [2].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a directed acyclic graph (DAG) illustrating a data flow or processing pipeline.  The graph consists of numerous nodes, represented as circles, arranged in a roughly triangular formation with a base of 40 nodes and tapering to a single node at the apex.  Data, or information, flows unidirectionally from left to right, indicated by arrows connecting the nodes.  The top-most left node acts as the source, initiating the flow.  The data progresses through multiple layers of nodes, potentially representing stages of processing or transformation.  The final node on the far right, colored red, signifies the end point of the pipeline, where the processed data is presumably collected or outputted.  No labels or specific data values are present on the nodes or edges, only the visual representation of the flow's structure and direction." loading="lazy" width="750" height="107" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-10-skip-list-with-5-levels-of-indexes-K5QMZDBC.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10 Skip list with 5 levels of indexes</figcaption></div></figure>
+<p>Sorted sets are more performant than a relational database because each element is automatically positioned in the right order during insert or update, as well as the fact that the complexity of an add or find operation in a sorted set is logarithmic: <em>O(logn)</em>.</p>
+<p>In contrast, to calculate the rank of a specific user in a relational database, we need to run nested queries:</p>
+<pre><code>SELECT *,(SELECT COUNT(*) FROM leaderboard lb2
+WHERE lb2.score &gt;= lb1.score) RANK
+FROM leaderboard lb1
+WHERE lb1.user_id = {:user_id};
+</code></pre>
+<h5 id=""></h5>
+<h5 id="implementation-using-redis-sorted-sets">Implementation using Redis sorted sets</h5>
+<p>Now that we know sorted sets are fast, let’s take a look at the Redis operations we will use to build our leaderboard [3] [4] [5] [6]:</p>
+<ul>
+<li>
+<p>ZADD: insert the user into the set if they don’t yet exist. Otherwise, update the score for the user. It takes <em>O(log(n))</em> to execute.</p>
+</li>
+<li>
+<p>ZINCRBY: increment the score of the user by the specified increment. If the user doesn’t exist in the set, then it assumes the score starts at 0. It takes <em>O(log(n))</em> to execute.</p>
+</li>
+<li>
+<p>ZRANGE/ZREVRANGE: fetch a range of users sorted by the score. We can specify the order (range vs. revrange), the number of entries, and the position to start from. This takes <em>O(log(n)+m)</em> to execute, where <em>m</em> is the number of entries to fetch (which is usually small in our case), and <em>n</em> is the number of entries in the sorted set.</p>
+</li>
+<li>
+<p>ZRANK/ZREVRANK: Fetch the position of any user sorting in ascending/descending order in logarithmic time.</p>
+</li>
+</ul>
+<p><strong>Workflow with sorted sets</strong></p>
+<p>1. A user scores a point</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram for a leaderboard service.  The diagram shows three main components arranged horizontally. On the left is a box labeled 'Leaderboard service,' representing the application responsible for managing and displaying leaderboard data.  In the center is a box labeled 'ZINCRBY,' indicating the use of a Redis command for incrementing the score of a member in a sorted set, a data structure ideal for leaderboards.  Finally, on the right is the Redis logo, signifying that the leaderboard data is stored in a Redis database.  The arrangement implies that the Leaderboard service interacts with Redis using the ZINCRBY command, likely to update user scores on the leaderboard.  There are no explicit arrows or lines to show data flow, but the implied interaction is that the Leaderboard service sends commands (like ZINCRBY) to Redis to manage the leaderboard data, and retrieves data from Redis to display the leaderboard." loading="lazy" width="500" height="60" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-11-a-user-scores-a-point-XGFZPTLE.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11 A user scores a point</figcaption></div></figure>
+<p>Every month we create a new leaderboard sorted set and the previous ones are moved to historical data storage. When a user wins a match, they score 1 point; so we call ZINCRBY to increment the user’s score by 1 in that month’s leaderboard, or add the user to the leaderboard set if they weren’t already there. The syntax for ZINCRBY is:</p>
+<pre><code>ZINCRBY &lt;key&gt; &lt;increment&gt; &lt;user&gt;
+</code></pre>
+<p>The following command adds a point to user ‘mary1934’ after they win a match.</p>
+<pre><code>ZINCRBY leaderboard_feb_2021 1 'mary1934'
+</code></pre>
+<p>2. A user fetches the top 10 global leaderboard</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram showing the interaction between a Leaderboard service and a Redis database.  A rectangular box labeled 'Leaderboard service' is depicted on the left, indicating a service responsible for managing and presenting leaderboard data.  To its right, a rectangular box displays 'ZREVRANGE,' which is a Redis command used to retrieve sorted set members with scores in descending order within a specified range.  A right-pointing arrow, though not explicitly drawn, is implied to show the flow of a request from the Leaderboard service to the Redis database.  On the far right, the Redis logo is shown, clearly identifying the database technology used.  The overall diagram illustrates how the Leaderboard service likely uses the `ZREVRANGE` command to query a sorted set in Redis, presumably containing user scores, to retrieve and display leaderboard information." loading="lazy" width="500" height="60" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-12-fetch-top-10-global-leaderboard-KOUPGTUC.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12 Fetch top 10 global leaderboard</figcaption></div></figure>
+<p>We will call ZREVRANGE to obtain the members in descending order because we want the highest scores, and pass the ‘WITHSCORES’ attribute to ensure that it also returns the total score for each user, as well as the set of users with the highest scores. The following command fetches the top 10 players on the Feb-2021 leaderboard.</p>
+<pre><code>ZREVRANGE leaderboard_feb_2021 0 9 WITHSCORES
+</code></pre>
+<p>This returns a list like this:</p>
+<pre><code>[(user2,score2),(user1,score1),(user5,score5)...]
+</code></pre>
+<p>3. A user wants to fetch their leaderboard position</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram showing data flow for a leaderboard service.  On the left, a box labeled 'Leaderboard service' represents the application responsible for managing and displaying leaderboard data.  This service interacts with a central component labeled 'ZREVRANK,' which is implied to be a Redis command for retrieving ranked data.  The right side of the diagram shows the Redis logo, indicating that ZREVRANK is executed against a Redis database.  The overall flow is that the Leaderboard service queries Redis using the ZREVRANK command to retrieve and display ranked information, suggesting that the leaderboard data is stored and managed within a Redis database using its sorted set data structure.  No specific URLs or parameters are visible in the diagram." loading="lazy" width="500" height="60" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-13-fetch-a-users-leaderboard-position-YUJM3G3J.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13 Fetch a user’s leaderboard position</figcaption></div></figure>
+<p>To fetch the position of a user in the leaderboard, we will call ZREVRANK to retrieve their rank on the leaderboard. Again, we call the rev version of the command because we want to rank scores from high to low.</p>
+<pre><code>ZREVRANK leaderboard_feb_2021 'mary1934'
+</code></pre>
+<p>4. Fetch the relative position in the leaderboard for a user. An example is shown in Figure 14.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a leaderboard displaying the rankings of players in a game or competition.  The leaderboard is structured as a table with three columns: 'Rank', 'Player', and 'Points'. Each row represents a single player, showing their rank (a numerical identifier indicating their position), their player name (a string of alphanumeric characters, potentially including spaces and special symbols), and their points (a numerical score). The rows are arranged in descending order of points, with the highest-scoring player at the top.  The player 'Mallow007' is highlighted with a light green background, indicating a possible focus or selection.  No URLs or parameters are present. The data is purely textual, with no additional visual cues beyond the color-coding of the header row (light pink) and the highlighted row (light green)." loading="lazy" width="500" height="426" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-14-fetch-4-players-above-and-below-DNN7J5ML.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14 Fetch 4 players above and below</figcaption></div></figure>
+<p>While not an explicit requirement, we can easily fetch the relative position for a user by leveraging ZREVRANGE with the number of results above and below the desired player. For example, if user Mallow007’s rank is 361 and we want to fetch 4 players above and below them, we would run the following command.</p>
+<pre><code>ZREVRANGE leaderboard_feb_2021 357 365
+</code></pre>
+<h5 id="-1"></h5>
+<h5 id="storage-requirement">Storage requirement</h5>
+<p>At a minimum, we need to store the user id and score. The worst-case scenario is that all 25 million monthly active users have won at least one game, and they all have entries in the leaderboard for the month. Assuming the id is a 24-character string and the score is a 16-bit integer (or 2 bytes), we need 26 bytes of storage per leaderboard entry. Given the worst-case scenario of one leaderboard entry per MAU, we would need 26 bytes * 25 million = 650 million bytes or ~650 MB for leaderboard storage in the Redis cache. Even if we double the memory usage to account for the overhead of the skip list and the hash for the sorted set, one modern Redis server is more than enough to hold the data.</p>
+<p>Another related factor to consider is CPU and I/O usage. Our peak QPS from the back-of-the-envelope estimation is 2500 updates/sec. This is well within the performance envelope of a single Redis server.</p>
+<p>One concern about the Redis cache is persistence, as a Redis node might fail. Luckily, Redis does support persistence, but restarting a large Redis instance from disk is slow. Usually, Redis is configured with a read replica, and when the main instance fails, the read replica is promoted, and a new read replica is attached.</p>
+<p>Besides, we need to have 2 supporting tables (user and point) in a relational database like MySQL. The user table would store the user ID and user’s display name (in a real-world application, this would contain a lot more data). The point table would contain the user id, score, and timestamp when they won a game. This can be leveraged for other game functions such as play history, and can also be used to recreate the Redis leaderboard in the event of an infrastructure failure.</p>
+<p>As a small performance optimization, it may make sense to create an additional cache of the user details, potentially for the top 10 players since they are retrieved most frequently. However, this doesn’t amount to a large amount of data.</p>
+<h3 id="step-3---design-deep-dive">Step 3 - Design Deep Dive</h3>
+<p>Now that we’ve discussed the high-level design, let’s dive into the following:</p>
+<ul>
+<li>
+<p>Whether or not to use a cloud provider</p>
+<ul>
+<li>
+<p>Manage our own services</p>
+</li>
+<li>
+<p>Leverage cloud service providers like Amazon Web Services (AWS)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Scaling Redis</p>
+</li>
+<li>
+<p>Alternative solution: NoSQL</p>
+</li>
+<li>
+<p>Other considerations</p>
+</li>
+</ul>
+<h4 id="to-use-a-cloud-provider-or-not">To use a cloud provider or not</h4>
+<p>Depending on the existing infrastructure, we generally have two options for deploying our solution. Let’s take a look at each of them.</p>
+<h5 id="manage-our-own-services">Manage our own services</h5>
+<p>In this approach, we will create a leaderboard sorted set each month to store the leaderboard data for that period. The sorted set stores member and score information. The rest of the details about the user, such as their name and profile image, are stored in MySQL databases. When fetching the leaderboard, besides the leaderboard data, API servers also query the database to fetch corresponding users’ names and profile images to display on the leaderboard. If this becomes too inefficient in the long term, we can leverage a user profile cache to store users’ details for the top 10 players. The design is shown in Figure 15.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a leaderboard application.  The diagram shows a user (represented by a person icon and a smartphone) interacting with a system through a load-balanced set of web servers (represented by a hierarchical box with three subordinate boxes). These web servers connect to a MySQL database storing user profiles and their associated points.  Additionally, a Redis instance is used to cache the top 10 user profiles for faster retrieval, improving performance.  A separate Redis instance stores the leaderboard data as a sorted set, enabling efficient ranking and retrieval of leaderboard information.  Data flows from the user's device to the web servers, which then interact with both the MySQL database for user profile information and the Redis instances for caching and leaderboard data.  The leaderboard data is specifically stored as a sorted set in Redis, optimized for efficient ranking operations." loading="lazy" width="700" height="281" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-15-manage-our-own-services-T3VHGXIJ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15 Manage our own services</figcaption></div></figure>
+<h5 id="build-on-the-cloud">Build on the cloud</h5>
+<p>The second approach is to leverage cloud infrastructures. In this section, we assume our existing infrastructure is built on AWS and that it’s a natural fit to build the leaderboard on the cloud. We will use two major AWS technologies in this design: Amazon API Gateway and AWS Lambda function [7]. The Amazon API gateway provides a way to define the HTTP endpoints of a RESTful API and connect it to any backend services. We use it to connect to our AWS lambda functions. The mapping between Restful APIs and lambda functions is shown in Table 5.</p>
+<div class="table-wrap" style="--table-min-width: 400px;"><table><thead><tr><td><strong>APIs</strong></td><td><strong>Lambda function</strong></td></tr></thead><tbody><tr><td>GET /v1/scores</td><td>LeaderboardFetchTop10</td></tr><tr><td>GET /v1/scores/{:user_id}</td><td>LeaderboardFetchPlayerRank</td></tr><tr><td>POST /v1/scores</td><td>LeaderboardUpdateScore</td></tr></tbody></table></div>
+<p class="tableCaption">Table 5 Lambda functions</p>
+<p>AWS Lambda is one of the most popular serverless computing platforms. It allows us to run code without having to provision or manage the servers ourselves. It runs only when needed and will scale automatically based on traffic. Serverless is one of the hottest topics in cloud services and is supported by all major cloud service providers. For example, Google Cloud has Google Cloud Functions [8] and Microsoft has named its offering Microsoft Azure Functions [9].</p>
+<p>At a high level, our game calls the Amazon API Gateway, which in turn invokes the appropriate lambda functions. We will use AWS Lambda functions to invoke the appropriate commands on the storage layer (both Redis and MySQL), return the results back to the API Gateway, and then to the application.</p>
+<p>We can leverage Lambda functions to perform the queries we need without having to spin up a server instance. AWS provides support for Redis clients that can be called from the Lambda functions. This also allows for auto-scaling as needed with DAU growth. Design diagrams for a user scoring a point and retrieving the leaderboard are shown below:</p>
+<p><strong>Use case 1: scoring a point</strong></p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating the process of updating a leaderboard after a game win.  The sequence begins with a 'Leaderboard service' box, indicating the system responsible for maintaining the leaderboard data.  A 'Win game' box signifies the event triggering the update.  This event flows to an AWS Lambda function (represented by the orange Lambda logo), which acts as the processing unit.  The Lambda function then calls a 'ZINCRBY' command, directed towards a Redis instance (represented by the Redis logo), to atomically increment a player's score.  The 'Insert point' label clarifies the location where the score update is applied within the Redis database. Finally, the updated score is presumably persisted to a MySQL database (represented by the MySQL logo) for long-term storage, although this connection is not explicitly shown with an arrow.  The overall flow depicts a game win triggering an update to a player's score in Redis, potentially followed by a persistent update in MySQL, managed by an AWS Lambda function." loading="lazy" width="750" height="180" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-16-score-a-point-TJAYZUVE.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16 Score a point</figcaption></div></figure>
+<p><strong>Use Case 2: retrieving leaderboard</strong></p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating a leaderboard service.  The diagram shows a 'Leaderboard service' box, which initiates a 'Get leaderboard' request. This request is sent to an AWS Lambda function (represented by the orange Lambda symbol). The Lambda function then makes two calls:  ① a 'Call ZREVRANGE' call to a Redis database (represented by the Redis logo), retrieving leaderboard data, and ② a 'Fetch user details' call to a MySQL database (represented by the MySQL logo), fetching additional user information.  The data flows from Redis and MySQL back to the Lambda function, which presumably processes and aggregates the data before returning the complete leaderboard information to the 'Leaderboard service'.  The overall flow depicts a typical architecture for a leaderboard system, leveraging Redis for fast data retrieval and MySQL for persistent user details." loading="lazy" width="750" height="180" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-17-retrieve-leaderboard-4UMUHLST.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17 Retrieve leaderboard</figcaption></div></figure>
+<p>Lambdas are great because they are a serverless approach, and the infrastructure will take care of auto-scaling the function as needed. This means we don’t need to manage the scaling and environment setup and maintenance. Given this, we recommend going with a serverless approach if we build the game from the ground up.</p>
+<h4 id="scaling-redis">Scaling Redis</h4>
+<p>With 5 million DAU, we can get away with one Redis cache from both a storage and QPS perspective. However, let’s imagine we have 500 million DAU, which is 100 times our original scale. Now our worst-case scenario for the size of the leaderboard goes up to 65 GB (650 MB *100), and our QPS goes up to 250,000 (2,500 * 100) queries per second. This calls for a sharding solution.</p>
+<h5 id="data-sharding">Data sharding</h5>
+<p>We consider sharding in one of the following two ways: fixed or hash partitions.</p>
+<p><strong>Fixed partition</strong></p>
+<p>One way to understand fixed partitions is to look at the overall range of points on the leaderboard. Let’s say that the number of points won in one month ranges from 1 to 1000, and we break up the data by range. For example, we could have 10 shards and each shard would have a range of 100 scores (For example, 1-100, 101-200, 201-300, ...) as shown in Figure 18.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence of four rectangular boxes connected horizontally, each representing a sorted set of numbers.  The first box contains the sorted set '[1, 100]', the second '[101, 200]', the third '[201, 300]', and the last '[901, 1000]'.  Each box is labeled 'Sorted set' below the numerical range it contains.  The boxes are connected by straight lines indicating a sequential flow of data.  Between the third and fourth boxes, an ellipsis ('...') signifies that there are additional, similar boxes omitted for brevity, implying a continuation of this pattern with ranges of 100 numbers each.  The overall diagram illustrates a partitioning or sharding strategy where a large sorted dataset is divided into smaller, manageable sorted subsets." loading="lazy" width="700" height="62" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/real-time-gaming-leaderboard/figure-18-fixed-partition-2DM4XVL6.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18 Fixed partition</figcaption></div></figure>
+<p>For this to work, we want to ensure there is an even distribution of scores across the leaderboard. Otherwise, we need to adjust the score range in each shard to make sure of a relatively even distribution. In this approach, we shard the data ourselves in the application code.</p>
+<p>When we are inserting or updating the score for a user, we need to know which shard they are in. We could do this by calculating the user’s current score from the MySQL database. This can work, but a more performant option is to create a secondary cache to store the mapping from user ID to score. We need to be careful when a user increases their score and moves between shards. In this case, we need to remove the user from their current shard and move them to the new shard.</p>
+<p>To fetch the top 10 players in the leaderboard, we would fetch the top 10 players from the shard (sorted set) with the highest scores. In Figure 18, the last shard with scores [901, 1000] contains the top 10 players.</p>
+<p>To fetch the rank of a user, we would need to calculate the rank within their current shard (local rank), as well as the total number of players with higher scores in all of the shards. Note that the total number of players in a shard can be retrieved by running the “<em>info keyspace</em>” command in <em>O(1)</em> [10].</p>
+<h5 id="hash-partition">Hash partition</h5>
+<p>A second approach is to use the Redis cluster, which is desirable if the scores are very clustered or clumped. Redis cluster provides a way to shard data automatically across multiple Redis nodes. It doesn’t use consistent hashing but a different form of sharding, where every key is part of a <strong>hash slot</strong>. There are 16384 hash slots [11] and we can compute the hash slot of a given key by doing <em>CRC16(<em>key</em>) % 16384</em> [12]. This allows us to add and remove nodes in the cluster easily without redistributing all the keys. In Figure 19, we have 3 nodes, where:</p>
+<ul>
+<li>
+<p>The first node contains hash slots [0, 5500].</p>
+</li>
+<li>
+<p>The second node contains hash slots [5501, 11000].</p>
+</li>
+<li>
+<p>The third node contains hash slots [11001, 16383].</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a Redis Cluster architecture.  At the top, a 'Client' connects to a 'Proxy'. The Proxy then directs requests to one of three Redis shards based on a slot range. Each shard is depicted as a dashed-line box containing a primary node (represented by a red, three-layered cube with a star) and two replica nodes (similar red cubes).  Shard 1 has a slot range of [0, 5500], Shard 2 has [5501, 11000], and Shard 3 has [11001, 16383].  The primary node in each shard is responsible for handling writes, and the replicas provide read availability and redundancy.  Arrows indicate the flow of data: from the Client to the Proxy, and from the Proxy to the appropriate primary node within the relevant shard.  The label 'Redis Cluster' is placed below the three shards, indicating the overall system." loading="lazy" width="600" height="512" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-19-hash-partition-BNBRIQB7.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19 Hash partition</figcaption></div></figure>
+<p>An update would simply change the score of the user in the corresponding shard (determined by <em>CRC16(key)%16384</em>). Retrieving the top 10 players on the leaderboard is more complicated. We need to gather the top 10 players from each shard and have the application sort the data. A concrete example is shown in Figure 20. Those queries can be parallelized to reduce latency.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline using a scatter-gather approach.  Three tables, labeled 'shard 0 (top 10)', 'shard 1 (top 10)', and 'shard 2 (top 10)', each contain a subset of data, organized into two columns: 'score' (numeric) and 'member' (alphanumeric, presumably user IDs). Each shard displays the top 10 entries based on the score.  Arrows labeled 'scatter-gather' indicate that data from each of the three shard tables is sent to a central 'top 10' table. This table aggregates the top 10 entries across all shards, based on the score, resulting in a combined list of the top 10 members with their corresponding scores.  The 'top 10' table also has 'score' and 'member' columns, mirroring the structure of the shard tables.  The process implies a distributed system where data is initially partitioned across multiple shards, then consolidated to produce an overall top 10 ranking." loading="lazy" width="500" height="540" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-20-scatter-gather-KXBJYDNB.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20 Scatter-gather</figcaption></div></figure>
+<p>This approach has a few limitations:</p>
+<ul>
+<li>
+<p>When we need to return top K results (where K is a very large number) on the leaderboard, the latency is high because a lot of entries are returned from each shard and need to be sorted.</p>
+</li>
+<li>
+<p>Latency is high if we have lots of partitions because the query has to wait for the slowest partition.</p>
+</li>
+<li>
+<p>Another issue with this approach is that it doesn’t provide a straightforward solution for determining the rank of a specific user.</p>
+</li>
+</ul>
+<p>Therefore, we lean towards the first proposal: fixed partition.</p>
+<h5 id="sizing-a-redis-node">Sizing a Redis node</h5>
+<p>There are multiple things to consider when sizing the Redis nodes [13]. Write-heavy applications require much more available memory, since we need to be able to accommodate all of the writes to create the snapshot in case of a failure. To be safe, allocate twice the amount of memory for write-heavy applications.</p>
+<p>Redis provides a tool called Redis-benchmark that allows us to benchmark the performance of the Redis setup, by simulating multiple clients executing multiple queries and returning the number of requests per second for the given hardware. To learn more about Redis-benchmark, see [14].</p>
+<h4 id="alternative-solution-nosql">Alternative solution: NoSQL</h4>
+<p>An alternative solution to consider is NoSQL databases. What kind of NoSQL should we use? Ideally, we want to choose a NoSQL that has the following properties:</p>
+<ul>
+<li>
+<p>Optimized for writes.</p>
+</li>
+<li>
+<p>Efficiently sort items within the same partition by score.</p>
+</li>
+</ul>
+<p>NoSQL databases such as Amazon’s DynamoDB [15], Cassandra, or MongoDB can be a good fit. In this chapter, we use DynamoDB as an example. DynamoDB is a fully managed NoSQL database that offers reliable performance and great scalability. To allow efficient access to data with attributes other than the primary key, we can leverage global secondary indexes [16] in DynamoDB. A global secondary index contains a selection of attributes from the parent table, but they are organized using a different primary key. Let’s take a look at an example.</p>
+<p>The updated system diagram is shown in Figure 21. Redis and MySQL are replaced with DynamoDB.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture diagram for a leaderboard service.  The diagram shows four components arranged horizontally.  The leftmost component is a white box labeled 'Leaderboard service,' indicating a service responsible for managing and displaying leaderboard data.  Next is a stylized golden-orange icon representing Amazon Elastic Container Service (ECS), suggesting the leaderboard service is deployed using this container orchestration platform.  Following this is an orange icon representing AWS Lambda, implying the use of serverless functions for specific tasks within the leaderboard service, possibly for handling updates or requests. Finally, on the far right, a blue cylindrical icon represents a database, likely storing the leaderboard data (scores, user IDs, timestamps, etc.).  There are no explicit connections drawn between the components, but the implied flow is that the 'Leaderboard service' (running on ECS and utilizing Lambda functions) interacts with the database to read and write leaderboard information." loading="lazy" width="500" height="84" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-21-dynamodb-solution-QSI6N2FT.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21 DynamoDB solution</figcaption></div></figure>
+<p>Assume we design the leaderboard for a chess game and our initial table is shown in Figure 22. It is a denormalized view of the leaderboard and user tables and contains everything needed to render a leaderboard.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table depicting a database schema or a subset of data from a table.  The table is divided into two main sections: 'Primary key' and 'Attributes'. The 'Primary key' column lists unique identifiers, specifically `user_id` values such as `lovelove`, `i_love_tofu`, `golden_gate`, `pizza_or_bread`, and `ocean`,  with an ellipsis (...) indicating further entries.  The 'Attributes' section contains columns for `score` (numerical user scores), `email` (user email addresses), `profile_pic` (URLs pointing to profile pictures stored on a CDN, e.g., `https://cdn.example/3.png`), and `leaderboard_name` (likely indicating the leaderboard the user belongs to, e.g., `chess#2020-02`). Each row represents a single user record, with the `user_id` serving as the primary key linking all attributes to a specific user.  The data shows a consistent pattern of email addresses using the `@test.com` domain and leaderboard names starting with 'chess' followed by a date.  The ellipsis (...) at the bottom indicates that the table continues beyond the visible rows." loading="lazy" width="560" height="194" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(560px, 100vw), (max-width: 1200px) min(560px, 80vw), min(560px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-22-denormalized-view-of-the-leaderboard-and-user-tables-PGST2M7Z.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 22 Denormalized view of the leaderboard and user tables</figcaption></div></figure>
+<p>This table scheme works, but it doesn’t scale well. As more rows are added, we have to scan the entire table to find the top scores.</p>
+<p>To avoid a linear scan, we need to add indexes. Our first attempt is to use “<em>game_name#{year-month}</em>” as the partition key and the score as the sort key, as shown in Figure 23.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table depicting a Global Secondary Index with five columns. The first column, labeled 'Partition key (PK)', contains strings representing partition keys, all starting with 'chess#' followed by a date in YYYY-MM format (e.g., 'chess#2020-02'). The second column, 'Sort key (score)', lists integer values. The third column, 'user_id', shows unique user identifiers as strings (e.g., 'lovelove', 'i_love_tofu'). The fourth column, 'email', contains email addresses corresponding to the users.  The fifth column, 'profile_pic', lists URLs pointing to profile pictures stored on a CDN (Content Delivery Network), all starting with 'https://cdn.example/' followed by a string (e.g., '3.png', 'p.png').  Each row represents a single entry in the index, linking a partition key, a score, a user ID, an email address, and a profile picture URL. The table includes an ellipsis (...) at the end to indicate that it continues beyond the visible rows." loading="lazy" width="560" height="224" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(560px, 100vw), (max-width: 1200px) min(560px, 80vw), min(560px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-23-partition-key-and-sort-key-NMM4PK4Z.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 23 Partition key and sort key</figcaption></div></figure>
+<p>This works, but it runs into issues at a high load. DynamoDB splits data across multiple nodes using consistent hashing. Each item lives in a corresponding node based on its partition key. We want to structure the data so that data is evenly distributed across partitions. In our table design (Figure 23), all the data for the most recent month would be stored in one partition and that partition becomes a hot partition. How can we solve this problem?</p>
+<p>We can split data into <em>N</em> partitions and append a partition number (user_id % number_of_partitions) to the partition key. This pattern is called write sharding. Write sharding adds complexity for both read and write operations, so we should consider the trade-offs carefully.</p>
+<p>The second question we need to answer is, how many partitions should we have? It can be based on write volume or DAU. The important thing to remember is that there is a trade-off between load on partitions and read complexity. Because data for the same month is spread evenly across multiple partitions, the load for a single partition is much lighter. However, to read items for a given month, we have to query all the partitions and merge the results, which adds read complexity.</p>
+<p>The partition key looks something like this: “<em>game_name#{year-month}#p{partition_number}</em>”. Figure 24 shows the updated schema table.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table depicting a global secondary index.  The table is divided into five columns. The first column, labeled 'Partition key (PK)', contains unique identifiers formatted as 'chess#YYYY-MM#pX', where YYYY-MM represents a year and month, and pX represents a partition number. The second column, 'Sort key (score)', contains numerical values representing scores, seemingly associated with each partition key. The remaining three columns, collectively labeled 'Attributes', list user information: 'user_id' (a unique username), 'email' (the user's email address), and 'profile_pic' (a URL pointing to the user's profile picture stored on a CDN, 'cdn.example'). Each row in the table represents a data entry, linking a specific partition key and score to a user's ID, email, and profile picture URL.  The table shows several example entries and indicates that more data exists ('...') beyond the visible rows.  The data suggests a system where user data is partitioned and sorted based on a score, allowing for efficient retrieval based on both partition key and score." loading="lazy" width="560" height="230" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(560px, 100vw), (max-width: 1200px) min(560px, 80vw), min(560px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-24-updated-partition-key-WDZGBZGP.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 24 Updated partition key</figcaption></div></figure>
+<p>The global secondary index uses “<em>game_name#{year-month}#p{partition_number}</em>” as the partition key and the score as the sort key. What we end up with are <em>N</em> partitions that are all sorted within their own partition (locally sorted). If we assume we had 3 partitions, then in order to fetch the top 10 leaderboard, we would use the approach called “scatter-gather” mentioned earlier. We would fetch the top 10 results in each of the partitions (this is the “scatter” portion), and then we would allow the application to sort the results among all the partitions (this is the “gather” portion). An example is shown in Figure 25.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for generating a top 10 leaderboard from data partitioned across three sources.  Three tables, labeled 'top 10 from partition 0 (scatter)', 'top 10 from partition 1 (scatter)', and 'top 10 from partition 2 (scatter)', each contain the top 10 entries from a respective partition. Each table has three columns: 'Partition key (PK)', 'Sort key (score)', and 'user_id'.  The 'Partition key (PK)' column contains a unique identifier for each partition (e.g., 'chess#2020-02#p0'). The 'Sort key (score)' column contains a numerical score, and the 'user_id' column contains a user identifier.  Arrows labeled 'gather' connect each of these three tables to a final table, 'Top 10 leaderboard,' which has columns 'score' and 'user_id'. The 'gather' operation implies that the data from the three source tables are combined, and then sorted by the 'score' column to produce the final top 10 leaderboard.  The final leaderboard shows the top 10 users based on their scores, aggregated from the three partitions." loading="lazy" width="650" height="484" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(650px, 100vw), (max-width: 1200px) min(650px, 80vw), min(650px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Ffigure-25-scatter-gather-TTZSXIYA.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 25 Scatter-gather</figcaption></div></figure>
+<p>How do we decide on the number of partitions? This might require some careful benchmarking. More partitions decrease the load on each partition but add complexity, as we need to scatter across more partitions to build the final leaderboard. By employing benchmarking, we can see the trade-off more clearly.</p>
+<p>However, similar to the Redis partition solution mentioned earlier, this approach doesn’t provide a straightforward solution for determining the relative rank of a user. But it is possible to get the percentile of a user’s position, which could be good enough. In real life, telling a player that they are in the top 10-20% might be better than showing the exact rank at eg.1,200,001. Therefore, if the scale is large enough that we needed to shard, we could assume that the score distributions are roughly the same across all shards. If this assumption is true, we could have a cron job that analyzes the distribution of the score for each shard, and caches that result.</p>
+<p>The result would look something like this:</p>
+<pre><code>10th percentile = score &lt; 100
+20th percentile = score &lt; 500
+...
+90th percentile = score &lt; 6500
+</code></pre>
+<p>Then we could quickly return a user's relative ranking (say 90th percentile).</p>
+<h3 id="step-4---wrap-up">Step 4 - Wrap Up</h3>
+<p>In this chapter, we have created a solution for building a real-time game leaderboard with the scale of millions of DAU. We explored the straightforward solution of using a MySQL database and rejected that approach because it does not scale to millions of users. We then designed the leaderboard using Redis sorted sets. We also looked into scaling the solution to 500 million DAU, by leveraging sharding across different Redis caches. We also proposed an alternative NoSQL solution.</p>
+<p>In the event you have some extra time at the end of the interview, you can cover a few more topics:</p>
+<p><strong>Faster retrieval and breaking tie</strong></p>
+<p>A Redis Hash provides a map between string fields and values. We could leverage a hash for 2 use cases:</p>
+<ol>
+<li>
+<p>To store a map of the user id to the user object that we can display on the leaderboard. This allows for faster retrieval than having to go to the database to fetch the user object.</p>
+</li>
+<li>
+<p>In the case of two players having the same scores, we could rank the users based on who received that score first. When we increment the score of the user, we can also store a map of the user id to the timestamp of the most recently won game. In the case of a tie, the user with the older timestamp ranks higher.</p>
+</li>
+</ol>
+<p><strong>System failure recovery</strong></p>
+<p>The Redis cluster can potentially experience a large-scale failure. Given the design above, we could create a script that leverages the fact that the MySQL database records an entry with a timestamp each time a user won a game. We could iterate through all of the entries for each user, and call ZINCRBY once per entry, per user. This would allow us to recreate the leaderboard offline if necessary, in case of a large-scale outage.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="chapter-summary">Chapter Summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mind map outlining the design process for a gaming leaderboard system.  The central node is 'Gaming Leaderboard,' branching into four main steps (step 1, 2, 3, and 4). Step 1 focuses on requirements, splitting into 'functional req' (display top 10, show a user's rank, show four places above and below the desired user) and 'non-functional req' (real-time update, scalable). Step 1 also includes 'estimation,' detailing expected daily active users (5 million DAU) and update score queries per second (2.5k). Step 2 addresses 'api design' (score point, get leaderboard, get player rank) and 'high-level design,' which considers 'data model' options: a relational database solution or a Redis solution. Step 3 explores deployment ('build on the cloud or not') and scaling ('scale Redis' or use an alternative NoSQL solution). Finally, step 4 addresses performance optimization ('faster retrieval and breaking tie') and system reliability ('system failure recovery').  The entire diagram illustrates a hierarchical breakdown of the design process, from initial requirements and estimations to high-level design choices, data modeling, scaling strategies, and considerations for system robustness." loading="lazy" width="600" height="724" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Freal-time-gaming-leaderboard%2Fchapter-summary-DXV7IGUO.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></figure>
+<h2 id="reference-material">Reference Material</h2>
+<p>[1] Redis Sorted Set source code:<br>
+<a href="https://github.com/redis/redis/blob/unstable/src/t_zset.c" target="_blank" rel="noopener noreferrer"><u>https://github.com/redis/redis/blob/unstable/src/t_zset.c</u></a></p>
+<p>[2] Geekbang:<br>
+<a href="https://static001.geekbang.org/resource/image/46/a9/46d283cd82c987153b3fe0c76dfba8a9.jpg" target="_blank" rel="noopener noreferrer"><u>https://static001.geekbang.org/resource/image/46/a9/46d283cd82c987153b3fe0c76dfba8a9.jpg</u></a></p>
+<p>[3] Building real-time Leaderboard with Redis:<br>
+<a href="https://medium.com/@sandeep4.verma/building-real-time-leaderboard-with-redis-82c98aa47b9f" target="_blank" rel="noopener noreferrer"><u>https://medium.com/@sandeep4.verma/building-real-time-leaderboard-with-redis-82c98aa47b9f</u></a></p>
+<p>[4] Build a real-time gaming leaderboard with Amazon ElastiCache for Redis:<br>
+<a href="https://aws.amazon.com/blogs/database/building-a-real-time-gaming-leaderboard-with-amazon-elasticache-for-redis" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/blogs/database/building-a-real-time-gaming-leaderboard-with-amazon-elasticache-for-redis</u></a></p>
+<p>[5] How we created a real-time Leaderboard for a million Users:<br>
+<a href="https://levelup.gitconnected.com/how-we-created-a-real-time-leaderboard-for-a-million-users-555aaa3ccf7b" target="_blank" rel="noopener noreferrer"><u>https://levelup.gitconnected.com/how-we-created-a-real-time-leaderboard-for-a-million-users-555aaa3ccf7b</u></a></p>
+<p>[6] Leaderboards: <a href="https://redislabs.com/solutions/use-cases/leaderboards" target="_blank" rel="noopener noreferrer"><u>https://redislabs.com/solutions/use-cases/leaderboards</u></a>/</p>
+<p>[7] Lambda: <a href="https://aws.amazon.com/lambda/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/lambda/</u></a></p>
+<p>[8] Google Cloud Functions: <a href="https://cloud.google.com/functions" target="_blank" rel="noopener noreferrer"><u>https://cloud.google.com/functions</u></a></p>
+<p>[9] Azure Functions: <a href="https://azure.microsoft.com/en-us/services/functions/" target="_blank" rel="noopener noreferrer"><u>https://azure.microsoft.com/en-us/services/functions/</u></a></p>
+<p>[10] Info command: <a href="https://redis.io/commands/INFO" target="_blank" rel="noopener noreferrer"><u>https://redis.io/commands/INFO</u></a></p>
+<p>[11] Why redis cluster only have 16384 slots:<br>
+<a href="https://stackoverflow.com/questions/36203532/why-redis-cluster-only-have-16384-slots" target="_blank" rel="noopener noreferrer"><u>https://stackoverflow.com/questions/36203532/why-redis-cluster-only-have-16384-slots</u></a></p>
+<p>[12] Cyclic redundancy check: <a href="https://en.wikipedia.org/wiki/Cyclic_redundancy_check" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Cyclic_redundancy_check</u></a></p>
+<p>[13] Choosing your node size:<br>
+<a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/nodes-select-size.html" target="_blank" rel="noopener noreferrer"><u>https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/nodes-select-size.html</u></a></p>
+<p>[14] How fast is Redis?: <a href="https://redis.io/topics/benchmarks" target="_blank" rel="noopener noreferrer"><u>https://redis.io/topics/benchmarks</u></a></p>
+<p>[15] Using Global Secondary Indexes in DynamoDB:<br>
+<a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html" target="_blank" rel="noopener noreferrer"><u>https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html</u></a><del>.</del></p>
+<p>[16] Leaderboard &amp; Write Sharding: <a href="https://www.dynamodbguide.com/leaderboard-write-sharding/" target="_blank" rel="noopener noreferrer"><u>https://www.dynamodbguide.com/leaderboard-write-sharding/</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="s3-like-object-storage.html">← Previous</a>
+        <a href="payment-system.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

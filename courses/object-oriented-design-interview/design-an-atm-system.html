@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design an ATM System - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design an ATM System
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-shipping-locker-system.html">← Previous</a>
+        <a href="design-a-restaurant-management-system.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">13</span> Design an ATM System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">13</strong><h1>Design an ATM System</h1></header><p>In this chapter, we will explore the object-oriented design of an ATM system. The primary purpose of an ATM is to automate banking tasks for users, allowing them to check balances, withdraw cash, and transfer funds. This design aims to make these operations seamless by designing classes that model key components, such as the ATM machine, bank accounts, hardware interfaces, and transaction states.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram of an ATM (Automated Teller Machine).  The diagram is a rectangular box, primarily gray, with a lighter gray top section labeled 'ATM' in bold, black, sans-serif font. Below the label is a larger rectangular area representing the main ATM screen, which is dark gray and blank.  Beneath the screen is a numerical keypad depicted as a grid of buttons, and to the right of the keypad is a slot, likely representing the card reader.  There are no explicit connections or data flows shown; the image solely presents a visual representation of the ATM's physical components and their arrangement." loading="lazy" width="624" height="389" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-1-TQG32XAN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Automated Teller Machine (ATM)</figcaption></div></figure>
+<p>Let’s gather the specific requirements through a simulated interview scenario.</p>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>Here is an example of a typical prompt an interviewer might give:</p>
+<p>“Picture yourself approaching an ATM on a busy afternoon to manage your banking needs. You insert your card, enter your PIN, and then choose from options such as checking your balance, withdrawing cash, or depositing funds. Within seconds, the system verifies your credentials and processes your request. Behind the scenes, the ATM coordinates with the bank, manages account transactions, and interacts with hardware like the card reader and cash dispenser. Now, let’s design an ATM system that handles these operations smoothly and reliably.”</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>The first step in designing the ATM system is to understand precisely what the interviewer wants you to design. Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate</strong>: For user interactions, I think the ATM should have a card reader to process debit cards, a keypad for entering the PIN and selecting options, a screen to display instructions and menus, a cash dispenser for withdrawals, and a deposit slot for accepting cash. Does this cover the main components, or are there additional ones I should consider?<br>
+<strong>Interviewer</strong>: That’s a solid list.</p>
+<p><strong>Candidate:</strong> I envision the ATM guiding users through a clear flow: the user inserts their card, enters a PIN for authentication, and then sees a menu with options like checking balance, withdrawing cash, or depositing funds. After completing a task, the ATM offers the choice to continue or exit, ejecting the card at the end. Does this flow align with your vision, or should I adjust any steps?<br>
+<strong>Interviewer:</strong> Your flow is accurate. It starts with card insertion, PIN entry, and a menu for tasks. After each task, the user can continue or exit, with the card ejected at the end.</p>
+<p><strong>Candidate:</strong> For authentication, I assume the ATM validates the card and PIN combination. If either is invalid, it displays an error.<br>
+<strong>Interviewer:</strong> Yes, the ATM validates the card and PIN, showing an error for invalid inputs. Including a limit of three PIN attempts before locking the card is a good security measure. Let’s keep that in scope.</p>
+<p><strong>Candidate:</strong> Regarding accounts, I propose that the ATM supports multiple accounts per user, such as Checking and Savings, linked to their card. Users can select an account for transactions. Does this match your requirements?<br>
+<strong>Interviewer:</strong> That’s correct. The ATM should support Checking and Savings accounts, with users able to select one for transactions. No additional account types are needed for now.</p>
+<p><strong>Candidate:</strong> For transactions, I think the ATM should handle Withdraw and Deposit operations. For example, withdrawals check for sufficient funds, and deposits update the balance. Should we include other transactions like transfers, or focus on these two?<br>
+<strong>Interviewer:</strong> Let’s focus on Withdraw and Deposit for simplicity. Transfers are out of scope for now. Ensure withdrawals validate funds and deposits process cash accurately.</p>
+<p><strong>Candidate:</strong> To handle errors, I suggest the ATM displays clear messages for issues like insufficient funds, invalid PINs, or hardware failures.<br>
+<strong>Interviewer:</strong> I agree that clear error messages are essential.</p>
+<h3 id=""></h3>
+<h3 id="requirements">Requirements</h3>
+<p>Based on the requirements gathering dialogue, the following functional requirements are identified for the ATM system:</p>
+<ul>
+<li>Authenticate users via a debit card and PIN.</li>
+<li>Support multiple accounts per user, including Checking and Savings account types, with the ability to select an account for transactions.</li>
+<li>The machine should include a Card Reader, Keypad, Screen, Cash Dispenser, Deposit Slot, and an optional Printer for receipts.</li>
+<li>Support Withdraw and Deposit transactions, ensuring withdrawals validate sufficient funds and deposits update the account balance.</li>
+<li>Handle exceptions, such as insufficient funds or incorrect inputs, by displaying clear error messages and retaining the card after repeated invalid attempts.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>The ATM must protect user data with strong security measures and retain cards after repeated invalid PIN attempts to ensure user trust.</li>
+<li>The ATM must operate reliably, minimizing disruptions and safely ejecting cards during failures to maintain user confidence.</li>
+</ul>
+<h2 id="use-case-diagram">Use Case Diagram</h2>
+<p>In the ATM system, a use case diagram illustrates how customers interact with the system to perform banking tasks, clarifying essential actions such as card insertion, PIN entry with up to three attempts, account selection, transaction processing, and error handling.</p>
+<p>Below is the use case diagram of the ATM system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a state diagram illustrating the interaction between a customer and an ATM system.  The diagram shows two stick figures representing the 'Customer' and the 'System'. A larger rectangle encloses the 'ATM' which contains several rounded rectangles representing states: 'Insert Card,' 'Enter PIN,' 'Validate Card and PIN,' 'Select Transaction,' 'Select Account,' 'Deposit Funds,' 'Withdraw Cash,' and 'Eject Card.'  Arrows indicate the flow of the interaction. The customer initiates the process by inserting their card, then entering their PIN. The ATM then validates the card and PIN.  Following validation, the customer selects a transaction (deposit or withdrawal). If the customer selects 'Deposit Funds,' they deposit funds, and the process proceeds to 'Eject Card.' If they select 'Withdraw Cash,' they select an account, withdraw cash, and the process proceeds to 'Eject Card.'  The 'System' actor is connected to the ATM, suggesting system-level control or monitoring of the ATM's operations.  All states, except for the initial 'Insert Card,' have connections back to the customer, indicating that the customer interacts with the ATM at each step. Finally, all paths converge to the 'Eject Card' state, concluding the transaction." loading="lazy" width="624" height="457" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-2-DLM4JIQ5.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Use Case Diagram of ATM</figcaption></div></figure>
+<p>The <strong>Customer</strong> actor has the following main use cases:</p>
+<ul>
+<li><strong>Insert Card:</strong> The customer initiates a session by inserting their card into the ATM.</li>
+<li><strong>Enter PIN:</strong> After inserting the card, the customer then enters their PIN for authentication.</li>
+<li><strong>Select Transaction:</strong> The customer chooses a transaction type, such as withdrawing cash or depositing funds, from the menu.</li>
+<li><strong>Select Account:</strong> The customer selects an account (e.g., Checking or Savings) for the transaction.</li>
+<li><strong>Withdraw Cash:</strong> The customer requests a cash withdrawal and specifies the desired amount.</li>
+<li><strong>Deposit Funds:</strong> The customer deposits cash into the ATM.</li>
+<li><strong>Eject Card:</strong> The customer requests card ejection (e.g., by canceling or ending the session), the ATM ejects the card, and the session terminates.</li>
+</ul>
+<p>The <strong>System</strong> actor's use cases are listed below. Note that actors may not always be human.</p>
+<ul>
+<li><strong>Validate Card and PIN:</strong> The system verifies the customer’s card and PIN to grant access to banking options.</li>
+<li><strong>Withdraw Cash:</strong> The system processes the withdrawal request, confirms sufficient funds, and dispenses cash.</li>
+<li><strong>Deposit Funds:</strong> The system accepts the deposited cash and updates the customer’s account balance accordingly.</li>
+<li><strong>Eject Card:</strong> The ATM ejects the card, and the session ends.</li>
+</ul>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>To design a modular and maintainable ATM system, we identify core objects that encapsulate distinct responsibilities, aligning with the functional requirements and user flow. These objects model the system’s key entities and interactions, ensuring clear separation of concerns and extensibility.</p>
+<p><strong>Bank</strong>: Stores and manages accounts.</p>
+<p><strong>Account:</strong> Represents a customer’s bank account. Manages a customer’s account details, including balance, account number, card number, PIN (hashed for security), and account type (Checking or Savings).</p>
+<p><strong>ATMMachine</strong>: Acts as the main coordinator, managing user interaction and connecting with hardware elements like the card reader, keypad, screen, cash dispenser, and deposit slot.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We consolidate hardware access and management within the ATMMachine
+object to ensure consistent behavior across components, enabling a seamless user
+flow from card insertion to transaction completion.</p></div>
+<p><strong>Transaction</strong>: Manages financial transactions like cash withdrawals and deposits, including validation checks (e.g., sufficient balance for withdrawals) and transaction execution.</p>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>With the core objects and their roles defined, we now design their classes, attributes, and methods to construct a modular and extensible ATM system that meets the specified requirements.</p>
+<h3 id="account">Account</h3>
+<p>This class represents a customer’s bank account as a distinct entity within the ATM system, encapsulating the essential data and operations needed to support user authentication and financial transactions.</p>
+<p>The Account class manages critical information, including the account balance, account number, associated card number, and PIN, while using an AccountType enum to distinguish between account types like Checking and Savings. It enables authentication by validating the PIN and supports transactions by updating the balance for withdrawals and deposits, ensuring the account’s state reflects the user’s financial activities accurately and efficiently.</p>
+<p>Below are representations of those classes.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram showing the `Account` class and its relationship with the `AccountType` enumeration.  The `Account` class is depicted as a rectangle with a 'C' in the upper left corner, indicating it's a class.  Inside, it lists private member variables: `BigDecimal balance`, `String accountNumber`, `String cardNumber`, `byte[] cardPinHash`, and `AccountType accountType`.  It also shows public methods: a constructor `Account(String accountNumber, AccountType type, String cardNumber, String pin)`, a `boolean validatePin(String pinNumber)` method, and a `void updateBalanceWithTransaction(BigDecimal balanceChange)` method.  A solid diamond-shaped arrow connects the `Account` class to the `AccountType` enumeration, represented by a rectangle with an 'E' in the upper left corner, signifying it's an enumeration.  The `AccountType` enumeration lists two possible values: `CHECKING` and `SAVING`.  The diamond indicates a composition relationship, meaning an `Account` object *has-a* `AccountType`." loading="lazy" width="512" height="358" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-3-F47Y7HV4.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Account class and AccountType enum</figcaption></div></figure>
+<div class="info-box"><img alt="Important Discussion" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/best-practices-JGJTZRTW.svg" style="color: transparent;"><p><strong>Important discussion:</strong> Rather than maintaining a transaction ledger for auditability
+and deriving the balance from it, as is typical in real-world banking, we simplify
+the system by directly updating the account balance during each transaction. This
+approach prioritizes the ATM’s core functionality and effective scope management.</p></div>
+<h3 id="bank">Bank</h3>
+<p>In object-oriented design questions, systems are usually self-contained and don't use real databases or web service API calls. The Bank class is designed to be a separate component that handles the main data and operations needed for the ATM to work.</p>
+<p>The Bank class stores Account objects and links them to cards for fast retrieval, enabling efficient card and PIN validation for authentication, account access for transactions, and funds availability checks for withdrawals.</p>
+<p>To ensure flexibility and scalability, we define a BankInterface to decouple the Bank implementation from the ATM. This allows the local Bank object to be easily replaced with a networked implementation, such as an API client adapter, if the system were to be extended for production use, without modifying the ATM’s core logic.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram illustrating the relationship between a `BankInterface` and a `Bank` class.  The top rectangle denotes `BankInterface`, an interface defining six public methods: `addAccount` (taking account number, account type, card number, and pin as String parameters), `validateCard` (returning a boolean and taking a card number String), `checkPin` (returning a boolean and taking card number and pin number Strings), `getAccountByAccountNumber` (returning an `Account` object and taking an account number String), `getAccountByCard` (returning an `Account` object and taking a card number String), and `withdrawFunds` (returning a boolean and taking an `Account` object and a `BigDecimal` amount).  A dashed arrow points from `BankInterface` to a `Bank` class rectangle below, indicating that the `Bank` class implements the `BankInterface`. The `Bank` class contains two private member variables: `accounts`, a `Map` with String keys and `Account` objects as values, and `accountByCard`, another `Map` with the same structure.  The diagram shows that the `Bank` class uses these maps to manage accounts, implementing the functionality specified in the `BankInterface`." loading="lazy" width="502" height="328" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-4-WN37RIN6.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">BankInterface interface and concrete class</figcaption></div></figure>
+<div class="info-box"><img alt="Alternative Approach" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/alternative-V7JF2HWI.svg" style="color: transparent;"><p><strong>Alternative approach:</strong> We could integrate the Bank’s functionality directly
+into the ATMMachine. However, this would tightly couple account management with
+the ATM’s operations, reducing modularity and making it harder to adapt the system
+for networked banking or other extensions in the future.</p></div>
+<h3 id="transaction">Transaction</h3>
+<p>The purpose of designing the Transaction class is to provide a unified framework for handling financial operations in the ATM system, enabling the system to process withdrawals and deposits consistently and reliably.</p>
+<p>The Transaction class, as an interface, defines a contract for all transaction types, supported by a TransactionType enum that specifies Withdraw and Deposit operations. It validates transactions, such as checking funds for withdrawals, and updates the account balance, using concrete classes like WithdrawTransaction and DepositTransaction for reliable processing.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> By abstracting Transaction as a separate object, we can represent
+different transaction types (e.g., Withdraw, Deposit) with shared behavior, making
+it easier to introduce new types in the future without modifying the core logic.</p></div>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram illustrating an object-oriented design for handling financial transactions.  At the top, an enumeration `TransactionType` is defined with two values: `WITHDRAW` and `DEPOSIT`.  An arrow points downwards from `TransactionType` to an interface `Transaction`, indicating that `TransactionType` is used by `Transaction`. The `Transaction` interface declares three methods: `getType()`, which returns a `TransactionType`; `validateTransaction()`, which returns a boolean indicating transaction validity; and `executeTransaction()`, a void method for executing the transaction.  Two classes, `DepositTransaction` and `WithdrawTransaction`, implement the `Transaction` interface (shown by dashed arrows). Both classes have private member variables `account` (of type `Account`) and `amount` (of type `BigDecimal`), and a constructor taking an `Account` and a `BigDecimal` as parameters.  The diagram shows a clear inheritance hierarchy where the concrete transaction types (`DepositTransaction` and `WithdrawTransaction`) implement the common interface `Transaction`, which in turn uses the `TransactionType` enumeration to define the type of transaction." loading="lazy" width="624" height="407" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-5-EE2MJ3WH.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Transaction interface and concrete classes</figcaption></div></figure>
+<h3 id="atmstate">ATMState</h3>
+<p>The purpose of designing the ATMState interface is to provide a framework for handling the distinct stages of the ATM’s interaction process, ensuring the ATMMachine can manage each user step systematically.</p>
+<p>​​​​The ATMState interface defines the operations for each stage of the ATM’s flow, such as card insertion, PIN entry, transaction selection, and cash handling. Concrete state classes like IdleState, PinEntryState, TransactionSelectionState, WithdrawAmountEntryState, and DepositCollectionState implement the specific behavior for each stage.</p>
+<p>The following diagram shows the class hierarchy of ATMState and its concrete states:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a state diagram illustrating the different states of an ATM machine using an object-oriented design.  The central component is an interface named `ATMState`, defining methods for handling various ATM operations: `processCardInsertion`, `processPinEntry`, `processWithdrawalRequest`, `processAmountEntry`, `processDepositRequest`, `processDepositCollection`, and `processCardEjection`.  Each method takes an `ATMMachine` object and optionally a `String` or `BigDecimal` as parameters.  Four concrete classes, `IdleState`, `PinEntryState`, `TransactionSelectionState`, and `WithdrawAmountEntryState`, and `DepositCollectionState` implement the `ATMState` interface.  Dashed lines with arrowheads indicate that these classes extend the `ATMState` interface.  Each concrete class implements a subset of the methods defined in the interface, representing the actions possible in that specific ATM state. For example, `IdleState` only implements `processCardInsertion`, while `PinEntryState` implements `processPinEntry` and `processCardEjection`.  The diagram shows the flow of control between states, implying a state machine where the ATM transitions between these states based on user interactions and the results of those interactions." loading="lazy" width="624" height="404" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-6-JVWU2ZGZ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">ATMState interface and concrete classes</figcaption></div></figure>
+<p>The following state transition diagram visualizes this design.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a state diagram depicting the workflow of an ATM.  The diagram starts with a filled black circle labeled 'Start,' which points to a rounded rectangle labeled 'IdleState.'  From 'IdleState,' an arrow labeled 'insertCard' leads to 'PinEntryState,' while a self-loop labeled 'invalidCard/ejectCard' indicates handling invalid card insertion.  'PinEntryState' has a self-loop labeled 'incorrect' and an arrow labeled 'correct' leading to 'TransactionSelectionState.'  From 'TransactionSelectionState,' arrows labeled 'withdrawRequest' and 'depositRequest' lead to 'WithdrawAmountEntryState' and 'DepositCollectionState,' respectively.  'WithdrawAmountEntryState' has an arrow labeled 'withdrawComplete/ejectCard' returning to 'IdleState,' and another labeled 'insufficientFunds/ejectCard' also returning to 'IdleState.' Similarly, 'DepositCollectionState' has arrows labeled 'depositComplete/ejectCard' and 'invalidDeposit/ejectCard' returning to 'IdleState.'  Finally, arrows labeled 'ejectCard' connect 'PinEntryState,' 'TransactionSelectionState,' 'WithdrawAmountEntryState,' and 'DepositCollectionState' back to 'IdleState,' representing card ejection in various scenarios.  All states are represented as rounded rectangles, and transitions are represented by arrows with descriptive labels indicating the event and any resulting actions." loading="lazy" width="624" height="381" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-7-JZM2GVT3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">State transition diagram</figcaption></div></figure>
+<ul>
+<li>IdleState: Awaits card insertion, transitions to PinEntryState on valid card.</li>
+<li>PinEntryState: Processes PIN entry, transitions to TransactionSelectionState on valid PIN.</li>
+<li>TransactionSelectionState: Processes transaction selection, transitions to WithdrawAmountEntryState or DepositCollectionState.</li>
+<li>WithdrawAmountEntryState: Handles withdrawal amount entry, executes transaction, returns to TransactionSelectionState or IdleState.</li>
+<li>DepositCollectionState: Processes deposit amount, executes transaction, returns to TransactionSelectionState or IdleState.</li>
+</ul>
+<p><em>Note</em>: To learn more about the State pattern and its everyday use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-vending-machine">Vending Machine</a></strong> chapter of the book.</p>
+<h3 id="hardware-component-interfaces">Hardware component interfaces</h3>
+<p>The purpose of designing the hardware component interfaces is to provide a set of interfaces that handle user interactions and physical operations within the ATM system, ensuring the ATMMachine can operate independently of specific hardware implementations.</p>
+<p>The hardware components, including CardProcessor, Keypad, Display, CashDispenser, and DepositBox, define the operations needed for interacting with the user and managing physical tasks, such as reading cards, accepting PIN entries, displaying messages, dispensing cash, and collecting deposits. They enable the ATMMachine to perform these tasks through well-defined interfaces, ensuring flexibility and ease of testing with simulated implementations.</p>
+<h4 id="cardprocessor">CardProcessor</h4>
+<p>The CardProcessor interface enables the ATMMachine to read a card during insertion and release it after the user’s session, managing card-related operations for starting and ending transactions.</p>
+<h4 id="keypad">Keypad</h4>
+<p>The Keypad interface captures user inputs such as PINs, transaction choices, and amounts.</p>
+<h4 id="depositbox">DepositBox</h4>
+<p>The DepositBox interface collects the deposited amount during a deposit transaction, enabling the ATMMachine to handle cash deposits from users.</p>
+<h4 id="cashdispenser">CashDispenser</h4>
+<p>The CashDispenser interface delivers the requested cash to the user during a withdrawal transaction.</p>
+<h4 id="display">Display</h4>
+<p>The Display interface shows messages and prompts to guide the user.</p>
+<p>​​The following diagram shows the hardware component interfaces and their relationship with the ATMMachine:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the object-oriented design of an ATM machine.  The central component is a class labeled 'ATM Machine' represented by a rectangle with a 'C' in a circle at the top-left corner, indicating it's a class.  From this central class, five solid lines with filled diamond heads extend to five interfaces, represented by rectangles with an 'I' in a circle at the top-left corner. These interfaces are: 'CardProcessor', 'Keypad', 'DepositBox', 'CashDispenser', and 'Display'. The filled diamond heads on the lines indicate a composition relationship, meaning the ATM Machine *contains* instances of these interfaces.  No data flow is explicitly shown; the diagram only depicts the structural relationship between the ATM Machine class and its constituent interfaces, suggesting that the ATM Machine class utilizes the functionality provided by each of these interfaces." loading="lazy" width="624" height="149" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-8-F2PO3GDE.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Hardware component interfaces</figcaption></div></figure>
+<h3 id="atmmachine">ATMMachine</h3>
+<p>The ATMMachine class acts as a facade for the ATM system, orchestrating user interactions, coordinating hardware components while relying on a Bank instance to access Account data and process Transactions. It uses the ATMState class to manage the sequence of steps in a user’s session, ensuring a clear and reliable experience from card insertion to session end.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram for an `ATMMachine` class.  The diagram shows the `ATMMachine` class, denoted by a 'C' in a circle, containing both attributes and methods.  The attributes, preceded by a minus sign (□), are: `ATMState state`, `CardProcessor cardProcessor`, `DepositBox depositBox`, `CashDispenser cashDispenser`, `Keypad keypad`, `Display display`, and `Bank bank`. These represent the internal components and connections of the ATM. The methods, preceded by a solid circle (•), define the ATM's functionality: `ATMMachine` (constructor, taking instances of `Bank`, `CardProcessor`, `DepositBox`, `CashDispenser`, `Keypad`, and `Display` as arguments), `insertCard` (takes a `String` card number), `enterPin` (takes a `String` pin), `withdrawRequest`, `enterAmount` (takes a `BigDecimal` amount), `depositRequest`, `collectDeposit` (takes a `BigDecimal` amount), `ejectCard`, and `transitionToState` (takes an `ATMState` object).  The arrangement shows the `ATMMachine` class encapsulating these attributes and methods, illustrating the object-oriented design principle of data hiding and method exposure.  No explicit connections between the attributes are shown, implying loose coupling between them, managed internally by the `ATMMachine` class methods." loading="lazy" width="571" height="304" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-9-4J2KPOS5.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We employ the State pattern with ATMState classes to manage
+the ATM’s sequential workflow, such as transitioning from card insertion to PIN
+entry, ensuring each stage is encapsulated and clearly defined. Additionally, we
+use interface-based hardware components (e.g., CardProcessor, Keypad) to abstract
+physical interactions. This separation of concerns enhances modularity, simplifies
+maintenance, and enables testing with mock hardware implementations.</p></div>
+<p>With all classes defined, let’s review how they fit together in the complete class diagram.</p>
+<h3 id="complete-class-diagram">Complete Class Diagram</h3>
+<p>Take a moment to review the complete class structure and the relationships between them. The detailed methods and attributes are skipped to make the diagram more readable.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the interaction between different components of an ATM system.  The topmost element is a class named `ATMmachine`, which is connected via a solid arrow to an interface named `BankInterface`.  A note attached to `ATMmachine` specifies its internal components: `Display`, `CashDispenser`, `DepositBox`, `CardProcessor`, `Keypad`, and `ATMState`. The `BankInterface` is implemented by a class called `Bank`, indicated by a dashed arrow with a hollow triangle. The `Bank` class has two solid arrows pointing to a class `Account` and an interface `Transaction`, representing a composition relationship where `Bank` contains or manages both `Account` and `Transaction` objects.  Finally, a solid arrow connects `Transaction` to `Account`, suggesting that transactions operate on accounts.  The overall diagram depicts the flow of information from the `ATMmachine` through the `BankInterface` to the `Bank`, which then interacts with `Account` objects via `Transaction` objects." loading="lazy" width="569" height="548" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-an-automated-teller-machine-atm/image-13-10-WK5XDDD2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Summarized Class Diagram of ATM System</figcaption></div></figure>
+<h2 id="code---atm-system">Code - ATM System</h2>
+<p>In this section, we will implement the core functionalities of the ATM System, focusing on key areas such as defining different account types and transactions, managing accounts and banking operations, handling user interactions through hardware components, and implementing the ATM’s interaction flow using a state machine.</p>
+<h3 id="account-1">Account</h3>
+<p>The Account class represents a bank account in our ATM system, encapsulating core banking attributes like balance, account number, card details, and account type. It maintains security through PIN hashing and is designed with a mix of immutable (accountNumber, cardNumber, accountType, and cardPinHash) and mutable (balance) fields. This ensures account identity remains constant while allowing balance updates for deposits and withdrawals.</p>
+<p>Tied to this, the AccountType enum defines the type of account a customer can hold, currently supporting CHECKING and SAVING types. This simple enum design enables type-safe account categorization while allowing for future expansion of account types.</p>
+<p>Below is the code implementation of the Account class and AccountType enum:</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Represents a bank account with balance, card details, and PIN security</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Account</span> {
+
+    <span class="hljs-keyword">private</span> BigDecimal balance;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String accountNumber;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String cardNumber;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">byte</span>[] cardPinHash;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AccountType accountType;
+
+    <span class="hljs-comment">// Creates a new account with initial zero balance and hashed PIN</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Account</span><span class="hljs-params">(
+            <span class="hljs-keyword">final</span> String accountNumber,
+            <span class="hljs-keyword">final</span> AccountType type,
+            <span class="hljs-keyword">final</span> String cardNumber,
+            <span class="hljs-keyword">final</span> String pin)</span> {
+        <span class="hljs-built_in">this</span>.accountNumber = accountNumber;
+        <span class="hljs-built_in">this</span>.accountType = type;
+        <span class="hljs-built_in">this</span>.cardNumber = cardNumber;
+        <span class="hljs-built_in">this</span>.cardPinHash = calculateMd5(pin); <span class="hljs-comment">// PIN is hashed for security</span>
+        <span class="hljs-built_in">this</span>.balance = BigDecimal.ZERO;
+    }
+
+    <span class="hljs-comment">// Validates the entered PIN against stored hash</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">validatePin</span><span class="hljs-params">(String pinNumber)</span> {
+        <span class="hljs-type">byte</span>[] entryPinHash = calculateMd5(pinNumber);
+        <span class="hljs-keyword">return</span> Arrays.equals(cardPinHash, entryPinHash);
+    }
+
+    <span class="hljs-comment">// Updates account balance by adding the specified amount</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateBalanceWithTransaction</span><span class="hljs-params">(<span class="hljs-keyword">final</span> BigDecimal balanceChange)</span> {
+        <span class="hljs-built_in">this</span>.balance = <span class="hljs-built_in">this</span>.balance.add(balanceChange);
+    }
+
+    <span class="hljs-comment">// getter methods omitted for brevity</span>
+
+}
+
+<span class="hljs-comment">// Defines the type of bank account</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">AccountType</span> {
+    <span class="hljs-comment">// Regular checking account for daily transactions</span>
+    CHECKING,
+    <span class="hljs-comment">// Interest-bearing savings account</span>
+    SAVING
+}
+</code></pre>
+<ul>
+<li>The validatePin method ensures secure authentication by comparing the hashed input PIN with the stored hash.</li>
+<li>The updateBalanceWithTransaction handles both deposits and withdrawals through a single method that adds the transaction amount (positive for deposits, negative for withdrawals) to the current balance.</li>
+</ul>
+<p><strong>Implementation choice:</strong> We have used BigDecimal for balance to ensure precise financial calculations, while the immutable fields for account identity (accountNumber, cardNumber) maintain data consistency throughout the account's lifecycle.</p>
+<h3 id="bank-1">Bank</h3>
+<p>The BankInterface defines the contract for banking operations in the ATM system. Its concrete implementation, the Bank class, provides a local implementation to manage accounts and handle operations like card validation and fund withdrawals. This separation allows the system to remain flexible, supporting potential future extensions such as replacing the Bank with a networked implementation.</p>
+<p>Here’s how it’s structured:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">BankInterface</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">addAccount</span><span class="hljs-params">(String accountNumber, AccountType type, String cardNumber, String pin)</span>;
+
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">validateCard</span><span class="hljs-params">(String cardNumber)</span>;
+
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">checkPin</span><span class="hljs-params">(String cardNumber, String pinNumber)</span>;
+
+    Account <span class="hljs-title function_">getAccountByAccountNumber</span><span class="hljs-params">(String accountNumber)</span>;
+
+    Account <span class="hljs-title function_">getAccountByCard</span><span class="hljs-params">(String cardNumber)</span>;
+
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">withdrawFunds</span><span class="hljs-params">(Account account, BigDecimal amount)</span>;
+}
+
+<span class="hljs-comment">// Manages bank accounts and provides banking operations like validation and transactions</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Bank</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">BankInterface</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Account&gt; accounts = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Account&gt; accountByCard = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-comment">// Creates a new account and stores it in both account and card maps</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addAccount</span><span class="hljs-params">(
+            <span class="hljs-keyword">final</span> String accountNumber,
+            <span class="hljs-keyword">final</span> AccountType type,
+            <span class="hljs-keyword">final</span> String cardNumber,
+            <span class="hljs-keyword">final</span> String pin)</span> {
+        <span class="hljs-keyword">final</span> <span class="hljs-type">Account</span> <span class="hljs-variable">newAccount</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Account</span>(accountNumber, type, cardNumber, pin);
+        accounts.put(newAccount.getAccountNumber(), newAccount);
+        accountByCard.put(newAccount.getCardNumber(), newAccount);
+    }
+
+    <span class="hljs-comment">// Checks if a card number exists in the bank's records</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">validateCard</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String cardNumber)</span> {
+        <span class="hljs-keyword">return</span> getAccountByCard(cardNumber) != <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-comment">// Verifies if the provided PIN matches the card's stored PIN</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">checkPin</span><span class="hljs-params">(String cardNumber, String pinNumber)</span> {
+        <span class="hljs-type">Account</span> <span class="hljs-variable">account</span> <span class="hljs-operator">=</span> getAccountByCard(cardNumber);
+        <span class="hljs-keyword">if</span> (account != <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> account.validatePin(pinNumber);
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+
+    <span class="hljs-comment">// Retrieves account by account number</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Account <span class="hljs-title function_">getAccountByAccountNumber</span><span class="hljs-params">(String accountNumber)</span> {
+        <span class="hljs-keyword">return</span> accounts.get(accountNumber);
+    }
+
+    <span class="hljs-comment">// Retrieves account by card number</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Account <span class="hljs-title function_">getAccountByCard</span><span class="hljs-params">(String cardNumber)</span> {
+        <span class="hljs-keyword">return</span> accountByCard.get(cardNumber);
+    }
+
+    <span class="hljs-comment">// Attempts to withdraw specified amount from account if sufficient funds exist</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">withdrawFunds</span><span class="hljs-params">(Account account, BigDecimal amount)</span> {
+        <span class="hljs-keyword">if</span> (account.getBalance().compareTo(amount) &gt;= <span class="hljs-number">0</span>) {
+            account.updateBalanceWithTransaction(amount.negate());
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+}
+</code></pre>
+<p>The Bank class implements efficient account management through:</p>
+<p><strong>Two HashMaps for O(1) lookup time:</strong></p>
+<ul>
+<li>accounts: Maps account numbers to Account objects</li>
+<li>accountByCard: Maps card numbers to Account objects for quick access by card number during authentication and transactions.</li>
+</ul>
+<p><strong>Account operations:</strong></p>
+<ul>
+<li>addAccount: Creates new accounts.</li>
+<li>validateCard: Checks if the card number is associated with an account, used during card insertion.</li>
+<li>checkPin: Verifies the PIN for the given card, enabling user authentication.</li>
+<li>withdrawFunds: Processes withdrawals with balance checks.</li>
+</ul>
+<p><strong>Implementation choice:</strong> We chose HashMap for both accounts (mapping account numbers to Account objects) and accountByCard (mapping card numbers to Account objects) because it provides average-case O(1) time complexity for lookups, ensuring fast performance for real-time operations like card validation and account retrieval during a user session.</p>
+<h3 id="transaction-1">Transaction</h3>
+<p>The Transaction interface establishes a consistent framework for handling all financial transactions within the ATM system. It ensures that different transaction types, such as withdrawals and deposits, adhere to a uniform process for validation and execution. The WithdrawTransaction and DepositTransaction classes implement this interface to manage their respective operations. This abstraction promotes extensibility, making it easy to introduce new transaction types, like transfers, without altering existing code.</p>
+<p>Here is the implementation of the interface and its concrete classes.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Transaction</span> {
+    TransactionType <span class="hljs-title function_">getType</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">validateTransaction</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">executeTransaction</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-comment">// Handles the withdrawal transaction process for removing funds from an account</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WithdrawTransaction</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Transaction</span> {
+    Account account;
+    BigDecimal amount;
+
+    <span class="hljs-comment">// Returns the transaction type as WITHDRAW</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> TransactionType <span class="hljs-title function_">getType</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> TransactionType.WITHDRAW;
+    }
+
+    <span class="hljs-comment">// Validates if the account has sufficient funds for withdrawal</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">validateTransaction</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">assert</span> account != <span class="hljs-literal">null</span>;
+        <span class="hljs-keyword">return</span> account.getBalance().compareTo(amount) &gt; <span class="hljs-number">0</span>;
+    }
+
+    <span class="hljs-comment">// Creates a new withdrawal transaction, throws exception if validation fails</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">WithdrawTransaction</span><span class="hljs-params">(Account account, BigDecimal amount)</span> {
+        <span class="hljs-keyword">if</span> (!validateTransaction()) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(
+                    <span class="hljs-string">"Cannot complete withdrawal: Insufficient funds in account"</span>);
+        }
+        <span class="hljs-built_in">this</span>.account = account;
+        <span class="hljs-built_in">this</span>.amount = amount;
+    }
+
+    <span class="hljs-comment">// Executes the withdrawal by subtracting the amount from account balance</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">executeTransaction</span><span class="hljs-params">()</span> {
+        account.updateBalanceWithTransaction(amount.negate());
+    }
+}
+
+<span class="hljs-comment">// Handles the deposit transaction process for adding funds to an account</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DepositTransaction</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Transaction</span> {
+    <span class="hljs-keyword">final</span> Account account;
+    <span class="hljs-keyword">final</span> BigDecimal amount;
+
+    <span class="hljs-comment">// Returns the transaction type as DEPOSIT</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> TransactionType <span class="hljs-title function_">getType</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> TransactionType.DEPOSIT;
+    }
+
+    <span class="hljs-comment">// Deposit transactions are always valid</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">validateTransaction</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DepositTransaction</span><span class="hljs-params">(Account account, BigDecimal amount)</span> {
+        <span class="hljs-built_in">this</span>.account = account;
+        <span class="hljs-built_in">this</span>.amount = amount;
+    }
+
+    <span class="hljs-comment">// Executes the deposit by adding the amount to the account balance</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">executeTransaction</span><span class="hljs-params">()</span> {
+        account.updateBalanceWithTransaction(amount);
+    }
+}
+</code></pre>
+<p>The Transaction interface includes essential methods to manage transactions:</p>
+<ul>
+<li>getType(): Returns the transaction type (e.g., WITHDRAW or DEPOSIT).</li>
+<li>validateTransaction(): Validates the transaction’s feasibility, such as checking funds availability for withdrawals.</li>
+<li>executeTransaction(): Executes transaction by updating the account balance.</li>
+</ul>
+<h3 id="atmstate-1">ATMState</h3>
+<p>The ATMState abstract class forms the foundation of our ATM's state machine, ensuring that each stage of the user flow, from card insertion to transaction completion, follows a consistent process. Its seven concrete implementations manage distinct stages, enabling the ATMMachine to execute the user flow by transitioning between states as the user progresses through their session.</p>
+<p>The ATMState interface includes essential methods to manage each stage:</p>
+<ul>
+<li>processCardInsertion(String cardNumber): Handles card insertion, used at the start of a session.</li>
+<li>processCardEjection(): Handles card ejection, which is used to end a session.</li>
+<li>processPinEntry(String pinNumber): Processes PIN entry for authentication.</li>
+<li>processWithdrawalRequest(): Initiates a withdrawal transaction.</li>
+<li>processDepositRequest(): Initiates a deposit transaction.</li>
+<li>processAmountEntry(BigDecimal amount): Processes the amount for withdrawals.</li>
+<li>processDepositCollection(BigDecimal amount): Processes the amount for deposits.</li>
+</ul>
+<p>Below is the implementation for the ATMState interface, showing its default behavior, followed by implementations of IdleState and WithdrawAmountEntryState:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ATMState</span> {
+    <span class="hljs-comment">// Displays an invalid action message on the ATM screen</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">renderDefaultAction</span><span class="hljs-params">(ATMMachine atmMachine)</span> {
+        atmMachine.getDisplay().showMessage(<span class="hljs-string">"Invalid action, please try again."</span>);
+    }
+
+    <span class="hljs-comment">// Default implementation for card insertion</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processCardInsertion</span><span class="hljs-params">(ATMMachine atmMachine, String cardNumber)</span> {
+        renderDefaultAction(atmMachine);
+    }
+
+    <span class="hljs-comment">// Default implementation for card ejection</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processCardEjection</span><span class="hljs-params">(ATMMachine atmMachine)</span> {
+        renderDefaultAction(atmMachine);
+    }
+
+    <span class="hljs-comment">// Default implementation for PIN entry</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processPinEntry</span><span class="hljs-params">(ATMMachine atmMachine, String pin)</span> {
+        renderDefaultAction(atmMachine);
+    }
+
+    <span class="hljs-comment">// Default implementation for withdrawal request</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processWithdrawalRequest</span><span class="hljs-params">(ATMMachine atmMachine)</span> {
+        renderDefaultAction(atmMachine);
+    }
+
+    <span class="hljs-comment">// Default implementation for deposit request</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processDepositRequest</span><span class="hljs-params">(ATMMachine atmMachine)</span> {
+        renderDefaultAction(atmMachine);
+    }
+
+    <span class="hljs-comment">// Default implementation for amount entry</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processAmountEntry</span><span class="hljs-params">(ATMMachine atmMachine, BigDecimal amount)</span> {
+        renderDefaultAction(atmMachine);
+    }
+
+    <span class="hljs-comment">// Default implementation for deposit collection</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processDepositCollection</span><span class="hljs-params">(ATMMachine atmMachine, BigDecimal amount)</span> {
+        renderDefaultAction(atmMachine);
+    }
+}
+
+</code></pre>
+<p>The IdleState waits for the user to insert a card and start the session, supporting only card insertion. If the card is valid, it transitions to PinEntryState. Otherwise, it displays an error.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">IdleState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">ATMState</span> {
+    <span class="hljs-comment">/**
+     * This method is called when a card is inserted into the ATM. This transitions the ATM to the
+     * PinEntryState if the card is valid.
+     */</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processCardInsertion</span><span class="hljs-params">(ATMMachine atmMachine, String cardNumber)</span> {
+        <span class="hljs-keyword">if</span> (atmMachine.getBankInterface().validateCard(cardNumber)) {
+            atmMachine.getDisplay().showMessage(<span class="hljs-string">"Please enter your PIN"</span>);
+            atmMachine.transitionToState(<span class="hljs-keyword">new</span> <span class="hljs-title class_">PinEntryState</span>());
+        } <span class="hljs-keyword">else</span> {
+            atmMachine.getDisplay().showMessage(<span class="hljs-string">"Invalid card. Please try again."</span>);
+        }
+    }
+}
+
+</code></pre>
+<p>The EnterWithdrawalAmountState manages the step where the user enters a withdrawal amount, coordinating with the ATMMachine to execute the withdrawal via the Bank, using a WithdrawTransaction to validate funds and update the account balance.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WithdrawAmountEntryState</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">ATMState</span> {
+    <span class="hljs-comment">// Handles card ejection by canceling transaction and returning to idle state</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processCardEjection</span><span class="hljs-params">(ATMMachine atmMachine)</span> {
+        atmMachine.getDisplay().showMessage(<span class="hljs-string">"Transaction cancelled, card ejected"</span>);
+        atmMachine.transitionToState(<span class="hljs-keyword">new</span> <span class="hljs-title class_">IdleState</span>());
+    }
+
+    <span class="hljs-comment">// Processes withdrawal request by checking balance and dispensing cash if sufficient funds</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processAmountEntry</span><span class="hljs-params">(ATMMachine atmMachine, BigDecimal amount)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">cardNumber</span> <span class="hljs-operator">=</span> atmMachine.getCardProcessor().getCardNumber();
+        <span class="hljs-type">Account</span> <span class="hljs-variable">account</span> <span class="hljs-operator">=</span> atmMachine.getBankInterface().getAccountByCard(cardNumber);
+        <span class="hljs-type">boolean</span> <span class="hljs-variable">isSuccess</span> <span class="hljs-operator">=</span> atmMachine.getBankInterface().withdrawFunds(account, amount);
+
+        <span class="hljs-keyword">if</span> (isSuccess) {
+            atmMachine.getCashDispenser().dispenseCash(amount);
+            atmMachine.getDisplay().showMessage(<span class="hljs-string">"Please take your cash."</span>);
+        } <span class="hljs-keyword">else</span> {
+            atmMachine.getDisplay().showMessage(<span class="hljs-string">"Insufficient funds, please try again."</span>);
+        }
+        atmMachine.transitionToState(<span class="hljs-keyword">new</span> <span class="hljs-title class_">TransactionSelectionState</span>());
+    }
+}
+
+</code></pre>
+<p>For brevity, we have omitted the code for the PinEntryState, TransactionSelectionState, and DepositCollectionState classes. The complete code for all state classes is available in the accompanying materials of this book.</p>
+<h3 id="atmmachine-1">ATMMachine</h3>
+<p>The ATMMachine class acts as the central controller of the ATM system, applying the Facade pattern to offer a simplified interface to the underlying complexities. It manages the ATM’s hardware components, delegates state-specific behavior to corresponding ATMState classes such as IdleState and DepositCollectionState, and utilizes the BankInterface to perform banking operations.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Main ATM machine class that manages the state and hardware components of the ATM</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ATMMachine</span> {
+    <span class="hljs-keyword">private</span> ATMState state;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CardProcessor cardProcessor;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DepositBox depositBox;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> CashDispenser cashDispenser;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Keypad keypad;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Display display;
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Bank bank;
+
+    <span class="hljs-comment">// Initializes ATM with all required hardware components and bank interface</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ATMMachine</span><span class="hljs-params">(
+            Bank bank,
+            CardProcessor cardProcessor,
+            DepositBox depositBox,
+            CashDispenser cashDispenser,
+            Keypad keypad,
+            Display display)</span> {
+        <span class="hljs-built_in">this</span>.bank = bank;
+        <span class="hljs-built_in">this</span>.cardProcessor = cardProcessor;
+        <span class="hljs-built_in">this</span>.depositBox = depositBox;
+        <span class="hljs-built_in">this</span>.cashDispenser = cashDispenser;
+        <span class="hljs-built_in">this</span>.keypad = keypad;
+        <span class="hljs-built_in">this</span>.display = display;
+        <span class="hljs-built_in">this</span>.state = <span class="hljs-keyword">new</span> <span class="hljs-title class_">IdleState</span>();
+    }
+
+    <span class="hljs-comment">// Forwards card insertion to current state for processing</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">insertCard</span><span class="hljs-params">(String cardNumber)</span> {
+        state.processCardInsertion(<span class="hljs-built_in">this</span>, cardNumber);
+    }
+
+    <span class="hljs-comment">// Forwards card ejection to current state for processing</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">ejectCard</span><span class="hljs-params">()</span> {
+        state.processCardEjection(<span class="hljs-built_in">this</span>);
+    }
+
+    <span class="hljs-comment">// Forwards PIN entry to current state for validation</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">enterPin</span><span class="hljs-params">(String pin)</span> {
+        state.processPinEntry(<span class="hljs-built_in">this</span>, pin);
+    }
+
+    <span class="hljs-comment">// Forwards withdrawal request to current state for processing</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">withdrawRequest</span><span class="hljs-params">()</span> {
+        state.processWithdrawalRequest(<span class="hljs-built_in">this</span>);
+    }
+
+    <span class="hljs-comment">// Forwards deposit request to current state for processing</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">depositRequest</span><span class="hljs-params">()</span> {
+        state.processDepositRequest(<span class="hljs-built_in">this</span>);
+    }
+
+    <span class="hljs-comment">// Forwards amount entry to current state for processing</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">enterAmount</span><span class="hljs-params">(BigDecimal amount)</span> {
+        state.processAmountEntry(<span class="hljs-built_in">this</span>, amount);
+    }
+
+    <span class="hljs-comment">// Forwards deposit collection to current state for processing</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">collectDeposit</span><span class="hljs-params">(BigDecimal amount)</span> {
+        state.processDepositCollection(<span class="hljs-built_in">this</span>, amount);
+    }
+
+    <span class="hljs-comment">// Returns the display component for showing messages</span>
+    <span class="hljs-keyword">public</span> Display <span class="hljs-title function_">getDisplay</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> display;
+    }
+
+    <span class="hljs-comment">// Returns the cash dispenser component for handling withdrawals</span>
+    <span class="hljs-keyword">public</span> CashDispenser <span class="hljs-title function_">getCashDispenser</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> cashDispenser;
+    }
+
+    <span class="hljs-comment">// Returns the bank interface for account operations</span>
+    <span class="hljs-keyword">public</span> BankInterface <span class="hljs-title function_">getBankInterface</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> bank;
+    }
+
+    <span class="hljs-comment">// Returns the card processor component for handling card operations</span>
+    <span class="hljs-keyword">public</span> CardProcessor <span class="hljs-title function_">getCardProcessor</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> cardProcessor;
+    }
+
+    <span class="hljs-comment">// Returns the keypad component for user input</span>
+    <span class="hljs-keyword">public</span> Keypad <span class="hljs-title function_">getKeypad</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> keypad;
+    }
+
+    <span class="hljs-comment">// Updates the current state of the ATM</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">transitionToState</span><span class="hljs-params">(ATMState nextState)</span> {
+        <span class="hljs-built_in">this</span>.state = nextState;
+    }
+
+    <span class="hljs-comment">// Returns the current state of the ATM</span>
+    <span class="hljs-keyword">public</span> ATMState <span class="hljs-title function_">getCurrentState</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> state;
+    }
+
+    <span class="hljs-comment">// Returns the deposit box component for handling deposits</span>
+    <span class="hljs-keyword">public</span> DepositBox <span class="hljs-title function_">getDepositBox</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> depositBox;
+    }
+}
+</code></pre>
+<p><strong>Hardware Management</strong>:</p>
+<ul>
+<li>The ATMMachine class manages all hardware components, including the card processor, cash dispenser, deposit box, keypad, and display, to enable user interactions.</li>
+<li>It provides access to these hardware components through getter methods like getCardProcessor and getDisplay for use by state classes.</li>
+</ul>
+<p><strong>State Management</strong>:</p>
+<ul>
+<li>The ATMMachine class maintains the current state of the ATM using a state field to track the active stage of the user flow.</li>
+<li>It provides state transition functionality through the setState method, allowing the ATM to move between stages like IdleState and PinEntryState.</li>
+</ul>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>With the ATM system fully implemented, it’s time to step back and consider what we’ve achieved. This chapter began by gathering requirements through a structured dialogue, then progressed to defining core objects like accounts and transactions, designing their class structure, and coding the essential components, including the state machine and hardware interactions.</p>
+<p>The system's maintainability and extensibility are ensured by the clear division of responsibilities among the classes: Account and Bank manage account data and banking operations, Transaction handles financial operations, ATMState and its state classes (IdleState, PinEntryState, etc.) manage the user flow stages, hardware interfaces (Keypad, CardProcessor, etc.) handle user interactions, and ATMMachine orchestrates the entire flow as a facade. Our choices, such as using the state pattern with ATMState and separating hardware interactions into interfaces, improve modularity and allow future extensions, like adding new transaction types or hardware components.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-shipping-locker-system.html">← Previous</a>
+        <a href="design-a-restaurant-management-system.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

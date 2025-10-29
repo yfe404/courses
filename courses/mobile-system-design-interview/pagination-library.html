@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagination library - Mobile System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../mobile-system-design-interview.html">Mobile System Design Interview</a> /
+        Pagination library
+    </div>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="stock-trading-app.html">← Previous</a>
+        <a href="hotel-reservation-app.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">06</span> Pagination library
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/mobile-system-design-interview/pagination-library" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">06</strong><h1>Pagination library</h1></header><p>Efficiently managing large datasets is a cornerstone of mobile app performance. Pagination ensures that users experience seamless interactions, even with extensive content. While earlier chapters addressed pagination within specific applications, we now shift our focus to a broader challenge: crafting a reusable pagination library.</p>
+<p>A well-designed pagination library offers substantial benefits as organizations grow. It promotes consistency across applications, reduces code duplication, and consolidates performance optimizations in one place. Building such a library requires careful attention to API design and implementation, striking a balance between flexibility and practicality.</p>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>Designing a library differs fundamentally from designing an app. Apps serve end users through interfaces and screens, whereas libraries serve developers through code. Our design must prioritize how developers integrate and interact with the library, solving their challenges while enhancing their workflow.</p><p>When creating a library, our focus shifts from user-facing experiences to developer-centric APIs. The "user experience" transforms into the ease with which developers adopt our solution, integrate it into their projects, and address their pagination needs.</p></div>
+<p>Like all system design challenges, the specific requirements will shape our technical decisions. Before diving into implementation details, we need to understand clearly what our library should accomplish and how other developers will use it. Let's begin by defining these requirements and exploring the key decisions that will influence our design.</p>
+<h2 id="step-1-understand-the-problem-and-establish-design-scope">Step 1: Understand the problem and establish design scope</h2>
+<p>Before considering design decisions, it is crucial to first understand what we're building and why. Let's walk through how this conversation typically unfolds in an interview setting.</p>
+<div class="note-block"><p><strong>📝 Note:</strong> This chapter assumes familiarity with pagination techniques such
+as offset-based and cursor-based pagination. For a detailed refresher, refer
+to the Pagination section in Chapter 10: Mobile System Design Building Blocks.</p></div>
+<p><strong>Candidate</strong>: To begin, I'd like to confirm the core requirements for the pagination library. I'm thinking we'll need a flexible solution that supports common pagination patterns such as offset and cursor-based approaches, while allowing pagination from both local and remote data sources. Does this align with your vision?<br>
+<strong>Interviewer:</strong> Yes, that captures the library's intended flexibility and scope. And it should be able to handle any type of application data.</p>
+<p><strong>Candidate:</strong> Understood. Should the library include user interface components for rendering paginated data, or should it focus exclusively on the pagination logic and data management?<br>
+<strong>Interviewer:</strong> Let's keep our scope focused on the business logic, excluding UI components for now.</p>
+<p><strong>Candidate:</strong> Makes sense. To optimize performance, I think we should implement a caching system that stores previously fetched pages. We could use in-memory caching by default for quick access to recent pages, and optionally allow disk-based caching for persisting data between app sessions. What do you think?<br>
+<strong>Interviewer:</strong> Yes, that sounds perfect!</p>
+<p><strong>Candidate:</strong> I'd also propose adding a prefetching capability that anticipates user navigation patterns. For example, when a user views page 5, the library can automatically load pages 6 and 7 in the background, ensuring a seamless browsing experience as they continue scrolling. This would significantly reduce perceived loading times. Should we also support fast-scrolling scenarios where users jump quickly through large datasets?<br>
+<strong>Interviewer:</strong> Let's include prefetching, but exclude fast scrolling, as we're not handling UI components.</p>
+<p><strong>Candidate:</strong> Noted. Lastly, will this library be open-sourced? This consideration could impact our API design, documentation standards, and versioning strategy.<br>
+<strong>Interviewer:</strong> Yes, we're planning to open-source it.</p>
+<h4 id="requirements">Requirements</h4>
+<p>From these considerations, we're designing a pagination library with the following <strong>functional requirements</strong>:</p>
+<ul>
+<li>The library supports various application data types and multiple pagination techniques.</li>
+<li>Users can paginate through different local and remote data sources.</li>
+<li>The library provides business logic functionality. It doesn't provide UI support.</li>
+<li>The library provides in-memory caching and configurable disk caching.</li>
+<li>Users can prefetch specific pages.</li>
+</ul>
+<p>As for <strong>non-functional requirements</strong>, we need to build a system that ensures:</p>
+<ul>
+<li>Performance: The library must deliver efficient pagination with optimized resource usage and minimal overhead, operating safely in a multi-threaded environment.</li>
+<li>Reliability: The library should address network failures and interruptions gracefully, ensuring consistent behavior regardless of device type or OS version.</li>
+<li>Usability: We need to offer an intuitive API with comprehensive documentation and clear learning resources that help developers implement pagination effectively.</li>
+</ul>
+<p>Features that are <strong>out of scope</strong> for this exercise:</p>
+<ul>
+<li>Pagination support in the UI.</li>
+<li>Support for fast scrolling.</li>
+</ul>
+<p>Now that we've established our requirements, we can begin designing the pagination library's API. This foundation will shape how developers interact with our library.</p>
+<h2 id="step-2-api-design">Step 2: API design</h2>
+<p>Having established our pagination library's requirements, we now shift our focus to designing its <strong>public API</strong>. This interface must be intuitive, adaptable, and robust enough to meet the varied demands of mobile developers.</p>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>Think of a library's <strong>API</strong> as its public face—it's everything
+developers can directly interact with, including its functions, classes,
+methods, and properties. Just like a well-designed user interface makes an app
+intuitive for its users, a well-crafted API surface makes a library
+approachable for developers.</p><p>A good <strong>public API</strong> helps developers use the
+library effectively without needing to know how it works internally. To
+achieve this, it requires three key qualities: clear documentation that helps
+developers understand how to use each component, stability so developers can
+rely on consistent behavior, and an intuitive design that follows platform
+conventions and patterns.</p></div>
+<p>Central to this design is the Paginator interface, which acts as the cornerstone for users interacting with the library.</p>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>When designing a library's API, focus first on defining its core elements: the key interfaces, classes, and data models that developers will interact with most frequently. These form the foundation of your API surface and will shape how developers use your library.</p></div>
+<h3 id="paginator">Paginator</h3>
+<p>Mobile apps frequently handle varied datasets such as social media feeds, chat histories, or product catalogs. To support any data type, we define <strong>Paginator&lt;T&gt;</strong> using generics. This decision offers immediate benefits:</p>
+<ul>
+<li>Flexibility: A single Paginator can handle any data type, reducing repetitive code and satisfying the requirement for multiple data types.</li>
+<li>Isolation: Independent instances coexist without conflict, each managing an independent cache and pagination flow.</li>
+<li>Optimization: Memory usage stays lean, as each instance tracks only its relevant data.</li>
+<li>Reliability: Generics enforce type safety at compile time, catching errors early.</li>
+</ul>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>Using generics with Paginator&lt;T&gt; means we can handle any data type without creating separate implementations. Instead of writing separate Paginator classes for posts, messages, or other content types, the generic &lt;T&gt; parameter allows us to write a single, flexible implementation. This not only reduces code duplication but also makes the library much more versatile and maintainable.</p></div>
+<p>The Paginator&lt;T&gt; interface needs core methods that align with our requirements:</p>
+<ol>
+<li>Fetching individual pages, allowing users to request specific pages of data from a data source.</li>
+<li>Fetching surrounding pages, enabling prefetch of pages around a specific page.</li>
+<li>Cache management, providing the ability to clear specific pages from the cache.</li>
+</ol>
+<p>These translate into three methods: fetch, fetchAround, and clear. The public API definition looks like the following:</p>
+<div class="code-table"><table><thead><tr><td><strong>Kotlin</strong></td></tr></thead><tbody><tr><td><pre><code class="hljs language-kotlin">  <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Paginator</span>&lt;<span class="hljs-type">T</span>&gt; {
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">fetch</span><span class="hljs-params">(key: <span class="hljs-type">String</span>, pageSize: <span class="hljs-type">Int</span>)</span></span>
+
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">fetchAround</span><span class="hljs-params">(
+      key: <span class="hljs-type">String</span>, pageSize: <span class="hljs-type">Int</span>,
+      depthLevel: <span class="hljs-type">Int</span>, direction: <span class="hljs-type">PageFetchDirection</span>
+    )</span></span>
+
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">clear</span><span class="hljs-params">(key: <span class="hljs-type">String</span>)</span></span>
+  }
+</code></pre></td></tr><tr><td><p><strong>enum class PageFetchDirection</strong> <br>
+ALL, FORWARD, BACKWARD</p></td></tr></tbody></table></div>
+<div class="code-table"><table><thead><tr><td><strong>Swift</strong></td></tr></thead><tbody><tr><td><pre><code class="hljs language-Swift">  <span class="hljs-keyword">protocol</span> <span class="hljs-title class_">Paginator</span> {
+    <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">T</span>
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">fetch</span>(<span class="hljs-params">key</span>: <span class="hljs-type">String</span>, <span class="hljs-params">pageSize</span>: <span class="hljs-type">Int</span>)
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">fetchAround</span>(
+      <span class="hljs-params">key</span>: <span class="hljs-type">String</span>, <span class="hljs-params">pageSize</span>: <span class="hljs-type">Int</span>,
+      <span class="hljs-params">depthLevel</span>: <span class="hljs-type">Int</span>, <span class="hljs-params">direction</span>: <span class="hljs-type">PageFetchDirection</span>
+    )
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">clear</span>(<span class="hljs-params">key</span>: <span class="hljs-type">String</span>)
+  }
+</code></pre></td></tr><tr><td><p><strong>enum PageFetchDirection</strong> <br>
+case all, forward, backward</p></td></tr></tbody></table></div>
+<p>The Paginator's methods are <strong>idempotent</strong>, ensuring that repeated calls with identical inputs yield the same results.</p>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>By defining Paginator as an interface/protocol, we're not just creating an entry point to our library; we're also making it easier to test. This approach allows developers to create test double [1] versions that simulate different scenarios.</p></div>
+<h4 id="supporting-diverse-pagination-techniques">Supporting diverse pagination techniques</h4>
+<p>A key strength of this API is its agnosticism toward pagination techniques. The key parameter is intentionally flexible, adapting to the underlying method:</p>
+<ul>
+<li><strong>Offset-based pagination</strong>: key might be an integer (e.g., "1" for page 1, "2" for page 2).</li>
+<li><strong>Cursor-based pagination</strong>: the key could be a token (e.g., "cursor123") that points to the next dataset.</li>
+</ul>
+<p>This adaptability ensures that developers can use the same Paginator interface regardless of their data source's pagination strategy.</p>
+<h3 id="data-propagation">Data propagation</h3>
+<p>Next, we consider how the library communicates results and errors to its users. To keep it lightweight and dependency-free, we opt for <strong>native callbacks</strong>. This decision preserves flexibility, allowing developers to integrate the library without adopting a prescribed async framework.</p>
+<p>We can also make each method return a PaginatorExecution object, empowering users to cancel operations as needed.</p>
+<div class="note-block"><p><strong>📝 Note!</strong></p><p>Since we're designing an open-source library that can be used across multiple apps, we need to be thoughtful about our dependencies. Any third-party libraries we include will become required dependencies for apps using our library. To keep things lightweight and flexible, we'll use native language constructs for core functionality while making the library extensible enough to work well with popular libraries. We'll explore this design approach in more detail in the deep dives section.</p></div>
+<p>Here's how the improved Paginator interface looks, with new API additions in bold and existing definitions in gray:</p>
+<div class="code-table"><table class="code-table"><thead><tr><td><strong>Kotlin</strong></td></tr></thead><tbody><tr><td><pre><code class="hljs language-Kotlin"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">Paginator</span>&lt;<span class="hljs-type">T</span>&gt; {
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">fetch</span><span class="hljs-params">(
+    key: <span class="hljs-type">String</span>, pageSize: <span class="hljs-type">Int</span>, 
+    listener: <span class="hljs-type">PaginatorFetchListener</span>&lt;<span class="hljs-type">T</span>&gt;
+  )</span></span>: PaginatorExecution
+  
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">fetchAround</span><span class="hljs-params">(
+    key: <span class="hljs-type">String</span>,
+    pageSize: <span class="hljs-type">Int</span>,
+    depthLevel: <span class="hljs-type">Int</span>, direction: <span class="hljs-type">PageFetchDirection</span>,
+    listener: <span class="hljs-type">PaginatorFetchAroundListener</span>&lt;<span class="hljs-type">T</span>&gt;
+  )</span></span>: PaginatorExecution
+  
+  <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">clear</span><span class="hljs-params">(key: <span class="hljs-type">String</span>)</span></span>
+}
+</code></pre></td></tr><tr><td><strong>Swift</strong></td></tr><tr><td><pre><code class="hljs language-Swift"><span class="hljs-keyword">protocol</span> <span class="hljs-title class_">Paginator</span> {
+  <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">T</span>
+
+  <span class="hljs-keyword">func</span> <span class="hljs-title function_">fetch</span>(
+    <span class="hljs-params">key</span>: <span class="hljs-type">String</span>, <span class="hljs-params">pageSize</span>: <span class="hljs-type">Int</span>,
+    <span class="hljs-params">listener</span>: <span class="hljs-type">PaginatorFetchListener</span>&lt;<span class="hljs-type">T</span>&gt;
+  ) -&gt; <span class="hljs-type">PaginatorExecution</span>
+
+  <span class="hljs-keyword">func</span> <span class="hljs-title function_">fetchAround</span>(
+    <span class="hljs-params">key</span>: <span class="hljs-type">String</span>, <span class="hljs-params">pageSize</span>: <span class="hljs-type">Int</span>,
+    <span class="hljs-params">depthLevel</span>: <span class="hljs-type">Int</span>, <span class="hljs-params">direction</span>: <span class="hljs-type">PageFetchDirection</span>,
+    <span class="hljs-params">listener</span>: <span class="hljs-type">PaginatorFetchAroundListener</span>&lt;<span class="hljs-type">T</span>&gt;
+  ) -&gt; <span class="hljs-type">PaginatorExecution</span>
+
+  <span class="hljs-keyword">func</span> <span class="hljs-title function_">clear</span>(<span class="hljs-params">key</span>: <span class="hljs-type">String</span>)
+}
+</code></pre></td></tr></tbody></table></div>
+<p>Internally, each Paginator instance maintains a thread-safe cache, typically a Map that associates page keys with their data. This setup accelerates access to recently loaded pages, an aspect we'll explore in more detail in the following sections.</p>
+<h3 id="data-models">Data models</h3>
+<p>Let's look at the core data models that power the pagination library. At the heart of the design is the PaginatorPage model, which encapsulates everything needed to represent a single page of data:</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>public class PaginatorPage&lt;T&gt;</strong> <br>content: List&lt;T&gt; <br>key: String <br>expirationTime: String? <br>prevKey: String? <br>nextKey: String?</td><td style="text-align: left;"><strong>public class PaginatorPage&lt;T&gt;</strong> <br>content: [T] <br>key: String <br>expirationTime: String? <br>prevKey: String? <br>nextKey: String?</td></tr></tbody></table></div>
+<p>The PaginatorPage model serves as a container for both the paginated content and the metadata needed for navigation between pages: the current key, the previous and next keys, if available. The optional expirationTime field enables smart caching decisions, letting the library determine when cached data needs refreshing.</p>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>You might notice that we're using public classes for our data models here, rather than the data classes and structs we used in previous chapters. This change is intentional and is essential for library development.</p><p>In Kotlin, data classes automatically generate several methods such as copy, componentN, equals, and hashCode. While convenient for application development, these generated methods can cause binary compatibility issues in libraries. When you modify properties in a data class, the generated methods also change, potentially breaking compatibility for library consumers [2].</p><p>Similarly, in Swift, structs are value types whose memory layout is part of their binary interface. Changes to stored properties can affect this layout, which in turn impacts the library's ABI stability [3] [4].</p><p>By using classes instead, we maintain better control over our library's public interface and ensure compatibility across versions.</p></div>
+<h3 id="how-apps-implement-the-paginator-interface">How apps implement the Paginator interface</h3>
+<p>When developers integrate the pagination library into their apps, they need to implement and integrate the Paginator interface within their architecture properly. Let's explore how the Paginator interface is typically used in application code.</p>
+<p>Apps that consume our pagination library generally implement it within repositories or UI state holders that:</p>
+<ul>
+<li>Create a configured Paginator instance with appropriate data sources using the CallbackPaginator implementation (more about this in the next section).</li>
+<li>Trigger Paginator's methods in response to specific user actions such as scrolling.</li>
+<li>Combine PaginatorPage objects into a unified list.</li>
+<li>Monitor pagination state to determine when additional data should be loaded.</li>
+<li>Handle various states, including loading, errors, and empty results.</li>
+</ul>
+<p>For linear pagination scenarios such as scrolling through content, apps primarily use the fetch method to load pages sequentially. For non-linear scenarios, the fetchAround method enables apps to prefetch content surrounding the target page, ensuring a smooth navigation experience.</p>
+<p>This separation of responsibilities ensures that the Paginator focuses exclusively on efficient data retrieval and caching, while the application host code handles the presentation logic and user interactions.</p>
+<h3 id="creating-configurable-paginator-instances">Creating configurable Paginator instances</h3>
+<p>As we've seen, host applications need to instantiate a properly configured Paginator to handle pagination effectively. Let's explore how the library provides this flexibility through implementation classes and configuration options.</p>
+<p>While the Paginator interface defines the contract for pagination functionality, apps need concrete implementations they can configure for their specific use cases. With our library, we include the <strong>CallbackPaginator&lt;T&gt;</strong> class, a fully-featured implementation of the Paginator&lt;T&gt; interface that can be customized through dependency injection.</p>
+<p>CallbackPaginator serves as the primary implementation that apps will instantiate, configured with components that define its behavior:</p>
+<ol>
+<li><strong>PaginatorDataSource&lt;T&gt;</strong> handles the actual data fetching for each page, whether from a remote API, local database, or a mix of both. By separating data retrieval into its own component, CallbackPaginator stays focused on orchestrating the process.</li>
+<li><strong>PageValidator&lt;T&gt;</strong> ensures cached pages are still valid, checking factors such as expiration timestamps or data integrity. If a page fails validation, CallbackPaginator triggers a fresh fetch to keep data up-to-date.</li>
+<li>(Optional) <strong>PaginatorStore&lt;T&gt;</strong> enables on-disk storage of fetched pages for offline usage. It cuts down on redundant network calls and boosts performance by keeping data locally accessible.</li>
+<li><strong>PaginatorConfig</strong> controls aspects such as concurrency handling, cache eviction policies, and other settings.</li>
+</ol>
+<p>Let's look at the <strong>definition of the CallbackPaginator&lt;T&gt; class</strong> that embraces dependency injection to allow consumers to provide their own specialized implementations tailored to their specific use cases:</p>
+<div class="code-table"><table class="code-table"><thead><tr><td><strong>Kotlin</strong></td></tr></thead><tbody><tr><td><pre><code class="hljs language-kotlin">  <span class="hljs-keyword">class</span> <span class="hljs-title class_">CallbackPaginator</span>&lt;<span class="hljs-type">T</span>&gt;(
+    dataSource: PaginatorDataSource&lt;T&gt;,
+    validator: PageValidator&lt;T&gt;,
+    store: PaginatorStore&lt;T&gt;? = <span class="hljs-literal">null</span>,
+    config: PaginatorConfig = DefaultPaginatorConfig(),
+  ) : Paginator&lt;T&gt; { ... }
+</code></pre></td></tr><tr><td><p><strong>class PaginatorConfig</strong><br>
+threadPool: ExecutorService,<br>
+maxParallelCalls: Int? = null,<br>
+inMemoryEvictionStrategy: PaginatorEvictionStrategy,<br>
+storeEvictionStrategy: PaginatorEvictionStrategy? = null,<br>
+...</p></td></tr></tbody></table></div>
+<div class="code-table"><table class="code-table"><thead><tr><td><strong>Swift</strong></td></tr></thead><tbody><tr><td><pre><code class="hljs language-Swift">  <span class="hljs-keyword">class</span> <span class="hljs-title class_">CallbackPaginator</span>&lt;<span class="hljs-type">T</span>&gt;: <span class="hljs-title class_ inherited__">Paginator</span>&lt;<span class="hljs-title class_ inherited__">T</span>&gt; {
+    <span class="hljs-keyword">init</span>(
+      <span class="hljs-params">dataSource</span>: <span class="hljs-type">PaginatorDataSource</span>&lt;<span class="hljs-type">T</span>&gt;,
+      <span class="hljs-params">validator</span>: <span class="hljs-type">PageValidator</span>&lt;<span class="hljs-type">T</span>&gt;,
+      <span class="hljs-params">store</span>: <span class="hljs-type">PaginatorStore</span>&lt;<span class="hljs-type">T</span>&gt;? <span class="hljs-operator">=</span> <span class="hljs-literal">nil</span>,
+      <span class="hljs-params">config</span>: <span class="hljs-type">PaginatorConfig</span> <span class="hljs-operator">=</span> <span class="hljs-type">DefaultPaginatorConfig</span>() 
+    ) {
+      <span class="hljs-comment">// self.field statements</span>
+    }
+  }
+</code></pre></td></tr><tr><p><strong>class PaginatorConfig</strong>
+dispatchQueue: DispatchQueue,
+maxParallelCalls: Int?,
+inMemoryEvictionStrategy: PaginatorEvictionStrategy,
+storeEvictionStrategy: PaginatorEvictionStrategy?,
+...</p></tr></tbody></table></div>
+<div class="note-block"><p><strong>📝 Note:</strong> While some libraries use static configuration methods such as
+Paginator.init(...), this approach isn't ideal for our pagination library.
+Since each Paginator instance needs independent configuration and high
+customizability, we opted for instance-level configuration instead. This gives
+users more flexibility to configure each instance according to their specific
+needs.</p></div>
+<p>The library comes with several built-in common eviction policies such as LRU (Least Recently Used), FIFO (First In, First Out), and LIFO (Last In, First Out). Beyond these standard options, developers can also define custom policies based on their specific needs, whether that's time-based expiration (TTL), memory size limits, or maximum page count. This flexibility ensures the library can adapt to various caching requirements and resource constraints.</p>
+<h2 id="step-3-high-level-client-architecture">Step 3: High-level client architecture</h2>
+<p>With the API design established, we now shift our focus to crafting a high-level client architecture that powers our pagination library. This structure must prioritize modularity, scalability, and maintainability to integrate seamlessly into a variety of mobile applications.</p>
+<p>Figure 1 provides a visual overview, detailing the core components and their interactions—solid arrows denote data flow, dotted arrows show dependencies, and arrows pointing outside the box represent external communication. In the diagram, components with a gray background represent implementation classes contributed by developers, while the remaining components are implementations provided by the library itself.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram labeled 'Library,' depicting the interaction between different components of a paginator.  The central component is a large rectangle labeled 'Paginator,' which receives input from four other components: 'Paginator DataSource' (bottom-left), 'Paginator InMemory Cache' (top-center), and 'Paginator Evictor' (top-right), all connected via solid lines indicating direct data flow.  The 'Paginator Scheduler' (top-left) connects to the central 'Paginator' via a dashed line, suggesting asynchronous or scheduled communication.  The central 'Paginator' also sends data to 'Paginator Validator' (bottom-center) via a dashed line, implying validation occurs after data processing.  The 'Paginator Evictor' and 'Paginator Store' (bottom-right) are connected by a dashed line, indicating data transfer for storage or eviction purposes.  Finally, a solid upward-pointing arrow from the top of the 'Library' boundary suggests an external input or trigger initiating the pagination process.  The 'Paginator InMemory Cache' sends data to the 'Paginator Evictor' via a dashed line, suggesting a mechanism for managing cached data.  All components are rectangular boxes with their respective names clearly labeled." loading="lazy" width="602" height="433" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/pagination-library/figure-6-1-NPPBXCDW.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: Pagination library high-level architecture—implementations</figcaption></div></figure>
+<p>provided by developers with gray background, implementations provided by the Pagination
+library with white background.</p>
+<p>Having laid the groundwork with earlier discussions, let's introduce two critical components that enhance the Paginator's efficiency and focus:</p>
+<ul>
+<li>The <strong>PaginatorScheduler</strong> takes charge of all request-related operations: queuing, ordering, and processing responses. It also manages debouncing, throttling, retry mechanisms, and concurrency, offloading these tasks from the Paginator to keep its responsibilities focused and streamlined.</li>
+<li>The <strong>PaginatorEvictor</strong> manages cache efficiency for both in-memory and disk storage. This separation gives us the flexibility to implement different eviction strategies without impacting other parts of the system. It ensures our caches remain performant while keeping resource usage in check.</li>
+</ul>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>Breaking functionality into dedicated components serves two purposes: (1) it demonstrates your understanding of modular design principles, and (2) it clearly shows the interviewer you're addressing specific requirements such as caching and prefetching. |</p></div>
+<p>This design achieves a careful balance: it offers users the flexibility to integrate custom data sources and storage solutions while entrusting the library with the intricacies of scheduling and cache management.</p>
+<h2 id="step-4-deep-dives">Step 4: Deep dives</h2>
+<p>With our high-level architecture in place, let's explore some key implementation details. While the specific areas to dive into during an interview often depend on your interviewer's interests and your system's particular challenges, we'll focus on several critical aspects:</p>
+<ul>
+<li>Implementing effective caching strategies.</li>
+<li>Priorities in API calls.</li>
+<li>Modular API design.</li>
+<li>Handling failures and versioning.</li>
+</ul>
+<h3 id="implementing-effective-caching-strategies">Implementing effective caching strategies</h3>
+<p>Caching is a pivotal element in our pagination library, directly shaping its performance and the resulting user experience. In this section, we'll explore the mechanics of our dual caching system, which integrates in-memory and disk-based approaches to streamline data retrieval.</p>
+<p>While users can optionally use the PaginatorStore for persisting PaginatorPage objects on disk, the in-memory cache significantly improves user experience. Both caching mechanisms can be fine-tuned through eviction policies defined in PaginatorConfig when initializing a Paginator instance.</p>
+<h4 id="in-memory-caching">In-memory caching</h4>
+<p>At the core of this system lies the PaginatorInMemoryCache that provides fast storage for paginated data (i.e., PaginatorPage objects).</p>
+<p>PaginatorInMemoryCache uses a Map&lt;String, PaginatorPageResult&lt;T&gt;&gt; structured as follows:</p>
+<ul>
+<li>A String key as the unique identifier for each page (offset, page index, or cursor).</li>
+<li>A PaginatorPageResult&lt;T&gt; value representing the current state of that page. This object reflects the page's lifecycle:
+<ul>
+<li>key not present in the cache: The page awaits its initial fetch.</li>
+<li>Loading: A retrieval operation is underway.</li>
+<li>Success(page: PaginatorPage&lt;T&gt;): The page is ready and validated.</li>
+<li>Error(message: String): A fetch attempt failed, with diagnostic details provided.</li>
+</ul>
+</li>
+</ul>
+<p>Modeling these states explicitly with PaginatorPageResult brings several key advantages: type safety that helps catch errors at compile time, clear representation of a page's status at any point, easier debugging when issues arise, and better scalability as the codebase grows.</p>
+<h4 id="how-the-dual-caching-system-works">How the dual caching system works</h4>
+<p>Our caching strategy operates through a tiered structure. Let's explore how the caching components work together when a user requests a page. Figure 2 illustrates the data flow during in-memory and disk cache misses.</p>
+<p>When a user calls fetch on a Paginator instance (step 0), the system implements the following caching strategy:</p>
+<ol>
+<li><strong>In-memory cache check</strong>: The Paginator begins by querying the in-memory cache to see if an existing PaginatorPage already exists. If a valid page is found, it's returned immediately for a low-latency response.</li>
+<li><strong>Disk cache check</strong> (optional): If the in-memory cache misses and a PaginatorStore is configured, the system consults the disk cache. A valid page found here is promoted to memory for future use and promptly returned.</li>
+<li><strong>Data source fetch</strong>: If both caches fail to provide the requested page, the PaginatorScheduler triggers a fetch call on the PaginatorDataSource.</li>
+<li><strong>Validator check</strong>: Once the new page is retrieved, the PageValidator verifies the data's validity, checking for proper formatting or expiration.</li>
+<li><strong>Cache update</strong>: Once validated, the fresh page is cached in both the in-memory cache and in the disk store if configured.</li>
+<li>Then, the fresh page is returned to the caller.</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a paginator.  A developer, represented by a person icon with code symbol, initiates a `fetch(key, limit)` request (0). This request flows to the `Paginator` (central component), which first passes through a `Paginator Validator` (4). The `Paginator` then interacts with a `Paginator Scheduler` (3), which in turn communicates with a `Paginator DataSource` to retrieve the data.  The `Paginator` then sends the retrieved data to both a `Paginator InMemory Cache` (1, 5.1) and a `Paginator Store` (2, 5.2).  The cache is indicated as having a cache miss, implying that the data was not found in the cache and had to be fetched from the `Paginator Store`. Finally, a `PaginatorPage` (6) is returned to the developer.  The numbered arrows (1-6) indicate the flow of data and control between components.  The 'X' symbols next to the cache and store indicate that these are likely external components or services." loading="lazy" width="602" height="507" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/pagination-library/figure-6-2-YZ5JOTLD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Paginator with cache misses data flow</figcaption></div></figure>
+<p>This layered design strikes a balance between speed and durability: in-memory caching ensures rapid access, while disk caching offers a dependable fallback. The PaginatorEvictor plays a key role by enforcing eviction policies, keeping both caches lean, and preventing resource overload.</p>
+<h4 id="benefits-and-considerations">Benefits and considerations</h4>
+<p>Our dual caching approach offers several advantages:</p>
+<ul>
+<li>Better performance through reduced latency by avoiding network calls.</li>
+<li>Lower network usage through intelligent request management.</li>
+<li>Smoother user experience with faster data retrieval.</li>
+</ul>
+<p>While powerful, this caching system requires careful attention to several implementation details:</p>
+<ul>
+<li>The system assumes that cache keys map directly to network requests. For cases where this assumption doesn't hold, we may need to implement custom key generation logic.</li>
+<li>Since the Paginator engine operates in a multithreaded environment, we must ensure thread-safe cache access and atomic operations to prevent race conditions or data corruption.</li>
+</ul>
+<p>To support fine-tuning, we can configure the library with analytics and logger providers to capture cache hits, misses, and evictions. These insights equip developers to optimize performance for their unique needs.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>The Store5 library [5] for Kotlin MultiPlatform and
+the Hyperoslo Cache library [6] for iOS can be configured to write to both in-memory
+and disk storage, giving fast in-memory reads with persistent disk backup.</p><p>Google's Jetpack Paging library [7] encourages a network + database hybrid: using a local
+database as the single source of truth for paged content, and a RemoteMediator
+that fetches new pages into the DB only when the app runs out of local data.</p></div>
+<h3 id="priorities-in-api-calls">Priorities in API calls</h3>
+<p>Users expect rapid responses, yet the library must juggle multiple tasks, often under constraints such as limited device resources or fluctuating network conditions. Prioritizing API calls becomes vital when:</p>
+<ul>
+<li>Concurrent requests compete for bandwidth or processing power.</li>
+<li>Background operations, such as prefetching, overlap with user-initiated actions.</li>
+<li>Device limitations, such as low battery or weak connectivity, demand optimized performance.</li>
+</ul>
+<p>Consider a user scrolling to load new content: this request must outrank background prefetching to ensure immediate feedback. Likewise, in fetchAround scenarios, the explicitly requested page should load before its neighbors. To achieve this, we can enhance our public APIs with priority controls, allowing developers to dictate the execution order effectively.</p>
+<p>Here's how the improved Paginator interface looks like, with new API additions in bold and existing definitions in gray:</p>
+<div class="code-table"><table class="code-table"><thead><tr><td><strong>Kotlin</strong></td></tr></thead><tbody><tr><td><pre><code class="hljs language-kotlin">  <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Paginator</span>&lt;<span class="hljs-type">T</span>&gt; {
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">fetch</span><span class="hljs-params">(
+      key: <span class="hljs-type">String</span>,
+      pageSize: <span class="hljs-type">Int</span>,
+      listener: <span class="hljs-type">PaginatorFetchListener</span>&lt;<span class="hljs-type">T</span>&gt;,
+      priority: <span class="hljs-type">FetchPriority</span> = FetchPriority.MEDIUM
+    )</span></span>: PaginatorExecution
+    
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">fetchAround</span><span class="hljs-params">(
+      key: <span class="hljs-type">String</span>, pageSize: <span class="hljs-type">Int</span>,
+      depthLevel: <span class="hljs-type">Int</span>, direction: <span class="hljs-type">PageFetchDirection</span>,
+      listener: <span class="hljs-type">PaginatorFetchAroundListener</span>&lt;<span class="hljs-type">T</span>&gt;,
+      keyPriority: <span class="hljs-type">FetchPriority</span> = FetchPriority.MEDIUM,
+      aroundPriority: <span class="hljs-type">FetchPriority</span> = FetchPriority.LOW
+    )</span></span>: PaginatorExecution
+  }
+</code></pre></td></tr><tr><td><p><strong>enum class FetchPriority</strong> <br>
+HIGH, MEDIUM, LOW</p></td></tr></tbody></table></div>
+<div class="code-table"><table class="code-table"><thead><tr><td>Swift</td></tr></thead><tbody><tr><td><pre><code class="hljs language-Swift">  <span class="hljs-keyword">protocol</span> <span class="hljs-title class_">Paginator</span> {
+    <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">T</span>
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">fetch</span>(
+      <span class="hljs-params">key</span>: <span class="hljs-type">String</span>, <span class="hljs-params">pageSize</span>: <span class="hljs-type">Int</span>,
+      <span class="hljs-params">listener</span>: <span class="hljs-type">PaginatorFetchListener</span>&lt;<span class="hljs-type">T</span>&gt;,
+      <span class="hljs-params">priority</span>: <span class="hljs-type">FetchPriority</span>
+    ) -&gt; <span class="hljs-type">PaginatorExecution</span>
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">fetchAround</span>(
+      <span class="hljs-params">key</span>: <span class="hljs-type">String</span>, <span class="hljs-params">pageSize</span>: <span class="hljs-type">Int</span>,
+      <span class="hljs-params">depthLevel</span>: <span class="hljs-type">Int</span>, <span class="hljs-params">direction</span>: <span class="hljs-type">PageFetchDirection</span>,
+      <span class="hljs-params">listener</span>: <span class="hljs-type">PaginatorFetchAroundListener</span>&lt;<span class="hljs-type">T</span>&gt;,
+      <span class="hljs-params">keyPriority</span>: <span class="hljs-type">FetchPriority</span>,
+      <span class="hljs-params">aroundPriority</span>: <span class="hljs-type">FetchPriority</span>
+    ) -&gt; <span class="hljs-type">PaginatorExecution</span>
+  }
+</code></pre></td></tr><tr><td><p><strong>enum FetchPriority</strong><br>
+case high, medium, low</p></td></tr></tbody></table></div>
+<p>Each fetch operation accepts a priority parameter that signals its relative importance to the library. For the fetchAround call, we introduce two distinct priority levels: keyPriority for the main requested page, and aroundPriority for the surrounding pages. This granular control allows us to optimize how the library processes different types of requests.</p>
+<p>Now, let's explore how to implement this prioritization system in our library.</p>
+<h4 id="priority-based-task-scheduling">Priority-based task scheduling</h4>
+<p>Effective priority handling demands a robust scheduling strategy. Table 1 evaluates several approaches, each balancing simplicity, scalability, and concurrency in different ways.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;"><strong>Option</strong></th><th style="text-align: left;"><strong>Description</strong></th><th style="text-align: left;"><strong>Advantages</strong></th><th style="text-align: left;"><strong>Disadvantages</strong></th></tr></thead><tbody><tr><td style="text-align: left;">Separate queues for each priority level</td><td style="text-align: left;">Dedicated queues per priority, processed sequentially by importance.</td><td style="text-align: left;">Simple to implement and understand, and clear separation of priorities. Direct control over task execution order.</td><td style="text-align: left;">Performance degrades with more priority levels and complex workload balancing across queues. Higher memory overhead.</td></tr><tr><td style="text-align: left;">Priority Queue</td><td style="text-align: left;">Single queue that automatically maintains tasks in priority order through heap structure. Reorders on enqueue/dequeue.</td><td style="text-align: left;">Efficient priority-based ordering and simpler architecture with a single queue. Lower memory footprint.</td><td style="text-align: left;">Potential overhead from heap reordering. No fairness guarantee, lower-priority tasks may starve.</td></tr><tr><td style="text-align: left;">ThreadPools with priority levels</td><td style="text-align: left;">Separate thread pools per priority, with more resources for higher levels.</td><td style="text-align: left;">True concurrency with hardware parallelism, and better resource utilization. Natural handling of priority levels.</td><td style="text-align: left;">Complex thread pool management. Higher resource demands.</td></tr><tr><td style="text-align: left;">Weighted Round-Robin scheduling</td><td style="text-align: left;">Cyclic processing with higher-priority tasks receiving greater execution time.</td><td style="text-align: left;">Guaranteed processing for all priorities, and predictable task execution. Good fairness properties.</td><td style="text-align: left;">Complex weight tuning needed. Higher-priority tasks may face delays.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 1: Trade-offs for implementing priority-based task scheduling</p></p>
+<p>The <strong>Priority Queue pattern</strong> [8] stands out as a strong choice for our library. It delivers efficient ordering, ensures high-priority tasks are executed first, and simplifies the implementation. This balance is well-suited for our mobile constraints.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Google's Volley networking library lets developers tag
+requests with a Priority so that an "immediate" request jumps ahead in the queue
+[9].</p></div>
+<h3 id="modular-api-design">Modular API design</h3>
+<p>Two important considerations for designing a pagination library are handling async operations well and making testing easy. First, we'll look at managing asynchronous tasks across different setups. Then, we'll cover testing approaches that keep it reliable and simple to use.</p>
+<h4 id="async-framework-compatibility-layers">Async framework compatibility layers</h4>
+<p>When designing a mobile library, we face a critical decision: how to manage async operations effectively. Frameworks such as Kotlin Coroutines or Swift's Combine offer robust solutions for async programming, and it might be tempting to build our entire library and public APIs around one of these powerful tools. However, mandating such dependencies could burden users whose projects rely on different tools. Imagine an RxJava-based app forced to adopt Coroutines solely to integrate our library. To avoid this, we should craft an API that works well with various async approaches.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Both the Android and iOS platforms provide several approaches for handling asynchronous operations:</p><ul>
+<li>
+<p>Android's ecosystem offers multiple async solutions, including traditional callbacks, Kotlin Coroutines and Flow, RxJava, LiveData, and CompletableFuture from Java.</p>
+</li>
+<li>
+<p>iOS developers can choose from options such as closure-based completion handlers (callbacks), the Combine framework, async/await syntax, the delegate pattern, and Grand Central Dispatch (GCD) for low-level concurrency control.</p>
+</li>
+</ul></div>
+<p>Our solution is a modular design that anchors the core API in native callbacks, free of external dependencies, and complements it with optional extension modules for popular frameworks. This gives developers maximum flexibility:</p>
+<ul>
+<li>paginator-core delivers the essential functionality with no external dependencies.</li>
+<li>paginator-coroutines, paginator-combine, or paginator-rx provide optimized support for specific async solutions.</li>
+</ul>
+<p>This strategy offers multiple benefits:</p>
+<ul>
+<li>Flexibility: Developers can adopt only the extensions that suit their project's tech stack.</li>
+<li>Lightweight core: The base module remains unburdened by external frameworks, enhancing its portability.</li>
+<li>Native integration: Each extension aligns with its framework's conventions, ensuring an intuitive developer experience.</li>
+</ul>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Android and iOS handle library distribution differently.</p><p>Android's build system, typically Gradle, provides built-in support for creating multiple library artifacts from a single codebase. This means you can publish each async integration as a separate artifact, giving developers the flexibility to include only what they need.</p><p>iOS traditionally distributes libraries as single frameworks, but it offers several approaches to achieve modularity:</p><ol>
+<li>
+<p>Use conditional compilation to selectively include code.</p>
+</li>
+<li>
+<p>Create extension files for different async patterns that developers can optionally add.</p>
+</li>
+<li>
+<p>Leverage Swift Package Manager to define separate products or targets for different integrations.</p>
+</li>
+</ol></div>
+<p>This modular approach not only keeps the library adaptable for current users but also prepares it for emerging async paradigms without disrupting existing implementations.</p>
+<p>Let's see this adaptability in action. Here are examples of how our API transforms when used with Kotlin coroutines and Swift's async/await syntax, with new API additions in bold and existing definitions in gray:</p>
+<div class="code-table"><table class="code-table"><thead><tr><td><strong>Kotlin using coroutines and flows</strong></td></tr></thead><tbody><tr><td><pre><code class="hljs language-kotlin">  <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Paginator</span>&lt;<span class="hljs-type">T</span>&gt; {
+
+    <span class="hljs-keyword">suspend</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">fetch</span><span class="hljs-params">(key: <span class="hljs-type">String</span>, pageSize: <span class="hljs-type">Int</span>)</span></span>: PaginatorPage&lt;T&gt;
+
+    <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">fetchAround</span><span class="hljs-params">(
+      key: <span class="hljs-type">String</span>, pageSize: <span class="hljs-type">Int</span>,
+      depthLevel: <span class="hljs-type">Int</span>, direction: <span class="hljs-type">PageFetchDirection</span>
+    )</span></span>: Flow&lt;PaginatorPageT&gt;&gt;
+
+    <span class="hljs-keyword">suspend</span> <span class="hljs-function"><span class="hljs-keyword">fun</span> <span class="hljs-title">clear</span><span class="hljs-params">(key: <span class="hljs-type">String</span>)</span></span>
+  }
+</code></pre></td></tr><tr><td><p><strong>Swift using async/await</strong></p></td></tr><tr><td><pre><code class="hljs language-Swift">  <span class="hljs-keyword">protocol</span> <span class="hljs-title class_">Paginator</span> {
+    <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">T</span> 
+  
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">fetch</span>(
+      <span class="hljs-params">key</span>: <span class="hljs-type">String</span>, <span class="hljs-params">pageSize</span>: <span class="hljs-type">Int</span>
+    ) <span class="hljs-keyword">async</span> <span class="hljs-keyword">throws</span> -&gt; <span class="hljs-type">PaginatorPage</span>&lt;<span class="hljs-type">T</span>&gt; 
+  
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">fetchAround</span>(
+      <span class="hljs-params">key</span>: <span class="hljs-type">String</span>, <span class="hljs-params">pageSize</span>: <span class="hljs-type">Int</span>,
+      <span class="hljs-params">depthLevel</span>: <span class="hljs-type">Int</span>, <span class="hljs-params">direction</span>: <span class="hljs-type">PageFetchDirection</span>
+    ) -&gt; <span class="hljs-type">AsyncThrowingStream</span>&lt;<span class="hljs-type">PaginatorPageT</span>&gt;, <span class="hljs-type">Error</span><span class="hljs-operator">&gt;</span>
+    
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">clear</span>(<span class="hljs-params">key</span>: <span class="hljs-type">String</span>) <span class="hljs-keyword">async</span> <span class="hljs-keyword">throws</span>
+  }
+</code></pre></td></tr></tbody></table></div>
+<h4 id="pagination-library-testing-suite">Pagination library testing suite</h4>
+<p>While async flexibility is crucial for adoption, equally important is comprehensive testing support. Our design's foundation of interfaces and protocols naturally facilitates testing, but we can elevate the library's value by <strong>offering a dedicated testing-only artifact</strong>, complete with pre-built test doubles and utility tools tailored for developer convenience.</p>
+<p>This testing artifact equips developers with a practical toolkit, including:</p>
+<ul>
+<li>Pre-built test doubles: These emulate core components such as PaginatorDataSource, PaginatorStore, and PageValidator, enabling developers to simulate diverse scenarios without crafting bespoke mocks.</li>
+<li>Helper functions: Tools for generating sample paginated data or mimicking network latency simplify the process of setting up meaningful test cases.</li>
+<li>Error simulation capabilities: Features that let developers test how their code handles failures or edge cases, ensuring robust error handling and recovery logic.</li>
+</ul>
+<p>By providing these resources in a standalone artifact, we empower developers to adopt our library with confidence, knowing they have the means to achieve thorough test coverage. This offers several benefits to developers:</p>
+<ul>
+<li>Eliminate the need to create and maintain custom test implementations.</li>
+<li>Ensure test doubles stay in sync with library updates automatically.</li>
+<li>Promote higher test coverage by simplifying the testing of edge cases.</li>
+<li>Demonstrate our commitment to testing best practices.</li>
+</ul>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>A dedicated testing-only artifact complements our modular
+design while keeping the core library lightweight. This separation allows us
+to refine the testing tools independently, having them aligned with evolving
+testing frameworks and methodologies. Additionally, developers get powerful
+testing capabilities without bloating their production builds.</p></div>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Google's Jetpack Paging 3 [7] takes a similar approach:
+it exposes a common PagingData stream which can be emitted as a LiveData, RxJava
+Flowable, or Kotlin Flow depending on what the app wants to use.</p><p>The Moya networking
+library [10] in iOS, for example, was built with testing in mind. It lets you
+provide stubbed responses or use a sampleData property for each API endpoint, so
+that unit tests can run without real network calls [11].</p></div>
+<h3 id="handling-failures-and-versioning">Handling failures and versioning</h3>
+<p>Now let's address potential failure points and versioning strategies for the pagination library. These topics often come up during interviews and demonstrate your thorough understanding of library development beyond just the core functionality.</p>
+<h4 id="handling-failure-points">Handling failure points</h4>
+<p>A pagination library operates at the intersection of data sources, network, and device constraints, making it susceptible to a variety of failures. Identifying and mitigating these points of failure is essential to ensure reliability and a seamless user experience. Here are the key points specific to pagination and how our design addresses them.</p>
+<h5 id="network-failures">Network failures</h5>
+<p>Fetching remote data is a common task, but network issues such as timeouts, dropped connections, or server errors can disrupt pagination.</p>
+<p><em>Mitigation</em>: The library uses retry mechanisms with exponential backoff to handle transient failures gracefully. If a fetch fails, callbacks transmit the detailed errors, enabling developers to fallback to cached data or display user-friendly messages, preventing app crashes.</p>
+<h5 id="database-errors">Database errors</h5>
+<p>When paginating from a local data source, data storage query failures or data corruption can halt operations.</p>
+<p><em>Mitigation</em>: Robust error handling within PaginatorDataSource ensures that issues are caught and reported via callbacks. Developers can configure fallbacks, such as loading stale cache data, to maintain functionality when fresh data isn't available.</p>
+<h5 id="cache-inconsistencies">Cache inconsistencies</h5>
+<p>Stale or corrupted cache entries can lead to outdated or incorrect page displays, a critical concern in pagination where continuity matters.</p>
+<p><em>Mitigation</em>: The PageValidator checks page validity using expiration times or checksums. Invalid pages trigger cache invalidation and a fresh fetch, ensuring users see accurate content. This is paired with configurable eviction strategies in PaginatorConfig to keep the cache lean and reliable.</p>
+<h5 id="concurrency-issues">Concurrency issues</h5>
+<p>Multi-threaded environments, common in mobile apps, risk race conditions when multiple threads access the cache or fetch data simultaneously.</p>
+<p><em>Mitigation</em>: Thread-safe data structures (e.g., concurrent maps) and synchronization mechanisms safeguard the in-memory cache and PaginatorStore. This ensures a consistent state across threads, vital for smooth pagination during rapid user interactions.</p>
+<h5 id="invalid-page-keys">Invalid page keys</h5>
+<p>In cursor-based or keyset pagination, users might request pages with expired or malformed keys, especially after data updates.</p>
+<p><em>Mitigation</em>: The library validates keys before processing, rejecting invalid requests with clear error messages via callbacks. This guides developers to handle such cases, perhaps by resetting to a known starting point.</p>
+<h5 id="last-notes">Last notes</h5>
+<p>These mitigations prioritize user experience, ensuring that failures don't derail the app but instead degrade gracefully. Adding analytics and logging options in PaginatorConfig further empowers developers to monitor and troubleshoot issues, enhancing reliability in production.</p>
+<h4 id="versioning">Versioning</h4>
+<p>As an open-source library, maintaining a clear versioning strategy is vital for developer trust and long-term adoption. It ensures that updates, whether new features, bug fixes, or breaking changes, are predictable and manageable.</p>
+<p>For our library, we adopt <strong>Semantic Versioning (SemVer)</strong> [12] with its MAJOR.MINOR.PATCH format, tailoring it to the pagination library's evolution:</p>
+<ul>
+<li>The MAJOR version (X.y.z) signals breaking changes that require code updates.
+<ul>
+<li>In our pagination library, this would be the case if we modify the Paginator interface or alter the default caching behavior.</li>
+</ul>
+</li>
+<li>The MINOR version (x.Y.z) adds new features while maintaining compatibility.
+<ul>
+<li>In our pagination library, this would be the case if we enhanced the PaginatorConfig's functionality without disrupting existing integrations.</li>
+</ul>
+</li>
+<li>The PATCH version (x.y.Z) addresses bugs and small fixes without changing behavior.</li>
+</ul>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Both iOS and Android ecosystems strongly favor SemVer for their dependency management.</p><p>SemVer integration is particularly important for iOS because the Swift Package Manager (SPM) uses it as the foundation for dependency resolution [13]. Using alternative versioning schemes could lead to compatibility issues and make it harder for SPM to properly manage your library's dependencies.</p><p>Similarly, on Android, build tools such as Gradle and Maven are designed to work seamlessly with SemVer. Following SemVer ensures these tools can automatically resolve version conflicts and manage dependencies effectively.</p><p>Without SemVer, you would lose access to much of the sophisticated dependency management these tools provide.</p></div>
+<h4 id="other-versioning-strategies">Other versioning strategies</h4>
+<p>While SemVer is widely adopted, including by our pagination library, for its clear and structured approach to versioning, other strategies such as <strong>Calendar Versioning (CalVer)</strong> are also used in certain ecosystems to meet specific needs.</p>
+<p>A prominent example is Jetpack Compose [14], which combines CalVer with elements of SemVer to manage its rapidly evolving UI toolkit and guarantee compatibility across its suite of libraries. Here's how it works:</p>
+<ul>
+<li>Individual Compose libraries (compose-ui, compose-material, compose-foundation, etc.) strictly use SemVer.</li>
+<li>Compose also provides a <strong>Bill of Materials (BOM)</strong> artifact, which uses Calendar Versioning (CalVer). Jetpack Compose's BOM artifacts are formatted as YYYY.MM.PATCH (e.g., 2025.02.00), where the year (YYYY) and month (MM) tie releases to a specific date.</li>
+</ul>
+<p>The Compose BOM simplifies dependency management by specifying a single, calendar-based version that corresponds to a specific set of compatible libraries. The BOM maps a specific CalVer release (e.g., 2025.02.00) to a group of compatible library versions (e.g., compose.animation:1.7.8, compose.material3:1.3.1, etc.). This guarantees compatibility across all included libraries.</p>
+<h2 id="step-5-wrap-up">Step 5: Wrap-up</h2>
+<p>In this chapter, we designed a flexible pagination library that works with:</p>
+<ul>
+<li>Any kind of application data.</li>
+<li>Different pagination techniques, such as offset-based or cursor-based pagination.</li>
+<li>Both local and remote data sources.</li>
+</ul>
+<p>We defined a public API, designed a robust, scalable, and extensible architecture, and covered key aspects such as caching, prioritization of API calls, points of failure, testing, and versioning.</p>
+<p>If you have extra time in your interview or want to push yourself with more advanced requirements, here are a few additional areas you could explore:</p>
+<ul>
+<li>Pagination support in the UI layer: consider integrating with common UI elements such as table views, collection views, or scrolling widgets.</li>
+<li>Fast scrolling support: enable users to navigate quickly through large datasets, similar to how long lists often allow the skipping of entire sections.</li>
+<li>Background services: implement prefetching of pages while the app is idle or running in the background, thus ensuring a smooth user experience without interruptions.</li>
+<li>Custom error handling: provide a way for users to define custom error handling strategies for failed fetches, for example, retries, fallbacks to cached data, or user alerts.</li>
+<li>Partial page loading: optimize performance by supporting partial page loads when resources are limited or users need only a subset of the data.</li>
+</ul>
+<h2 id="references">References</h2>
+<p>[1] Test double: <a href="https://en.wikipedia.org/wiki/Test%5C_double" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Test\_double</a><br>
+[2] Public API Challenges In Kotlin: <a href="https://jakewharton.com/public-api-challenges-in-kotlin/" target="_blank" rel="noopener noreferrer">https://jakewharton.com/public-api-challenges-in-kotlin/</a><br>
+[3] Swift's ABI stability: <a href="https://github.com/swiftlang/swift/blob/main/docs/ABIStabilityManifesto.md" target="_blank" rel="noopener noreferrer">https://github.com/swiftlang/swift/blob/main/docs/ABIStabilityManifesto.md</a><br>
+[4] Swift Library Evolution for Stable ABIs available in Swift 5.1: <a href="https://github.com/swiftlang/swift-evolution/blob/main/proposals/0260-library-evolution.md" target="_blank" rel="noopener noreferrer">https://github.com/swiftlang/swift-evolution/blob/main/proposals/0260-library-evolution.md</a><br>
+[5] Store5 KMP library: <a href="https://github.com/MobileNativeFoundation/Store" target="_blank" rel="noopener noreferrer">https://github.com/MobileNativeFoundation/Store</a><br>
+[6] Hyperoslo Cache iOS library: <a href="https://github.com/hyperoslo/Cache" target="_blank" rel="noopener noreferrer">https://github.com/hyperoslo/Cache</a><br>
+[7] Google's Jetpack Paging 3 library docs: <a href="https://developer.android.com/topic/libraries/architecture/paging/v3-network-db" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/libraries/architecture/paging/v3-network-db</a><br>
+[8] Priority Queue Pattern: <a href="https://learn.microsoft.com/en-us/azure/architecture/patterns/priority-queue" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/azure/architecture/patterns/priority-queue</a><br>
+[9] Optimizing Android Volley: <a href="https://javanexus.com/blog/optimizing-android-volley" target="_blank" rel="noopener noreferrer">https://javanexus.com/blog/optimizing-android-volley</a><br>
+[10] Moya iOS library: <a href="https://github.com/Moya/Moya" target="_blank" rel="noopener noreferrer">https://github.com/Moya/Moya</a><br>
+[11] Handling Network calls in Swift with Moya: <a href="https://medium.com/simform-engineering/handling-network-calls-in-swift-with-moya-c82908c93e5" target="_blank" rel="noopener noreferrer">https://medium.com/simform-engineering/handling-network-calls-in-swift-with-moya-c82908c93e5</a><br>
+[12] SemVer: <a href="https://semver.org/" target="_blank" rel="noopener noreferrer">https://semver.org/</a><br>
+[13] Swift Package Manager integration with SemVer: <a href="https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html" target="_blank" rel="noopener noreferrer">https://docs.swift.org/package-manager/PackageDescription/PackageDescription.html</a><br>
+[14] Jetpack Compose: <a href="https://developer.android.com/compose" target="_blank" rel="noopener noreferrer">https://developer.android.com/compose</a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="stock-trading-app.html">← Previous</a>
+        <a href="hotel-reservation-app.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

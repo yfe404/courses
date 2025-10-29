@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design A News Feed System - System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../system-design-interview.html">System Design Interview</a> /
+        Design A News Feed System
+    </div>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="design-a-notification-system.html">← Previous</a>
+        <a href="design-a-chat-system.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">12</span> Design A News Feed System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/design-a-news-feed-system" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">12</strong><h1>Design A News Feed System</h1></header><p>In this chapter, you are asked to design a news feed system. What is news feed? According to the Facebook help page, “News feed is the constantly updating list of stories in the middle of your home page. News Feed includes status updates, photos, videos, links, app activity, and likes from people, pages, and groups that you follow on Facebook” [1]. This is a popular interview question. Similar questions commonly asked are to: design Facebook news feed, Instagram feed, Twitter timeline, etc.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mobile phone screen displaying a news feed or similar content aggregator.  The screen shows three distinct news items, each vertically stacked and separated by dashed lines. Each item consists of a light-blue square (likely representing an app icon or source logo), a short headline in dark gray text, and a body of text in dark gray.  The second news item uniquely includes a light-green rectangular video player with a central white play button icon, suggesting multimedia content integration.  No URLs or specific parameters are visible; the information flow is implied as a unidirectional presentation of data from the application to the user, with no user interaction depicted in the image itself. The overall layout is clean and simple, suggesting a focus on content readability within a mobile context." width="164" height="321" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-news-feed-system/figure-11-1-UFCYN5DT.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1</figcaption></div></figure>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the problem and establish design scope</h2>
+<p>The first set of clarification questions are to understand what the interviewer has in mind when she asks you to design a news feed system. At the very least, you should figure out what features to support. Here is an example of candidate-interviewer interaction:</p>
+<p><strong>Candidate</strong>: Is this a mobile app? Or a web app? Or both?<br>
+<strong>Interviewer</strong>: Both</p>
+<p><strong>Candidate</strong>: What are the important features?<br>
+<strong>Interview:</strong> A user can publish a post and see her friends’ posts on the news feed page.</p>
+<p><strong>Candidate</strong>: Is the news feed sorted by reverse chronological order or any particular order such as topic scores? For instance, posts from your close friends have higher scores.<br>
+<strong>Interviewer</strong>: To keep things simple, let us assume the feed is sorted by reverse chronological order.</p>
+<p><strong>Candidate</strong>: How many friends can a user have?<br>
+<strong>Interviewer</strong>: 5000</p>
+
+<p><strong>Candidate</strong>: What is the traffic volume?<br>
+<strong>Interviewer</strong>: 10 million DAU</p>
+<p><strong>Candidate</strong>: Can feed contain images, videos, or just text?<br>
+<strong>Interviewer</strong>: It can contain media files, including both images and videos.</p>
+<p>Now you have gathered the requirements, we focus on designing the system.</p>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose high-level design and get buy-in</h2>
+<p>The design is divided into two flows: feed publishing and news feed building.</p>
+<ul>
+<li>
+<p>Feed publishing: when a user publishes a post, corresponding data is written into cache and database. A post is populated to her friends’ news feed.</p>
+</li>
+<li>
+<p>Newsfeed building: for simplicity, let us assume the news feed is built by aggregating friends’ posts in reverse chronological order.</p>
+</li>
+</ul>
+<h3 id="newsfeed-apis">Newsfeed APIs</h3>
+<p>The news feed APIs are the primary ways for clients to communicate with servers. Those APIs are HTTP based that allow clients to perform actions, which include posting a status, retrieving news feed, adding friends, etc. We discuss two most important APIs: feed publishing API and news feed retrieval API.</p>
+<p><strong>Feed publishing API</strong></p>
+<p>To publish a post, a HTTP POST request will be sent to the server. The API is shown below:</p>
+<p>POST /v1/me/feed</p>
+<p>Params:</p>
+<ul>
+<li>
+<p>content: content is the text of the post.</p>
+</li>
+<li>
+<p>auth_token: it is used to authenticate API requests.</p>
+</li>
+</ul>
+<p><strong>Newsfeed retrieval API</strong></p>
+<p>The API to retrieve news feed is shown below:</p>
+<p>GET /v1/me/feed</p>
+<p>Params:</p>
+<ul>
+<li>auth_token: it is used to authenticate API requests.</li>
+</ul>
+<h3 id="feed-publishing">Feed publishing</h3>
+<p>Figure 2 shows the high-level design of the feed publishing flow.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating the flow of a user request for a news feed.  A user, accessing via either a web browser or mobile app, initiates a request that first resolves through a DNS server. This request, containing parameters like `v1/me/feed?content=Hello&amp;auth_token={auth_token}`, is then directed to a load balancer which distributes the traffic across multiple web servers.  These web servers communicate with three distinct services: a Post Service, a Fanout Service, and a Notification Service. The Post Service retrieves data from a Post Cache, which in turn accesses a Post DB if necessary.  The Fanout Service interacts with a News Feed Cache to provide the news feed content.  The Notification Service is shown but its interaction with other components isn't explicitly detailed.  The diagram highlights the use of caching mechanisms (Post Cache and News Feed Cache) to improve performance by storing frequently accessed data closer to the web servers.  The overall architecture demonstrates a client-server model with load balancing and caching strategies for efficient request handling." loading="lazy" width="500" height="803" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-2-DHBRUF3G.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2</figcaption></div></figure>
+<ul>
+<li>
+<p>User: a user can view news feeds on a browser or mobile app. A user makes a post with content “Hello” through API:</p>
+<p>/v1/me/feed?content=Hello&amp;auth_token={auth_token}</p>
+</li>
+<li>
+<p>Load balancer: distribute traffic to web servers.</p>
+</li>
+<li>
+<p>Web servers: web servers redirect traffic to different internal services.</p>
+</li>
+<li>
+<p>Post service: persist post in the database and cache.</p>
+</li>
+<li>
+<p>Fanout service: push new content to friends’ news feed. Newsfeed data is stored in the cache for fast retrieval.</p>
+</li>
+<li>
+<p>Notification service: inform friends that new content is available and send out push notifications.</p>
+</li>
+</ul>
+<h3 id="newsfeed-building">Newsfeed building</h3>
+<p>In this section, we discuss how news feed is built behind the scenes. Figure 3 shows the high-level design:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a news feed service.  The diagram starts with a 'User' block containing icons for a web browser and a mobile app, which connects to a DNS server.  From the User block, a request labeled 'v1/me/feed' is sent to a 'Load balancer,' which distributes the request to a cluster of 'Web servers.' These web servers then communicate with a 'News Feed Service,' which in turn accesses a 'News Feed Cache' composed of multiple cache instances (labeled 'CACHE'). The data flow is unidirectional, starting from the user's request and ending at the retrieval of data from the cache.  The web servers are depicted within a dashed-line box, suggesting a cluster or pool of servers. The News Feed Cache is also highlighted with a rounded rectangle, indicating a distinct component.  The overall architecture shows a client-server model with load balancing and caching implemented for improved performance and scalability." loading="lazy" width="350" height="518" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(350px, 100vw), (max-width: 1200px) min(350px, 80vw), min(350px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-3-DJSVC462.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3</figcaption></div></figure>
+<ul>
+<li>
+<p>User: a user sends a request to retrieve her news feed. The request looks like this: /v1/me/feed.</p>
+</li>
+<li>
+<p>Load balancer: load balancer redirects traffic to web servers.</p>
+</li>
+<li>
+<p>Web servers: web servers route requests to newsfeed service.</p>
+</li>
+<li>
+<p>Newsfeed service: news feed service fetches news feed from the cache.</p>
+</li>
+<li>
+<p>Newsfeed cache: store news feed IDs needed to render the news feed.</p>
+</li>
+</ul>
+<h2 id="step-3---design-deep-dive">Step 3 - Design deep dive</h2>
+<p>The high-level design briefly covered two flows: feed publishing and news feed building. Here, we discuss those topics in more depth.</p>
+<h3 id="feed-publishing-deep-dive">Feed publishing deep dive</h3>
+<p>Figure 4 outlines the detailed design for feed publishing. We have discussed most of components in high-level design, and we will focus on two components: web servers and fanout service.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a social media feed.  A user, accessing via web browser or mobile app (sending a request like `/v1/me/feed?content=Hello&amp;auth_token={auth_token}`), initiates the process. This request is routed through a DNS server to a load balancer, which distributes the traffic to multiple web servers.  The web servers handle authentication and rate limiting before interacting with a Post Service. The Post Service retrieves data from a Post Cache, falling back to a Post DB if necessary.  Concurrently, the Fanout Service, receiving friend IDs (1) from the web servers, queries a Graph DB for friends' data (2). This data is then placed in a Message Queue (3). Fanout Workers (4) process these messages, updating a News Feed Cache (5).  The Notification Service is also triggered by the web servers.  The system utilizes caching extensively: Post Cache for post data, User Cache for user data, and News Feed Cache for the final feed.  Data flows are numbered for clarity, showing the sequence of operations." loading="lazy" width="700" height="793" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-4-XQVJN6AJ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4</figcaption></div></figure>
+<h4 id="web-servers">Web servers</h4>
+<p>Besides communicating with clients, web servers enforce authentication and rate-limiting. Only users signed in with valid <em>auth_token</em> are allowed to make posts. The system limits the number of posts a user can make within a certain period, vital to prevent spam and abusive content.</p>
+<h4 id="fanout-service">Fanout service</h4>
+<p>Fanout is the process of delivering a post to all friends. Two types of fanout models are: fanout on write (also called push model) and fanout on read (also called pull model). Both models have pros and cons. We explain their workflows and explore the best approach to support our system.</p>
+<p><strong>Fanout on write.</strong> With this approach, news feed is pre-computed during write time. A new post is delivered to friends’ cache immediately after it is published.</p>
+<p>Pros:</p>
+<ul>
+<li>
+<p>The news feed is generated in real-time and can be pushed to friends immediately.</p>
+</li>
+<li>
+<p>Fetching news feed is fast because the news feed is pre-computed during write time.</p>
+</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>
+<p>If a user has many friends, fetching the friend list and generating news feeds for all of them are slow and time consuming. It is called hotkey problem.</p>
+</li>
+<li>
+<p>For inactive users or those rarely log in, pre-computing news feeds waste computing resources.</p>
+</li>
+</ul>
+<p><strong>Fanout on read</strong>. The news feed is generated during read time. This is an on-demand model. Recent posts are pulled when a user loads her home page.</p>
+<p>Pros:</p>
+<ul>
+<li>
+<p>For inactive users or those who rarely log in, fanout on read works better because it will not waste computing resources on them.</p>
+</li>
+<li>
+<p>Data is not pushed to friends so there is no hotkey problem.</p>
+</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>Fetching the news feed is slow as the news feed is not pre-computed.</li>
+</ul>
+<p>We adopt a hybrid approach to get benefits of both approaches and avoid pitfalls in them. Since fetching the news feed fast is crucial, we use a push model for the majority of users. For celebrities or users who have many friends/followers, we let followers pull news content on-demand to avoid system overload. Consistent hashing is a useful technique to mitigate the hotkey problem as it helps to distribute requests/data more evenly.</p>
+<p>Let us take a close look at the fanout service as shown in Figure 5.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a news feed fanout service.  The process begins with a `Fanout Service` which first retrieves a list of `friend ids` (step 1) from a `Graph DB` (a graph database storing user relationships).  Next, it retrieves the `friends data` (step 2) from a `User Cache`, which in turn pulls data from a `User DB` (a relational database storing user information) if a cache miss occurs.  The `Fanout Service` then places messages (step 3) into a `Message Queue`, which are subsequently processed by `Fanout Workers` (step 4). These workers update the user's `News Feed` (step 5), which also utilizes a cache for performance optimization.  The numbered steps indicate the sequential flow of data and operations within the system.  The diagram clearly shows the interaction between different components, highlighting the use of caching mechanisms to improve efficiency and the use of a message queue for asynchronous processing." loading="lazy" width="561" height="513" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-news-feed-system/figure-11-5-RFHWCGXD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5</figcaption></div></figure>
+<p>The fanout service works as follows:</p>
+<p>1. Fetch friend IDs from the graph database. Graph databases are suited for managing friend relationship and friend recommendations. Interested readers wishing to learn more about this concept should refer to the reference material [2].</p>
+<p>2. Get friends info from the user cache. The system then filters out friends based on user settings. For example, if you mute someone, her posts will not show up on your news feed even though you are still friends. Another reason why posts may not show is that a user could selectively share information with specific friends or hide it from other people.</p>
+<p>3. Send friends list and new post ID to the message queue.</p>
+<p>4. Fanout workers fetch data from the message queue and store news feed data in the news feed cache. You can think of the news feed cache as a <em>&lt;post_id, user_id&gt;</em> mapping table. Whenever a new post is made, it will be appended to the news feed table as shown in Figure 6. The memory consumption can become very large if we store the entire user and post objects in the cache. Thus, only IDs are stored. To keep the memory size small, we set a configurable limit. The chance of a user scrolling through thousands of posts in news feed is slim. Most users are only interested in the latest content, so the cache miss rate is low.</p>
+<p>5. Store <em>&lt;post_id, user_id &gt;</em> in news feed cache. Figure 6 shows an example of what the news feed looks like in cache.</p>
+<table><thead><tr><th>post_id</th><th>user_id</th></tr></thead><tbody><tr><td>post_id</td><td>user_id</td></tr><tr><td>post_id</td><td>user_id</td></tr><tr><td>post_id</td><td>user_id</td></tr><tr><td>post_id</td><td>user_id</td></tr><tr><td>post_id</td><td>user_id</td></tr><tr><td>post_id</td><td>user_id</td></tr><tr><td>post_id</td><td>user_id</td></tr></tbody></table>
+<p class="tableCaption">Figure 6</p>
+<h3 id="newsfeed-retrieval-deep-dive">Newsfeed retrieval deep dive</h3>
+<p>Figure 7 illustrates the detailed design for news feed retrieval.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a news feed service.  A user, accessing via web browser or mobile app, initiates a request (labeled '/v1/me/feed') which first resolves through a DNS server. This request then hits a load balancer (1), distributing the traffic across multiple web servers (2).  The web servers handle authentication and rate limiting before forwarding the request to the 'News Feed Service' (3). This service then accesses a 'News Feed Cache' (4) for data. If the data is not present in the cache, the service fetches it from the 'User DB' via the 'User Cache' (5) and 'Post DB' via the 'Post Cache' (5).  The responses are cached for future requests.  The entire system is fronted by a CDN (6) for faster content delivery, with the load balancer distributing traffic to the web servers and the mobile app connecting directly to the CDN (6).  Numbered arrows indicate the flow of requests and responses between components." loading="lazy" width="550" height="553" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(550px, 100vw), (max-width: 1200px) min(550px, 80vw), min(550px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-news-feed-system%2Ffigure-11-7-VBGEYZ3E.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7</figcaption></div></figure>
+<p>As shown in Figure 7, media content (images, videos, etc.) are stored in CDN for fast retrieval. Let us look at how a client retrieves news feed.</p>
+<p>1. A user sends a request to retrieve her news feed. The request looks like this: <em>/v1/me/feed</em></p>
+<p>2. The load balancer redistributes requests to web servers.</p>
+<p>3. Web servers call the news feed service to fetch news feeds.</p>
+<p>4. News feed service gets a list post IDs from the news feed cache.</p>
+<p>5. A user’s news feed is more than just a list of feed IDs. It contains username, profile picture, post content, post image, etc. Thus, the news feed service fetches the complete user and post objects from caches (user cache and post cache) to construct the fully hydrated news feed.</p>
+<p>6. The fully hydrated news feed is returned in JSON format back to the client for rendering.</p>
+<h3 id="cache-architecture">Cache architecture</h3>
+<p>Cache is extremely important for a news feed system. We divide the cache tier into 5 layers as shown in Figure 8.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system design for a news feed, structured as a table with five rows and three columns.  The first column labels the rows: 'News Feed,' 'Content,' 'Social Graph,' 'Action,' and 'Counters.' The remaining two columns represent data categories. The 'News Feed' row contains a single box labeled 'news feed.' The 'Content' row contains boxes labeled 'hot cache' and 'normal,' suggesting different caching strategies for content. The 'Social Graph' row shows boxes labeled 'follower' and 'following,' representing relationships between users. The 'Action' row displays boxes for 'liked,' 'replied,' and 'others,' indicating different user interactions. Finally, the 'Counters' row shows corresponding counters for each action: 'like counter,' 'reply counter,' and 'other counters.'  The dashed lines delineate logical groupings of related data within the system.  No explicit connections or data flow are shown between the boxes, but the arrangement implies a relationship between the data in each row, suggesting that the system tracks news feed content, user relationships, user actions, and associated counts." loading="lazy" width="500" height="264" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-news-feed-system/figure-11-8-XPCIBE53.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8</figcaption></div></figure>
+<ul>
+<li>
+<p>News Feed: It stores IDs of news feeds.</p>
+</li>
+<li>
+<p>Content: It stores every post data. Popular content is stored in hot cache.</p>
+</li>
+<li>
+<p>Social Graph: It stores user relationship data.</p>
+</li>
+<li>
+<p>Action: It stores info about whether a user liked a post, replied a post, or took other actions on a post.</p>
+</li>
+<li>
+<p>Counters: It stores counters for like, reply, follower, following, etc.</p>
+</li>
+</ul>
+<h2 id="step-4---wrap-up">Step 4 - Wrap up</h2>
+<p>In this chapter, we designed a news feed system. Our design contains two flows: feed publishing and news feed retrieval.</p>
+<p>Like any system design interview questions, there is no perfect way to design a system. Every company has its unique constraints, and you must design a system to fit those constraints. Understanding the tradeoffs of your design and technology choices are important. If there are a few minutes left, you can talk about scalability issues. To avoid duplicated discussion, only high-level talking points are listed below.</p>
+<p>Scaling the database:</p>
+<ul>
+<li>
+<p>Vertical scaling vs Horizontal scaling</p>
+</li>
+<li>
+<p>SQL vs NoSQL</p>
+</li>
+<li>
+<p>Master-slave replication</p>
+</li>
+<li>
+<p>Read replicas</p>
+</li>
+<li>
+<p>Consistency models</p>
+</li>
+<li>
+<p>Database sharding</p>
+</li>
+</ul>
+<p>Other talking points:</p>
+<ul>
+<li>
+<p>Keep web tier stateless</p>
+</li>
+<li>
+<p>Cache data as much as you can</p>
+</li>
+<li>
+<p>Support multiple data centers</p>
+</li>
+<li>
+<p>Loosely coupled components with message queues</p>
+</li>
+<li>
+<p>Monitor key metrics. For instance, QPS during peak hours and latency while users refreshing their news feed are interesting to monitor.</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="reference-materials">Reference materials</h2>
+<p>[1] How News Feed Works:<br>
+<a href="https://www.facebook.com/help/327131014036297/" target="_blank" rel="noopener noreferrer"><u>https://www.facebook.com/help/327131014036297/</u></a></p>
+<p>[2] Friend of Friend recommendations Neo4j and SQL Sever:<br>
+<a href="http://geekswithblogs.net/brendonpage/archive/2015/10/26/friend-of-friend-recommendations-with-neo4j.aspx" target="_blank" rel="noopener noreferrer"><u>http://geekswithblogs.net/brendonpage/archive/2015/10/26/friend-of-friend-recommendations-with-neo4j.aspx</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="design-a-notification-system.html">← Previous</a>
+        <a href="design-a-chat-system.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

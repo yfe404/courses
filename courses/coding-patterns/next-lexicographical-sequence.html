@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Lexicographical Sequence - Coding Patterns</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../coding-patterns.html">Coding Patterns</a> /
+        Next Lexicographical Sequence
+    </div>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="largest-container.html">← Previous</a>
+        <a href="pair-sum-sorted.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">next immediate sequence in lexicographical</span> Next Lexicographical Sequence
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/coding-patterns/two-pointers/next-lexicographical-sequence" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><h1>Next Lexicographical Sequence</h1></header><div class="style_problemDescription__T4cPe"><p>Given a string of lowercase English letters, rearrange the characters to form a new string representing the <strong>next immediate sequence in lexicographical</strong> (alphabetical) <strong>order</strong>. If the given string is already last in lexicographical order among all possible arrangements, return the arrangement that's first in lexicographical order.</p><h4 id="example-1">Example 1:</h4><pre><code class="hljs language-python">Input: s = <span class="hljs-string">'abcd'</span>
+Output: <span class="hljs-string">'abdc'</span>
+</code></pre><p>Explanation: <code>"abdc"</code> is the next sequence in lexicographical order after rearranging <code>"abcd"</code>.</p><h4 id="example-2">Example 2:</h4><pre><code class="hljs language-python">Input: s = <span class="hljs-string">'dcba'</span>
+Output: <span class="hljs-string">'abcd'</span>
+</code></pre><p>Explanation: Since <code>"dcba"</code> is the last sequence in lexicographical order, we return the first sequence: <code>"abcd"</code>.</p><h4 id="constraints">Constraints:</h4><ul>
+<li>The string contains at least one character.</li>
+</ul></div>
+<h2 id="intuition">Intuition</h2>
+<p>Before devising a solution, let’s first make sure we understand what the next lexicographical sequence of a string is.</p>
+<p>An important detail is that a string’s next lexicographical sequence is lexicographically <em>larger</em> than the original string. Consider the string “abc” and all its permutations in a lexicographically ordered sequence:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table of three columns and six rows containing permutations of the letters 'a', 'b', and 'c'.  Each row presents a unique arrangement of these three letters. A vertical arrow separates the table from the text 'lexicographical order'. This arrow indicates that the rows in the table are ordered lexicographically; that is, they are arranged in ascending order as they would appear in a dictionary.  The ordering starts with 'a' as the smallest element, followed by 'b', and then 'c'.  The first row is 'abc', the second is 'acb', and so on, systematically exhausting all possible permutations of the three letters in lexicographical order." loading="lazy" width="257" height="163" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-1-XNEZVNFM.svg" style="color: transparent;"></div></figure>
+<p>We can see the increasing order of the strings in the sequence when we translate each letter to its position in the alphabet:</p>
+ 
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mapping of permutations of the letters 'a', 'b', and 'c' to their corresponding numerical representations.  Six rows display all possible orderings of these three letters.  Each row shows a permutation on the left side, followed by a grey arrow indicating a transformation.  On the right side, each permutation is mapped to a unique set of numbers (1, 2, and 3), representing the rank of each letter within its permutation.  For example, in the first row, 'a', 'b', and 'c' map to 1, 2, and 3 respectively, reflecting their increasing order.  The vertical orange arrow and the word 'increasing' highlight that the numerical mapping consistently assigns 1 to the smallest letter, 2 to the next smallest, and 3 to the largest within each row's permutation.  The arrangement visually demonstrates a one-to-one correspondence between letter permutations and their ranked numerical equivalents." loading="lazy" width="400" height="180" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-2-3NFPMURJ.svg" style="color: transparent;"></div></figure>
+<p>From this, we also notice the next string in the sequence after “abc” is “acb”, which is the first string larger than the original string:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table illustrating a mapping between character sequences and numerical sequences.  Six rows display different permutations of the characters 'a', 'b', and 'c' in the leftmost column.  Each character sequence is connected via a grey arrow to a corresponding numerical sequence (1, 2, 3) in the rightmost column.  The numerical sequences represent rankings or assignments based on the input character sequence.  For example, the sequence 'abc' maps to '1 2 3', while 'acb' maps to '1 3 2'.  An orange arrow points from the numerical sequence '1 3 2' to the text 'next largest after 'abc'', indicating that this numerical sequence represents the next largest ranking after the sequence 'abc' based on some implied ordering or ranking system.  The image demonstrates a pattern or algorithm that transforms character permutations into ranked numerical sequences." loading="lazy" width="470" height="170" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-3-6Y6TYFIZ.svg" style="color: transparent;"></div></figure>
+<p>This gives us some indication of what we need to find. The next lexicographical string:</p>
+<ol>
+<li>Incurs the <strong>smallest possible lexicographical increase</strong> from the original string.</li>
+<li>Uses the same letters as the original string.</li>
+</ol>
+<p><strong>Identifying which characters to rearrange</strong><br>
+Since our goal is to make the smallest possible increase, we need to somehow rearrange the characters on the right side of the string.</p>
+<p>To understand why, imagine trying to “increase” a string’s value. Increasing the rightmost letter causes the resulting string to be closer to the original string lexicographically than increasing the leftmost letter does:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two rows of data, each showing a sequence of letters (a, b, c, d, e) with corresponding numerical values (1, 2, 3, 4, 5) beneath them.  The top row displays the sequence 'a b c e d d,' with values '1 2 3 5 4 4' respectively. The bottom row shows a slightly altered sequence: 'b a b c e d d a,' with values '2 1 2 3 5 4 4 1' respectively.  A diagonal strikethrough line connects 'a' (value 1) in the top row to 'b' (value 2) in the top row, and similarly connects 'a' (value 1) in the bottom row to 'b' (value 2) in the bottom row.  The top row is labeled '(small increase)' and the bottom row is labeled '(big increase),' indicating that the changes between the two rows represent different magnitudes of increase in the value associated with 'a'.  The numerical values under each letter represent the magnitude of each element in the sequence. The visual emphasis is on the change in the position and value of 'a' between the two rows, highlighting the concept of a small versus a big increase in a sequence." loading="lazy" width="420" height="120" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-4-M7GGRR7V.svg" style="color: transparent;"></div></figure>
+<p>Therefore, <strong>we should focus on rearranging characters on the right-hand side of the string first</strong>, if possible.</p>
+<p>A key insight is that the last string in a lexicographical sequence (i.e., the largest permutation) will always follow a <strong>non-increasing</strong> order. We can see this with the string “abcc”, for example, with its largest possible permutation being “ccba”:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating a coding pattern transformation.  The diagram shows two sequences of characters, 'a', 'b', 'c', 'c' and 'c', 'c', 'b', 'a', arranged vertically with their corresponding numerical indices (1, 2, 3, 3 and 3, 3, 2, 1 respectively) displayed below. A black arrow connects the first sequence to the second, labeled 'last permutation'.  Above this arrow and connected to the second sequence by an orange arrow is the label 'non-increasing', indicating the transformation's goal. The transformation shows the initial sequence being reordered into a non-increasing sequence, where the elements are arranged in descending order, or if equal, maintain their original order.  The numerical indices also reflect this reordering, demonstrating the change in position of the elements after the transformation." loading="lazy" width="420" height="56" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-5-XGO6V7S7.svg" style="color: transparent;"></div></figure>
+<p>How does this help us? We know we need to rearrange the characters on the right of the string, but we don’t know how many to rearrange. From now on, let’s refer to the rightmost characters that should be rearranged as the <strong>suffix</strong>.</p>
+<p>Take the string "abcedda" as an example. We traverse it from right to left with the <strong>goal of finding the shortest suffix that can be rearranged to form a larger permutation.</strong> The last 4 characters form a non-increasing suffix, and cannot be rearranged to make the string larger:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents three rows of data illustrating a non-increasing subsequence pattern. Each row displays a sequence of characters (a, b, c, e, d, d, a) with corresponding numerical values (1, 2, 3, 5, 4, 4, 1) beneath them.  The arrangement shows the initial sequence followed by progressively identified non-increasing subsequences.  The non-increasing subsequences (d, d, a) are highlighted with a peach-colored background and the label 'non-increasing' is written in orange text above each subsequence. The numerical values remain consistent across all rows, demonstrating how the non-increasing subsequence is identified within the larger sequence.  The visual structure emphasizes the iterative identification of the non-increasing subsequence from the original sequence." loading="lazy" width="300" height="197" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-6-DIDUMSFS.svg" style="color: transparent;"></div></figure>
+<p>However, the next character, ‘c’, breaks the non-increasing sequence:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence of characters 'a', 'b', 'c', 'e', 'd', 'd', 'a' displayed horizontally, each character having a corresponding numerical value (1, 2, 3, 5, 4, 4, 1) shown below.  The characters 'c', 'e' are highlighted in a peach-colored background, indicating they form a non-increasing subsequence (3, 5). A curved arrow connects the numerical values 3 and 5, pointing downwards to '3 &lt; 5', explicitly showing the non-increasing relationship.  A horizontal arrow connects the entire character sequence to the text 'can rearrange to incur an increase' in orange, indicating that because the sequence is not monotonically non-increasing, it can be rearranged to create an increasing sequence. The text 'not non-increasing!' in orange further emphasizes the initial sequence's non-monotonic nature." loading="lazy" width="460" height="78" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-7-LIXSX3R6.svg" style="color: transparent;"></div></figure>
+<p>Let’s call this character the <strong>pivot</strong>:</p>
+ 
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of a pivot operation, likely within a sorting algorithm.  The top shows the word 'pivot' in light blue, with a downward-pointing arrow indicating the pivot element. Below, a horizontal sequence of elements is displayed: 'a', 'b', 'c', 'e', 'd', 'd', 'a'. Each element is associated with a numerical value (1, 2, 3, 5, 4, 4, 1) written beneath it in orange.  The element 'c' (with value 3) is highlighted in a peach-colored background, indicating it's the chosen pivot. The arrangement shows the initial state before the pivot operation, with the pivot element visually separated. The numbers likely represent the values being sorted, and the letters are placeholders or keys associated with those values. The image illustrates a single step in a sorting algorithm where the pivot is selected and the data is prepared for partitioning or comparison based on the pivot's value." loading="lazy" width="300" height="80" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-8-KIIULURN.svg" style="color: transparent;"></div></figure>
+<p>If no pivot is found, it means the string is already the last lexicographical sequence. In this case, we need to obtain its first lexicographical permutation as the problem states. This can be done by reversing the string:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple illustration of a data reversal operation.  On the left, a sequence of four lowercase letters, 'd', 'c', 'b', and 'a', are arranged from left to right. A thick, black arrow connects this sequence to another sequence on the right. The arrow is labeled 'reverse' indicating the transformation applied. The sequence on the right shows the same letters, but in reversed order: 'a', 'b', 'c', and 'd', arranged from left to right. The diagram visually demonstrates how the 'reverse' operation transforms the input sequence into its reversed counterpart.  No URLs or parameters are present." loading="lazy" width="384" height="27" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-9-TFGGHBXG.svg" style="color: transparent;"></div></figure>
+<p><strong>Rearranging characters</strong><br>
+Having identified the shortest suffix to rearrange, the next objective is to rearrange this suffix to make the <strong>smallest increase possible</strong>. We have to start the rearrangement at the pivot since the rest of the suffix is already arranged in its largest permutation.</p>
+<p>To make the character at the pivot position larger, we’d need to <strong>swap the pivot with a character larger than it on the right</strong>.</p>
+<p>In our example, which character should our pivot (‘c’) swap with? We want to swap it with a character larger than 'c,' but not <em>too</em> much larger because the increase should be as small as possible. Let’s figure out how we find such a character.</p>
+<p>Since the substring after the pivot is lexicographically non-increasing, we can find the closest character larger than ‘c’ by <strong>traversing this suffix from right to left and stopping at the first character larger than it.</strong> In other words, we’re finding the rightmost successor to the pivot, which is ‘d’:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating a concept likely related to data structures or algorithms, specifically focusing on finding a pivot and its rightmost successor.  The diagram shows two sequences of characters ('a', 'b', 'c', 'e', 'd', 'a') with associated numerical indices (1, 2, 3, 5, 4, 1, 4, 1) beneath them.  The character 'c' is highlighted in cyan and labeled 'pivot,' indicating it's a selected element. A downward-pointing arrow connects 'pivot' to 'c', showing its selection.  Separately, the text 'rightmost_successor' is shown above a downward-pointing arrow pointing to the second instance of 'd' in the sequence. This suggests that 'd' is identified as the rightmost successor of the pivot 'c' within the context of the algorithm or data structure being depicted. The arrangement implies a process where a pivot is chosen, and then a specific successor element is identified based on some criteria (in this case, the rightmost occurrence)." loading="lazy" width="310" height="80" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-10-NINVKU4R.svg" style="color: transparent;"></div></figure>
+<p>Now, we swap the pivot and the rightmost successor:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of a data transformation or rearrangement process.  The left side shows a sequence of characters ('a', 'b', 'c', 'e', 'd', 'a') each with a numerical subscript (1, 2, 3, 5, 4, 1 respectively).  The characters 'c' and 'a' are highlighted in cyan and black respectively.  These characters are connected by a curved arrow forming a loop, indicating a cyclical or iterative relationship. The arrow points from 'a' to 'c' and then back to 'a'. A straight arrow points from this looped sequence to a second sequence on the right. The right-side sequence is a rearrangement of the left-side sequence ('a', 'b', 'd', 'e', 'd', 'c', 'a'), maintaining the same numerical subscripts (1, 2, 4, 5, 4, 3, 1) but with a changed order.  The character 'c' remains highlighted in cyan, and 'a' in black, indicating that these elements retain their identity despite the shift in position within the sequence. The overall diagram illustrates a transformation where the order of elements changes, but the elements themselves and their associated numerical values remain consistent." loading="lazy" width="641" height="70" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-11-OXCTWZW3.svg" style="color: transparent;"></div></figure>
+<p>The character at the pivot has increased, so to get the next permutation, <strong>we should make the substring after the pivot as small as possible</strong>. After the swap shown above, we see that substring “edca” is not at its smallest permutation. So, we need to minimize the permutation of this substring.</p>
+<p>An important observation is that after the previous swap, the substring after the pivot is still lexicographically non-increasing.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence of elements ('a', 'b', 'd', 'e', 'd', 'c', 'a') each associated with a numerical value (1, 2, 4, 5, 4, 4, 1 respectively) displayed below.  A downward-pointing arrow labeled 'pivot' in orange text points to the element 'd' (with value 4), indicating this element as a pivot point.  A horizontal arrow in orange text connects the elements 'e', 'd', 'c', 'a' (with values 5, 4, 4, 1 respectively), which are highlighted in a peach-colored background.  The text 'still non-increasing' describes the relationship between these highlighted elements, indicating their values are not increasing.  Another orange text phrase, 'make this as small as possible,' suggests an optimization goal: to minimize the range or size of this highlighted subsequence.  The overall diagram illustrates a concept related to finding a pivot point within a sequence and optimizing a subsequence based on a non-increasing condition." loading="lazy" width="501" height="85" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-12-DX55UISX.svg" style="color: transparent;"></div></figure>
+<p>This means we can minimize this substring’s permutation by reversing it:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence transformation process.  The input is a sequence 'a b d e d c a' with corresponding numerical values '1 2 3 5 4 3 1' displayed below. This input sequence is highlighted in a peach-colored rectangle. An arrow labeled 'reverse' indicates the transformation applied to the input. The output sequence is 'a c d e' with values '1 3 4 5' shown below, highlighted in a light green rectangle. The transformation 'reverse' implies that the input sequence within the peach rectangle is reversed, resulting in the output sequence within the green rectangle.  The numerical values associated with each element remain consistent before and after the reversal, indicating that the transformation only affects the order of the elements, not their associated numerical values." loading="lazy" width="661" height="60" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/next-lexicographical-sequence/image-01-06-13-GYKDMNYC.svg" style="color: transparent;"></div></figure>
+<p>And just like that, we found the next lexicographical sequence! The two-pointer strategy used in this problem is staged traversal, where we first identify the pivot, and then identify the rightmost successor relative to it.</p>
+<p>Many steps are involved in identifying the next lexicographical sequence. So, here’s a summary:</p>
+<ol>
+<li>Locate the pivot.</li>
+</ol>
+<ul>
+<li>The pivot is the first character that breaks the non-increasing sequence from the right of the string.</li>
+<li>If no pivot is found, the string is already at its last lexicographical sequence, and the result is just the reverse of the string.</li>
+</ul>
+<ol start="2">
+<li>
+<p>Find the rightmost successor to the pivot.</p>
+</li>
+<li>
+<p>Swap the rightmost successor with the pivot to increase the lexicographical order of the suffix.</p>
+</li>
+<li>
+<p>Reverse the suffix after the pivot to minimize its permutation.</p>
+</li>
+</ol>
+<div class="style_tryBanner__WFMKc"><div><div class="style_tryTitle__dVqce">Try it yourself</div><div class="style_tryDesc___lKzS">Write your solution to the problem before checking the reference implementation.</div></div><a target="_blank" href="/exercises/coding-patterns/two-pointers/next-lexicographical-sequence"><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_openBtn__F_m3N"><span>Open Code Editor</span></button></a></div>
+<h2 id="implementation">Implementation</h2>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-0-tab-0" aria-controls="rc-tabs-0-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-1" aria-controls="rc-tabs-0-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-2" aria-controls="rc-tabs-0-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-0-more-popup" id="rc-tabs-0-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-0-panel-0" aria-labelledby="rc-tabs-0-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">next_lexicographical_sequence</span>(<span class="hljs-params">s: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    letters = <span class="hljs-built_in">list</span>(s)
+    <span class="hljs-comment"># Locate the pivot, which is the first character from the right that breaks</span>
+    <span class="hljs-comment"># non-increasing order. Start searching from the second-to-last position.</span>
+    pivot = <span class="hljs-built_in">len</span>(letters) - <span class="hljs-number">2</span>
+    <span class="hljs-keyword">while</span> pivot &gt;= <span class="hljs-number">0</span> <span class="hljs-keyword">and</span> letters[pivot] &gt;= letters[pivot + <span class="hljs-number">1</span>]:
+        pivot -= <span class="hljs-number">1</span>
+    <span class="hljs-comment"># If pivot is not found, the string is already in its largest permutation. In</span>
+    <span class="hljs-comment"># this case, reverse the string to obtain the smallest permutation.</span>
+    <span class="hljs-keyword">if</span> pivot == -<span class="hljs-number">1</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">''</span>.join(<span class="hljs-built_in">reversed</span>(letters))
+    <span class="hljs-comment"># Find the rightmost successor to the pivot.</span>
+    rightmost_successor = <span class="hljs-built_in">len</span>(letters) - <span class="hljs-number">1</span>
+    <span class="hljs-keyword">while</span> letters[rightmost_successor] &lt;= letters[pivot]:
+        rightmost_successor -= <span class="hljs-number">1</span>
+    <span class="hljs-comment"># Swap the rightmost successor with the pivot to increase the lexicographical</span>
+    <span class="hljs-comment"># order of the suffix.</span>
+    letters[pivot], letters[rightmost_successor] = (letters[rightmost_successor], letters[pivot])
+    <span class="hljs-comment"># Reverse the suffix after the pivot to minimize its permutation.</span>
+    letters[pivot + <span class="hljs-number">1</span>:] = <span class="hljs-built_in">reversed</span>(letters[pivot + <span class="hljs-number">1</span>:])
+    <span class="hljs-keyword">return</span> <span class="hljs-string">''</span>.join(letters)
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<h3 id="complexity-analysis">Complexity Analysis</h3>
+<p><strong>Time complexity:</strong> The time complexity of <code>next_lexicographical_sequence</code> is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> denotes the length of the input string. This is because we perform a maximum of two iterations across the string: one to find the pivot and another to find the rightmost character in the suffix that’s greater in value than the pivot. We also perform one reversal, which takes <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> time.</p>
+<p><strong>Space complexity:</strong> The space complexity is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> due to the space taken up by the letters list. In Python, this additional space is used because strings are immutable, which necessitates storing the input string as a list.</p>
+<h3 id="test-cases">Test Cases</h3>
+<p>In addition to the examples discussed, below are more examples to consider when testing your code.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Input</th><th style="text-align: left;">Expected output</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;">s = 'a'</td><td style="text-align: left;">'a'</td><td style="text-align: left;">Tests a string with a single character.</td></tr><tr><td style="text-align: left;">s = 'aaaa'</td><td style="text-align: left;">'aaaa'</td><td style="text-align: left;">Tests a string with a repeated character.</td></tr><tr><td style="text-align: left;">s = 'ynitsed'</td><td style="text-align: left;">'ynsdeit'</td><td style="text-align: left;">Tests a string with a random pivot character.</td></tr></tbody></table></div>
+<h2 id="interview-tip">Interview Tip</h2>
+<p>Tip: Be precise with your language. It’s crucial to be precise with your choice of words during an interview, especially for technical descriptions. For instance, in this problem, we use “non-increasing” instead of “decreasing,” as “decreasing” implies each term is strictly smaller than the previous one, which isn’t true in this case since adjacent characters can be equal.</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="largest-container.html">← Previous</a>
+        <a href="pair-sum-sorted.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a Restaurant Management System - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design a Restaurant Management System
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-an-atm-system.html">← Previous</a>
+        
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">14</span> Design a Restaurant Management System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/design-a-restaurant-management-system" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">14</strong><h1>Design a Restaurant Management System</h1></header><p>In this chapter, we will explore the design of a Restaurant Management System. The goal is to create classes that represent the system’s essential components, such as menus, reservations, and tables. We will develop a system that supports critical functions like booking reservations, managing orders, and assigning tables, ensuring the design is both straightforward and flexible for future enhancements.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple line drawing of a restaurant setting.  The central focus is a round table covered with a tablecloth, set for two. On the table is a small, triangular 'RESERVED' sign, a vase with a single flower, and a plate with a glass beside it. Two chairs are positioned on either side of the table. In the background, two more tables with identical tablecloths and chairs are visible, each under a hanging light fixture. The overall style is minimalist, using only black lines on a light gray background to depict the scene.  There are no URLs or parameters present in the image. The arrangement suggests a formal restaurant setting with a table specifically reserved for patrons." loading="lazy" width="624" height="389" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-1-MKXZVGKS.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Restaurant reservation</figcaption></div></figure>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>The first step in designing a Restaurant Management System is to clarify the requirements and define the scope. Here’s an example of a typical prompt an interviewer might present:</p>
+<p>“Picture yourself planning a dinner outing on a Friday night. You call the restaurant to reserve a table for your group, check available times, and secure a spot. When you arrive, the staff assigns your party to the reserved table, takes your order, and later presents the bill. Behind the scenes, the system is smoothly handling table reservations, tracking orders, and calculating costs. Now, let’s design a Restaurant Management System that manages all of this.”</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate</strong>: Let’s start by setting the scope. I assume the system manages reservations, menu, order tracking, and payments. For now, I focus on reservations and order management. Does that work?<br>
+<strong>Interviewer</strong>: That’s a reasonable starting point</p>
+<p><strong>Candidate</strong>: Does the system allow customers to make and manage their reservations?<br>
+<strong>Interviewer</strong>: Yes, customers can book tables for a future date and time based on availability.</p>
+<p><strong>Candidate</strong>: How does the system determine if a table is available for a reservation?<br>
+<strong>Interviewer</strong>: It checks for a table that fits the party size and is free at the requested time. Each reservation reserves a table for exactly one hour, so it’s available if no other booking overlaps with that hour.</p>
+<p><strong>Candidate</strong>: Does the system let customers cancel a reservation after making it?<br>
+<strong>Interviewer</strong>: Yes, customers can cancel reservations.</p>
+<p><strong>Candidate</strong>: When a party with a reservation arrives, do they automatically get their reserved table?<br>
+<strong>Interviewer</strong>: Yes, they do. They arrive with their name, and the system uses it to find their reservation, which already has a table assigned to it.</p>
+<p><strong>Candidate</strong>: What happens when a walk-in party arrives for dine-in without prior reservation?<br>
+<strong>Interviewer</strong>: The system should assign walk-in parties to tables based on current availability and their party size.</p>
+<p><strong>Candidate</strong>: Does the system allow orders to be altered or removed after they’re placed?<br>
+<strong>Interviewer</strong>: Yes, you can remove items or adjust their quantities.</p>
+<p><strong>Candidate</strong>: Does the system track the status of orders?<br>
+<strong>Interviewer</strong>: Yes, it keeps track of their progress.</p>
+<p><strong>Candidate</strong>: Are there rules for splitting the bill at checkout?<br>
+<strong>Interviewer</strong>: For now, just present a single total bill amount.</p>
+<h3 id="requirements">Requirements</h3>
+<p>Based on the questions and answers, we can now list the functional requirements for our restaurant management system.</p>
+<p><strong>Reservations</strong></p>
+<ul>
+<li>Customers can book tables for a future date and time based on availability.</li>
+<li>Each reservation reserves a table for exactly one hour.</li>
+<li>The system checks if a table is free at the requested time with no overlapping bookings.</li>
+<li>The system assigns a table to a reservation, and customers get it when they arrive using their name.</li>
+<li>Customers can cancel reservations.</li>
+</ul>
+<p><strong>Walk-in seating</strong></p>
+<ul>
+<li>The system assigns walk-in parties to tables based on current availability and party size.</li>
+</ul>
+<p><strong>Order management</strong></p>
+<ul>
+<li>The system allows orders to be altered or removed after they’re placed.</li>
+<li>The system tracks the progress of orders.</li>
+</ul>
+<p><strong>Billing</strong></p>
+<ul>
+<li>The system presents a single total bill amount at checkout.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>The system should handle increased traffic during busy periods (e.g., weekend evenings) without performance degradation, supporting concurrent users seamlessly.</li>
+</ul>
+<p>With these requirements, we are ready to model the objects for the core system.</p>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>Let’s identify the core objects of the restaurant management system.</p>
+<ul>
+<li><strong>Menu:</strong> Represents the restaurant’s menu, storing a collection of available items for ordering.</li>
+<li><strong>MenuItem:</strong> This object models an individual item on the menu, encapsulating details such as its name and price. Each MenuItem is a building block of the Menu, used when staff place orders for a table.</li>
+<li><strong>Layout:</strong> This object represents the restaurant’s physical arrangement, organizing all tables efficiently to support quick and effective assignment for both walk-ins and reservations.</li>
+<li><strong>Table:</strong> This object models an individual table in the restaurant, holding details such as its capacity, current reservations, and active orders.</li>
+<li><strong>Reservation:</strong> This object represents a single reservation, storing details like the party name, party size, and reserved time, along with the assigned table.</li>
+<li><strong>ReservationManager:</strong> ​​This object oversees all restaurant reservations, managing their creation, lookup, and cancellation to ensure accurate and efficient booking. It checks table availability for free time slots and works with Layout to assign tables, keeping reservations well-scheduled and tracked.</li>
+<li><strong>Restaurant:</strong> This acts as a facade, providing a central interface to manage the system’s key functionalities: reservations, table assignments, orders, and bill calculations. We keep its logic lightweight by delegating tasks like scheduling reservations to ReservationManager, assigning tables to Layout, and managing orders to Table, ensuring it coordinates actions without performing the underlying operations itself.</li>
+</ul>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>You’re set to dive into the heart of the object-oriented design interview: crafting classes and interfaces, shaping data and state through attributes, wrapping logic in methods, and linking your classes with clear relationships.</p>
+<p>Below, we detail each class, its purpose, and its responsibilities, ensuring a clear separation of concerns.</p>
+<h3 id="menu">Menu</h3>
+<p>The Menu class represents the restaurant’s menu, storing menu items in a map with names as keys to quickly retrieve them for ordering. It separates menu data from the Restaurant and Table classes, enabling Table to order items by holding a collection of MenuItem objects that list all available choices.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a `Menu` class.  The diagram is a rectangular box divided into three horizontal sections. The top section displays a large 'C' inside a circle, indicating a class, followed by the class name 'Menu'. The second section shows a private member variable declared as `Map&lt;String, MenuItem&gt; menuItems`, suggesting that the `Menu` class uses a map to store menu items, where the key is a String (likely representing a menu item name or identifier) and the value is an object of type `MenuItem`.  The third section shows a public method `void addItem(MenuItem item)`, indicating a method that takes a `MenuItem` object as input and adds it to the `menuItems` map.  No connections or information flow to or from external elements are depicted in this diagram; it solely describes the internal structure and functionality of the `Menu` class." loading="lazy" width="373" height="123" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-2-FNRKUKHH.svg" style="color: transparent;"></div></figure>
+<h3 id="menuitem">MenuItem</h3>
+<p>The MenuItem defines each item on the menu, holding its name, description, price, and category for use in orders. The Menu class uses these items to provide the list of choices, and the Table class records them as ordered items for order management and updates. The Category enum assigns each item a type, such as main course, appetizer, or dessert, to group them on the menu.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram showing two components: a class named `MenuItem` and an enumeration named `Category`.  The `MenuItem` class is depicted with a 'C' in a circle, indicating it's a class, and contains four attributes: `name` (String type), `description` (String type), `price` (BigDecimal type), and `category` (Category type).  These attributes are represented as private members, indicated by the preceding minus sign ('-'). Separately, the `Category` enumeration, denoted by an 'E' in a circle, lists three possible values: `MAIN`, `APPETIZER`, and `DESSERT`. The `category` attribute in the `MenuItem` class suggests a relationship where each `MenuItem` instance is associated with one of the categories defined in the `Category` enumeration.  There are no explicit connections drawn between the two components, but the type declaration of the `category` attribute implicitly indicates a relationship, likely a composition or association, between `MenuItem` and `Category`." loading="lazy" width="380" height="157" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-3-7HSKQ37H.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">MenuItem class and Category enum</figcaption></div></figure>
+<h3 id="table">Table</h3>
+<p>The Table class models restaurant tables. Some of the attributes, like capacity and tableId, rarely change. But other attributes, like reservations and orderedItems, associated with the table represent current-state data that changes over time.</p>
+<p>Its purpose is to oversee a table’s current use, tying into the Layout class for availability checks and the OrderItem class to handle what’s being served. It includes methods to add or remove orders, tally up bills, and check availability at specific times.</p>
+<p>Here is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Table` class in an object-oriented design.  The diagram shows the class name `Table` at the top, enclosed in a box with rounded corners and a 'C' symbol indicating it's a class. Inside the box, the upper section lists the class's attributes: `int tableId`, `int capacity`, `Map&lt;LocalDateTime, Reservation&gt; reservations`, and `Map&lt;MenuItem, List&lt;OrderItem&gt;&gt; orderedItems`. These represent the table's ID, seating capacity, a map of reservation times to Reservation objects, and a map of menu items to lists of ordered items, respectively. The lower section lists the class's methods: a constructor `Table(int tableId, int capacity)`, methods to add and remove orders (`addOrder`, `removeOrder`), methods to add and remove reservations (`addReservation`, `removeReservation`), a method to check availability at a given time (`isAvailableAt`), and a method to calculate the total bill amount (`calculateBillAmount`).  No connections to other classes are shown; the diagram focuses solely on the internal structure and functionality of the `Table` class." loading="lazy" width="498" height="271" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-4-XJZ7R4LH.svg" style="color: transparent;"></div></figure>
+<h3 id="layout">Layout</h3>
+<p>The Layout class oversees all restaurant tables, organizing them by ID and capacity to pinpoint the right one for each booking. Its purpose is to streamline table assignments, working with ReservationManager to match parties to available tables and relying on Table to confirm free slots. It handles this by finding a table that fits the party size and is available at the requested time, keeping the process efficient.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We isolate table organization in the Layout class to optimize
+assignment efficiency and separate it from menu and order logic managed by the
+Menu and Table classes. Alternatively, integrating table assignment into the Restaurant
+class could simplify the design but would overburden its facade role, mixing high-level
+coordination with low-level table management.</p></div>
+<p>Below is the representation of the Layout class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Layout` class in an object-oriented design.  The diagram shows the `Layout` class, denoted by a class symbol 'C' and the class name 'Layout'. Inside the class, there are two private member variables: `tablesById`, a `Map` mapping integers (presumably table IDs) to `Table` objects; and `tablesByCapacity`, a `SortedMap` mapping integers (table capacities) to `Set`s of `Table` objects.  Below the member variables, there are two public methods: a constructor `Layout(int[] tableCapacities)` that takes an array of integers representing table capacities as input; and a method `findAvailableTable(int partySize, LocalDateTime reservationTime)` that takes a party size (integer) and a reservation time (`LocalDateTime`) as input and returns a `Table` object.  No connections to other classes are explicitly shown in this diagram; the focus is solely on the internal structure and methods of the `Layout` class." loading="lazy" width="592" height="143" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-5-2TM3C43X.svg" style="color: transparent;"></div></figure>
+<h3 id="orderitem">OrderItem</h3>
+<p>The OrderItem class represents each item a customer orders, linking it to a specific MenuItem to provide details like price for the Table class. Its purpose is to track the status of ordered items, allowing the Table class to calculate costs accurately and add or remove items as requested. The class is created when customers place orders, using the Status enum, set to values like pending or delivered, to indicate the item’s current state.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram showcasing the `OrderItem` class and an enumeration `Status`.  The `OrderItem` class, denoted by a 'C' in a circle, has two private member variables: `MenuItem item` and `Status status`.  It also defines a constructor `OrderItem(MenuItem item)` and three public methods: `sendToKitchen()`, `deliverToCustomer()`, and `cancel()`. These methods likely manage the lifecycle of an order item. Separately, the `Status` enumeration, indicated by an 'E' in a circle, lists the possible states of an order item: `PENDING`, `SENT_TO_KITCHEN`, `DELIVERED`, and `CANCELED`.  There is no explicit connection drawn between `OrderItem` and `Status` in the diagram, implying a relationship where `OrderItem` uses the `Status` enum to track its state, but this relationship is not visually represented by lines or arrows." loading="lazy" width="495" height="191" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-6-AENV5YNW.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">OrderItem class and Status enum</figcaption></div></figure>
+<h3 id="reservationmanager">ReservationManager</h3>
+<p>The ReservationManager class handles reservation scheduling by finding available times, creating reservations, and processing cancellations. It stores all Reservation objects and uses a reference to the Layout class to manage table assignments. This reference enables the class to verify table availability and assign suitable tables for each reservation based on party size and time.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram depicting a `ReservationManager` class.  The class is denoted by the 'C' symbol and the name 'ReservationManager'.  It contains two private member variables: `reservations`, a set of `Reservation` objects, and `layout`, an object of type `Layout`.  The class further defines four public methods: a constructor `ReservationManager(Layout layout)` that takes a `Layout` object as input; `findAvailableTimeSlots(LocalDateTime rangeStart, LocalDateTime rangeEnd, int partySize)`, which returns an array of `LocalDateTime` objects representing available time slots within a specified range and for a given party size; `createReservation(String partyName, int partySize, LocalDateTime desiredTime)`, which creates a new reservation; and `removeReservation(String partyName, int partySize, LocalDateTime reservationTime)`, which removes an existing reservation.  No information flow is explicitly shown beyond the method parameters and return types." loading="lazy" width="569" height="232" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-7-HWI7YEFO.svg" style="color: transparent;"></div></figure>
+<h3 id="reservation">Reservation</h3>
+<p>The Reservation class represents a single booking managed by the ReservationManager class, storing the party name, number of people, reservation time, and assigned table. It serves to hold all details of a reservation, enabling the ReservationManager class to schedule and cancel bookings effectively.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a `Reservation` class.  The diagram is a rectangular box with a large 'C' in a circle in the upper left corner, indicating a class.  To the right of the 'C', the class name 'Reservation' is displayed. Below the class name, the class's attributes are listed. Each attribute is preceded by a minus sign within a square, indicating private visibility.  The attributes are: `partyName` of type `String`, `partySize` of type `int`, `time` of type `LocalDateTime`, and `assignedTable` of type `Table`.  There are no methods shown in this diagram, only the attributes and their data types.  No connections or information flow to or from other classes is depicted; the diagram solely focuses on the internal structure of the `Reservation` class." loading="lazy" width="250" height="171" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-8-7GFSUO7G.svg" style="color: transparent;"></div></figure>
+<p>The class is contained within ReservationManager as one of its entries, maintaining a structured and accessible set of reservation data.</p>
+<h3 id="restaurant">Restaurant</h3>
+<p>The Restaurant class serves as the primary interface and facade for the restaurant management system. It coordinates core user-facing operations, such as managing reservations, assigning tables, processing orders, and handling checkout.</p>
+<p>It simplifies access to these features by delegating tasks to other classes:</p>
+<ul>
+<li>The class relies on ReservationManager to schedule and cancel reservations.</li>
+<li>The class uses Layout through ReservationManager to identify available tables for assignments.</li>
+<li>The class depends on Menu to supply items for orders.</li>
+<li>The class directs order and billing actions to the Table for processing.</li>
+</ul>
+<p>This delegation keeps the Restaurant class focused and manageable, organizing the system into distinct components that ensure clarity and ease of maintenance through a structured use of composition.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We structure the Restaurant as a facade to unify system operations,
+delegating tasks to maintain a clean interface and modularity. We can design the
+Restaurant class as a central controller managing all logic internally, but that
+would increase its complexity and reduce scalability by centralizing responsibilities.</p></div>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Restaurant` class in an object-oriented design.  The diagram shows the `Restaurant` class, denoted by a class symbol 'C', with the class name 'Restaurant' at the top.  Inside the class, there are four private attributes: `String name`, `Menu menu`, `Layout layout`, and `ReservationManager reservationManager`.  Below the attributes, the class defines several public methods. These include `findAvailableTimeSlots`, which takes a start time, end time, and party size as input and returns an array of available `LocalDateTime` objects.  There are also methods to create scheduled and walk-in reservations (`createScheduledReservation` and `createWalkInReservation`), remove reservations (`removeReservation`), order items (`orderItem`), cancel items (`cancelItem`), and calculate the table bill (`calculateTableBill`).  The `createScheduledReservation` method takes a party name, party size, and reservation time as parameters and returns a `Reservation` object. The `createWalkInReservation` method takes a party name and party size as parameters and returns a `Reservation` object. The `removeReservation` method takes a party name, party size, and reservation time as parameters. The `orderItem` and `cancelItem` methods take a `Table` object, a `Menultem` object, and a quantity as parameters. The `calculateTableBill` method takes a `Table` object as a parameter and returns a `BigDecimal` representing the bill amount.  All methods are clearly defined with their return types and parameters." loading="lazy" width="586" height="318" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-9-QO7CCEFQ.svg" style="color: transparent;"></div></figure>
+<p>Next, we’ll connect these objects in a class diagram to visualize their relationships.</p>
+<h3 id="complete-class-diagram">Complete Class Diagram</h3>
+<p>Below is the complete class diagram of our restaurant management system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the object-oriented design of a restaurant reservation system.  The top-level class, `Restaurant`, contains a `ReservationManager`, `Menu`, and `Layout` as attributes.  The `ReservationManager` manages a set of `Reservation` objects and interacts with the `Layout` to find available tables.  The `Layout` class contains a `Map` of tables by ID and a `SortedMap` of tables by capacity, allowing efficient table searching.  The `Reservation` class stores information about a reservation, including the party name, size, time, and assigned table.  The `Menu` class manages a `Map` of `Menultem` objects, each with a name, description, price, and category.  The `Table` class stores table information, including its ID, capacity, reservations, and ordered items (a `Map` of `Menultem` to a list of `OrderItem`).  Finally, the `OrderItem` class represents an item ordered, linking to a `Menultem` and tracking its status.  Arrows indicate dependencies and interactions, for example, `ReservationManager` uses `Layout` to find tables, and `Table` uses `Menu` to manage ordered items.  The methods listed within each class describe their functionalities, including creating and removing reservations, managing orders, and calculating bills." loading="lazy" width="624" height="921" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-10-NRTZ3GM7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Class Diagram of Restaurant Management System</figcaption></div></figure>
+<p>With this structure in place, let’s move on to implement the code that brings this design to life.</p>
+<h2 id="code---restaurant-management-system">Code - Restaurant Management System</h2>
+<p>In this section, we’ll implement the core functionalities of the Restaurant Management System, focusing on key areas such as managing menu items, scheduling and canceling reservations, assigning tables for bookings and walk-ins, and processing orders with billing through a table-based system.</p>
+<h3 id="menu-1">Menu</h3>
+<p>The Menu class manages the restaurant’s menu by storing MenuItem objects in a HashMap, using each item’s name as the key to enable fast retrieval for order processing. It provides methods to add an item with addItem, retrieve a specific item using getItem, and access the full menu through getMenuItems as a read-only view.</p>
+<p><strong>Implementation Choice:</strong> We selected HashMap to store MenuItem objects for its quick lookup performance through key-based access, ensuring efficient retrieval for the Table class during order processing, whereas a List alternative, while simpler for storage, requires a linear search that slows access time.</p>
+<p>The definition of the Menu class is given below.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Menu</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, MenuItem&gt; menuItems = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-comment">// Adds a new item to the menu</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addItem</span><span class="hljs-params">(MenuItem item)</span> {
+        menuItems.put(item.getName(), item);
+    }
+
+    <span class="hljs-keyword">public</span> MenuItem <span class="hljs-title function_">getItem</span><span class="hljs-params">(String name)</span> {
+        <span class="hljs-keyword">return</span> menuItems.get(name);
+    }
+
+    <span class="hljs-keyword">public</span> Map&lt;String, MenuItem&gt; <span class="hljs-title function_">getMenuItems</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Collections.unmodifiableMap(menuItems);
+    }
+}
+
+</code></pre>
+<p>With the Menu defined, let’s detail its individual items in MenuItem.</p>
+<h3 id="menuitem-1">MenuItem</h3>
+<p>The MenuItem class represents an individual item on the menu, storing its name, description, price, and category as private final fields to ensure immutability. This class uses BigDecimal for the price field instead of a floating-point type like float or double. BigDecimal is better suited for financial data, as it provides precise control over decimal values and helps avoid rounding errors or precision issues that can arise with floating-point calculations.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Represents a single item available on the restaurant menu</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MenuItem</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String description;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal price;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Category category;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MenuItem</span><span class="hljs-params">(String name, String description, BigDecimal price, Category category)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.description = description;
+        <span class="hljs-built_in">this</span>.price = price;
+        <span class="hljs-built_in">this</span>.category = category;
+    }
+
+    <span class="hljs-comment">// Enumeration of possible menu item categories</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">Category</span> {
+        MAIN,
+        APPETIZER,
+        DESSERT
+    } <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+</code></pre>
+<p>Having established the menu’s contents, let’s model the restaurant’s tables with Table.</p>
+<h3 id="table-1">Table</h3>
+<p>The Table class represents a restaurant table, storing its fixed properties, such as tableId and capacity, while maintaining its bookings and orders by updating reservations and orderedItems. Its purpose is to manage a table’s reservations and orders, using Layout to confirm available time slots and OrderItem to provide price and status details.</p>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Represents a table in the restaurant with its properties and current state</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Table</span> {
+    <span class="hljs-comment">// immutable properties</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> tableId;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> capacity;
+
+    <span class="hljs-comment">// current state</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;LocalDateTime, Reservation&gt; reservations = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;MenuItem, List&lt;OrderItem&gt;&gt; orderedItems = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Table</span><span class="hljs-params">(<span class="hljs-type">int</span> tableId, <span class="hljs-type">int</span> capacity)</span> {
+        <span class="hljs-built_in">this</span>.tableId = tableId;
+        <span class="hljs-built_in">this</span>.capacity = capacity;
+    }
+
+    <span class="hljs-comment">// Calculates the total bill amount for all ordered items at this table</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateBillAmount</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> orderedItems.values().stream()
+                .flatMap(List::stream)
+                .map(OrderItem::getItem)
+                .map(MenuItem::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    <span class="hljs-comment">// Adds multiple orders of the same menu item to the table</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addOrder</span><span class="hljs-params">(MenuItem item, <span class="hljs-type">int</span> quantity)</span> {
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; quantity; i++) {
+            addOrder(item);
+        }
+    }
+
+    <span class="hljs-comment">// Adds a single menu item to the table's order</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addOrder</span><span class="hljs-params">(MenuItem item)</span> {
+        List&lt;OrderItem&gt; orderItems = orderedItems.get(item);
+        <span class="hljs-keyword">if</span> (orderItems == <span class="hljs-literal">null</span>) {
+            orderItems = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+            orderedItems.put(item, orderItems);
+            orderItems.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">OrderItem</span>(item));
+        } <span class="hljs-keyword">else</span> {
+            orderItems.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">OrderItem</span>(item));
+        }
+    }
+
+    <span class="hljs-comment">// Removes a menu item from the table's order</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeOrder</span><span class="hljs-params">(MenuItem item)</span> {
+        List&lt;OrderItem&gt; orderItems = orderedItems.get(item);
+        <span class="hljs-keyword">if</span> (orderItems != <span class="hljs-literal">null</span>) {
+            orderItems.remove(<span class="hljs-number">0</span>);
+            <span class="hljs-keyword">if</span> (orderItems.isEmpty()) {
+                orderedItems.remove(item);
+            }
+        }
+    }
+
+    <span class="hljs-comment">// Checks if the table is available at a specific time</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAvailableAt</span><span class="hljs-params">(LocalDateTime reservationTime)</span> {
+        <span class="hljs-keyword">return</span> !reservations.containsKey(reservationTime);
+    }
+
+    <span class="hljs-comment">// Adds a reservation to this table</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addReservation</span><span class="hljs-params">(Reservation reservation)</span> {
+        reservations.put(reservation.getTime(), reservation);
+    }
+
+    <span class="hljs-comment">// Removes a reservation from this table for a specific time</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeReservation</span><span class="hljs-params">(LocalDateTime reservationTime)</span> {
+        reservations.remove(reservationTime);
+    }
+
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+</code></pre>
+<p>The class uses a Map with reservation times as keys to store reservations. This setup enables quick availability checks through the isAvailableAt method. It also uses a separate Map with MenuItem keys to manage orderedItems. This structure supports the addOrder method to include items, the removeOrder method to remove them, and the calculateBillAmount method for billing.</p>
+<p>With tables in place, let’s organize them efficiently using Layout.</p>
+<h3 id="layout-1">Layout</h3>
+<p>The Layout class represents the seating arrangement of the entire restaurant, managing all tables to support efficient assignments for reservations and walk-ins. It organizes tables using two indexing methods:</p>
+<ul>
+<li><strong>Tables by ID</strong>: Stored in a Map (tablesById) with each table’s ID as the key. This method allows fast retrieval of a table by its unique identifier during operations.</li>
+<li><strong>Tables by Capacity</strong>: Stored in a SortedMap (tablesByCapacity) where each capacity level maps to a set of tables with that capacity. This method enables the findAvailableTable method to locate the smallest available table that fits a party’s size quickly.</li>
+</ul>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Manages the collection of tables in the restaurant and their arrangement</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Layout</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;Integer, Table&gt; tablesById = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-comment">// Groups tables by their capacity for efficient table assignment, sorted from smallest to</span>
+    <span class="hljs-comment">// largest capacity</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> SortedMap&lt;Integer, Set&lt;Table&gt;&gt; tablesByCapacity = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TreeMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Layout</span><span class="hljs-params">(List&lt;Integer&gt; tableCapacities)</span> {
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; tableCapacities.size(); i++) {
+            <span class="hljs-type">int</span> <span class="hljs-variable">capacity</span> <span class="hljs-operator">=</span> tableCapacities.get(i);
+            <span class="hljs-type">Table</span> <span class="hljs-variable">table</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Table</span>(i, capacity);
+            tablesById.put(i, table);
+            tablesByCapacity.computeIfAbsent(capacity, k -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;()).add(table);
+        }
+    }
+
+    <span class="hljs-comment">// Finds the smallest available table that can accommodate a party of the given size at the</span>
+    <span class="hljs-comment">// given time</span>
+    <span class="hljs-keyword">public</span> Table <span class="hljs-title function_">findAvailableTable</span><span class="hljs-params">(<span class="hljs-type">int</span> partySize, LocalDateTime reservationTime)</span> {
+        <span class="hljs-keyword">for</span> (Set&lt;Table&gt; tables : tablesByCapacity.tailMap(partySize).values()) {
+            <span class="hljs-keyword">for</span> (Table table : tables) {
+                <span class="hljs-keyword">if</span> (table.isAvailableAt(reservationTime)) {
+                    <span class="hljs-keyword">return</span> table;
+                }
+            }
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    }
+}
+</code></pre>
+<p><strong>Implementation Choice:</strong> We chose SortedMap structures for tablesByCapacity. This structure provides sorted key access that supports efficient range searches by capacity. This efficiency is crucial for the findAvailableTable method to match tables to party sizes. A basic Map lacks sorting capability. It would require additional logic to identify the smallest suitable table, making it less efficient.</p>
+<p>Now that tables are arranged, let’s manage individual order items with OrderItem.</p>
+<h3 id="orderitem-1">OrderItem</h3>
+<p>The OrderItem class defines each item ordered by a customer, storing a reference to a specific MenuItem and maintaining its current status to track its state during order processing.</p>
+<p>The class includes methods to update the order’s state:</p>
+<ul>
+<li><strong>sendToKitchen</strong> changes the status from PENDING to SENT_TO_KITCHEN</li>
+<li><strong>deliverToCustomer</strong> updates it from SENT_TO_KITCHEN to DELIVERED</li>
+<li><strong>cancel</strong> sets it to CANCELED if not yet delivered</li>
+</ul>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Represents a food item ordered by a customer with its current status in the order process</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderItem</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> MenuItem item;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Status</span> <span class="hljs-variable">status</span> <span class="hljs-operator">=</span> Status.PENDING;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">OrderItem</span><span class="hljs-params">(MenuItem item)</span> {
+        <span class="hljs-built_in">this</span>.item = item;
+    }
+
+    <span class="hljs-comment">// Updates the status to indicate the item has been sent to the kitchen</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sendToKitchen</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (status == Status.PENDING) status = Status.SENT_TO_KITCHEN;
+    }
+
+    <span class="hljs-comment">// Updates the status to indicate the item has been delivered to the customer</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deliverToCustomer</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (status == Status.SENT_TO_KITCHEN) status = Status.DELIVERED;
+    }
+
+    <span class="hljs-comment">// Updates the status to indicate the item has been canceled</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">cancel</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (status == Status.PENDING || status == Status.SENT_TO_KITCHEN) {
+            status = Status.CANCELED;
+        }
+    }
+
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+</code></pre>
+<p>With orders tracked, let’s oversee reservations through ReservationManager.</p>
+<h3 id="reservationmanager-1">ReservationManager</h3>
+<p>The ReservationManager class oversees all reservations in the restaurant, managing their scheduling, creation, and cancellation to ensure tables are assigned accurately. It serves as a central coordinator, connecting to the Layout class to locate available tables and storing Reservation objects to maintain booking details.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Manages all reservations for the restaurant and handles table assignments</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReservationManager</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Layout layout;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Set&lt;Reservation&gt; reservations = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();
+
+    <span class="hljs-comment">// Constructor that takes the restaurant's table layout</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ReservationManager</span><span class="hljs-params">(Layout layout)</span> {
+        <span class="hljs-built_in">this</span>.layout = layout;
+    }
+
+    <span class="hljs-comment">// Finds potential time slots for a reservation within the given time range and party size</span>
+    <span class="hljs-keyword">public</span> LocalDateTime[] findAvailableTimeSlots(
+            LocalDateTime rangeStart, LocalDateTime rangeEnd, <span class="hljs-type">int</span> partySize) {
+        <span class="hljs-comment">// checking every hour in the time range</span>
+        <span class="hljs-type">LocalDateTime</span> <span class="hljs-variable">current</span> <span class="hljs-operator">=</span> rangeStart;
+        List&lt;LocalDateTime&gt; possibleReservations = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+        <span class="hljs-keyword">while</span> (!current.isAfter(rangeEnd)) {
+            <span class="hljs-type">Table</span> <span class="hljs-variable">availableTable</span> <span class="hljs-operator">=</span> layout.findAvailableTable(partySize, current);
+            <span class="hljs-keyword">if</span> (availableTable != <span class="hljs-literal">null</span>) {
+                possibleReservations.add(current);
+            }
+            current = current.plusHours(<span class="hljs-number">1</span>);
+        }
+        <span class="hljs-keyword">return</span> possibleReservations.toArray(<span class="hljs-keyword">new</span> <span class="hljs-title class_">LocalDateTime</span>[<span class="hljs-number">0</span>]);
+    }
+
+    <span class="hljs-comment">// Creates a reservation for a specific time, party size and name</span>
+    <span class="hljs-keyword">public</span> Reservation <span class="hljs-title function_">createReservation</span><span class="hljs-params">(
+            String partyName, <span class="hljs-type">int</span> partySize, LocalDateTime desiredTime)</span> {
+        desiredTime = desiredTime.truncatedTo(ChronoUnit.HOURS);
+        <span class="hljs-type">Table</span> <span class="hljs-variable">table</span> <span class="hljs-operator">=</span> layout.findAvailableTable(partySize, desiredTime);
+        <span class="hljs-type">Reservation</span> <span class="hljs-variable">reservation</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Reservation</span>(partyName, partySize, desiredTime, table);
+        table.addReservation(reservation);
+        reservations.add(reservation);
+        <span class="hljs-keyword">return</span> reservation;
+    }
+
+    <span class="hljs-comment">// Removes an existing reservation</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeReservation</span><span class="hljs-params">(
+            String partyName, <span class="hljs-type">int</span> partySize, LocalDateTime reservationTime)</span> {
+        <span class="hljs-comment">// Find matching reservation before removing it</span>
+        <span class="hljs-keyword">for</span> (Reservation reservation : <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;(reservations)) {
+            <span class="hljs-keyword">if</span> (reservation.getTime().equals(reservationTime)
+                    &amp;&amp; reservation.getPartySize() == partySize
+                    &amp;&amp; reservation.getPartyName().equals(partyName)) {
+                <span class="hljs-comment">// Clear the reservation from the table first</span>
+                <span class="hljs-type">Table</span> <span class="hljs-variable">table</span> <span class="hljs-operator">=</span> reservation.getAssignedTable();
+                table.removeReservation(reservationTime);
+                <span class="hljs-comment">// Then remove from the reservation collection</span>
+                reservations.remove(reservation);
+                <span class="hljs-keyword">return</span>;
+            }
+        }
+    }
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+</code></pre>
+<ul>
+<li><strong>findAvailableTimeSlots</strong>: This method identifies available reservation times within a specified range. It examines each hour in the range, assuming a one-hour duration per reservation.</li>
+<li><strong>createReservation</strong>: This method creates a reservation for a given time, party size, and party name. It uses Layout.findAvailableTable to confirm a table’s availability. If a table is found, it generates a new Reservation object, adds it to the reservations set, and updates the table’s booking status.</li>
+<li><strong>removeReservation</strong>: This method cancels a reservation based on its time, party size, and party name. It searches the reservations set to locate the matching entry, removes it, and clears the table’s booking if found.</li>
+</ul>
+<p><strong>Implementation Choice:</strong> We chose a Set to store Reservation objects because its unique entry enforcement prevents duplicate bookings, aligning with the need to manage reservations accurately. An alternative could use a List, which allows simpler iteration but risks duplicates unless additional checks are added, or a Map with time-based keys, which could speed up lookups but complicate removal by requiring keys that combine multiple fields, like time, party size, and name, less suited for the system’s focus on reservation uniqueness.</p>
+<p>Next, let’s define the reservation entries with Reservation.</p>
+<h3 id="reservation-1">Reservation</h3>
+<p>The Reservation class is a simple, immutable entity class that stores essential reservation details, including the party name, number of people, reservation time, and assigned table. It serves as the foundational unit for the ReservationManager class, holding the data needed to manage bookings effectively.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Represents a reservation made at the restaurant for a specific party, time and table</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Reservation</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String partyName;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> partySize;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> LocalDateTime time;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Table assignedTable;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Reservation</span><span class="hljs-params">(
+            String partyName, <span class="hljs-type">int</span> partySize, LocalDateTime time, Table assignedTable)</span> {
+        <span class="hljs-built_in">this</span>.partyName = partyName;
+        <span class="hljs-built_in">this</span>.partySize = partySize;
+        <span class="hljs-built_in">this</span>.time = time;
+        <span class="hljs-built_in">this</span>.assignedTable = assignedTable;
+    }
+
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+</code></pre>
+<p>Finally, let’s unify these components in the Restaurant.</p>
+<h3 id="restaurant-1">Restaurant</h3>
+<p>The Restaurant class acts as the central interface for the restaurant management system, offering methods to book reservations, seat walk-in parties, place orders, and compute bills. It follows the facade design pattern to unify these features, delegating reservation and walk-in seating tasks to ReservationManager, which uses Layout to find available tables, order placement, and billing to Table, which uses Menu to access items.</p>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Main restaurant class that manages reservations, orders, and tables</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Restaurant</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Menu menu;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Layout layout;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ReservationManager reservationManager;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Restaurant</span><span class="hljs-params">(String name, Menu menu, Layout layout)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.menu = menu;
+        <span class="hljs-built_in">this</span>.layout = layout;
+        <span class="hljs-built_in">this</span>.reservationManager = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReservationManager</span>(layout);
+    }
+
+    <span class="hljs-comment">// Finds possible reservation times within a time range for a party of specified size</span>
+    <span class="hljs-keyword">public</span> LocalDateTime[] findAvailableTimeSlots(
+            LocalDateTime rangeStart, LocalDateTime rangeEnd, <span class="hljs-type">int</span> partySize) {
+        <span class="hljs-keyword">return</span> reservationManager.findAvailableTimeSlots(rangeStart, rangeEnd, partySize);
+    }
+
+    <span class="hljs-comment">// Creates a reservation for a party at the specified time</span>
+    <span class="hljs-keyword">public</span> Reservation <span class="hljs-title function_">createScheduledReservation</span><span class="hljs-params">(
+            String partyName, <span class="hljs-type">int</span> partySize, LocalDateTime time)</span> {
+        <span class="hljs-keyword">return</span> reservationManager.createReservation(partyName, partySize, time);
+    }
+
+    <span class="hljs-comment">// Removes an existing reservation</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeReservation</span><span class="hljs-params">(
+            String partyName, <span class="hljs-type">int</span> partySize, LocalDateTime reservationTime)</span> {
+        reservationManager.removeReservation(partyName, partySize, reservationTime);
+    }
+
+    <span class="hljs-comment">// Creates a reservation for a party without prior reservation</span>
+    <span class="hljs-keyword">public</span> Reservation <span class="hljs-title function_">createWalkInReservation</span><span class="hljs-params">(String partyName, <span class="hljs-type">int</span> partySize)</span> {
+        <span class="hljs-keyword">return</span> reservationManager.createReservation(partyName, partySize, LocalDateTime.now());
+    }
+
+    <span class="hljs-comment">// Adds an item to a table's order</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">orderItem</span><span class="hljs-params">(Table table, MenuItem item)</span> {
+        table.addOrder(item);
+    }
+
+    <span class="hljs-comment">// Removes an item from a table's order</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">cancelItem</span><span class="hljs-params">(Table table, MenuItem item)</span> {
+        table.removeOrder(item);
+    }
+
+    <span class="hljs-comment">// Calculates the bill amount for a table</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateTableBill</span><span class="hljs-params">(Table table)</span> {
+        <span class="hljs-keyword">return</span> table.calculateBillAmount();
+    }
+
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+</code></pre>
+<ul>
+<li><strong>Reservation methods</strong>: The Restaurant class includes findAvailableTimeSlots to list available times, createScheduledReservation to book reservations, and removeReservation to cancel them, each delegating to ReservationManager for scheduling and management.</li>
+<li><strong>Walk-in seating</strong>: The createWalkInReservation method assigns tables to walk-in parties, delegating to ReservationManager, which uses Layout to locate available tables.</li>
+<li><strong>Order management</strong>: The orderItem method adds items to a table’s order, and cancelItem removes them, both delegating to Table methods addOrder and removeOrder for order processing.</li>
+<li><strong>Checkout</strong>: The calculateTableBill method computes a table’s total cost, delegating to Table.calculateBillAmount for billing calculations.</li>
+</ul>
+<p><strong>Implementation Choice:</strong> We designed the Restaurant as a facade without its data structures. It delegates all operations to Menu, Layout, ReservationManager, and Table. This approach maintains a lightweight structure that simplifies system access. An alternative could have Restaurant store reservations or orders internally using a Map or List. That design would increase complexity and reduce modularity by centralizing responsibilities.</p>
+<p>Having built the core system, let’s explore an enhancement in the deep dive to extend its capabilities.</p>
+<h2 id="deep-dive-topics">Deep Dive Topics</h2>
+<p>In this section, we’ll explore an enhancement to the Restaurant Management System by improving order handling during peak times. We’ll focus on adding a centralized order queue tracking mechanism to streamline kitchen coordination, ensure scalability, and maintain consistency with the system’s modular design.</p>
+<h3 id="order-queue-tracking">Order queue tracking</h3>
+<p>Consider a high-traffic scenario, such as a busy Friday evening at the restaurant, where a significant volume of orders is received, staff work diligently to communicate these to the kitchen, and cancellations accumulate. In the existing system, the Table class directly governs the status of OrderItem instances (e.g., through methods like sendToKitchen() and deliverToCustomer()). However, this decentralized structure lacks a cohesive overview of order progression across all tables. Consequently, staff face challenges in prioritizing time-sensitive orders, monitoring kitchen delays, or verifying cancellations without individually inspecting each table’s state. This approach introduces risks of inconsistency and undermines effective coordination during periods of elevated demand.</p>
+<p>To address these limitations, we propose an enhancement by introducing a centralized OrderManager class responsible for queuing and processing order-related actions. Let’s take a closer look.</p>
+<p><strong>Implementation steps:</strong></p>
+<p>To implement this enhancement effectively, we’ll follow these steps:</p>
+<p><strong>Step 1: Define a Command Interface for Order Actions</strong>: The staff needs a consistent way to issue actions like sending an order to the kitchen or canceling it, improving reliability over direct calls. We define an interface called OrderCommand with a single method, execute(), which concrete classes will implement to perform their tasks.</p>
+<p>Here’s the code for the OrderCommand interface:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">OrderCommand</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">execute</span><span class="hljs-params">()</span>;
+}
+</code></pre>
+<p><strong>Step 2: Implement Concrete Command Classes</strong>: To give staff a flexible way to manage distinct order actions and prepare them for centralized queuing, we build specific classes for each task, unlike the original system, where Table directly updated OrderItem statuses.</p>
+<ul>
+<li>The SendToKitchenCommand class takes an OrderItem and, when executed, calls sendToKitchen() to update its status to SENT_TO_KITCHEN.</li>
+<li>The DeliverCommand class uses deliverToCustomer() to change the OrderItem’s status to DELIVERED, signaling completion.</li>
+<li>The CancelCommand class invokes cancel() to set the status to CANCELED if the item hasn’t been delivered, marking it as voided.</li>
+</ul>
+<p>Here’s the code for the action classes:</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Command that handles sending order items to the Kitchen</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SendToKitchenCommand</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">OrderCommand</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> OrderItem orderItem;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">SendToKitchenCommand</span><span class="hljs-params">(OrderItem orderItem)</span> {
+        <span class="hljs-built_in">this</span>.orderItem = orderItem;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">execute</span><span class="hljs-params">()</span> {
+        orderItem.sendToKitchen();
+    }
+} <span class="hljs-comment">// Command that handles delivery of order items</span>
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DeliverCommand</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">OrderCommand</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> OrderItem orderItem;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DeliverCommand</span><span class="hljs-params">(OrderItem orderItem)</span> {
+        <span class="hljs-built_in">this</span>.orderItem = orderItem;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">execute</span><span class="hljs-params">()</span> {
+        orderItem.deliverToCustomer();
+    }
+} <span class="hljs-comment">// Command that handles cancellations of order items</span>
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CancelCommand</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">OrderCommand</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> OrderItem orderItem;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">CancelCommand</span><span class="hljs-params">(OrderItem orderItem)</span> {
+        <span class="hljs-built_in">this</span>.orderItem = orderItem;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">execute</span><span class="hljs-params">()</span> {
+        orderItem.cancel();
+    }
+}
+</code></pre>
+<p><strong>Step 3: Introduce the OrderManager Class</strong>: To handle these actions efficiently, we introduce an OrderManager class. This class maintains a list of OrderCommand objects, allowing us to add commands with addCommand() as orders are placed. The executeCommands() method processes all queued commands in sequence and clears the list afterward, ensuring orders are managed in an organized way without directly altering the Table’s OrderItems.</p>
+<p>Here’s the code for the OrderManager class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderManager</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;OrderCommand&gt; commandQueue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+
+    <span class="hljs-comment">// Adds a command to the queue for later execution</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addCommand</span><span class="hljs-params">(OrderCommand command)</span> {
+        commandQueue.add(command);
+    }
+
+    <span class="hljs-comment">// Executes all commands in the queue and clears it</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">executeCommands</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">for</span> (OrderCommand command : commandQueue) {
+            command.execute();
+        }
+        commandQueue.clear();
+    }
+}
+
+</code></pre>
+<p><strong>Step 4: Integrate with the Restaurant Class</strong>: To connect this system to staff actions, we update the Restaurant class to use OrderManager for order handling. When staff place an order, orderItem adds it to the table and queues a SendToKitchenCommand to send it to the kitchen. Similarly, cancelItem and deliverItem queue their respective commands, ensuring all actions flow through the centralized system for consistent tracking and execution.</p>
+<p>Here’s the essential code for integrating OrderManager into the Restaurant:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Restaurant</span> {
+    <span class="hljs-comment">// ... fields unchanged ...</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> OrderManager orderManager;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Restaurant</span><span class="hljs-params">(String name, Menu menu, Layout layout)</span> {
+        <span class="hljs-comment">// ... fields unchanged ...</span>
+        <span class="hljs-built_in">this</span>.orderManager = <span class="hljs-keyword">new</span> <span class="hljs-title class_">OrderManager</span>();
+    }
+
+    <span class="hljs-comment">// Adds an item to a table's order and sends it to the kitchen</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">orderItem</span><span class="hljs-params">(Table table, MenuItem item)</span> {
+        table.addOrder(item);
+        <span class="hljs-comment">// Get the last added order item</span>
+        List&lt;OrderItem&gt; orderItems = table.getOrderedItems().get(item);
+        <span class="hljs-keyword">if</span> (orderItems != <span class="hljs-literal">null</span> &amp;&amp; !orderItems.isEmpty()) {
+            <span class="hljs-type">OrderItem</span> <span class="hljs-variable">lastOrder</span> <span class="hljs-operator">=</span> orderItems.get(orderItems.size() - <span class="hljs-number">1</span>);
+            <span class="hljs-type">OrderCommand</span> <span class="hljs-variable">sendToKitchen</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SendToKitchenCommand</span>(lastOrder);
+            orderManager.addCommand(sendToKitchen);
+            orderManager.executeCommands();
+        }
+    }
+
+    <span class="hljs-comment">// Removes an item from a table's order and cancels it</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">cancelItem</span><span class="hljs-params">(Table table, MenuItem item)</span> {
+        List&lt;OrderItem&gt; orderItems = table.getOrderedItems().get(item);
+        <span class="hljs-keyword">if</span> (orderItems != <span class="hljs-literal">null</span> &amp;&amp; !orderItems.isEmpty()) {
+            <span class="hljs-type">OrderItem</span> <span class="hljs-variable">lastOrder</span> <span class="hljs-operator">=</span> orderItems.get(orderItems.size() - <span class="hljs-number">1</span>);
+            <span class="hljs-type">OrderCommand</span> <span class="hljs-variable">cancelOrder</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CancelCommand</span>(lastOrder);
+            orderManager.addCommand(cancelOrder);
+            orderManager.executeCommands();
+            table.removeOrder(item);
+        }
+    }
+
+    <span class="hljs-comment">// Delivers an item to the customer</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">deliverItem</span><span class="hljs-params">(Table table, MenuItem item)</span> {
+        List&lt;OrderItem&gt; orderItems = table.getOrderedItems().get(item);
+        <span class="hljs-keyword">if</span> (orderItems != <span class="hljs-literal">null</span> &amp;&amp; !orderItems.isEmpty()) {
+            <span class="hljs-type">OrderItem</span> <span class="hljs-variable">lastOrder</span> <span class="hljs-operator">=</span> orderItems.get(orderItems.size() - <span class="hljs-number">1</span>);
+            <span class="hljs-type">OrderCommand</span> <span class="hljs-variable">deliverOrder</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DeliverCommand</span>(lastOrder);
+            orderManager.addCommand(deliverOrder);
+            orderManager.executeCommands();
+        }
+    }
+    <span class="hljs-comment">// ... other methods unchanged ...</span>
+}
+
+</code></pre>
+<p>What we’ve just implemented follows a well-known software design pattern called the <strong>Command Pattern</strong>.</p>
+<div class="info-box"><img alt="Definition" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/definition-YTAFYOVI.svg" style="color: transparent;"><p><strong>Definition:</strong> The Command is a behavioral design pattern that encapsulates a
+request as an independent object, containing all the details needed to carry it
+out. This encapsulation allows you to treat requests as parameters for methods,
+delay or schedule their execution.</p></div>
+<p>In this pattern:</p>
+<ul>
+<li><strong>Command</strong>: The OrderCommand interface and its implementations (SendToKitchenCommand, DeliverCommand, CancelCommand) define each action as an object, executed via execute().</li>
+<li><strong>Invoker</strong>: The OrderManager class queues these command objects and triggers their execution, decoupling the Table from direct state changes.</li>
+<li><strong>Receiver</strong>: The OrderItem class, with its existing Status enum and methods like sendToKitchen, receives and processes the commands, updating its state to reflect actions like preparation or delivery.</li>
+</ul>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating a command pattern implementation for managing orders.  The `OrderManager` class contains a `commandQueue` (a list of `OrderCommand` objects) and methods `addCommand` to add commands to the queue and `executeCommands` to process them.  A downward arrow labeled 'queues' connects `OrderManager` to the `OrderCommand` interface, indicating that the manager queues commands implementing this interface.  `OrderCommand` is an interface with a single method, `execute()`. Three concrete classes implement `OrderCommand`: `SendToKitchenCommand`, `DeliverCommand`, and `CancelCommand`. Each of these classes has an `orderItem` attribute of type `OrderItem` and an `execute()` method.  All three concrete command classes have a constructor that takes an `OrderItem` as a parameter.  The `OrderItem` class represents an order item with a `status` attribute and methods `sendToKitchen()`, `deliverToCustomer()`, and `cancel()`.  Arrows point from `SendToKitchenCommand`, `DeliverCommand`, and `CancelCommand` to `OrderItem`, showing that these commands operate on `OrderItem` objects. A note next to `OrderItem` describes it as 'Receiver that processes command actions'.  A note next to `OrderCommand` describes it as 'Command interface for order actions'.  Dashed lines indicate implementation relationships, while solid lines indicate association." loading="lazy" width="624" height="484" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-restaurant-management-system/image-14-11-RENAQ5K3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Command pattern</figcaption></div></figure>
+<p>With our restaurant management system designed and implemented, let’s wrap up with key takeaways.</p>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>In this chapter, we gathered requirements for the Restaurant Management System through a series of detailed questions and answers. We then identified the core objects involved, designed the class structure, and implemented the key components of the system.</p>
+<p>A key takeaway from this design is the importance of modularity and adherence to the single responsibility principle. Each component, such as the Menu, ReservationManager, Layout, and Table classes, manages a distinct responsibility, ensuring the system remains maintainable and adaptable for future enhancements.</p>
+<p>Our design choices, such as delegating operations in the Restaurant to act as a facade or using immutable MenuItem objects, prioritize flexibility and consistency. An alternative, like implementing reservation and order logic directly in the Restaurant class, may simplify the design but could increase complexity and reduce scalability by centralizing responsibilities. In an interview, revisiting these decisions and explaining their rationale demonstrates your ability to think critically about system design.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-an-atm-system.html">← Previous</a>
+        
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

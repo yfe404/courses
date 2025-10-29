@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive app - Mobile System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../mobile-system-design-interview.html">Mobile System Design Interview</a> /
+        Google Drive app
+    </div>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="hotel-reservation-app.html">← Previous</a>
+        <a href="youtube-app.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">08</span> Google Drive app
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/mobile-system-design-interview/google-drive-app" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">08</strong><h1>Google Drive app</h1></header><p>Cloud storage has become fundamental to how we work with files across devices. Services such as Google Drive, Dropbox, Microsoft OneDrive, and Apple iCloud have revolutionized file management by seamlessly integrating cloud storage into everyday workflows. In this chapter, we'll explore the design of a Google Drive mobile client.</p>
+<p>Figure 1 illustrates the Google Drive mobile interface, showing how these complex requirements translate into a clean, user-friendly experience.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a split-screen view of a Google Drive mobile application on an iPhone.  The left screen displays a list of files under the 'Suggested' tab, categorized by file type icons (document, spreadsheet, presentation) and showing file names, last modified information (e.g., 'You edited · Apr 25, 2024'), and the editor's name.  Files include 'Leadership Plan,' 'Forecasting Q2,' 'Q4 Proposal,' 'Weekly Notes,' 'AcmeBranding 0.8.3 Corrective...', 'Project Roadmap (Final),' 'DataGuidelines_v2_Process_and_P.,' and 'Leadership &amp; Organization Update.'  Navigation icons at the bottom represent 'Home,' 'Starred,' 'Shared,' and 'Files.'  The top bar shows 'Search in Drive,' a user profile picture, and the 'Activity' tab. The right screen shows the 'My Drive' view, displaying folders titled 'Work' and 'Holidays.' A bottom sheet menu is visible, offering options to 'Upload file,' 'Scan document,' 'Take photo,' 'Create folder,' and create new Google Docs, Sheets, and Slides files.  Both screens share a top bar with the search bar and user profile picture, indicating a consistent user session.  No explicit data flow is visually represented, but the interaction implies that selecting a file on the left would open it, while selecting an option from the bottom sheet on the right would initiate the corresponding action within the Google Drive application." width="602" height="611" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(602px, 100vw), (max-width: 1200px) min(602px, 80vw), min(602px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-1-MTB3QRFV.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: Google Drive screenshots</figcaption></div></figure>
+<h2 id="step-1-understand-the-problem-and-establish-design-scope">Step 1: Understand the problem and establish design scope</h2>
+<p>Here's how the conversation with the interviewer might unfold:</p>
+<p><strong>Candidate:</strong> Let's begin by defining the core functionality of the Google Drive mobile client. I think the essential features include uploading and downloading files, with options to cancel these operations if needed. Users should also be able to create and delete folders to organize their content. Since Google Drive handles common file types like photos, videos, and documents, we'll also need to support those formats. Does that sound like a good starting point?<br>
+<strong>Interviewer:</strong> Yes, that covers the basics. Since this is a mobile app, network reliability can be an issue. Let's make uploads resumable so users can pick up where they left off if a connection drops.</p>
+<p><strong>Candidate:</strong> That makes sense! Resumable uploads are especially useful for larger files or unreliable networks. Speaking of file sizes, is there a maximum limit we should design for?<br>
+<strong>Interviewer:</strong> Let's set it at 10 GB.</p>
+<p><strong>Candidate:</strong> Got it. Users might upload the same file multiple times with updates. Should we include file versioning so they can track changes and restore previous versions of files?<br>
+<strong>Interviewer:</strong> Yes, file versioning is a valuable feature for cloud storage.</p>
+<p><strong>Candidate:</strong> Great. Next, since users often access Google Drive from multiple devices, we should ensure files sync seamlessly across them. Are we designing for a single user with multiple devices, or do we need to consider multi-user scenarios such as file sharing?<br>
+<strong>Interviewer:</strong> Let's focus on a single user with multiple devices for simplicity. We'll exclude sharing and permission management for now.</p>
+<p><strong>Candidate:</strong> For non-functional requirements, I assume we need scalability for a large user base and data durability for reliable file access, even in poor network conditions. Does that align with your expectations?<br>
+<strong>Interviewer:</strong> Exactly. For scale, plan for about 10 million daily active users.</p>
+<p><strong>Candidate:</strong> Noted. One last thing, Google Drive offers real-time editing and collaboration on Docs and Sheets. Should we include those features?<br>
+<strong>Interviewer:</strong> For this design, treat Docs and Sheets as standard files, leaving out real-time editing and collaboration.</p>
+<h4 id="requirements">Requirements</h4>
+<p>Based on our discussions, let's outline the core functionality needed for our Google Drive app.</p>
+<ul>
+<li>Users can upload and download files with a maximum size of 10 GB and cancel operations in progress.</li>
+<li>Users can create and delete folders to organize content.</li>
+<li>Users can view and restore previous versions of files.</li>
+<li>The app supports resuming interrupted uploads.</li>
+<li>Files sync across the user's multiple devices.</li>
+</ul>
+<p>For <strong>non-functional requirements</strong>, our system must ensure:</p>
+<ul>
+<li>Scalability: Our system should handle 10 million daily active users and support a growing user base, as well as large data volumes, across various network conditions and device types.</li>
+<li>Data durability: Users need reliable access to their downloaded files, even in poor network connectivity conditions.</li>
+</ul>
+<p>To keep our design focused, the following features are <strong>out of scope</strong>:</p>
+<ul>
+<li>Real-time collaboration (e.g., multi-user editing on Docs and Sheets).</li>
+<li>User collaboration features, such as file sharing and permissions.</li>
+</ul>
+<h4 id="ui-sketch">UI sketch</h4>
+<p>Figure 2 shows the core screens of our Google Drive app:</p>
+<ul>
+<li>The <strong>Files List screen</strong> (center) is the app's main hub where users view and manage their files and folders.</li>
+<li>The <strong>Upload Modal</strong> (left) provides a simple, focused interface for uploading files.</li>
+<li>The <strong>File Revisions screen</strong> (right) shows the version history of a specific file for review and restoration.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mobile application workflow for file management and version control.  The diagram shows three distinct screens. The leftmost screen depicts a file explorer interface with a list of files, each showing a small icon, a modification date (e.g., 'Modified Jul 1, 2025'), and ellipses suggesting further options.  Below the file list is a section labeled 'Create folder' and 'File upload,' indicating options for adding new files or folders. The central screen is similar, displaying a list of files with modification dates and ellipses, but also includes a '+' button at the bottom, suggesting the ability to add new files.  A curved arrow connects this '+' button to the leftmost screen, implying that new files are added through the 'File upload' function.  The rightmost screen is titled 'File revisions' and displays a list of file versions, each with a checkbox, a modification date (e.g., 'Modified Jan 10, 2025'), and 'OPEN' and 'RESTORE' buttons.  The top entry is labeled 'Current version,' indicating the most recent version. A curved arrow connects the central screen to the 'File revisions' screen, suggesting that selecting a file in the central screen opens its revision history.  The overall flow shows the user uploading files (left screen), viewing them (center screen), and accessing their revision history (right screen) to open or restore previous versions." loading="lazy" width="602" height="308" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/google-drive-app/figure-8-2-4Q6NQZ2V.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Basic sketch of our Google Drive app</figcaption></div></figure>
+<h2 id="step-2-api-design">Step 2: API design</h2>
+<p>With the app's requirements and UI sketch defined, we now turn to designing the API that connects the mobile client to the backend.</p>
+<h3 id="network-protocol">Network protocol</h3>
+<p>The Google Drive app primarily involves client-driven actions such as uploading files, downloading content, or organizing folders. For these, <strong>HTTP with REST APIs</strong> offers a straightforward and widely adopted solution.</p>
+<p>However, to handle real-time notifications, such as when a shared file is updated, we'll complement REST with either <strong>WebSockets or Server-Sent Events (SSE)</strong>. Since these notifications primarily signal changes rather than transfer actual file content, either approach can effectively handle these lightweight updates.</p>
+<div class="note-block"><p><strong>📝 Note:</strong></p><p>While we're using REST in this design, gRPC with Protocol Buffers would also be a strong choice for the Google Drive app, given our scale requirements. gRPC offers several advantages that align well with our needs:</p><ul>
+<li>
+<p>Binary encoding for improved performance.</p>
+</li>
+<li>
+<p>Strong type safety to ensure API reliability.</p>
+</li>
+<li>
+<p>Efficient bidirectional streaming for real-time file updates.</p>
+</li>
+</ul><p>If you're experienced with gRPC and Protocol Buffers, feel free to adapt the API design accordingly. The patterns we discuss remain relevant regardless of the protocol choice.</p></div>
+<h3 id="endpoints-and-data-models">Endpoints and data models</h3>
+<p>Next, let's outline the core API endpoints and their data structures, starting with the essentials: files and folders.</p>
+<h4 id="files-and-folders">Files and folders</h4>
+<p>Since folders in Google Drive behave like files with a special type, we'll unify their management under a single set of endpoints for consistency.</p>
+<ul>
+<li>
+<p>List files<br>
+<strong>GET /v1/files?parentId=<code>{fileId}</code>&amp;page=<code>{page}</code>&amp;limit=<code>{limit}</code></strong></p>
+<p>Response: 200 OK with GetFilesResponse.
+Optional query parameters:</p>
+</li>
+<li>
+<p>parentId (String): ID of the parent folder. Defaults to the root if absent.</p>
+</li>
+<li>
+<p>Get file details<br>
+<strong>GET /v1/files/<code>{fileId}</code></strong></p>
+<p>Response: 200 OK with File.</p>
+</li>
+<li>
+<p>Download file<br>
+<strong>GET <code>{downloadUrl}</code></strong> (provided in the File object)</p>
+</li>
+<li>
+<p>Create file or folder<br>
+<strong>POST /v1/files</strong></p>
+<p>Body: Metadata (e.g., name, mimeType, parentId).</p>
+</li>
+<li>
+<p>Delete file or folder<br>
+<strong>DELETE /v1/files/<code>{fileId}</code></strong></p>
+</li>
+<li>
+<p>Update file or folder metadata</p>
+</li>
+</ul>
+<p><strong>PATCH /v1/files/<code>{fileId}</code></strong></p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class GetFilesResponse</strong> <br>files: List&lt;File&gt; <br>pagination: PaginationMetadata</td><td style="text-align: left;"><strong>struct GetFilesResponse</strong> <br>files: [File] <br>pagination: PaginationMetadata</td></tr><tr><td style="text-align: left;"><strong>data class File</strong> <br>id: String <br>name: String <br>mimeType: String <br>size: Long <br>downloadUrl: String? <br>checksum: String? <br>...</td><td style="text-align: left;"><strong>struct File</strong> <br>id: String <br>name: String <br>mimeType: String <br>size: Int64 <br>downloadUrl: String? <br>checksum: String? <br>...</td></tr></tbody></table></div>
+<div class="note-block"><p><strong>📝 Note:</strong> These endpoints follow standard REST conventions. All requests require:</p><ul>
+<li>
+<p>Authentication via a JWT bearer token in the Authorization header.</p>
+</li>
+<li>
+<p>JSON content type (application/json).</p>
+</li>
+</ul><p>Like any REST API, these endpoints may return 4xx status codes for client errors such as invalid authentication, missing resources, and malformed requests, and 5xx status codes for server errors.</p></div>
+<p>Having covered file management, let's shift to versioning—a key feature for tracking changes and restoring past states.</p>
+<h4 id="file-revisions">File revisions</h4>
+<p>To enable users to view and revert file history, we'll add revision-specific endpoints tied to each file.</p>
+<ul>
+<li>
+<p>List revisions<br>
+<strong>GET /v1/files/<code>{fileId}</code>/revisions?page=<code>{page}</code>&amp;limit=<code>{limit}</code></strong></p>
+</li>
+<li>
+<p>Get revision details<br>
+<strong>GET /v1/files/<code>{fileId}</code>/revisions/<code>{revisionId}</code></strong></p>
+</li>
+<li>
+<p>Restore revision<br>
+<strong>POST /v1/files/<code>{fileId}</code>/revisions/<code>{revisionId}</code>/restore</strong></p>
+</li>
+</ul>
+<p>The FileRevision data model is defined as follows:</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class FileRevision</strong> <br>revisionId: String <br>fileId: String <br>mimeType: String <br>size: Long <br>modifiedAt: String <br>downloadUrl: String <br>checksum: String</td><td style="text-align: left;"><strong>struct FileRevision</strong> <br>revisionId: String <br>fileId: String <br>mimeType: String <br>size: Int64 <br>modifiedAt: String <br>downloadUrl: String <br>checksum: String</td></tr></tbody></table></div>
+<p>This configuration allows the client to easily view and revert to previous versions of the document.</p>
+<h2 id="step-3-high-level-client-architecture">Step 3: High-level client architecture</h2>
+<p>Having defined the API structure, let's shift our focus to the mobile client's architecture. The goal is to create a modular and scalable design that supports the app's features while remaining adaptable for future growth.</p>
+<p>We'll outline the key components and their interactions, as illustrated in Figure 3, starting with the external dependencies and then diving into the client itself.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-server architecture for a file management system.  The client, enclosed in a rounded rectangle labeled 'Client,' features a UI layer with a 'Navigator' component directing interactions between 'File Revisions Screen,' 'File List Screen,' and 'File Upload Modal.'  Each screen has a corresponding 'State Holder' managing its data.  Below, a 'Data layer' houses 'Files Repository' and 'Revisions Repository,' each interacting with local and remote 'DataSources' (Files and Revisions respectively).  These DataSources access a central 'Files DB.'  A 'Network Dispatcher' manages communication with the server. The server-side, depicted on the right, includes an 'API Gateway' communicating with a 'Backend' via HTTPS and SSE/WSS protocols. The API Gateway also interacts with a 'CDN' via HTTPS for image loading, indicated by a connection from the client's 'Image Loader' to the CDN.  The 'Dependency Injection' layer facilitates communication between the UI and Data layers within the client.  Data flows from the DataSources to the Repositories, then to the State Holders, and finally to the Screens in the UI layer.  The API Gateway acts as an intermediary, handling requests from the client and responses from the Backend and CDN." loading="lazy" width="662" height="538" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/google-drive-app/figure-8-3-K6M2K6CA.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: High-level architecture diagram of our Google Drive app</figcaption></div></figure>
+<h3 id="external-server-side-components">External server-side components</h3>
+<p>To set the stage, let's first consider the external services the client relies on:</p>
+<ul>
+<li>The <strong>Backend</strong> is the core system handling file storage, metadata, and business logic. It provides REST APIs for operations such as uploads and deletions, as well as SSE/WebSockets for real-time updates.</li>
+<li>The <strong>CDN</strong> boosts performance by caching static files closer to users, minimizing download times.</li>
+<li>The <strong>API Gateway</strong> is the client's single point of entry to the backend, managing authentication, request routing, and security enforcement.</li>
+</ul>
+<h3 id="client-architecture">Client architecture</h3>
+<p>Now, let's explore the client side, which splits into two core layers: the <strong>UI layer</strong> and the <strong>Data layer</strong>. This separation keeps the code clean, testable, and maintainable.</p>
+<p>The <strong>UI layer</strong> consists of three main screens: a <strong>File List Screen</strong> for browsing content, a <strong>File Upload Modal</strong> for adding new files, and a <strong>File Revisions Screen</strong> for viewing file history.</p>
+<p>The <strong>data layer</strong> manages the core functionality through <strong>Files and Revisions repositories</strong>. They work together with the <strong>Network Dispatcher</strong> to handle HTTP communication with the backend, while the <strong>Revisions Remote Data Source</strong> listens for real-time updates through SSE or WebSockets.</p>
+<p>This architecture provides a solid foundation for our Google Drive app. Now, let's dig deeper into some of the system's more complex aspects.</p>
+<h2 id="step-4-design-deep-dive">Step 4: Design deep dive</h2>
+<p>Some unique aspects of the Google Drive system deserve special attention. Let's take a closer look at data storage, resumable file uploads, version history, and data encryption.</p>
+<h3 id="data-storage">Data storage</h3>
+<p>Efficient data management is key in a cloud storage app like Google Drive, where the mobile client must handle <strong>metadata</strong> (e.g., file names, folder hierarchies, version info) and <strong>downloaded file content</strong>. Let's break down how each is stored locally for optimal performance and security.</p>
+<h4 id="file-metadata-storage">File metadata storage</h4>
+<p>Our app needs to efficiently handle several types of data as users interact with their files:</p>
+<ol>
+<li>File and folder metadata when browsing through directories, using the File data model.</li>
+<li>Version history and real-time updates for tracking changes, using the FileRevision data model.</li>
+</ol>
+<p>This metadata requires frequent querying and updates. For managing this, <strong>a relational database proves ideal</strong> because:</p>
+<ul>
+<li>Enables fast, structured queries for operations such as listing files or finding revisions.</li>
+<li>Maintains data relationships (e.g., linking files to folders via parentId), preserving integrity.</li>
+<li>Performs well even as metadata grows, supporting scalability.</li>
+</ul>
+<h5 id="database-design">Database design</h5>
+<p>The File and FileRevision data models map naturally to database tables since they have well-defined structures. This makes it straightforward to perform complex queries across the file hierarchy, track relationships between files and their revision history, and maintain data consistency as files change.</p>
+<p>Figure 4 shows how we've updated our architecture to reflect this design, with separate Data Access Object (DAO) components for each database table.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data layer architecture diagram for managing files and their revisions.  The diagram is enclosed within a dashed rectangle labeled 'Data layer'. Inside, there are two main branches. The left branch depicts file management: a 'Files Local DataSource' box is positioned at the top, connected via an upward-pointing arrow to a 'Files DAO' box below. The right branch handles file revisions: a 'Revisions Local DataSource' box sits at the top, connected via an upward-pointing arrow to a 'FileRevisions DAO' box below.  Both 'Files DAO' and 'FileRevisions DAO' boxes are connected via curved upward-pointing arrows to a central cylindrical database labeled 'Files DB'. This indicates that both file and revision data are stored and retrieved from this database. The arrows represent the flow of data, showing how the DAOs (Data Access Objects) interact with the database to manage the data from their respective local data sources." loading="lazy" width="602" height="343" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/google-drive-app/figure-8-4-G2ZAPO6M.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: Data layer design update</figcaption></div></figure>
+<h5 id="caching-approach">Caching approach</h5>
+<p>To balance speed and storage, we'll cap the metadata database at a configurable size, such as 200MB, using an <strong>LRU (Least Recently Used) eviction policy</strong>. This keeps recently accessed metadata on-device while clearing out older entries. Since each metadata record is small, we can cache a large number of entries with minimal storage impact.</p>
+<h4 id="managing-downloaded-files">Managing downloaded files</h4>
+<p>For offline access, users can download files, which need secure and practical local storage.</p>
+<p>The app's private internal storage, sandboxed by iOS and Android, is ideal because:</p>
+<ul>
+<li>Files are protected from external access.</li>
+<li>The app can manage files (e.g., delete or update) without affecting other apps or user directories.</li>
+<li>Files are directly accessible within the app, with an option to export to shared storage if needed.</li>
+</ul>
+<h5 id="how-it-works">How it works</h5>
+<span><p>Files are stored in a specific folder (e.g., /data/user/0/com.google.android.apps.drive/files/downloads/&lt;fileId&gt; on Android), using their fileId as a unique file name to avoid conflicts.</p></span>
+<p>Before downloading, the app checks available space and alerts users if it's low, ensuring smooth operation even with large files.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Box Drive allows users to mark folders for offline access. When selected, content is automatically downloaded in the background and stored locally for offline use [1].</p></div>
+<h3 id="resumable-file-uploads">Resumable file uploads</h3>
+<p>Resumable uploads are a cornerstone of a mobile cloud storage app, especially for managing large files and coping with unreliable networks. They deliver key benefits: users can pause and resume uploads without needing to restart, recover from interruptions seamlessly, and manage uploads based on network or battery conditions, which enhances both efficiency and the user experience.</p>
+<h4 id="upload-types">Upload types</h4>
+<p>Many popular apps use resumable uploads to efficiently handle large files. This includes cloud storage services such as Google Photos [2], X (formerly Twitter) [3], Box [4], Dropbox [5], Microsoft OneDrive [6].</p>
+<p>Google Drive [7], for example, offers three distinct upload methods according to its documentation [8]:</p>
+<ul>
+<li>"Simple upload (uploadType=media): Use this upload type to transfer a small media file (5 MB or less) without supplying metadata."</li>
+<li>"Multipart upload (uploadType=multipart): Use this upload type to transfer a small file (5 MB or less) along with metadata that describes the file, in a single request."</li>
+<li>"Resumable upload (uploadType=resumable): Use this upload type for large files (greater than 5 MB) and when there's a high chance of network interruption, such as when creating a file from a mobile app. Resumable uploads are also a good choice for most applications because they also work for small files at a minimal cost of one additional HTTP request per upload."</li>
+</ul>
+<p>Let's explore how to implement file uploads in our Google Drive mobile client. Since simple upload is straightforward, let's focus on resumable uploads.</p>
+<h4 id="high-level-steps">High-level steps</h4>
+<ol>
+<li><strong>Initiate</strong>: The client requests an upload session and receives a unique upload ID and session details from the server.</li>
+<li><strong>Upload chunks</strong>: The file is sent in smaller chunks. If the connection is interrupted, the client resumes from the last successful chunk.</li>
+<li><strong>Complete</strong>: Once all chunks are uploaded, the server finalizes the file with an optional integrity check.</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified state diagram for a file upload process.  The diagram shows three rectangular boxes representing distinct states: 'Init,' 'Upload,' and 'Complete.'  Arrows indicate transitions between these states.  The process begins in the 'Init' state and transitions to the 'Upload' state.  From the 'Upload' state, the process transitions to the 'Complete' state upon successful upload.  A smaller rectangular box labeled 'Pause / Resume' is connected to the 'Upload' state, indicating that the upload process can be paused and resumed from within the 'Upload' state, creating a loop back to itself.  No data or parameters are explicitly shown flowing between the states; the arrows simply represent the progression of the upload process through its different stages." loading="lazy" width="602" height="108" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/google-drive-app/figure-8-5-GYBRU6RS.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Resumable uploads steps</figcaption></div></figure>
+<p>Companies implement these steps differently, primarily varying in how they structure the endpoints:</p>
+<ul>
+<li>
+<p><strong>Single unified endpoint</strong>: Companies like X (formerly Twitter) and Google (Drive and Photos) handle everything through a single endpoint. They manage metadata either through headers or query parameters. For example, Google Photos takes the following approach with its resumable uploads endpoint:</p>
+<p>X-Goog-Upload-Command=[start|upload, finalize]</p>
+<p>X-Goog-Upload-Offset=<code>{bytes\_offset}</code></p>
+<ul>
+<li>POST /files?uploadType=resumable&amp;uploadId=<code>{uploadId}</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Multiple endpoints</strong>. Companies such as Dropbox and Box split the functionality across different endpoints, with each endpoint handling a specific step of the process. For example, Dropbox exposes the following endpoints:</p>
+<ul>
+<li>POST /files/upload_session/start</li>
+<li>POST /files/upload_session/append</li>
+<li>POST /files/upload_session/finish</li>
+</ul>
+</li>
+</ul>
+<p>Both approaches can work. In this explanation, we will look more closely at implementing multiple endpoints to handle resumable uploads.</p>
+<h4 id="implementation-details">Implementation details</h4>
+<p>Let's explore the different endpoints and data models we need to handle resumable uploads.</p>
+<h5 id="initiate-upload">Initiate upload</h5>
+<p><strong>POST /v1/upload?uploadType=resumable</strong></p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class UploadRequest</strong> <br>requestId: String <br>name: String <br>mimeType: String <br>parentId: String <br>size: Long</td><td style="text-align: left;"><strong>struct UploadRequest</strong> <br>requestId: String <br>name: String <br>mimeType: String <br>parentId: String <br>size: Int64</td></tr><tr><td style="text-align: left;"><strong>data class UploadResponse</strong> <br>uploadId: String <br>totalChunks: Int <br>chunksProcessed: Int <br>chunkSize: Long <br>uploadUrl: String <br>uploadExpiresAt: String</td><td style="text-align: left;"><strong>struct UploadResponse</strong> <br>uploadId: String <br>totalChunks: Int <br>chunksProcessed: Int <br>chunkSize: Int64 <br>uploadUrl: String <br>uploadExpiresAt: String</td></tr></tbody></table></div>
+<p>The UploadResponse file guides file uploads by tracking how files are split, what has already been uploaded, and where new parts should be added. This helps the client manage uploads smoothly, whether starting new ones or resuming interrupted uploads.</p>
+<h5 id="upload-chunks-and-verify-steps">Upload chunks and verify steps</h5>
+<pre><code>Content-Range: bytes start-end/total
+PUT /v1/upload/`{uploadId}`/chunk
+  Body: Raw binary data for a particular chunk.
+  Response: 201 Created if this was the final chunk, or 308 Resume Incomplete if more chunks remain. Payload of type UploadResponse.
+</code></pre>
+<p>The Content-Range header manages the upload process by telling the backend which part of the file is being sent. When the last piece arrives, the backend assembles everything and sends a completion confirmation. The client can then verify the upload was successful based on the backend's successful response code.</p>
+<h5 id="resume-upload">Resume upload</h5>
+<pre><code>GET /v1/upload/`{uploadId}`
+  Description: Returns information about an upload session.
+  Body: Empty.
+  Response: 200 OK. Payload of type UploadResponse.
+</code></pre>
+<p>The client can then continue uploading the remaining chunks, starting with the next chunk after chunksProcessed. If too much time has passed and the upload session has expired, the client will need to initiate a new upload from the beginning.</p>
+<h5 id="cancel-upload">Cancel upload</h5>
+<pre><code>DELETE /v1/upload/`{uploadId}`
+</code></pre>
+<p>Allows clients to abort uploads and free server resources.</p>
+<h4 id="mobile-implementation-challenges">Mobile implementation challenges</h4>
+<p>When implementing resumable uploads in mobile apps, we need to carefully consider several platform-specific challenges. Let's explore these challenges and their solutions.</p>
+<h5 id="managing-background-tasks">Managing background tasks</h5>
+<p>Mobile apps should handle file uploads in the background to avoid blocking the main UI thread and provide a better user experience. However, mobile operating systems may terminate background tasks at any time. To prevent losing upload progress when this happens, we need to save the pending UploadResponse objects to disk. This lets us resume uploads later when the app is running again, ensuring files still get uploaded even if they were interrupted.</p>
+<p>During app launch, we check for partially completed uploads and resume the jobs while monitoring system conditions such as battery and network changes.</p>
+<h5 id="limited-storage-and-permissions">Limited storage and permissions</h5>
+<p>When handling file uploads, we need to consider two key device constraints: storage space and file access permissions.</p>
+<p>For storage, we temporarily cache files before upload. Since mobile devices have limited space, we need a strategy for handling low storage scenarios. The app should monitor available space and provide clear options when storage runs low, such as letting users clear the upload cache, removing previously downloaded files, or showing storage usage statistics.</p>
+<p>For file access, we can use the system file picker, which provides temporary read access to selected files or requests direct storage permissions from the user. If users deny storage permissions, the app should disable upload functionality and provide clear guidance on enabling permissions through system settings.</p>
+<h5 id="error-handling-and-recovery">Error handling and recovery</h5>
+<p>While the backend handles most of the complexity around chunks, such as determining chunkSize and tracking progress, the client still needs to handle errors gracefully. Let's look at some common error scenarios and how to handle them:</p>
+<ul>
+<li>When uploads fail due to connectivity problems, the client should save the current upload state, resume from the last successful chunk when connectivity returns, and show clear status messages to users such as "<em>Connection lost, attempting to resume</em>".</li>
+<li>The client should restart the upload process if it detects an invalid upload state, such as an expired uploadUrl, inconsistent responses from the backend (e.g., receiving a chunksProcessed count larger than the totalChunks), or the uploadExpiresAt time being reached.</li>
+</ul>
+<p>To avoid overwhelming the servers with retry attempts, implement exponential backoff, gradually increasing the delay between retry attempts. This helps manage server load while still ensuring that uploads are eventually complete.</p>
+<h5 id="user-experience-and-feedback">User experience and feedback</h5>
+<p>Users should always know how their upload is progressing, even if they restart the app. To keep users informed throughout the entire upload process, clients can:</p>
+<ul>
+<li>Calculate progress by comparing completed parts (chunksProcessed) against totalChunks.</li>
+<li>Update the UI to show meaningful progress indicators.</li>
+<li>Show system notifications when the app is in the background.</li>
+</ul>
+<h4 id="architecture-changes-in-the-diagram">Architecture changes in the diagram</h4>
+<p>Let's update our architecture diagram to reflect the new components we've discussed. Figure 6 shows how we've enhanced both layers of our system. In the UI layer, we've added the <strong>File Picker</strong> and <strong>File Permissions Helper</strong> components to handle user interactions with the device's file system. The data layer now includes the <strong>File Splitter</strong> for breaking down large files, as well as the <strong>File Uploader Repository</strong> and <strong>File Uploader Service</strong> to manage the upload process in the background.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-side architecture for a file upload system.  The diagram is divided into two main layers: a UI layer and a Data layer. The UI layer contains a `Navigator`, a `File Picker`, a `File Upload Modal`, a `File Upload State Holder`, and a `File Permissions Helper`.  The `File Picker` initiates the upload process, interacting with the `File Upload Modal`. The `File Upload State Holder` manages the upload's progress, receiving updates from the `File Upload Modal` and potentially interacting with the `File Permissions Helper` to verify user access rights.  The `Navigator` likely controls the overall flow within the UI. Below, the Data layer uses dependency injection, connecting to a `Files DB` via a `Files DAO`.  The core upload logic resides in the `File Uploader Repository` and `File Uploader Service`. The `File Uploader Repository` interacts with the `Files Local DataSource` and the `File Uploader Service` communicates with the `Files Remote DataSource` via a `File Splitter` (likely for handling large files) and a `Network Dispatcher` (managing network communication).  Arrows indicate the flow of data and control between components.  For example, the `File Uploader Service` receives data from the `File Uploader Repository` and sends data to the `Files Remote DataSource`." loading="lazy" width="602" height="525" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/google-drive-app/figure-8-6-OADXCZVL.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: Resumable file upload-related updates to the high-level</figcaption></div></figure>
+<p>architecture diagram</p>
+<h3 id="version-history">Version history</h3>
+<p>Version history is essential for tracking file changes in cloud storage, letting users revert to earlier versions when needed. In this section, we'll cover how new file versions are uploaded and how conflicts are handled when changes overlap, striking a balance between usability and technical precision.</p>
+<h4 id="uploading-a-new-version-of-an-existing-file">Uploading a new version of an existing file</h4>
+<p>When users modify a file and upload it, the app must handle the new version efficiently. Two methods dominate this process: <strong>full copy upload and block-level sync</strong>. Each approach affects storage, bandwidth, and app complexity differently.</p>
+<h5 id="full-copy-upload">Full copy upload</h5>
+<p>This method uploads the entire updated file every time a change is made.</p>
+<ul>
+<li><strong>Client-side:</strong> The app sends the whole file to the server, no matter how small the edit.</li>
+<li><strong>Backend-side:</strong> The server saves each version as a complete, standalone copy.</li>
+<li><strong>Advantages:</strong>
+<ul>
+<li>Straightforward to implement, no need to track specific changes.</li>
+<li>Reliable, each version is fully intact for easy recovery.</li>
+</ul>
+</li>
+<li><strong>Disadvantages:</strong>
+<ul>
+<li>Storage heavy as multiple full copies pile up, especially for big files.</li>
+<li>Bandwidth intensive, as uploading everything uses more data.</li>
+</ul>
+</li>
+</ul>
+<p>Many cloud drive providers including Google Drive, Box, OneDrive, and iCloud use this approach [9] because of its simplicity and reliability.</p>
+<h5 id="block-level-sync">Block-level sync</h5>
+<p>Block-level sync [10] takes a more sophisticated approach by uploading only the changed parts of a file, not the entire file.</p>
+<ul>
+<li><strong>Client-side:</strong> The app splits the file into blocks, detects what's different, and sends just those blocks.</li>
+<li><strong>Backend-side:</strong> The server keeps a block registry and rebuilds versions as required.</li>
+<li><strong>Advantages:</strong>
+<ul>
+<li>More efficient. It saves bandwidth and storage, ideal for minor edits to large files.</li>
+</ul>
+</li>
+<li><strong>Disadvantages:</strong>
+<ul>
+<li>It's more complex as it needs advanced logic to manage and reassemble blocks.</li>
+<li>Resource-heavy. It requires extra processing on both ends.</li>
+</ul>
+</li>
+</ul>
+<p>Dropbox pioneered this approach using their Broccoli [11] encoding system and block sync protocol. For a better comparison between these approaches, refer to the following block-level sync resource [12].</p>
+<h4 id="managing-file-conflicts">Managing file conflicts</h4>
+<p>File conflicts occur when multiple devices modify the same file concurrently, leading to inconsistencies across versions. This can happen in scenarios such as:</p>
+<ul>
+<li>A user edits a file on one device while offline, and another device modifies the same file before synchronization occurs.</li>
+<li>Two devices upload changes to the same file at nearly the same time.</li>
+<li>Interruptions during synchronization leave files in an inconsistent state.</li>
+</ul>
+<p>To handle these challenges effectively, the client and server need to work together to detect and resolve conflicts. Cloud storage systems typically approach this problem in two parts: <strong>conflict detection</strong>, which identifies when changes overlap, and <strong>conflict resolution</strong>, which determines how to handle competing versions.</p>
+<p>Let's explore these aspects in more detail, focusing on a widely-used detection approach called <strong>optimistic concurrency control</strong> and common resolution strategies such as <strong>Last-Write-Wins (LWW)</strong> and <strong>version forking</strong>.</p>
+<h5 id="conflict-detection">Conflict detection</h5>
+<p>Optimistic concurrency control [13] is a widely used technique to detect conflicts by validating changes against the current file version before committing updates. It assumes conflicts are rare and checks for them only during the update process. This approach is employed by cloud storage providers such as Box, which uses HTTP headers for version validation [14].</p>
+<p>At a high level, it works as follows.</p>
+<p><strong>Process:</strong></p>
+<ol>
+<li>Each file has a version identifier (e.g., a version number or hash) tracked by both client and server.</li>
+<li>When uploading a new version of the file, the client sends the file data along with its current version identifier (e.g., via a header such as If-Match: &lt;version&gt;).</li>
+<li>The server compares this with its latest version:
+<ul>
+<li>If they match, the upload succeeds, and the version increments.</li>
+<li>If they differ, the server rejects the upload with a 409 Conflict error.</li>
+</ul>
+</li>
+<li>On conflict detection, the client:
+<ul>
+<li>Retrieves the latest version using GET /v1/files/<code>{fileId}</code>.</li>
+<li>Merges changes (automatically or with user input, depending on file type).</li>
+<li>Retries the upload with the updated version.</li>
+</ul>
+</li>
+</ol>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Prevents lost updates by ensuring that only changes based on the latest file version are accepted.</li>
+<li>Enables fine-grained conflict resolution, often resulting in higher data integrity.</li>
+</ul>
+<p><strong>Disadvantages:</strong></p>
+<ul>
+<li>Can introduce extra latency due to the need for conflict resolution flows, particularly over unstable mobile networks.</li>
+<li>May frustrate users with conflict errors and require manual merging in some cases.</li>
+</ul>
+<h5 id="conflict-resolution">Conflict resolution</h5>
+<p>Cloud storage systems such as Google Drive often adopt an eventual consistency model to prioritize availability and allow updates to proceed without immediate synchronization across all devices.</p>
+<p>In this model, conflicts are detected after updates are accepted, and resolution is handled through specific strategies. Two common resolution strategies are:</p>
+<ul>
+<li><strong>Last-Write-Wins (LWW)</strong> automatically makes the most recent version the current one.</li>
+<li><strong>Version forking</strong> keeps both conflicting versions, usually by adding a number to the filename (e.g., "filename.png" and "filename (1).png").</li>
+</ul>
+<h5 id="real-world-examples">Real-world examples</h5>
+<p>The choice of conflict resolution strategy depends on your app's specific requirements. Cloud storage providers handle conflicts in different ways:</p>
+<ul>
+<li>Dropbox keeps things simple by default. It automatically saves the newest version without asking the user, using the last-write-wins strategy.</li>
+<li>Google Drive lets users decide. When it detects a conflict, it shows a dialog asking if they want to keep both files or replace the old one (see Figure 7).</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a dialog box titled 'Upload options' appearing on a dark-grey background.  The dialog box informs the user that a file named 'hello.png' already exists in the upload location and presents two radio button options: 'Replace existing file' (selected by default) and 'Keep both files'.  Below these options are two buttons: 'Cancel' and 'Upload'.  The text above the radio buttons explains the situation and clarifies that replacing the file will not alter its sharing settings.  No data flows visually; the user interacts by selecting a radio button and then clicking either 'Cancel' to dismiss the dialog or 'Upload' to proceed with the chosen option." loading="lazy" width="475" height="300" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(475px, 100vw), (max-width: 1200px) min(475px, 80vw), min(475px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fgoogle-drive-app%2Ffigure-8-7-CVSGCFNW.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7: Google Drive user experience when uploading a file</figcaption></div></figure>
+<p>whose name already exists in the folder</p>
+<p>Dropbox's public API provides support for both strategies we discussed to give more flexibility to clients. Through two key parameters (strict_conflict and mode) in their upload API [15], they give developers precise control:</p>
+<ul>
+<li>The strict_conflict parameter determines whether to enforce strict validation. When enabled, it prevents concurrent uploads by returning conflict errors.</li>
+<li>The mode parameter controls what happens when conflicts occur:
+<ul>
+<li>In add mode, new uploads of existing files get automatically renamed with a unique counter.</li>
+<li>In overwrite mode, new uploads simply replace existing files, following a "last-write-wins" strategy.</li>
+</ul>
+</li>
+</ul>
+<h3 id="data-encryption">Data encryption</h3>
+<p>The interviewer may sometimes add extra requirements to the problem. For example, what if they ask you to support enterprise customers who need files stored on devices to be encrypted? What would you do?</p>
+<h4 id="files-and-metadata-encryption">Files and metadata encryption</h4>
+<p>Without encryption, a lost or compromised device could expose sensitive files if an attacker mounts its storage. To counter this, we'll use <strong>AES-256</strong> [16], a strong, industry-standard encryption algorithm that balances security and performance on mobile hardware. We'd use it for:</p>
+<ul>
+<li><strong>Metadata protection:</strong> File names, folder structures, and other metadata are stored in an encrypted database.</li>
+<li><strong>File protection:</strong> Downloaded files are encrypted within the app's private storage.</li>
+</ul>
+<p>This approach ensures that even if the device's storage is accessed, the data remains unintelligible without the decryption key.</p>
+<h4 id="key-management-for-offline-access">Key management for offline access</h4>
+<p>To enable offline file access, encryption keys must be stored locally rather than relying solely on server-side solutions. We leverage platform-specific security features to store these keys securely:</p>
+<ul>
+<li>On Android, the Android Keystore [17] provides hardware-backed key storage, protecting keys from extraction.</li>
+<li>On iOS, the Keychain [18] offers similar protection, integrating with Apple's Secure Enclave where available.</li>
+</ul>
+<p>For added protection, we can derive the key from the user's login credentials using <strong>PBKDF2</strong> [19], a key derivation function, ensuring only authenticated users can unlock it. This ties the encryption tightly to user identity.</p>
+<h4 id="mobile-implementation-considerations">Mobile implementation considerations</h4>
+<p>While encryption provides essential security, it comes with unique challenges on mobile devices. Let's explore how to balance strong security with smooth performance.</p>
+<h5 id="performance-and-resources">Performance and resources</h5>
+<p>Encryption operations can be CPU-intensive, especially for large files. To maintain a responsive app, the encryption/decryption work happens on background threads to keep the UI smooth. Also, we should take into account that encrypted files take up slightly more space due to padding and metadata overhead and the app memory consumption when keeping encrypted and decrypted files in memory.</p>
+<h5 id="memory-management">Memory management</h5>
+<p>Careful memory handling is crucial when working with decrypted data. We should consider implementing timeouts to automatically clear decrypted content and release cached decrypted data when memory runs low. Additionally, developers should watch for potential memory leaks in encryption/decryption cycles.</p>
+<h5 id="error-handling-and-recovery-1">Error handling and recovery</h5>
+<p>A robust encryption system needs clear paths for handling issues. We must implement appropriate fallback behaviors when encryption keys become corrupted or inaccessible or when encryption/decryption operations fail. The app needs to inform the user and prompt them to take the right actions.</p>
+<h5 id="backup-strategy">Backup strategy</h5>
+<p>Since encrypted files are tied to device-specific keys, they require special handling for backups. We should exclude encrypted files from system backups by default. If backups are needed, implement custom logic to re-encrypt data with backup-specific keys.</p>
+<h5 id="device-compatibility">Device compatibility</h5>
+<p>Not all devices offer the same level of security features. In our logic, we must check for secure hardware availability during app initialization, and fall back gracefully to app sandbox storage on older devices. Additionally, we should inform users that we're operating with reduced security capabilities.</p>
+<h2 id="step-5-wrap-up">Step 5: Wrap-up</h2>
+<p>Throughout this chapter, we've designed a Google Drive client that addresses key challenges in cloud storage apps. Our solution enables users to securely store, access, and sync their files while maintaining a complete version history. We built the system around a robust REST API for core operations, complemented by SSE or WebSockets to deliver real-time updates when files change.</p>
+<p>The architecture we developed tackles several complex challenges head-on. By carefully structuring our client components and defining clear backend interactions, we created a system that handles everything from basic file operations to more intricate features such as resumable uploads and file versioning.</p>
+<p>If you have additional time during your interview or want to explore more advanced features, here are some compelling extensions to consider:</p>
+<ul>
+<li>Design a selective sync system where users choose which folders and file types to store locally versus keeping in the cloud only.</li>
+<li>Create a comprehensive file sharing system with granular permissions and access controls for secure collaboration.</li>
+<li>Optimize data transfer and storage through compression techniques such as Google's Brotli algorithm [20], reducing bandwidth usage and storage costs.</li>
+</ul>
+<h2 id="resources">Resources</h2>
+<p>[1] How Box Drive designed Mark for Offline: <a href="https://blog.box.com/how-we-designed-mark-offline-box-drive" target="_blank" rel="noopener noreferrer">https://blog.box.com/how-we-designed-mark-offline-box-drive</a><br>
+[2] Google Photos resumable uploads: <a href="https://developers.google.com/photos/library/guides/resumable-uploads" target="_blank" rel="noopener noreferrer">https://developers.google.com/photos/library/guides/resumable-uploads</a><br>
+[3] X (formerly Twitter) resumable uploads: <a href="https://developer.x.com/en/docs/x-api/v1/media/upload-media/uploading-media/chunked-media-upload" target="_blank" rel="noopener noreferrer">https://developer.x.com/en/docs/x-api/v1/media/upload-media/uploading-media/chunked-media-upload</a><br>
+[4] Box chunked uploads: <a href="https://developer.box.com/guides/uploads/chunked/" target="_blank" rel="noopener noreferrer">https://developer.box.com/guides/uploads/chunked/</a><br>
+[5] Dropbox resumable uploads: <a href="https://www.dropbox.com/developers/documentation/http/documentation%5C#files-upload%5C_session-start" target="_blank" rel="noopener noreferrer">https://www.dropbox.com/developers/documentation/http/documentation\#files-upload\_session-start</a><br>
+[6] Microsoft OneDrive resumable uploads: <a href="https://learn.microsoft.com/en-us/graph/api/driveitem-createuploadsession" target="_blank" rel="noopener noreferrer">https://learn.microsoft.com/en-us/graph/api/driveitem-createuploadsession</a><br>
+[7] Google Drive resumable uploads: <a href="https://developers.google.com/workspace/drive/api/guides/manage-uploads#resumable" target="_blank" rel="noopener noreferrer">https://developers.google.com/workspace/drive/api/guides/manage-uploads#resumable</a><br>
+[8] Google Drive upload types: <a href="https://developers.google.com/drive/api/guides/manage-uploads" target="_blank" rel="noopener noreferrer">https://developers.google.com/drive/api/guides/manage-uploads</a><br>
+[9] Google Drive uploads entire files: <a href="https://www.pcworld.com/article/2020862/google-drive-review.html" target="_blank" rel="noopener noreferrer">https://www.pcworld.com/article/2020862/google-drive-review.html</a><br>
+[10] Block-level storage: <a href="https://en.wikipedia.org/wiki/Block-level%5C_storage" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Block-level\_storage</a><br>
+[11] Dropbox's Broccoli encoding and block sync protocol: <a href="https://dropbox.tech/infrastructure/-broccoli--syncing-faster-by-syncing-less" target="_blank" rel="noopener noreferrer">https://dropbox.tech/infrastructure/-broccoli--syncing-faster-by-syncing-less</a><br>
+[12] Block-level sync vs full copy comparison: <a href="https://www.cloudwards.net/block-level-file-copying/" target="_blank" rel="noopener noreferrer">https://www.cloudwards.net/block-level-file-copying/</a><br>
+[13] Optimistic concurrency control: <a href="https://en.wikipedia.org/wiki/Optimistic%5C_concurrency%5C_control" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Optimistic\_concurrency\_control</a><br>
+[14] Box optimistic concurrency implementation: <a href="https://developer.box.com/guides/api-calls/ensure-consistency" target="_blank" rel="noopener noreferrer">https://developer.box.com/guides/api-calls/ensure-consistency</a><br>
+[15] Dropbox strict conflict strategy: <a href="https://www.dropbox.com/developers/documentation/http/documentation%5C#files-upload" target="_blank" rel="noopener noreferrer">https://www.dropbox.com/developers/documentation/http/documentation\#files-upload</a><br>
+[16] Advanced Encryption Standard (AES): <a href="https://en.wikipedia.org/wiki/Advanced%5C_Encryption%5C_Standard" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Advanced\_Encryption\_Standard</a><br>
+[17] Android Keystore: <a href="https://developer.android.com/privacy-and-security/keystore" target="_blank" rel="noopener noreferrer">https://developer.android.com/privacy-and-security/keystore</a><br>
+[18] iOS Keychain: <a href="https://developer.apple.com/documentation/security/keychains" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/security/keychains</a><br>
+[19] PBKDF2: <a href="https://en.wikipedia.org/wiki/PBKDF2" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/PBKDF2</a><br>
+[20] Brotli: Google's lossless data compression algorithm: <a href="https://en.wikipedia.org/wiki/Brotli" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Brotli</a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="hotel-reservation-app.html">← Previous</a>
+        <a href="youtube-app.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

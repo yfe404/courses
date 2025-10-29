@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Is Palindrome Valid - Coding Patterns</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../coding-patterns.html">Coding Patterns</a> /
+        Is Palindrome Valid
+    </div>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="introduction-to-two-pointers.html">← Previous</a>
+        <a href="largest-container.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">reads the same forward and backward</span> Is Palindrome Valid
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/coding-patterns/two-pointers/is-palindrome-valid" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><h1>Is Palindrome Valid</h1></header><div class="style_problemDescription__T4cPe"><p>A palindrome is a sequence of characters that <strong>reads the same forward and backward</strong>.</p><p>Given a string, <strong>determine if it's a palindrome</strong> after removing all non-alphanumeric characters. A character is alphanumeric if it's either a letter or a number.</p><h4 id="example-1">Example 1:</h4><pre><code class="hljs language-python">Input: s = <span class="hljs-string">'a dog! a panic in a pagoda.'</span>
+Output: <span class="hljs-literal">True</span>
+</code></pre><h4 id="example-2">Example 2:</h4><pre><code class="hljs language-python">Input: s = <span class="hljs-string">'abc123'</span>
+Output: <span class="hljs-literal">False</span>
+</code></pre><h4 id="constraints">Constraints:</h4><ul>
+<li>The string may include a combination of lowercase English letters, numbers, spaces, and punctuations.</li>
+</ul></div>
+<h2 id="intuition">Intuition</h2>
+<p><strong>Identifying palindromes</strong><br>
+A string is a palindrome if it remains identical when read from left to right or right to left. In other words, if we reverse the string, it should still read the same, disregarding spaces and punctuation:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple data flow diagram illustrating a string reversal operation.  The diagram shows the input string 'racecar' enclosed in double quotes, positioned on the left.  A rightward-pointing arrow connects this input to the word 'reverse', indicating the operation being performed.  Another rightward-pointing arrow then connects 'reverse' to the output string 'racecar', also enclosed in double quotes, positioned on the right.  The arrangement visually depicts the transformation of the input string 'racecar' into its reversed form, 'racecar,' through the application of the 'reverse' function.  The entire diagram is linear, showing a clear, unidirectional flow of data from input to output via a clearly labeled process." loading="lazy" width="263" height="25" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-1-C4VID2R2.svg" style="color: transparent;"></div></figure>
+<p>An important observation is that if a string is a palindrome, the first character would be the same as the last, the second character would be the same as the second-to-last, etc:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of a nested structure, likely illustrating a coding pattern such as nested loops or recursive function calls.  The image shows the letters 'b y t e e t y b' arranged horizontally.  Each letter is vertically connected to a horizontal line segment extending downwards. These line segments are nested, with the line under 'y t e e t y' being the longest, encompassing shorter lines beneath 't e e t'. The shortest lines are directly under 't' and 'e', and 'e' and 't'. The outermost line segment connects the 'b' at each end, creating a visual representation of a hierarchical or nested structure where the inner segments are contained within the outer ones.  The arrangement suggests a parent-child relationship, where the outer structure contains and encompasses the inner structures." loading="lazy" width="152" height="44" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-2-GRE6S2YY.svg" style="color: transparent;"></div></figure>
+<p>A palindrome of odd length is different because it has a middle character. In this case, the middle character can be ignored since it has no “mirror” character elsewhere in the string.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of a palindrome check using a nested loop approach.  The word 'racecar' is displayed at the top, with each letter positioned above a corresponding vertical bar.  The letter 'e' is highlighted in orange, representing the central character of the palindrome.  A series of nested rectangular boxes are drawn underneath the letters. The outermost box encloses all the letters, representing the entire string.  Inner boxes are nested around the 'a', 'c', and 'r' letters on both sides of the central 'e', visually demonstrating the comparison of characters from the beginning and end of the string moving inwards. The structure implies that the algorithm iteratively compares characters from the outer ends, working its way towards the center, to determine if the string is a palindrome.  The nested boxes visually represent the nested loop structure of the algorithm, where the outer loop iterates through the string from both ends, and the inner loop (implied) compares the characters at each iteration." loading="lazy" width="125" height="43" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-3-3LSM3647.svg" style="color: transparent;"></div></figure>
+<p>Palindromes provides an ideal scenario for using <strong>two pointers</strong> (<code>left</code> and <code>right</code>). By initially setting the pointers at the beginning and end of the string, we can compare the characters at these positions. Ignoring non-alphanumeric characters for the moment, the logic can be summarized as follows:</p>
+<ul>
+<li>
+<p>If the alphanumeric characters at <code>left</code> and <code>right</code> are the same, move both pointers inward to process the next pair of characters.</p>
+</li>
+<li>
+<p>If not, the string is not a palindrome: return false.</p>
+</li>
+</ul>
+<p>If we successfully compare all character pairs without returning false, the string is a palindrome, and we should return true.</p>
+<p><strong>Processing non-alphanumeric characters</strong><br>
+Now, let's explore how to find palindromes that include non-alphanumeric characters.</p>
+<p>Since non-alphanumeric characters don’t affect whether a string is a palindrome, we should skip them. This can be achieved with the following approach, which ensures the left and right pointers are adjusted to focus only on alphanumeric characters:</p>
+<ul>
+<li>
+<p>Increment <code>left</code> until the character it points to is alphanumeric.</p>
+</li>
+<li>
+<p>Decrement <code>right</code> until the character it points to is alphanumeric.</p>
+</li>
+</ul>
+<p>With this in mind, let’s check if the string below is a palindrome using all the information we know so far:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, possibly related to array or string manipulation.  Two orange rectangular boxes labeled 'left' and 'right' are positioned above a line of text 'a + 2 c ! 2 a'.  Arrows descend from each box, pointing to the respective ends of this text string. Below, a light-grey, dashed-bordered rectangle contains the conditional statement 's[left] == s[right]', which checks for equality between elements at indices 'left' and 'right' of an array or string 's'. A right-pointing arrow follows this condition, leading to the consequent action 'left += 1, right -= 1', indicating that the 'left' index is incremented and the 'right' index is decremented.  The overall diagram suggests an algorithm that iterates through a sequence from both ends, comparing elements until a mismatch is found or the indices cross." loading="lazy" width="571" height="59" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-4-G3VSN7L3.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern.  At the top, two orange rectangular boxes labeled 'left' and 'right' are shown.  A downward-pointing arrow extends from each box. Below the boxes, a string 'a + 2 c ! 2 a' is displayed. The 'left' arrow points to the 'a + 2' portion of the string, and the 'right' arrow points to the 'c ! 2 a' portion.  A light gray, dashed-bordered rectangle contains the text 's[left] is not alphanumeric → left += 1,' indicating a conditional statement.  This statement checks if the character at the index specified by the variable `left` within string `s` is not alphanumeric. If the condition is true, the value of `left` is incremented by 1.  The arrow within the gray rectangle visually represents the flow of control based on the condition's outcome." loading="lazy" width="572" height="61" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-5-GULODSHO.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, possibly related to string manipulation or array processing.  At the top, two orange rectangular boxes labeled 'left' and 'right' are shown.  Arrows descend from each box pointing to a string 'a + 2 c ! 2 a'. This string appears to be the input data, with 'left' pointing to the 'a + 2' segment and 'right' pointing to the '2 a' segment. Below the input string, a light gray, dashed-bordered rectangle contains the core logic: 's[left] == s[right] → left += 1, right -= 1'. This expression signifies a comparison: if the element at index 'left' in string 's' is equal to the element at index 'right', then the 'left' index is incremented by 1, and the 'right' index is decremented by 1.  This suggests an algorithm that iterates from both ends of the string, comparing elements until a mismatch is found or the indices cross. The arrow ('→') indicates the conditional action taken upon successful comparison." loading="lazy" width="573" height="59" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-6-OXZ53ZN2.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, specifically a conditional assignment.  At the top, two rectangular boxes labeled 'left' and 'right' (in orange) are shown.  Downward arrows from these boxes point to a string 'a + 2 c ! 2 a'. This string appears to represent an input, with 'left' pointing to 'a + 2 c' and 'right' pointing to '! 2 a'. Below this, a light gray, dashed-bordered rectangle contains the conditional statement: 's[right] is not alphanumeric → right -= 1'. This statement indicates that if the substring referenced by `s[right]` (which is '! 2 a' in this example) is not alphanumeric, then the value of the variable `right` is decremented by 1.  The arrow ('→') signifies the conditional flow, showing the consequence of the condition being met.  The diagram visually demonstrates how the 'right' variable's value might change based on the content of the input string." loading="lazy" width="571" height="61" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-7-FCOFJ4R5.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern.  Two orange rectangular boxes labeled 'left' and 'right' are positioned above a sequence of characters: 'a + 2 c ! 2 a'.  Arrows descend from each box, pointing to the characters 'a', '2', 'c', '!', '2', and 'a' respectively, suggesting a mapping or association between the labels and the character sequence.  To the right, a light gray, dashed-bordered rectangle contains the expression 'left == right → break'. This indicates a conditional statement: if the value of 'left' is equal to the value of 'right', then the program will 'break' (likely exiting a loop or conditional block). The arrow signifies the flow of control based on the comparison's outcome.  The overall diagram likely depicts a scenario where the equality of 'left' and 'right' (potentially variables or values) determines the execution path, influencing the processing of the character sequence below." loading="lazy" width="569" height="59" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-8-QONHFM3F.svg" style="color: transparent;"></div></figure>
+<p>As shown above, when the left and right pointers meet, it signals our exit condition. When these pointers meet, we've reached the middle character of the palindrome, at which point we can exit the loop since the middle character doesn’t need to be evaluated. However, we need to keep in mind that exiting when <code>left</code> equals <code>right</code> won't always be sufficient as an exit condition. For example, if the number of alphanumeric characters is even, the pointers won’t meet. This can be observed below:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, possibly related to string manipulation or palindrome checking.  At the top, two orange rectangular boxes labeled 'left' and 'right' are shown.  Arrows point downwards from these boxes to a sequence of characters 'a b b a' below.  This sequence appears to be a string being processed. A light gray, dashed-bordered rectangle contains the core logic: 's[left] == s[right] → left += 1, right -= 1'. This expression indicates a comparison:  the character at index `left` in string `s` is compared to the character at index `right`. If they are equal (indicated by '=='), then the `left` index is incremented by 1 ('left += 1') and the `right` index is decremented by 1 ('right -= 1'). This suggests an iterative approach, moving inwards from both ends of the string, likely to check for palindromic properties. The arrow ('→') signifies the conditional execution of the index updates based on the comparison result." loading="lazy" width="496" height="59" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-9-URNCPQKB.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a simple diagram illustrating a coding pattern, likely related to data manipulation or sorting.  Two orange rectangular boxes, labeled 'right' and 'left' respectively, are positioned side-by-side.  A downward-pointing arrow extends from each box.  The 'right' box's arrow points to a vertically stacked 'a' and 'b', while the 'left' box's arrow points to a vertically stacked 'b' and 'a'. This arrangement visually depicts a swapping or inversion operation where the data elements 'a' and 'b' are exchanged depending on their position relative to the 'right' and 'left' labels, suggesting a potential algorithm involving comparison and rearrangement of data based on a defined criteria." loading="lazy" width="86" height="49" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/is-palindrome-valid/image-01-03-10-4UXE2BMW.svg" style="color: transparent;"></div></figure>
+<p>Therefore, we need to ensure we exit the loop when <code>left</code> equals <code>right</code>, or when <code>left</code> passes <code>right</code>. In other words, the algorithm continues while <code>left</code> is less than <code>right</code>:</p>
+<pre><code class="hljs language-python"><span class="hljs-keyword">while</span> left &lt; right:
+</code></pre>
+<div class="style_tryBanner__WFMKc"><div><div class="style_tryTitle__dVqce">Try it yourself</div><div class="style_tryDesc___lKzS">Write your solution to the problem before checking the reference implementation.</div></div><a target="_blank" href="/exercises/coding-patterns/two-pointers/is-palindrome-valid"><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_openBtn__F_m3N"><span>Open Code Editor</span></button></a></div>
+<h2 id="implementation">Implementation</h2>
+<p>In Python, we can use the inbuilt <code>isalnum</code> method to check if a character is alphanumeric.</p>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-0-tab-0" aria-controls="rc-tabs-0-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-1" aria-controls="rc-tabs-0-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-2" aria-controls="rc-tabs-0-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-0-more-popup" id="rc-tabs-0-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-0-panel-0" aria-labelledby="rc-tabs-0-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_palindrome_valid</span>(<span class="hljs-params">s: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+    left, right = <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(s) - <span class="hljs-number">1</span>
+    <span class="hljs-keyword">while</span> left &lt; right:
+        <span class="hljs-comment"># Skip non-alphanumeric characters from the left.</span>
+        <span class="hljs-keyword">while</span> left &lt; right <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> s[left].isalnum():
+            left += <span class="hljs-number">1</span>
+        <span class="hljs-comment"># Skip non-alphanumeric characters from the right.</span>
+        <span class="hljs-keyword">while</span> left &lt; right <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> s[right].isalnum():
+            right -= <span class="hljs-number">1</span>
+        <span class="hljs-comment"># If the characters at the left and right pointers don’t match, the string is</span>
+        <span class="hljs-comment"># not a palindrome.</span>
+        <span class="hljs-keyword">if</span> s[left] != s[right]:
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>
+        left += <span class="hljs-number">1</span>
+        right -= <span class="hljs-number">1</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span>
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<h3 id="complexity-analysis">Complexity Analysis</h3>
+<p><strong>Time complexity:</strong> The time complexity of <code>is_palindrome_valid</code> is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> denotes the length of the string. This is because we perform approximately <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> iterations using the two-pointer technique.</p>
+<p><strong>Space complexity:</strong> We only allocated a constant number of variables, so the space complexity is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>.</p>
+<h3 id="test-cases">Test Cases</h3>
+<p>In addition to the examples discussed, below are more examples to consider when testing your code.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Input</th><th style="text-align: left;">Expected output</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code>s = ""</code></td><td style="text-align: left;"><code>True</code></td><td style="text-align: left;">Tests an empty string.</td></tr><tr><td style="text-align: left;"><code>s = "a"</code></td><td style="text-align: left;"><code>True</code></td><td style="text-align: left;">Tests a single-character string.</td></tr><tr><td style="text-align: left;"><code>s = "aa"</code></td><td style="text-align: left;"><code>True</code></td><td style="text-align: left;">Tests a palindrome with two characters.</td></tr><tr><td style="text-align: left;"><code>s = "ab"</code></td><td style="text-align: left;"><code>False</code></td><td style="text-align: left;">Tests a non-palindrome with two characters.</td></tr><tr><td style="text-align: left;"><code>s = "!, (?)"</code></td><td style="text-align: left;"><code>True</code></td><td style="text-align: left;">Tests a string with no alphanumeric characters.</td></tr><tr><td style="text-align: left;"><code>s = "12.02.2021"</code></td><td style="text-align: left;"><code>True</code></td><td style="text-align: left;">Tests a palindrome with punctuation and numbers.</td></tr><tr><td style="text-align: left;"><code>s = "21.02.2021"</code></td><td style="text-align: left;"><code>False</code></td><td style="text-align: left;">Tests a non-palindrome with punctuation and numbers.</td></tr><tr><td style="text-align: left;"><code>s = "hello, world!"</code></td><td style="text-align: left;"><code>False</code></td><td style="text-align: left;">Tests a non-palindrome with punctuation.</td></tr></tbody></table></div>
+<h2 id="interview-tips">Interview Tips</h2>
+<p><em>Tip 1: Clarify problem constraints.</em><br>
+It's common to not receive all the details of a problem from an interviewer. For example, you might only be asked to "check if a string is a palindrome." But before diving into a solution, it's important to clarify details with the interviewer, such as the presence of non-alphanumeric characters, their treatment, the role of numbers, the case sensitivity of letters, and other relevant details.</p>
+<p><em>Tip 2: Confirm before using significant in-built functions.</em><br>
+This problem is made easier by using in-built functions such as <code>.isalnum</code> (or equivalent). Before using an in-built function that simplifies the implementation, ask the interviewer if it's okay to use it, or if they would prefer you implement it yourself.</p>
+<p>The interviewer will most likely allow the use of an in-built function, or ask you to implement it as an exercise for later in the interview. If you use an in-built function, make sure you understand its time and space complexity.</p>
+<p>Remember that interviewers are looking for team players, and this shows them you're considerate of their preferences and can adapt your approach based on the requirements.</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="introduction-to-two-pointers.html">← Previous</a>
+        <a href="largest-container.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

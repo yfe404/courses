@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design A Unique ID Generator In Distributed Systems - System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../system-design-interview.html">System Design Interview</a> /
+        Design A Unique ID Generator In Distributed Systems
+    </div>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="design-a-key-value-store.html">← Previous</a>
+        <a href="design-a-url-shortener.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">08</span> Design A Unique ID Generator In Distributed Systems
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/design-a-unique-id-generator-in-distributed-systems" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">08</strong><h1>Design A Unique ID Generator In Distributed Systems</h1></header><p>In this chapter, you are asked to design a unique ID generator in distributed systems. Your first thought might be to use a primary key with the <em>auto_increment</em> attribute in a traditional database. However, <em>auto_increment</em> does not work in a distributed environment because a single database server is not large enough and generating unique IDs across multiple databases with minimal delay is challenging.</p>
+<p>Here are a few examples of unique IDs:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified conceptual diagram illustrating a database table or a similar data structure.  The diagram shows a single column labeled 'user_id' containing a list of numerical user identifiers.  The column is enclosed within a dashed rectangular border, suggesting a table structure.  Each row within the border represents a single record, with each record containing a unique, long numerical user ID.  The IDs are presented as sequential entries, vertically stacked, implying a possible ordering or indexing mechanism.  There are no explicit connections to other tables or components shown; the diagram focuses solely on the structure and content of the 'user_id' column, which appears to store a series of distinct user identification numbers.  No other attributes or columns are visible, and there's no indication of any relationships with other data elements." width="276" height="311" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-unique-id-generator-in-distributed-systems/figure-7-1-VGKGPLH3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1</figcaption></div></figure>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the problem and establish design scope</h2>
+<p>Asking clarification questions is the first step to tackle any system design interview question. Here is an example of candidate-interviewer interaction:</p>
+<p><strong>Candidate</strong>: What are the characteristics of unique IDs?<br>
+<strong>Interviewer</strong>: IDs must be unique and sortable.</p>
+<p><strong>Candidate</strong>: For each new record, does ID increment by 1?<br>
+<strong>Interviewer</strong>: The ID increments by time but not necessarily only increments by 1. IDs created in the evening are larger than those created in the morning on the same day.</p>
+<p><strong>Candidate</strong>: Do IDs only contain numerical values?<br>
+<strong>Interviewer</strong>: Yes, that is correct.</p>
+<p><strong>Candidate</strong>: What is the ID length requirement?<br>
+<strong>Interviewer</strong>: IDs should fit into 64-bit.</p>
+
+<p><strong>Candidate</strong>: What is the scale of the system?<br>
+<strong>Interviewer</strong>: The system should be able to generate 10,000 IDs per second.</p>
+<p>Above are some of the sample questions that you can ask your interviewer. It is important to understand the requirements and clarify ambiguities. For this interview question, the requirements are listed as follows:</p>
+<ul>
+<li>
+<p>IDs must be unique.</p>
+</li>
+<li>
+<p>IDs are numerical values only.</p>
+</li>
+<li>
+<p>IDs fit into 64-bit.</p>
+</li>
+<li>
+<p>IDs are ordered by date.</p>
+</li>
+<li>
+<p>Ability to generate over 10,000 unique IDs per second.</p>
+</li>
+</ul>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose high-level design and get buy-in</h2>
+<p>Multiple options can be used to generate unique IDs in distributed systems. The options we considered are:</p>
+<ul>
+<li>
+<p>Multi-master replication</p>
+</li>
+<li>
+<p>Universally unique identifier (UUID)</p>
+</li>
+<li>
+<p>Ticket server</p>
+</li>
+<li>
+<p>Twitter snowflake approach</p>
+</li>
+</ul>
+<p>Let us look at each of them, how they work, and the pros/cons of each option.</p>
+<h3 id="multi-master-replication">Multi-master replication</h3>
+<p>As shown in Figure 2, the first approach is multi-master replication.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram showing two MySQL databases connected to a cluster of web servers.  Two rectangular boxes labeled 'My SQL' represent the two separate MySQL database instances.  From each MySQL instance, arrows point towards a larger rectangular box labeled 'Web servers,' which depicts three vertically stacked, smaller rectangles representing individual web servers.  The arrow from the first MySQL database is labeled '1, 3, 5...', indicating that this database serves odd-numbered requests or data.  Similarly, the arrow from the second MySQL database is labeled '2, 4, 6...', suggesting this database handles even-numbered requests or data, implying a load balancing strategy where requests are distributed across the two databases. The entire diagram is enclosed within a dashed, light-blue border.  A small text at the bottom reads 'Viewer does not support full SVG 1.1,' indicating a limitation of the viewer used to display the diagram." loading="lazy" width="500" height="245" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-unique-id-generator-in-distributed-systems/figure-7-2-4ZOIVNTR.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2</figcaption></div></figure>
+<p>This approach uses the databases’ <em>auto_increment</em> feature. Instead of increasing the next ID by 1, we increase it by <em>k,</em> where <em>k</em> is the number of database servers in use. As illustrated in Figure 2, next ID to be generated is equal to the previous ID in the same server plus 2. This solves some scalability issues because IDs can scale with the number of database servers. However, this strategy has some major drawbacks:</p>
+<ul>
+<li>
+<p>Hard to scale with multiple data centers</p>
+</li>
+<li>
+<p>IDs do not go up with time across multiple servers.</p>
+</li>
+<li>
+<p>It does not scale well when a server is added or removed.</p>
+</li>
+</ul>
+<h3 id="uuid">UUID</h3>
+<p>A UUID is another easy way to obtain unique IDs. UUID is a 128-bit number used to identify information in computer systems. UUID has a very low probability of getting collusion. Quoted from Wikipedia, “after generating 1 billion UUIDs every second for approximately 100 years would the probability of creating a single duplicate reach 50%” [1].</p>
+<p>Here is an example of UUID: <em>09c93e62-50b4-468d-bf8a-c07e1040bfb2</em>. UUIDs can be generated independently without coordination between servers. Figure 3 presents the UUIDs design.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram showing four identical units, each enclosed within a dashed, light-blue rectangular border.  Each unit consists of two stacked rectangular boxes. The top box in each unit is labeled 'Web Server,' indicating a web server component.  Below each 'Web Server' box is a smaller box labeled 'ID gen,' suggesting an ID generation component. There are no visible connections or data flows depicted between the units; each unit appears to function independently.  The overall arrangement suggests a horizontally scaled deployment of a system where each unit has a web server and a local ID generator. The 'Viewer does not support full SVG 1.1' message at the bottom indicates a limitation of the viewer used to display the diagram." loading="lazy" width="600" height="181" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-unique-id-generator-in-distributed-systems/figure-7-3-Y3ZNPIH3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3</figcaption></div></figure>
+<p>In this design, each web server contains an ID generator, and a web server is responsible for generating IDs independently.</p>
+<p>Pros:</p>
+<ul>
+<li>
+<p>Generating UUID is simple. No coordination between servers is needed so there will not be any synchronization issues.</p>
+</li>
+<li>
+<p>The system is easy to scale because each web server is responsible for generating IDs they consume. ID generator can easily scale with web servers.</p>
+</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>
+<p>IDs are 128 bits long, but our requirement is 64 bits.</p>
+</li>
+<li>
+<p>IDs do not go up with time.</p>
+</li>
+<li>
+<p>IDs could be non-numeric.</p>
+</li>
+</ul>
+<h3 id="ticket-server">Ticket Server</h3>
+<p>Ticket servers are another interesting way to generate unique IDs. Flicker developed ticket servers to generate distributed primary keys [2]. It is worth mentioning how the system works.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram showing four 'Web Server' components connected to a central 'Ticket Server' component.  Each of the four rectangular boxes labeled 'Web Server' represents a separate web server instance.  Lines connect each 'Web Server' to a single rectangular box labeled 'Ticket Server,' indicating a unidirectional communication flow from each web server to the central ticket server.  This suggests that the web servers might be requesting or sending data (likely ticket-related information) to the central Ticket Server. The overall structure implies a client-server model where multiple web servers act as clients, interacting with a single, central Ticket Server.  The dashed-line border around the entire diagram suggests the scope of the depicted system.  The text 'Viewer does not support full SVG 1.1' at the bottom is a technical note indicating a limitation of the display software, not related to the system architecture itself." loading="lazy" width="600" height="237" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-unique-id-generator-in-distributed-systems/figure-7-4-TJJLCKSS.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4</figcaption></div></figure>
+<p>The idea is to use a centralized <em>auto_increment</em> feature in a single database server (Ticket Server). To learn more about this, refer to flicker’s engineering blog article [2].</p>
+<p>Pros:</p>
+<ul>
+<li>
+<p>Numeric IDs.</p>
+</li>
+<li>
+<p>It is easy to implement, and it works for small to medium-scale applications.</p>
+</li>
+</ul>
+<p>Cons:</p>
+<ul>
+<li>Single point of failure. Single ticket server means if the ticket server goes down, all systems that depend on it will face issues. To avoid a single point of failure, we can set up multiple ticket servers. However, this will introduce new challenges such as data synchronization.</li>
+</ul>
+<h3 id="twitter-snowflake-approach">Twitter snowflake approach</h3>
+<p>Approaches mentioned above give us some ideas about how different ID generation systems work. However, none of them meet our specific requirements; thus, we need another approach. Twitter’s unique ID generation system called “snowflake” [3] is inspiring and can satisfy our requirements.</p>
+<p>Divide and conquer is our friend. Instead of generating an ID directly, we divide an ID into different sections. Figure 5 shows the layout of a 64-bit ID.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data structure composed of five distinct fields, each with a specified bit length.  From left to right, the first field is a single bit (1 bit), followed by a 41-bit field.  Next, there's a 5-bit field labeled '0', suggesting it might be a status or version indicator.  This is followed by another 5-bit field labeled 'timestamp...', indicating it stores timestamp information. Finally, a 12-bit field completes the structure.  The fields are arranged horizontally, implying a concatenated structure where the bits of each field are sequentially combined to form a larger data unit. No explicit connections or information flow between the fields are shown; the diagram simply illustrates the composition and size of each component within the overall data structure." loading="lazy" width="600" height="81" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-unique-id-generator-in-distributed-systems/figure-7-5-R4B5RGNK.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5</figcaption></div></figure>
+<p>Each section is explained below.</p>
+<ul>
+<li>
+<p>Sign bit: 1 bit. It will always be 0. This is reserved for future uses. It can potentially be used to distinguish between signed and unsigned numbers.</p>
+</li>
+<li>
+<p>Timestamp: 41 bits. Milliseconds since the epoch or custom epoch. We use Twitter snowflake default epoch 1288834974657, equivalent to Nov 04, 2010, 01:42:54 UTC.</p>
+</li>
+<li>
+<p>Datacenter ID: 5 bits, which gives us <em>2 ^ 5 = 32</em> datacenters.</p>
+</li>
+<li>
+<p>Machine ID: 5 bits, which gives us <em>2 ^ 5 = 32</em> machines per datacenter.</p>
+</li>
+<li>
+<p>Sequence number: 12 bits. For every ID generated on that machine/process, the sequence number is incremented by 1. The number is reset to 0 every millisecond.</p>
+</li>
+</ul>
+<h2 id="step-3---design-deep-dive">Step 3 - Design deep dive</h2>
+<p>In the high-level design, we discussed various options to design a unique ID generator in distributed systems. We settle on an approach that is based on the Twitter snowflake ID generator. Let us dive deep into the design. To refresh our memory, the design diagram is relisted below.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data structure composed of five distinct fields, each with a specified bit length.  From left to right, the fields are: a 1-bit field (likely a flag or boolean value); a 41-bit field (likely representing a large identifier or counter); a 5-bit field labeled '0' (its purpose is unclear without further context); a 5-bit field labeled 'timestamp...' (suggesting a truncated timestamp); and finally, a 12-bit field (likely representing another identifier or data value).  The fields are arranged horizontally, implying a sequential or concatenated structure. No explicit connections are shown between the fields, but the arrangement suggests they are combined to form a single larger data unit.  The 'timestamp...' label indicates that at least part of the data represents a time value, while the other labels and bit lengths provide clues to the potential function of the remaining fields, though their exact meaning remains ambiguous without additional information." loading="lazy" width="600" height="81" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-unique-id-generator-in-distributed-systems/figure-7-6-33JFUIC3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6</figcaption></div></figure>
+<p>Datacenter IDs and machine IDs are chosen at the startup time, generally fixed once the system is up running. Any changes in datacenter IDs and machine IDs require careful review since an accidental change in those values can lead to ID conflicts. Timestamp and sequence numbers are generated when the ID generator is running.</p>
+<p>Timestamp</p>
+<p>The most important 41 bits make up the timestamp section. As timestamps grow with time, IDs are sortable by time. Figure 7 shows an example of how binary representation is converted to UTC. You can also convert UTC back to binary representation using a similar method.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart illustrating the conversion of a binary timestamp to a human-readable date and time.  The process begins with a 64-bit binary number, '0-00100010101001011010011011000101101011000-01010-01100-000000000000,' which is first converted to its decimal equivalent, '297616116568.'  This decimal value is then added to the Twitter epoch value, '1288834974657,' resulting in '1586451091225.' This final number, representing milliseconds since the Twitter epoch, is then converted to a UTC date and time, yielding 'Apr 09 2020 16:51UTC.'  The flowchart uses arrows to indicate the flow of data and text labels to describe each transformation step." loading="lazy" width="500" height="396" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-unique-id-generator-in-distributed-systems/figure-7-7-PNNDQIF5.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7</figcaption></div></figure>
+<p>The maximum timestamp that can be represented in 41 bits is</p>
+<p><em>2 ^ 41 - 1 = 2199023255551</em> milliseconds (ms), which gives us: ~ 69 years = <em>2199023255551 ms / 1000 / 365 days / 24 hours/ 3600 seconds</em>. This means the ID generator will work for 69 years and having a custom epoch time close to today’s date delays the overflow time. After 69 years, we will need a new epoch time or adopt other techniques to migrate IDs.</p>
+<p>Sequence number</p>
+<p>Sequence number is 12 bits, which give us 2 ^ 12 = 4096 combinations. This field is 0 unless more than one ID is generated in a millisecond on the same server. In theory, a machine can support a maximum of 4096 new IDs per millisecond.</p>
+<h2 id="step-4---wrap-up">Step 4 - Wrap up</h2>
+<p>In this chapter, we discussed different approaches to design a unique ID generator: multi-master replication, UUID, ticket server, and Twitter snowflake-like unique ID generator. We settle on snowflake as it supports all our use cases and is scalable in a distributed environment.</p>
+<p>If there is extra time at the end of the interview, here are a few additional talking points:</p>
+<ul>
+<li>
+<p>Clock synchronization. In our design, we assume ID generation servers have the same clock. This assumption might not be true when a server is running on multiple cores. The same challenge exists in multi-machine scenarios. Solutions to clock synchronization are out of the scope of this course; however, it is important to understand the problem exists. Network Time Protocol is the most popular solution to this problem. For interested readers, refer to the reference material [4].</p>
+</li>
+<li>
+<p>Section length tuning. For example, fewer sequence numbers but more timestamp bits are effective for low concurrency and long-term applications.</p>
+</li>
+<li>
+<p>High availability. Since an ID generator is a mission-critical system, it must be highly available.</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="reference-materials">Reference materials</h2>
+<p>[1] Universally unique identifier:<br>
+<a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Universally_unique_identifier</u></a></p>
+<p>[2] Ticket Servers: Distributed Unique Primary Keys on the Cheap:<br>
+<a href="https://code.flickr.net/2010/02/08/ticket-servers-distributed-unique-primary-keys-on-the-cheap/" target="_blank" rel="noopener noreferrer"><u>https://code.flickr.net/2010/02/08/ticket-servers-distributed-unique-primary-keys-on-the-cheap/</u></a></p>
+<p>[3] Announcing Snowflake:<br>
+<a href="https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake.html" target="_blank" rel="noopener noreferrer"><u>https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake.html</u></a></p>
+<p>[4] Network time protocol:<br>
+<a href="https://en.wikipedia.org/wiki/Network_Time_Protocol" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Network_Time_Protocol</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="design-a-key-value-store.html">← Previous</a>
+        <a href="design-a-url-shortener.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

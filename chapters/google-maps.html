@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>19 - Google Maps</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="nearby-friends.html">← Previous</a>
+        <a href="distributed-message-queue.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">19</span> Google Maps
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/google-maps" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">19</strong><h1>Google Maps</h1></header><p>In this chapter, we design a simple version of Google Maps. Before we proceed to the system design, let’s learn a bit about Google Maps. Google started Project Google Maps in 2005 and developed a web mapping service. It provides many services such as satellite imagery, street maps, real-time traffic conditions, and route planning [1].</p>
+<p>Google Maps helps users find directions and navigate to their destination. As of March 2021, Google Maps had one billion daily active users, 99% coverage of the world, and 25 million updates daily of accurate and real-time location information [2]. Given the enormous complexity of Google Maps, it is important to nail down which features our version of it supports. Note the map tiles used in this chapter are from Stamen Design [3] and data are from OpenStreetMap [4].</p>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the Problem and Establish Design Scope</h2>
+<p>The interaction between the interviewer and the candidate could look like this:</p>
+<p><strong>Candidate</strong>: How many daily active users are we expecting?<br>
+<strong>Interviewer</strong>: 1 billion DAU.</p>
+<p><strong>Candidate</strong>: Which features should we focus on? Direction, navigation, and estimated time of arrival (ETA)?<br>
+<strong>Interviewer</strong>: Let’s focus on location update, navigation, ETA, and map rendering.</p>
+<p><strong>Candidate</strong>: How large is the road data? Can we assume we have access to it?<br>
+<strong>Interviewer</strong>: Great questions. Yes, let’s assume we obtained the road data from different sources. It is terabytes (TBs) of raw data.</p>
+<p><strong>Candidate</strong>: Should our system take traffic conditions into consideration?<br>
+<strong>Interviewer</strong>: Yes, traffic conditions are very important for accurate time estimation.</p>
+<p><strong>Candidate</strong>: How about different travel modes such as driving, walking, bus, etc?<br>
+<strong>Interviewer</strong>: We should be able to support different travel modes.</p>
+
+<p><strong>Candidate</strong>: Should it support multi-stop directions?<br>
+<strong>Interviewer</strong>: It is good to allow a user to define multiple stops, but let’s not focus on it.</p>
+<p><strong>Candidate</strong>: How about business places and photos? How many photos are we expecting?<br>
+<strong>Interviewer</strong>: I am happy you asked and considered these. We do not need to design those.</p>
+<p>In the rest of the chapter, we focus on three key features. The main devices that we need to support are mobile phones.</p>
+<ul>
+<li>
+<p>User location update.</p>
+</li>
+<li>
+<p>Navigation service, including ETA service.</p>
+</li>
+<li>
+<p>Map rendering.</p>
+</li>
+</ul>
+<h3 id="non-functional-requirements-and-constraints">Non-functional requirements and constraints</h3>
+<ul>
+<li>
+<p>Accuracy: Users should not be given the wrong directions.</p>
+</li>
+<li>
+<p>Smooth navigation: On the client-side, users should experience very smooth map rendering.</p>
+</li>
+<li>
+<p>Data and battery usage: The client should use as little data and battery as possible. This is very important for mobile devices.</p>
+</li>
+<li>
+<p>General availability and scalability requirements.</p>
+</li>
+</ul>
+<p>Before jumping into the design, we will briefly introduce some basic concepts and terminologies that are helpful in designing Google Maps.</p>
+<h3 id="map-101">Map 101</h3>
+<h4 id="positioning-system">Positioning system</h4>
+<p>The world is a sphere that rotates on its axis. At the very top, there is the north pole, and the very bottom is the south pole.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a spherical representation of the Earth, divided into three roughly equal sections by great-circle arcs forming a triangular region.  The sphere is covered by a network of intersecting blue lines, likely representing lines of latitude and longitude, though not explicitly labeled as such.  A prominent, off-white triangular area is centrally located, with its apex at the sphere's north pole.  The base of this triangle is marked by a thick, magenta line along the sphere's surface.  From the center of the sphere, an orange line extends to a point on the sphere's surface, labeled '40°N Lat,' indicating a latitude of 40 degrees North.  A black line extends from the sphere's center to the base of the triangle, labeled '70°E Long,' indicating a longitude of 70 degrees East.  The magenta lines along the edges of the central triangle appear to represent the boundaries of a specific geographical region or data partition, with dashed magenta lines extending along the sphere's surface, possibly indicating data distribution or boundaries. The overall structure suggests a visualization of data partitioning or distribution across a geographical area on a global scale." loading="lazy" width="360" height="359" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(360px, 100vw), (max-width: 1200px) min(360px, 80vw), min(360px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-1-latitude-and-longitude-3HRLJEPU.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1 Latitude and Longitude (source: [5])</figcaption></div></figure>
+<p>Lat (Latitude)<strong>:</strong> denotes how far north or south we are</p>
+<p>Long (Longitude)<strong>:</strong> denotes how far east or west we are</p>
+<h4 id="going-from-3d-to-2d">Going from 3D to 2D</h4>
+<p>The process of translating the points from a 3D globe to a 2D plane is called “Map Projection”.</p>
+<p>There are different ways to do map projection, and each comes with its own strengths and limitations. Almost all of them distort the actual geometry. Below we can see some examples.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of four different map projections of the world.  The image is arranged as a 2x2 grid. The top-left quadrant displays a Mercator projection, showing the world map with a rectangular shape and characteristic distortion at higher latitudes, where landmasses appear elongated.  A grid of latitude and longitude lines is overlaid. The top-right quadrant shows a Peirce quincuncial projection, presenting a different perspective with a diamond-like shape and a central point near the North Pole.  Again, a latitude and longitude grid is visible. The bottom-left quadrant depicts a Gall-Peters projection, which is rectangular but attempts to maintain accurate land area representation, resulting in a different shape compared to the Mercator projection.  A latitude and longitude grid is also present here. Finally, the bottom-right quadrant shows a Winkel tripel projection, which is an oval-shaped map aiming for a balance between area and shape accuracy.  This projection also includes an overlaid latitude and longitude grid. Each quadrant is labeled below with its respective projection name: 'Mercator projection,' 'Peirce quincuncial projection,' 'Gall-Peters projection,' and 'Winkel tripel projection.'  All four maps use a similar color scheme, with landmasses in shades of green and brown, oceans in blue, and polar regions in white." loading="lazy" width="750" height="641" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-2-map-projectionse-BEFJVLCR.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2 Map projections (source: Wikipedia [6] [7] [8] [9])</figcaption></div></figure>
+<p>Google Maps selected a modified version of Mercator projection called Web Mercator. For more details on positioning systems and projections, please refer to [5].</p>
+<h4 id="geocoding">Geocoding</h4>
+<p>Geocoding is the process of converting addresses to geographic coordinates. For instance, “1600 Amphitheatre Parkway, Mountain View, CA” is geocoded to a latitude/longitude pair of (latitude 37.423021, longitude -122.083739).</p>
+<p>In the other direction, the conversion from the latitude/longitude pair to the actual human-readable address is called reverse geocoding.</p>
+<p>One way to geocode is interpolation [10]. This method leverages the data from different sources such as geographic information systems (GIS) where the street network is mapped to the geographic coordinate space.</p>
+<h4 id="geohashing">Geohashing</h4>
+<p>Geohashing is an encoding system that encodes a geographic area into a short string of letters and digits. At its core, it depicts the earth as a flattened surface and recursively divides the grids into sub-grids, which can be square or rectangular. We represent each grid with a string of numbers between 0 to 3 that are created recursively.</p>
+<p>Let’s assume the initial flattened surface is of size 20,000 km * 10,000 km. After the first division, we would have 4 grids of size 10,000 km * 5,000 km. We represent them as 00, 01, 10, and 11 as shown in Figure 3. We further divide each grid into 4 grids and use the same naming strategy. Each sub-grid is now of size 5,000 km*2,500 km. We recursively divide the grids until each grid reaches a certain size threshold.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical quadtree-like representation of a world map divided into progressively smaller regions.  The top shows a 2x2 grid of map sections labeled '01', '11', '00', and '10', representing a coarse division of the globe.  Each of these sections is further subdivided into a 2x2 grid in the next level, resulting in a 4x4 grid of smaller map sections, each labeled with a two-digit binary code (e.g., '0100', '1110').  This process continues to a much finer level, shown in the bottom large 12x12 grid, where each cell represents a very small geographical area.  The labels in each cell are two-digit binary codes, indicating the hierarchical position within the quadtree.  Some larger regions are labeled with continent names (e.g., 'Europe', 'Asia', 'North America', 'South America', 'Australia', 'Antarctica').  Arrows indicate the hierarchical relationship between levels, showing how a higher-level section is decomposed into lower-level sections. The bottom of the image includes a copyright notice stating that map tiles are by Stamen Design under CC BY 3.0, and data is from OpenStreetMap contributors." loading="lazy" width="500" height="950" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-3-geohashing-LXRUGRGR.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3 Geohashing</figcaption></div></figure>
+<p>Geohashing has many uses. In our design, we use geohashing for map tiling. For more details on geohashing and its benefits, please refer to [11].</p>
+<h4 id="map-rendering">Map rendering</h4>
+<p>We won’t go into a lot of detail about map rendering here, but it is worth mentioning the basics. One foundational concept in map rendering is tiling. Instead of rendering the entire map as one large custom image, the world is broken up into smaller tiles. The client only downloads the relevant tiles for the area the user is in and stitches them together like a mosaic for display.</p>
+<p>There are distinct sets of tiles at different zoom levels. The client chooses the set of tiles appropriate for the zoom level of the map viewport on the client. This provides the right level of map details without consuming excess bandwidth. To illustrate with an extreme example, when the client is zoomed all the way out to show the entire world, we don’t want to have to download hundreds of thousands of tiles for a very high zoom level. All the details would go to waste. Instead, the client would download one tile at the lowest zoom level, which represents the entire world with a single 256x256 pixel image.</p>
+<h4 id="road-data-processing-for-navigation-algorithms">Road data processing for navigation algorithms</h4>
+<p>Most routing algorithms are variations of Dijkstra’s or A* pathfinding algorithms. The exact algorithm choice is a complex topic and we won’t go into much detail in this chapter. What is important to note is that all these algorithms operate on a graph data structure, where intersections are nodes and roads are edges of the graph. See Figure 4 for an example:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a map overlay showing a graph network superimposed on a section of a city map. The base map displays a typical residential area with streets (labeled 'Rocca Ave,' 'Miller Avenue,' 'Bruce Avenue,' 'Grand Ave,' 'Linden Avenue,' and 'Baden Avenue'), buildings represented as light-grey rectangles, and green patches suggesting parks or open spaces.  Overlaid on this is a graph consisting of eight nodes, depicted as large red circles, interconnected by thick black lines forming edges.  These nodes are clustered within a rectangular bounding box. The graph's structure appears irregular, not forming a regular grid or lattice. The map's attribution in the bottom-right corner reads 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors,' indicating the source of the underlying geographical data.  No specific data flows or URLs are explicitly shown within the image; the image primarily illustrates the spatial relationship between the nodes and their location within the city's street network." loading="lazy" width="747" height="341" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-4-map-as-a-graph-DP2SPNZU.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4 Map as a graph</figcaption></div></figure>
+<p>The pathfinding performance for most of these algorithms is extremely sensitive to the size of the graph. Representing the entire world of road networks as a single graph would consume too much memory and is likely too large for any of these algorithms to run efficiently. The graph needs to be broken up into manageable units for these algorithms to work at our design scale.</p>
+<p>One way to break up road networks around the world is very similar to the tiling concept we discussed for map rendering. By employing a similar subdivision technique as geohashing, we divide the world into small grids. For each grid, we convert the roads within the grid into a small graph data structure that consists of the nodes (intersections) and edges (roads) inside the geographical area covered by the grid. We call these grids routing tiles. Each routing tile holds references to all the other tiles it connects to. This is how the routing algorithms can stitch together a bigger road graph as it traverses these interconnected routing tiles.</p>
+<p>By breaking up road networks into routing tiles that can be loaded on demand, the routing algorithms can significantly reduce memory consumption and improve pathfinding performance by only consuming a small subset of the routing tiles at a time, and only loading additional tiles as needed.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a map divided into three rectangular sections labeled 'Routing tile 1,' 'Routing tile 2,' and 'Routing tile 3,' each showing a portion of a street network.  Within each tile, intersections are depicted as large red circles connected by thick black lines representing roads.  The tiles are arranged horizontally, abutting each other to form a larger, continuous representation of the street network.  The underlying map is a light beige color with gray buildings and street outlines, indicating a typical street map style.  Street names such as 'Miller Avenue,' 'Grand Avenue,' 'Bruce Avenue,' and 'Baden Avenue' are partially visible. The bottom of the image includes an attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors,' indicating the source of the map data.  The overall arrangement suggests a tiled approach to representing a larger geographical area, where each tile contains a subset of the routing information." loading="lazy" width="747" height="341" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-5-routing-tiles-BDKBAEUR.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5 Routing tiles</figcaption></div></figure>
+<table><thead><tr><th>Reminder</th></tr></thead><tbody><tr><td>In Figure 5, we call these grids routing tiles. Routing tiles are similar to map tiles in that both are grids covering certain geographical areas. Map tiles are PNG images, while routing tiles are binary files of road data for the area covered by the tiles.</td></tr></tbody></table>
+<h4 id=""></h4>
+<p><strong>Hierarchical routing tiles</strong><br>
+Efficient navigation routing also requires having road data at the right level of detail. For example, for cross country routing, it would be slow to run the routing algorithm against a highly detailed set of street-level routing tiles. The graph stitched together from these detailed routing tiles would likely be too large and consume too much memory.</p>
+<p>There are typically three sets of routing tiles with different levels of detail. At the most detailed level, the routing tiles are small and contain only local roads. At the next level, the tiles are bigger and contain only arterial roads connecting districts together. At the lowest level of detail, the tiles cover large areas and contain only major highways connecting cities and states together. At each level, there could be edges connecting to tiles at a different zoom level. For example, for a freeway entrance from local street A to freeway F, there would be a reference from the node (street A) in the small tile to the node (freeway F) in the big tile. See Figure 6 for an example of routing tiles of varying sizes.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a map of a section of New York City, specifically focusing on a portion of Manhattan and its surrounding areas.  The main area of interest is highlighted by a large, light-blue rectangular box encompassing parts of the East River, and several neighborhoods. Within this larger box, a smaller, lime-green rectangular area is further highlighted, subdivided into a grid of numerous smaller, equally sized squares. This grid likely represents a spatial partitioning scheme, perhaps for data organization or analysis.  Major roadways and highways are clearly marked, including numbered routes such as US 9, I-95, I-278, I-495, and NY 25, along with other local streets and avenues.  The map also includes labels for geographical features like the East River and neighborhoods such as Manhattan, Edgewater, and Inwood. The bottom right corner displays attribution information: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors,' indicating the source of the map data and its licensing." loading="lazy" width="750" height="750" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-6-routing-tiles-of-varying-sizes-T5ONSL2L.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6 Routing tiles of varying sizes</figcaption></div></figure>
+<h3 id="back-of-the-envelope-estimation">Back-of-the-envelope estimation</h3>
+<p>Now that we understand the basics, let’s do a back-of-the-envelope estimation. Since the focus of the design is mobile, data usage and battery consumption are two important factors to consider.</p>
+<p>Before we dive into the estimation, here are some imperial/metric conversions for reference.</p>
+<ul>
+<li>
+<p>1 foot = 0.3048 meters</p>
+</li>
+<li>
+<p>1 kilometer (km) = 0.6214 miles</p>
+</li>
+<li>
+<p>1 km = 1,000 meters</p>
+</li>
+</ul>
+<h4 id="storage-usage">Storage usage</h4>
+<p>We need to store three types of data.</p>
+<ul>
+<li>
+<p>Map of the world: A detailed calculation is shown below.</p>
+</li>
+<li>
+<p>Metadata: Given that the metadata for each map tile could be negligible in size, we can skip the metadata in our computation.</p>
+</li>
+<li>
+<p>Road info: The interviewer told us there are TBs of road data from external sources. We transform this dataset into routing tiles, which are also likely to be terabytes in size.</p>
+</li>
+</ul>
+<p><strong>Map of the world</strong></p>
+<p>We discussed the concept of map tiling in the Map 101 section. There are many sets of map tiles, with one at each zoom level. To get an idea of the storage requirement for the entire collection of map tile images, it would be informative to estimate the size of the largest tile set at the highest zoom level first. At zoom level 21, there are about 4.3 trillion tiles (Table 1). Let’s assume that each tile is a 256 * 256 pixel compressed PNG image, with the image size of about 100 KB. The entire set at the highest zoom level would need about 4.4 trillion * 100 KB = 440 PB.</p>
+<p>In Table 1, we show the progression of tile counts at every zoom level.</p>
+<table><thead><tr><th><strong>Zoom</strong></th><th><strong>Number of Tiles</strong></th></tr></thead><tbody><tr><td>0</td><td>1</td></tr><tr><td>1</td><td>4</td></tr><tr><td>2</td><td>16</td></tr><tr><td>3</td><td>64</td></tr><tr><td>4</td><td>256</td></tr><tr><td>5</td><td>1 024</td></tr><tr><td>6</td><td>4 096</td></tr><tr><td>7</td><td>16 384</td></tr><tr><td>8</td><td>65 536</td></tr><tr><td>9</td><td>262 144</td></tr><tr><td>10</td><td>1 048 576</td></tr><tr><td>11</td><td>4 194 304</td></tr><tr><td>12</td><td>16 777 216</td></tr><tr><td>13</td><td>67 108 864</td></tr><tr><td>14</td><td>268 435 456</td></tr><tr><td>15</td><td>1 073 741 824</td></tr><tr><td>16</td><td>4 294 967 296</td></tr><tr><td>17</td><td>17 179 869 184</td></tr><tr><td>18</td><td>68 719 476 736</td></tr><tr><td>19</td><td>274 877 906 944</td></tr><tr><td>20</td><td>1 099 511 627 776</td></tr><tr><td>21</td><td>4 398 046 511 104</td></tr></tbody></table>
+<p class="tableCaption">Table 1 Zoom levels</p>
+<p>However, keep in mind that about 90% of the world’s surface is natural and mostly uninhabited areas like oceans, deserts, lakes, and mountains. Since these areas are highly compressible as images, we could conservatively reduce the storage estimate by 80-90%. That would reduce the storage size to a range of 44 to 88 PB. Let’s pick a simple round number of 50 PB.</p>
+<p>Next, let’s estimate how much storage each subsequent lower zoom level would take. At each lower zoom level, the number of tiles for both north-south and east-west directions drops by half. This results in a total reduction of the number of tiles by 4x, which drops the storage size for the zoom level also by 4x. With the storage size reduced by 4x at each lower zoom level, the math for the total size is a series: 50 + 50/4 + 50/16 + 50/64 + … = ~67 PB. This is just a rough estimate. It is good enough to know that we need roughly about 100 PB to store all the map tiles at varying levels of detail.</p>
+<h4 id="server-throughput">Server throughput</h4>
+<p>To estimate the server throughput, let’s review the types of requests we need to support. There are two main types of requests. The first is navigation requests. These are sent by the clients to initiate a navigation session. The second is location update requests. These are sent by the client as the user moves around during a navigation session. The location data is used by downstream services in many different ways. For example, location data is one of the inputs for live traffic data. We will cover the use cases of location data in the design deep dive section.</p>
+<p>Now we can analyze the server throughput for navigation requests. Let’s assume we have 1 billion DAU, and each user uses navigation for a total of 35 minutes per week. This translates to 35 billion minutes per week or 5 billion minutes per day.</p>
+<p>One simple approach would be to send GPS coordinates every second, which results in 300 billion (5 billion minutes * 60) requests per day, or 3 million QPS (300 billion requests / 10^5 = 3 million). However, the client may not need to send a GPS update every second. We can batch these on the client and send them at a much lower frequency (for example, every 15 seconds or 30 seconds) to reduce the write QPS. The actual frequency could depend on factors such as how fast the user moves. If they are stuck in traffic, a client can slow down the GPS updates. In our design, we assume GPS updates are batched and then sent to the server every 15 seconds. With this batched approach, the QPS is reduced to 200,000 (3 million / 15).</p>
+<p>Assume peak QPS is five times the average. Peak QPS for location updates = 200,000 * 5 = 1 million.</p>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose High-Level Design and Get Buy-In</h2>
+<p>Now that we have more knowledge about Google Maps, we are ready to propose a high-level design (Figure 7).</p>
+<h3 id="high-level-design">High-level design</h3>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a mobile navigation application.  A mobile user initiates a request, which is first routed through a Load Balancer. The Load Balancer distributes the request to either a Navigation Service or a Location Service. The Navigation Service interacts with a Geocoding DB and a Routing Tiles database (described as object storage), likely to determine routes and display map data.  The Location Service interacts with a User Location DB, presumably to track and manage user location information.  Separately, the mobile user also connects to a CDN (Content Delivery Network), which serves precomputed map images stored in a database labeled 'Precomputed Map Images (Origin),' improving performance by caching map tiles closer to the user.  The arrows indicate the flow of information and requests between the components." loading="lazy" width="600" height="417" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-7-high-level-design-QJSXR6J4.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7 High-level design</figcaption></div></figure>
+<p>The high-level design supports three features. Let’s take a look at them one by one.</p>
+<ol>
+<li>
+<p>Location service</p>
+</li>
+<li>
+<p>Navigation service</p>
+</li>
+<li>
+<p>Map rendering</p>
+</li>
+</ol>
+<h4 id="location-service">Location service</h4>
+<p>The location service is responsible for recording a user’s location update. The architecture is shown in Figure 8.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture for retrieving user location data.  A mobile user's request initiates the process, represented by a smartphone icon labeled 'Mobile User'. This request is then directed to a 'Load Balancer', depicted as a rectangular box, which distributes the incoming traffic.  The load balancer forwards the request to a 'Location Service', another rectangular box, responsible for processing the location request. Finally, the Location Service accesses a 'User Location DB', represented by a cylindrical database icon, to retrieve the user's location information.  The arrows indicate the unidirectional flow of the request from the mobile user through the load balancer, the location service, and ultimately to the database." loading="lazy" width="142" height="423" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-8-location-service-OYEBRJD3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8 Location service</figcaption></div></figure>
+<p>The basic design calls for the clients to send location updates every t seconds, where t is a configurable interval. The periodic updates have several benefits. First, we can leverage the streams of location data to improve our system over time. We can use the data to monitor live traffic, detect new or closed roads, and analyze user behavior to enable personalization, for example. Second, we can leverage the location data in near real-time to provide more accurate ETA estimates to the users and to reroute around traffic, if necessary.</p>
+<p>But do we really need to send every location update to the server immediately? The answer is probably no. Location history can be buffered on the client and sent in batch to the server at a much lower frequency. For example, as shown in Figure 9, the location updates are recorded every second, but are only sent to the server as part of a batch every 15 seconds. This significantly reduces the total update traffic sent by all the clients.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client sending data in batches to a server (not explicitly shown).  The diagram shows three batches of data, labeled 'Batch 1,' 'Batch 2,' and 'Batch 3,' each containing multiple data units represented by boxes labeled 'loc' followed by a number (e.g., 'loc 45').  Each batch contains an unspecified number of data units indicated by '...'.  The batches are sent sequentially, with a 15-second interval between each batch transmission, as indicated by the arrows and '15s' labels.  The overall structure suggests a system where the client sends data in manageable chunks to avoid overwhelming the server, with the timing suggesting a rate-limiting or batching mechanism in place." loading="lazy" width="718" height="196" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-9-batch-requests-JJ26U6BQ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9 Batch requests</figcaption></div></figure>
+<p>For a system like Google Maps, even when location updates are batched, the write volume is still very high. We need a database that is optimized for high write volume and is highly scalable, such as Cassandra. We may also need to log location data using a stream processing engine such as Kafka for further processing. We discuss this in detail in the deep dive section.</p>
+<p>What communication protocol might be a good fit here? HTTP with the keep-alive option [12] is a good choice because it is very efficient. The HTTP request might look like this:</p>
+<pre><code>POST /v1/locations
+Parameters
+  locs: JSON encoded array of (latitude, longitude, timestamp) tuples.
+</code></pre>
+<h4 id="navigation-service">Navigation service</h4>
+<p>This component is responsible for finding a reasonably fast route from point A to point B. We can tolerate a little bit of latency. The calculated route does not have to be the fastest, but accuracy is critical.</p>
+<p>As shown in Figure 8, the user sends an HTTP request to the navigation service through a load balancer. The request includes origin and destination as the parameters. The API might look like this:</p>
+<pre><code>GET /v1/nav?origin=1355+market+street,SF&amp;destination=Disneyland
+</code></pre>
+<p>Here is an example of what the navigation result could look like:</p>
+<pre><code>{
+  'distance': {'text':'0.2 mi', 'value': 259},
+  'duration': {'text': '1 min', 'value': 83},
+  'end_location': {'lat': 37.4038943, 'Ing': -121.9410454},
+  'html_instructions': 'Head &lt;b&gt;northeast&lt;/b&gt; on &lt;b&gt;Brandon St&lt;/b&gt; toward &lt;b&gt;Lumin Way&lt;/b&gt;&lt;div style="font-size:0.9em"&gt;Restricted usage road&lt;/div&gt;',
+  'polyline': {'points': '_fhcFjbhgVuAwDsCal'},
+  'start_location': {'lat': 37.4027165, 'lng': -121.9435809},
+  'geocoded_waypoints': [
+    {
+       "geocoder_status" : "OK",
+       "partial_match" : true,
+       "place_id" : "ChIJwZNMti1fawwRO2aVVVX2yKg",
+       "types" : [ "locality", "political" ]
+    },
+    {
+       "geocoder_status" : "OK",
+       "partial_match" : true,
+       "place_id" : "ChIJ3aPgQGtXawwRLYeiBMUi7bM",
+       "types" : [ "locality", "political" ]
+    }
+  ],
+  'travel_mode': 'DRIVING'
+}
+</code></pre>
+<p>Please refer to [13] for more details on Google Maps’ official APIs.</p>
+<p>So far we have not taken reroute and traffic changes into consideration. Those problems are tackled by the Adaptive ETA service in the deep dive section.</p>
+<h4 id="map-rendering-1">Map rendering</h4>
+<p>As we discussed in the back-of-the-envelope estimation, the entire collection of map tiles at various zoom levels is about a hundred petabytes in size. It is not practical to hold the entire dataset on the client. The map tiles must be fetched on-demand from the server based on the client’s location and the zoom level of the client viewport.</p>
+<p>When should the client fetch new map tiles from the server? Here are some scenarios:</p>
+<ul>
+<li>
+<p>The user is zooming and panning the map viewpoint on the client to explore their surroundings.</p>
+</li>
+<li>
+<p>During navigation, the user moves out of the current map tile into a nearby tile.</p>
+</li>
+</ul>
+<p>We are dealing with a lot of data. Let’s see how we could serve these map tiles from the server efficiently.</p>
+<p><strong>Option 1</strong></p>
+<p>The server builds the map tiles on the fly, based on the client location and zoom level of the client viewport. Considering that there is an infinite number of location and zoom level combinations, generating map tiles dynamically has a few severe disadvantages:</p>
+<ul>
+<li>
+<p>It puts a huge load on the server cluster to generate every map tile dynamically.</p>
+</li>
+<li>
+<p>Since the map tiles are dynamically generated, it is hard to take advantage of caching.</p>
+</li>
+</ul>
+<p><strong>Option 2</strong></p>
+<p>Another option is to serve a pre-generated set of map tiles at each zoom level. The map tiles are static, with each tile covering a fixed rectangular grid using a subdivision scheme like geohashing. Each tile is therefore represented by its geohash. In other words, there is a unique geohash associated with each grid. When a client needs a map tile, it first determines the map tile collection to use based on its zoom level. It then computes the map tile URL by converting its location to the geohash at the appropriate zoom level.</p>
+<p>These static, pre-generated images are served by a CDN as shown in Figure 10.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture for delivering precomputed map images to a mobile user.  A mobile user's device is depicted at the top, connected via a downward-pointing arrow to a black cloud symbol labeled 'CDN' (Content Delivery Network). This arrow indicates a request for map images originating from the mobile user. The CDN is, in turn, connected to a database cylinder labeled 'Precomputed Map Images (Origin)' via a bidirectional arrow, showing that the CDN retrieves map images from this database.  The upward-pointing arrow signifies the transfer of map images from the origin server to the CDN for caching and distribution, while the downward-pointing arrow shows the delivery of these images from the CDN to the mobile user.  The overall architecture highlights the use of a CDN to efficiently serve pre-rendered map images to mobile users, reducing latency and load on the origin server." loading="lazy" width="196" height="432" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-10-cdn-RT3AMXIB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10 CDN</figcaption></div></figure>
+<p>In the diagram above, the mobile user makes an HTTP request to fetch a tile from the CDN. If the CDN has not yet served that specific tile before, it fetches a copy from the origin server, caches it locally, and returns it to the user. On subsequent requests, even if those requests are from different users, the CDN returns a cached copy without contacting the origin server.</p>
+<p>This approach is more scalable and performant because the map tiles are served from the nearest point of presence (POP) to the client, as shown in Figure 11. The static nature of the map tiles makes them highly cacheable.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of content delivery without and with a Content Delivery Network (CDN).  The top section shows a scenario 'Without CDN,' depicting a single origin server (represented by a gray server icon) directly connected to a user (represented by a person icon) with a 300ms latency indicated by a labeled arrow. The bottom section, labeled 'With CDN,' illustrates the improved performance.  Here, the origin server is connected via dashed lines to four geographically distributed Points of Presence (POPs), each represented by a black server icon labeled 'POP.'  A user is shown connected to one of these POPs with a significantly reduced latency of 10ms, as indicated by a labeled arrow.  The dashed lines signify the communication between the origin server and the POPs, suggesting data replication and distribution across the CDN.  The overall diagram highlights the reduced latency achieved by using a CDN, where users access content from a nearby POP instead of directly from the origin server." loading="lazy" width="500" height="463" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-11-without-cdn-vs-with-cdn-SHVP3SHZ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11 Without CDN vs with CDN</figcaption></div></figure>
+<p>It is important to keep mobile data usage low. Let's calculate the amount of data the client needs to load during a typical navigation session. Note the following calculations don’t take client-side caching into consideration. Since the routes a user takes could be similar each day, the data usage is likely to be a lot lower with client-side caching.</p>
+<table><thead><tr><th>Data usage</th></tr></thead><tbody><tr><td>Let’s assume a user moves at 30 km/h, and at a zoom level where each image covers a block of 200m*200m (a block can be represented by a 256-pixel by 256-pixel image and the average image size is 100KB). For an area of 1km*1km, we need 25 images or 2.5 MB (25 * 100KB) of data. Therefore, if the speed is 30 km/h, we need 75MB (30 * 2.5MB) of data per hour or 1.25 MB of data per minute.</td></tr></tbody></table>
+<p class="tableCaption">Table 2 Data usage</p>
+<p>Next, we estimate the CDN data usage. At our scale, the cost is an important factor to consider.</p>
+<table><thead><tr><th>Traffic through CDN</th></tr></thead><tbody><tr><td><p>As mentioned earlier, we serve 5 billion minutes of navigation per day.
+This translates to 5 billion * 1.25 MB = 6.25 billion MB per day. Hence,
+we serve 62,500 MB (6.25 billion / 10^5 seconds in a day) of map data
+per second. With a CDN, these map images are going to be served from the
+POPs all over the world. Let’s assume there are 200 POPs. Each POP would
+only need to serve a few hundred MBs (62,500 / 200) per second.</p></td></tr></tbody></table>
+<p class="tableCaption">Table 3 Traffic through CDN</p>
+<p>There is one final detail in the map rendering design we have only briefly touched on. How does the client know which URLs to use to fetch the map tiles from the CDN? Keep in mind that we are using option 2 as discussed above. With that option, the map tiles are static and pre-generated based on fixed sets of grids, with each set representing a discrete zoom level.</p>
+<p>Since we encode the grids in geohash, and there is one unique geohash per grid, computationally it is very efficient to go from the client’s location (in latitude and longitude) and zoom level to the geohash, for the map tile. This calculation can be done on the client and we can fetch any static image tile from the CDN. For example, the URL for the image tile of Google headquarter could look like this:<br>
+<code>https://cdn.map-provider.com/tiles/9q9hvu.png</code></p>
+<p>Refer to the Proximity Service chapter for a more detailed discussion of geohash encoding.</p>
+<p>Calculating geohash on the client should work well. However, keep in mind that this algorithm is hardcoded in all the clients on all different platforms. Shipping changes to mobile apps is a time-consuming and somewhat risky process. We have to be sure that geohashing is the method we plan to use long-term to encode the collection of map tiles and that it is unlikely to change. If we need to switch to another encoding method for some reason, it will take a lot of effort and the risk is not low.</p>
+<p>Here is another option worth considering. Instead of using a hardcoded client-side algorithm to convert a latitude/longitude (lat/lng) pair and zoom level to a tile URL, we could introduce a service as an intermediary whose job is to construct the tile URLs based on the same inputs mentioned above. This is a very simple service. The added operational flexibility might be worth it. This is a very interesting tradeoff discussion we could have with the interviewer. The alternative map rendering flow is shown in Figure 12.</p>
+<p>When a user moves to a new location or to a new zoom level, the map tile service determines which tiles are needed and translates that information into a set of tile URLs to retrieve.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture for delivering map tiles to a mobile user.  The process begins with a mobile user (represented by a smartphone icon) initiating a request labeled '1) Fetch URLs of tiles'. This request is sent to a Load Balancer. The Load Balancer then forwards the request (labeled '2) Forward Request') to a Map Tile Service, which constructs the URLs of the required map tiles (labeled '3) Construct URLs of tiles').  Finally, the mobile user downloads the tiles from a Content Delivery Network (CDN), represented by a cloud icon, via a connection labeled '4) Download tiles'.  The numbered labels indicate the sequential order of operations.  The system uses a load balancer to distribute requests and a CDN to efficiently serve map tiles to the mobile user." loading="lazy" width="398" height="403" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-12-map-rendering-CHTHBLFS.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12 Map rendering</figcaption></div></figure>
+<ol>
+<li>
+<p>A mobile user calls the map tile service to fetch the tile URLs. The request is sent to the load balancer.</p>
+</li>
+<li>
+<p>The load balancer forwards the request to the map tile service.</p>
+</li>
+<li>
+<p>The map tile service takes the client’s location and zoom level as inputs and returns 9 URLs of the tiles to the client. These tiles include the tile to render and the eight surrounding tiles.</p>
+</li>
+<li>
+<p>The mobile client downloads the tiles from the CDN.</p>
+</li>
+</ol>
+<p>We will go into more detail on the precomputed map tiles in the design deep dive section.</p>
+<h2 id="step-3---design-deep-dive">Step 3 - Design Deep Dive</h2>
+<p>In this section, we first have a discussion about the data model. Then we talk about location service, navigation service, and map rendering in more detail.</p>
+<h3 id="data-model">Data model</h3>
+<p>We are dealing with four types of data: routing tiles, user location data, geocoding data, and precomputed map tiles of the world.</p>
+<h4 id="routing-tiles">Routing tiles</h4>
+<p>As mentioned previously, the initial road dataset is obtained from different sources and authorities. It contains terabytes of data. The dataset is improved over time by the location data the application continuously collects from the users as they use the application.</p>
+<p>This dataset contains a large number of roads and associated metadata such as names, county, longitude, and latitude. This data is not organized as graph data structures and is not usable by most routing algorithms. We run a periodic offline processing pipeline, called routing tile processing service, to transform this dataset into the routing tiles we introduced. The service runs periodically to capture new changes to the road data.</p>
+<p>The output of the routing tile processing service is routing tiles. There are three sets of these tiles at different resolutions, as described in the Map 101 section. Each tile contains a list of graph nodes and edges representing the intersections and roads within the area covered by the tile. It also contains references to other tiles its roads connect to. These tiles together form an interconnected network of roads that the routing algorithms can consume incrementally.</p>
+<p>Where should the routing tile processing service store these tiles? Most graph data is represented as adjacency lists [14] in memory. There are too many tiles to keep the entire set of adjacency lists in memory. We could store the nodes and edges as rows in a database, but we would only be using the database as storage, and it seems an expensive way to store bits of data. We also don’t need any database features for routing tiles.</p>
+<p>The more efficient way to store these tiles is in object storage like S3 and cache it aggressively on the routing service that uses those tiles. There are many high-performance software packages we could use to serialize the adjacency lists to a binary file. We could organize these tiles by their geohashes in object storage. This provides a fast lookup mechanism to locate a tile by lat/lng pair.</p>
+<p>We discuss how the shortest path service uses these routing tiles shortly.</p>
+<h4 id="user-location-data">User location data</h4>
+<p>User location data is valuable. We use it to update our road data and routing tiles. We also use it to build a database of live and historical traffic data. This location data is also consumed by multiple data stream processing services to update the map data.</p>
+<p>For user location data, we need a database that can handle the write-heavy workload well and can be horizontally scaled. Cassandra could be a good candidate.</p>
+<p>Here is what a single row could look like:</p>
+<div class="table-wrap" style="--table-min-width: 500px;"><table><thead><tr><td><strong>user_id</strong></td><td><strong>timestamp</strong></td><td><strong>user_mode</strong></td><td><strong>driving_mode</strong></td><td><strong>location</strong></td></tr></thead><tbody><tr><td>101</td><td>1635740977</td><td>active</td><td>driving</td><td>(20.0, 30.5)</td></tr></tbody></table></div>
+<p class="tableCaption">Table 4 Location table</p>
+<h4 id="geocoding-database">Geocoding database</h4>
+<p>This database stores places and their corresponding lat/lng pair. We can use a key-value database such as Redis for fast reads, since we have frequent reads and infrequent writes. We use it to convert an origin or destination to a lat/lng pair before passing it to the route planner service.</p>
+<h4 id="precomputed-images-of-the-world-map">Precomputed images of the world map</h4>
+<p>When a device asks for a map of a particular area, we need to get nearby roads and compute an image that represents that area with all the roads and related details. These computations would be heavy and redundant, so it could be helpful to compute them once and then cache the images. We precompute images at different zoom levels and store them on a CDN, which is backed by cloud storage such as Amazon S3. Here is an example of such an image:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a section of a map showing a residential area.  The map is stylized, with buildings depicted as light-grey rectangular shapes arranged in rows along streets.  Streets are represented by darker grey lines, forming a network of intersecting roads.  One road is clearly labeled 'Crestwood Dr,' with a portion of another road, possibly 'Avenue,' visible at the left edge. The background is a light beige color, representing open space or undeveloped land. The buildings are densely packed, suggesting a suburban neighborhood.  At the bottom of the image, a caption reads: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors,' indicating the source and licensing of the map data." loading="lazy" width="500" height="467" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-13-precomputed-tiles-WXTG5KSB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13 Precomputed tiles</figcaption></div></figure>
+<h3 id="services">Services</h3>
+<p>Now that we have discussed the data model, let’s take a close look at some of the most important services: location service, map rendering service, and navigation service.</p>
+<h4 id="location-service-1">Location service</h4>
+<p>In the high-level design, we discussed how location service works. In this section, we focus on the database design for this service and also how user location is used in detail.</p>
+<p>In Figure 14, the key-value store is used to store user location data. Let’s take a close look.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture for retrieving user location data.  A mobile user's request initiates the process, represented by a smartphone icon labeled 'Mobile User'. This request is then directed to a 'Load Balancer,' depicted as a rectangular box, which distributes the incoming traffic. The load balancer forwards the request to a 'Location Service,' another rectangular box, responsible for processing the location request. Finally, the Location Service accesses and retrieves the required data from a 'User Location DB,' represented by a cylindrical icon symbolizing a database.  The arrows indicate the unidirectional flow of the request and data from the mobile user through the load balancer, the location service, and ultimately to the database, implying a client-server architecture." loading="lazy" width="142" height="423" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-14-user-location-database-OYEBRJD3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14 User location database</figcaption></div></figure>
+<p>Given the fact we have 1 million location updates every second, we need to have a database that supports fast writes. A No-SQL key-value database or column-oriented database would be a good choice here. In addition, a user’s location is continuously changing and becomes stale as soon as a new update arrives. Therefore, we can prioritize availability over consistency. The CAP theorem [15] states that we could choose two attributes among consistency, availability, and partition tolerance. Given our constraints, we would go with availability and partition tolerance. One database that is a good fit is Cassandra. It can handle our scale with a strong availability guarantee.</p>
+<p>The key is the combination of <em>(user_id, timestamp)</em> and the value is a lat/lng pair. In this setup, <em>user_id</em> is the primary key and timestamp is the clustering key. The advantage of using <em>user_id</em> as the partition key is that we can quickly read the latest position of a specific user. All the data with the same partition key are stored together, sorted by timestamp. With this arrangement, the retrieval of the location data for a specific user within a time range is very efficient.</p>
+<p>Below is an example of what the table may look like.</p>
+<div class="table-wrap" style="--table-min-width: 600px;"><table><thead><tr><td><strong>key (user_id)</strong></td><td><strong>timestamp</strong></td><td><strong>lat</strong></td><td><strong>long</strong></td><td><strong>user_mode</strong></td><td><strong>navigation_mode</strong></td></tr></thead><tbody><tr><td>51</td><td>132053000</td><td>21.9</td><td>89.8</td><td>active</td><td>driving</td></tr></tbody></table></div>
+<p class="tableCaption">Table 5 Location data</p>
+<p><strong>How do we use the user location data?</strong></p>
+<p>User location data is essential. It supports many use cases. We use the data to detect new and recently closed roads. We use it as one of the inputs to improve the accuracy of our map over time. It is also an input for live traffic data.</p>
+<p>To support these use cases, in addition to writing current user locations in our database, we log this information into a message queue, such as Kafka. Kafka is a unified low-latency, high-throughput data streaming platform designed for real-time data feeds. Figure 15 shows how Kafka is used in the improved design.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating the flow of user location data and its processing.  A mobile user's location data first passes through a Load Balancer, then to a Location Service which stores the data in a User Location DB. This location data is then fed into a Kafka message queue.  Kafka acts as a central hub, distributing the data to three downstream services: a Traffic Update Service (which writes to a Traffic DB), a Machine Learning Service for Personalization (writing to a Personalization DB), and a Routing Tile Processing Service (writing to an object storage labeled 'Routing Tiles').  Finally, data also flows from Kafka to an Analytics service, which stores its results in an Analytics DB.  The dashed-line box groups the Traffic Update Service, Machine Learning Service, Routing Tile Processing Service, and Analytics service, suggesting these components form a processing unit consuming data from Kafka." loading="lazy" width="750" height="425" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-15-location-data-is-used-by-other-services-EREYYC3G.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15 Location data is used by other services</figcaption></div></figure>
+<p>Other services consume the location data stream from Kafka for various use cases. For instance, the live traffic service digests the output stream and updates the live traffic database. The routing tile processing service improves the map of the world by detecting new or closed roads and updating the affected routing tiles in object storage. Other services can also tap into the stream for different purposes.</p>
+<h4 id="rendering-map">Rendering map</h4>
+<p>In this section, we dive deep into precomputed map tiles and map rendering optimization. They are primarily inspired by the work of Google Design [5].</p>
+<h5 id="precomputed-tiles">Precomputed tiles</h5>
+<p>As mentioned previously, there are different sets of precomputed map tiles at various distinct zoom levels to provide the appropriate level of map detail to the user, based on the client’s viewport size and zoom level. Google Maps uses 21 zoom levels (Table 1). This is what we use, as well.</p>
+<p>Level 0 is the most zoomed-out level. The entire map is represented by a single tile of size 256 * 256 pixels.</p>
+<p>With each increment of the zoom level, the number of map tiles doubles in both north-south and east-west directions, while each tile stays at 256 * 256 pixels. As shown in Figure 16, at zoom level 1, there are 2 x 2 tiles, with a total combined resolution of 512 * 512 pixels. At zoom level 2, there are 4 x 4 tiles, with a total combined resolution of 1024 * 1024 pixels. With each increment, the entire set of tiles has 4x as many pixels as the previous level. The increased pixel count provides an increasing level of detail to the user. This allows the client to render the map at the best granularities depending on the client’s zoom level, without consuming excessive bandwidth to download tiles in excessive detail.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical quadtree structure illustrating map tile organization at different zoom levels.  At Zoom level 0, a 256px by 256px map is divided into four quadrants, labeled '00', '01', '10', and '11'.  Each quadrant represents a portion of the world map.  Zoom level 1 shows each quadrant from level 0 further subdivided into four 256px by 256px tiles, resulting in a 512px by 512px image.  These tiles are again labeled using a two-digit binary code, reflecting their position within the parent quadrant.  Zoom level 2 expands this pattern, with each level 1 tile divided into four more, creating a 1024px by 1024px image composed of 64 tiles, each labeled with a two-digit binary code.  The labels correspond to geographical regions (e.g., Europe, Asia, Africa, etc.) at the appropriate zoom level.  Vertical lines indicate the increasing image dimensions (256px, 512px, and 1024px) at each zoom level.  The bottom of the image includes attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors.'" loading="lazy" width="500" height="915" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-16-zoom-levels-QGEJ7C5F.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16 Zoom levels</figcaption></div></figure>
+<h5 id="optimization-use-vectors">Optimization: use vectors</h5>
+<p>With the development and implementation of WebGL, one potential improvement is to change the design from sending the images over the network, to sending the vector information (paths and polygons) instead. The client draws the paths and polygons from the vector information.</p>
+<p>One obvious advantage of vector tiles is that vector data compresses much better than images do. The bandwidth saving is substantial.</p>
+<p>A less obvious benefit is that vector tiles provide a much better zooming experience. With rasterized images, as the client zooms in from one level to another, everything gets stretched and looks pixelated. The visual effect is pretty jarring. With vectorized images, the client can scale each element appropriately, providing a much smoother zooming experience.</p>
+<h4 id="navigation-service-1">Navigation service</h4>
+<p>Next, let’s deep dive into the navigation service. This service is responsible for finding the fastest routes. The design diagram is shown in Figure 17.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a mobile navigation application.  A mobile user initiates a request that flows through a Navigation Service. This service interacts with a Geocoding Service, which in turn retrieves data from a Geocoding DB to determine location. The Navigation Service then passes the location data to a Route Planner Service.  The Route Planner Service uses three subordinate services: a Ranker, a Shortest Path Service, and an ETA Service. The Ranker feeds into a Filter Service (which can filter out tolls, etc.). The Shortest Path Service accesses Routing Tiles (an object storage) to calculate the optimal route. The ETA Service retrieves traffic information from a Traffic DB, which is updated periodically by an Update Traffic Service that draws data from a Location DB.  The overall flow is a top-down approach, starting from user input and culminating in route calculation and ETA estimation, utilizing various databases and services for efficient operation." loading="lazy" width="600" height="623" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-17-navigation-service-MW336TYJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17 Navigation service</figcaption></div></figure>
+<p>Let’s go over each component in the system.</p>
+<h5 id="geocoding-service">Geocoding service</h5>
+<p>First, we need to have a service to resolve an address to a location of a latitude and longitude pair. An address could be in different formats, for example, it could be the name of a place or a textual address.</p>
+<p>Here is an example request and response from Google’s geocoding API.</p>
+<p><strong>Request</strong>:</p>
+<pre><code>https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA
+</code></pre>
+<p><strong>JSON response:</strong></p>
+<pre><code>{
+   "results" : [
+      {
+         "formatted_address" : "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA",
+         "geometry" : {
+            "location" : {
+               "lat" : 37.4224764,
+               "lng" : -122.0842499
+            },
+            "location_type" : "ROOFTOP",
+            "viewport" : {
+               "northeast" : {
+                  "lat" : 37.4238253802915,
+                  "lng" : -122.0829009197085
+               },
+               "southwest" : {
+                  "lat" : 37.4211274197085,
+                  "lng" : -122.0855988802915
+               }
+            }
+         },
+         "place_id" : "ChIJ2eUgeAK6j4ARbn5u_wAGqWA",
+         "plus_code": {
+            "compound_code": "CWC8+W5 Mountain View, California, United States",
+            "global_code": "849VCWC8+W5"
+         },
+         "types" : [ "street_address" ]
+      }
+   ],
+   "status" : "OK"
+}
+</code></pre>
+<p>The navigation service calls this service to geocode the origin and the destination before passing the latitude/longitude pairs downstream to find the routes.</p>
+<h5 id="route-planner-service">Route planner service</h5>
+<p>This service computes a suggested route that is optimized for travel time according to current traffic and road conditions. It interacts with several services which are discussed next.</p>
+<h5 id="shortest-path-service">Shortest-path service</h5>
+<p>The shortest-path service receives the origin and the destination in lat/lng pairs and returns the top-k shortest paths without considering traffic or current conditions. This computation only depends on the structure of the roads. Here, caching the routes could be beneficial because the graph rarely changes.</p>
+<p>The shortest-path service runs a variation of A* pathfinding algorithms against the routing tiles in object storage. Here is an overview:</p>
+<ul>
+<li>
+<p>The algorithm receives the origin and destination in lat/lng pairs. The lat/lng pairs are converted to geohashes which are then used to load the start and end-points of routing tiles.</p>
+</li>
+<li>
+<p>The algorithm starts from the origin routing tile, traverses the graph data structure, and hydrates additional neighboring tiles from the object store (or its local cache if it has loaded it before) as it expands the search area. It’s worth noting that there are connections from one level of tile to another covering the same area. This is how the algorithm could “enter” the bigger tiles containing only highways, for example. The algorithm continues to expand its search by hydrating more neighboring tiles (or tiles at different resolutions) as needed until a set of best routes is found.</p>
+</li>
+</ul>
+<p>Figure 18 gives a conceptual overview of the tiles used in the graph traversal.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a map section showing a route from a 'Start' point to an 'End' point.  The route, depicted by a thick black line, traverses a neighborhood, winding through streets. The map is divided into a grid of larger teal-colored squares, each further subdivided into smaller red-bordered squares, suggesting a tiling system for map data.  Street names like 'Grand Avenue', 'Wildwood Avenue', 'Sylvan Way', 'Walker Avenue', and 'Fairbanks Avenue' are visible, along with a labeled 'Amphitheatre of Roses'.  Red markers indicate the 'Start' and 'End' points of the journey. The bottom of the image includes an attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors.'  The route's path suggests a non-straightforward journey, possibly reflecting real-world navigation constraints." loading="lazy" width="540" height="229" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(540px, 100vw), (max-width: 1200px) min(540px, 80vw), min(540px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Ffigure-18-graph-traversal-32VJU57E.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18 Graph traversal</figcaption></div></figure>
+<h5 id="eta-service">ETA service</h5>
+<p>Once the route planner receives a list of possible shortest paths, it calls the ETA service for each possible route and gets a time estimate. For this, the ETA service uses machine learning to predict the ETAs based on the current traffic and historical data.</p>
+<p>One of the challenges here is that we not only need to have real-time traffic data but also to predict how the traffic will look like in 10 or 20 minutes. These kinds of challenges need to be addressed at an algorithmic level and will not be discussed in this section. If you are interested, refer to [16] and [17].</p>
+<p><strong>Ranker service</strong></p>
+<p>Finally, after the route planner obtains the ETA predictions, it passes this info to the ranker to apply possible filters as defined by the user. Some example filters include options to avoid toll roads or to avoid freeways. The ranker service then ranks the possible routes from fastest to slowest and returns top-k results to the navigation service.</p>
+<h5 id="updater-services">Updater services</h5>
+<p>These services tap into the Kafka location update stream and asynchronously update some of the important databases to keep them up-to-date. The traffic database and the routing tiles are some examples.</p>
+<p>The routing tile processing service is responsible for transforming the road dataset with newly found roads and road closures into a continuously updated set of routing tiles. This helps the shortest path service to be more accurate.</p>
+<p>The traffic update service extracts traffic conditions from the streams of location updates sent by the active users. This insight is fed into the live traffic database. This enables the ETA service to provide more accurate estimates.</p>
+<h5 id="improvement-adaptive-eta-and-rerouting">Improvement: adaptive ETA and rerouting</h5>
+<p>The current design does not support adaptive ETA and rerouting. To address this, the server needs to keep track of all the active navigating users and update them on ETA continuously, whenever traffic conditions change. Here we need to answer a few important questions:</p>
+<ul>
+<li>
+<p>How do we track actively navigating users?</p>
+</li>
+<li>
+<p>How do we store the data, so that we can efficiently locate the users affected by traffic changes among millions of navigation routes?</p>
+</li>
+</ul>
+<p>Let’s start with a naive solution. In Figure 19, user_1’s navigation route is represented by routing tiles r_1, r_2, r_3, …, r_7.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="The image represents a simplified diagram of a routing table or network topology.  It shows seven distinct regions, labeled 'r_1' through 'r_7', each enclosed within a dashed-line box.  'r_1' is explicitly labeled '(origin)', indicating a starting point, and 'r_7' is labeled '(destination)', indicating an endpoint.  'r_1', 'r_2', 'r_3', and 'r_4' are arranged horizontally in a row, while 'r_5' and 'r_6' are stacked vertically below 'r_4', and 'r_7' is positioned to the right of 'r_6'.  There are no explicit connections drawn between the regions; the arrangement implies a potential flow of information or data packets from 'r_1' (origin) through intermediate regions ('r_2', 'r_3', 'r_4', 'r_5', 'r_6') to 'r_7' (destination). The lack of arrows or lines suggests a conceptual representation rather than a detailed network map, focusing on the logical arrangement of routing nodes or regions." loading="lazy" width="500" height="184" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-19-navigation-route-SM4SJVK3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19 Navigation route</figcaption></div></figure>
+<p>The database stores actively navigating users and routes information which might look like this:</p>
+<p>user_1: r_1, r_2, r_3, …, r_k</p>
+<p>user_2: r_4, r_6, r_9, …, r_n</p>
+<p>user_3: r_2, r_8, r_9, …, r_m</p>
+<p>…</p>
+<p>user_n: r_2, r_10, r21, ..., r_l</p>
+<p>Let’s say there is a traffic incident in routing tile 2 (r_2). To figure out which users are affected, we scan through each row and check if routing tile 2 is in our list of routing tiles (see example below).</p>
+<p>user_1: r_1, <strong>r_2</strong>, r_3, …, r_k</p>
+<p>user_2: r_4, r_6, r_9, …, r_n</p>
+<p>user_3: <strong>r_2</strong>, r_8, r_9, …, r_m</p>
+<p>…</p>
+<p>user_n: <strong>r_2</strong>, r_10, r_21, ..., r_l</p>
+<p>Assume the number of rows in the table is <em>n</em> and the average length of the navigation route is <em>m</em>. The time complexity to find all users affected by the traffic change is O (n * m).</p>
+<p>Can we make this process faster? Let’s explore a different approach. For each actively navigating user, we keep the current routing tile, the routing tile at the next resolution level that contains it, and recursively find the routing tile at the next resolution level until we find the user's destination in the tile as well (Figure 20). By doing this, we can get a row of the database table like this.</p>
+<p>user_1, r_1, super(r_1), super(super(r_1)), …</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical routing system depicted using three levels of routing tiles.  The top level shows a single routing tile labeled 'This routing tile only contains origin,' containing a pink circle representing an origin point, with an arrow pointing to a 'Routing tile' label. This tile's origin is connected via an arrow to a Level 1 routing tile, which is a 2x2 grid containing another pink circle labeled 'Origin.'  This Level 1 tile is further connected to a Level 2 routing tile, a larger 2x2 grid also containing a pink circle labeled 'Origin' and a green circle labeled 'Destination.'  The Level 2 tile is described as 'This routing tile contains both origin and destination.'  A vertical line connects the top-level 'Routing tile' to the Level 1 and then to the Level 2 routing tile, suggesting a hierarchical flow of routing information downwards.  The arrows indicate the direction of data flow, starting from the origin at the top and progressing through the levels until reaching the destination at the bottom." loading="lazy" width="563" height="510" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-20-build-routing-tiles-F7ZG5KH4.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20 Build routing tiles</figcaption></div></figure>
+<p>To find out if a user is affected by the traffic change, we need only check if a routing tile is inside the last routing tile of a row in the database. If not, the user is not impacted. If it is, the user is affected. By doing this, we can quickly filter out many users.</p>
+<p>This approach doesn’t specify what happens when traffic clears. For example, if routing tile 2 clears and users can go back to the old route, how do users know rerouting is available? One idea is to keep track of all possible routes for a navigating user, recalculate the ETAs regularly and notify the user if a new route with a shorter ETA is found.</p>
+<p><strong>Delivery protocols</strong></p>
+<p>It is a reality that during navigation, route conditions can change and the server needs a reliable way to push data to mobile clients. For delivery protocol from the server to the client, our options include mobile push notification, long polling, WebSocket, and Server-Sent Events (SSE).</p>
+<ul>
+<li>
+<p>Mobile push notification is not a great option because the payload size is very limited (4,096 bytes for iOS) and it doesn’t support web applications.</p>
+</li>
+<li>
+<p>WebSocket is generally considered to be a better option than long polling because it has a very light footprint on servers.</p>
+</li>
+<li>
+<p>Since we have ruled out the mobile push notification and long polling, the choice is mainly between WebSocket and SSE. Even though both can work, we lean towards WebSocket because it supports bi-directional communication and features such as last-mile delivery might require bi-directional real-time communication.</p>
+</li>
+</ul>
+<p>For more details about ETA and rerouting, please refer to [16].</p>
+<p>Now we have every piece of the design together. Please see the updated design in Figure 21.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a mobile navigation application.  A mobile user initiates the process.  Their location data is first sent to the Geocoding Service, which interacts with the Geocoding DB to determine precise coordinates.  These coordinates are then passed to the Navigation Service. The Navigation Service interacts with the Route Planner Service, which in turn uses the Shortest Path Service (accessing Routing Tiles, an object storage) and the Ranker (which uses a Filter Service to avoid tolls, etc.) to determine optimal routes.  The ETA Service, receiving input from the Route Planner, calculates estimated times of arrival and accesses the Traffic DB for real-time traffic information.  The Adaptive ETA and Rerouting component receives data from both the ETA Service and the Active Users database to dynamically adjust routes based on real-time conditions.  Finally, the Update Traffic Service updates the Traffic DB and the Location DB, creating a feedback loop for continuous traffic data refinement.  The data flow is unidirectional, except for the feedback loop involving the Update Traffic Service and the Traffic DB." loading="lazy" width="750" height="587" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/google-maps/figure-21-final-design-IORF6NBL.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21 Final design</figcaption></div></figure>
+<h2 id="step-4---wrap-up">Step 4 - Wrap Up</h2>
+<p>In this chapter, we designed a simplified Google Maps application with key features such as location update, ETAs, route planning, and map rendering. If you are interested in expanding the system, one potential improvement would be to provide multi-stop navigation capability for enterprise customers. For example, for a given set of destinations, we have to find the optimal order in which to visit them all and provide proper navigation, based on live traffic conditions. This could be helpful for delivery services such as Door dash, Uber, Lyft, etc.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="chapter-summary">Chapter Summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical breakdown of the design process for Google Maps, structured as a tree diagram.  The root node is 'Google Maps,' branching into four main steps (Step 1, Step 2, Step 3, Step 4). Step 1 focuses on requirements gathering, splitting into 'functional req' (user location update, navigation service, map rendering) and 'non-functional req' (highly accurate, smooth navigation, data usage), along with an 'estimation' branch considering storage and server traffic, and a 'positioning system' branch. Step 2 delves into map data processing ('map 101'), encompassing geocoding, geohashing, and routing tiles.  Step 3 details the high-level design, focusing on data (user location, places, precomputed images) and services (location service, navigation service, map rendering).  The location service branch further explains how location data is used, while the map rendering branch details the use of precomputed tiles and vectors. Finally, Step 4 ('wrap up') involves the navigation service, encompassing geocoding, route planning, shortest-path algorithms, ETA service, and adaptive ETA and rerouting functionalities.  The entire diagram illustrates a top-down approach to system design, progressing from requirements to detailed service specifications." loading="lazy" width="650" height="1046" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(650px, 100vw), (max-width: 1200px) min(650px, 80vw), min(650px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fgoogle-maps%2Fchapter-summary-PQLESOHW.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1"></figcaption></div></figure>
+<h2 id="reference-materials">Reference Materials</h2>
+<p>[1] Google Maps: <a href="https://developers.google.com/maps?hl=en_US" target="_blank" rel="noopener noreferrer"><u>https://developers.google.com/maps?hl=en_US</u></a></p>
+<p>[2] Google Maps Platform: <a href="https://cloud.google.com/maps-platform/" target="_blank" rel="noopener noreferrer"><u>https://cloud.google.com/maps-platform/</u></a></p>
+<p>[3] Stamen Design: <a href="http://maps.stamen.com" target="_blank" rel="noopener noreferrer"><u>http://maps.stamen.com</u></a></p>
+<p>[4] OpenStreetMap: <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer"><u>https://www.openstreetmap.org</u></a></p>
+<p>[5] Prototyping a Smoother Map:<br>
+<a href="https://medium.com/google-design/google-maps-cb0326d165f5" target="_blank" rel="noopener noreferrer"><u>https://medium.com/google-design/google-maps-cb0326d165f5</u></a></p>
+<p>[6] Mercator projection: <a href="https://en.wikipedia.org/wiki/Mercator_projection" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Mercator_projection</u></a></p>
+<p>[7] Peirce quincuncial projection:<br>
+<a href="https://en.wikipedia.org/wiki/Peirce_quincuncial_projection" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Peirce_quincuncial_projection</u></a></p>
+<p>[8] Gall–Peters projection: <a href="https://en.wikipedia.org/wiki/Gall%E2%80%93Peters_projection" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Gall–Peters_projection</u></a></p>
+<p>[9] Winkel tripel projection: <a href="https://en.wikipedia.org/wiki/Winkel_tripel_projection" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Winkel_tripel_projection</u></a></p>
+<p>[10] Address geocoding: <a href="https://en.wikipedia.org/wiki/Address_geocoding" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Address_geocoding</u></a></p>
+<p>[11] Geohashing:<br>
+<a href="https://kousiknath.medium.com/system-design-design-a-geo-spatial-index-for-real-time-location-search-10968fe62b9c" target="_blank" rel="noopener noreferrer"><u>https://kousiknath.medium.com/system-design-design-a-geo-spatial-index-for-real-time-location-search-10968fe62b9c</u></a></p>
+<p>[12] HTTP keep-alive: <a href="https://en.wikipedia.org/wiki/HTTP_persistent_connection" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/HTTP_persistent_connection</u></a></p>
+<p>[13] Directions API: <a href="https://developers.google.com/maps/documentation/directions/start?hl=en_US" target="_blank" rel="noopener noreferrer"><u>https://developers.google.com/maps/documentation/directions/start?hl=en_US</u></a></p>
+<p>[14] Adjacency list: <a href="https://en.wikipedia.org/wiki/Adjacency_list" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Adjacency_list</u></a></p>
+<p>[15] CAP theorem: <a href="https://en.wikipedia.org/wiki/CAP_theorem" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/CAP_theorem</u></a></p>
+<p>[16] ETAs with GNNs:<br>
+<a href="https://deepmind.com/blog/article/traffic-prediction-with-advanced-graph-neural-networks" target="_blank" rel="noopener noreferrer"><u>https://deepmind.com/blog/article/traffic-prediction-with-advanced-graph-neural-networks</u></a></p>
+<p>[17] Google Maps 101: How AI helps predict traffic and determine routes:<br>
+<a href="https://blog.google/products/maps/google-maps-101-how-ai-helps-predict-traffic-and-determine-routes/" target="_blank" rel="noopener noreferrer"><u>https://blog.google/products/maps/google-maps-101-how-ai-helps-predict-traffic-and-determine-routes/</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="nearby-friends.html">← Previous</a>
+        <a href="distributed-message-queue.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

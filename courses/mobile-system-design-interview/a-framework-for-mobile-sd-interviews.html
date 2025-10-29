@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A framework for Mobile SD interviews - Mobile System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../mobile-system-design-interview.html">Mobile System Design Interview</a> /
+        A framework for Mobile SD interviews
+    </div>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="introduction.html">← Previous</a>
+        <a href="news-feed-app.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">02</span> A framework for Mobile SD interviews
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/mobile-system-design-interview/a-framework-for-mobile-sd-interviews" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">02</strong><h1>A framework for Mobile SD interviews</h1></header><p>Having a clear framework for Mobile System Design (MSD) interviews is more important than many realize. Without a clear structure, the interview can feel disorganized and challenging for both you and the interviewer. Unlike coding interviews with defined solutions, system design challenges invite multiple valid approaches, making a methodical strategy essential.</p>
+<p>Below, we briefly outline a 5-step framework to give you a high-level understanding. Detailed explanations and practical applications of each step are explored through case studies in later chapters.</p>
+<h2 id="a-5-step-framework-for-effective-mobile-system-design-interviews">A 5-step framework for effective mobile system design interviews</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart outlining a five-step process for mobile system design.  The process begins with step 1, 'Understand the problem and establish design scope,' a rectangular box labeled with a bold '1' in a circle.  A line connects this box to step 2, 'API design,' another rectangular box labeled with a bold '2' in a circle.  Step 2 is connected to step 3, 'High-level client architecture,' a rectangular box labeled with a bold '3' in a circle.  Step 3 is connected to step 4, 'Design deep dive,' a rectangular box labeled with a bold '4' in a circle. Finally, step 4 connects to step 5, 'Wrap-up,' a rectangular box labeled with a bold '5' in a circle. The flow is generally sequential, with the exception of the connection from step 3 back to step 4, suggesting an iterative refinement process between high-level architecture and the detailed design.  All boxes are light gray with dark gray borders and text inside.  The connections between the boxes are represented by simple lines with small circles indicating connection points." width="500" height="328" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/a-framework-for-mobile-sd-interviews/figure-2-1-2ETKJDTJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: High-level steps of the MSDI framework</figcaption></div></figure>
+<h3 id="step-1-understand-the-problem-and-establish-design-scope">Step 1: Understand the problem and establish design scope</h3>
+<p>MSD interviews typically start with broad questions such as "Design a News Feed app" or "Design a Pagination library." While these questions may seem straightforward, understanding exactly what you need to design is a crucial part of the interview.</p>
+<p>Your first task is to clarify what's in and out of scope by asking targeted questions to define the boundaries of your design. The interviewer's answers will guide your technology choices and help you make informed trade-offs. This initial scoping sets the foundation for your solution, making each interview unique.</p>
+<p>What kind of questions should you ask? Here's a list of different types of questions to help you get started:</p>
+<ul>
+<li>
+<p><strong>What are we building?</strong> These help uncover both functional and non-functional requirements, as well as what is out of scope for the interview. For example, you could ask:</p>
+<ul>
+<li><em>What features, screens, or critical user journeys are we designing?</em></li>
+<li><em>Are we pre-fetching data? Are we including user authentication in the design?</em></li>
+</ul>
+</li>
+<li>
+<p><strong>For whom are we building?</strong> These help understand the scale, usage patterns, and how performant the solution should be. For example, you could ask:</p>
+<ul>
+<li><em>How many daily active users (DAU) does the product have? What's the expected growth?</em></li>
+<li><em>Are we building a minimum viable product (MVP) or a final product?</em></li>
+<li><em>What's our target market? A specific region or worldwide? What's the typical usage scenario? At home or on the train?</em></li>
+</ul>
+</li>
+<li>
+<p><strong>What are the system's constraints?</strong> These clarify the system boundaries and technology choices. For example, you could ask:</p>
+<ul>
+<li><em>Which mobile platforms are we targeting (e.g., iOS, Android, or both)?</em></li>
+<li><em>Are there any existing systems or APIs the mobile app must integrate with?</em></li>
+</ul>
+</li>
+</ul>
+<p>While gathering requirements, you may find that some answers reveal information about other aspects of the system. Feel free to make reasonable assumptions based on these responses, just be sure to state them clearly so your interviewer can correct any misunderstandings.</p>
+<p>The goal isn't to ask every possible question. Instead, focus your questions on what's most relevant for the specific problem at hand, using your judgment to determine which details are most important to clarify.</p>
+<div class="note-block"><p><strong>📌 Remember</strong>: Your interviewer's answers to these questions will guide your technical decisions and trade-offs throughout the design process. Make sure to reference back to these requirements when explaining your choices later in the interview.</p></div>
+<h3 id="step-2-api-design">Step 2: API design</h3>
+<p>The API design step is where you establish the contract between our client apps and external dependencies. This step is crucial because it helps align your understanding with the interviewer's expectations and creates a solid foundation for the rest of your design.</p>
+<p>When designing an app that needs to communicate with a backend, start by defining the appropriate communication protocols for your specific use cases and the endpoints involved. On the other hand, if you're designing a mobile library, focus on outlining its public APIs, including how host apps will initialize, configure, and interact with your library.</p>
+<p>As you define the API, outline the data models that will power these interactions. Whether you're working with JSON payloads, Swift structs, Kotlin data classes, or even protocol buffers for efficiency, these models need to capture the data's structure and relationships clearly.</p>
+<h3 id="step-3-high-level-client-architecture">Step 3: High-level client architecture</h3>
+<p>After finishing the API design, it's time to create a high-level client architecture diagram that shows how these components work together.</p>
+<p>This high-level diagram sets the stage for the design and shows exactly which components you need to fulfill our requirements. Most importantly, it helps you validate that you have a complete end-to-end flow that meets all the functionality our system needs. As you create the diagram, you should also identify interesting points that warrant deeper discussion in the deep dive step later.</p>
+<h3 id="step-4-design-deep-dive">Step 4: Design deep dive</h3>
+<p>In this step, work with your interviewer to identify bottlenecks and explore specific components in greater detail. Generally, you should aim for two to three strong deep-dive discussions, though this isn't a strict rule and can vary depending on the situation.</p>
+<p>You should continue refining your client architecture during this step. Make sure to update your diagrams to reflect any new decisions or components you introduce.</p>
+<p>Pay attention to your interviewer's reactions and questions. If they express interest in multiple topics, manage your time carefully to give each topic the attention it deserves while staying within the interview's time constraints.</p>
+<h3 id="step-5-wrap-up-optional">Step 5: Wrap-up (optional)</h3>
+<p>If time allows, the final phase of your interview provides an opportunity to demonstrate your ability to think critically about your design and consider future improvements. Here's how to wrap up effectively:</p>
+<ul>
+<li><strong>Summarize key decisions</strong>. If your discussion involved multiple trade-offs or complex decisions, consider providing a brief recap. This helps solidify the key points of your design and ensures the interviewer understands your reasoning, particularly after a detailed technical discussion.</li>
+<li><strong>Showcase critical thinking</strong>. When asked about potential improvements to your design, resist the urge to defend it as perfect. Instead, thoughtfully discuss areas where your solution could evolve. This demonstrates self-awareness and analytical thinking, qualities that interviewers value highly.</li>
+<li><strong>Address edge cases</strong>. Take this opportunity to discuss any failure points or error cases you haven't covered earlier. This shows that you think holistically about system reliability and user experience, not just the happy path.</li>
+<li><strong>Consider future scale</strong>. Think about how your system would handle growth, whether that's supporting more users or accommodating a larger development team. This demonstrates that you design with the future in mind and understand both technical and organizational scaling challenges.</li>
+</ul>
+<h3 id="time-allocation-for-each-step">Time allocation for each step</h3>
+<p>Time management is key in MSD interviews. With only 45-60 minutes to work with and a lot of ground to cover, having a solid plan helps you stay on track. Here's how to break down a typical 45-minute interview:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a pie chart illustrating the time allocation for different stages of a mobile system design interview.  The chart is divided into five equal segments, each representing a phase of the interview.  A central circle acts as the pivot point.  Clockwise from the top, the segments are labeled: 'API Design 5-10min' (shaded grey), 'Architecture Design 10-15min' (white), 'Deep Dive 15-20min' (shaded grey), 'Wrap-up 0-5min' (white), and 'Understand Problem 5-10min' (white).  A thick black pointer indicates the current stage of the interview, currently pointing to the 'Understand Problem' segment, suggesting the interview is in its initial phase.  Each segment clearly displays the estimated time duration allocated to that specific phase." loading="lazy" width="602" height="401" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/a-framework-for-mobile-sd-interviews/image-2-1-X2ITWQUT.svg" style="color: transparent;"></div></figure>
+<ol>
+<li><strong>Understand the problem and establish design scope (5-10 minutes)</strong>: Take time to fully understand the problem and define its scope.</li>
+<li><strong>API design (5-10 minutes)</strong>: Map out how your app will communicate with backend services and define the core data models.</li>
+<li><strong>High-level client architecture (10-15 minutes)</strong>: Outline the main components of your system and how they work together.</li>
+<li><strong>Design deep dive (15-20 minutes)</strong>: Focus on the most important technical challenges and implementation details.</li>
+<li><strong>Wrap-up (0-5 minutes)</strong>: Summarize key decisions and discuss potential improvements or trade-offs.</li>
+</ol>
+<p>Remember that these are guidelines rather than strict rules. <strong>Be ready to adjust based on the specific problem and your interviewer's interests</strong>. The key is maintaining enough flexibility to explore important areas while ensuring you complete the full design within the time limit.</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="introduction.html">← Previous</a>
+        <a href="news-feed-app.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

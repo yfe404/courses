@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile System Design Building Blocks - Mobile System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../mobile-system-design-interview.html">Mobile System Design Interview</a> /
+        Mobile System Design Building Blocks
+    </div>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="youtube-app.html">← Previous</a>
+        <a href="quick-reference-cheat-sheet-for-msd-interview.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">10</span> Mobile System Design Building Blocks
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/mobile-system-design-interview/mobile-system-design-building-blocks" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">10</strong><h1>Mobile System Design Building Blocks</h1></header><p>This chapter covers the key building blocks that frequently appear in Mobile System Design (MSD) interviews. For each topic, we'll define the concept, explain when to use it, and explore alternative options and discuss trade-offs.</p>
+<p>The topics covered in this section are:</p>
+<ul>
+<li><strong>Architecture</strong>: Common patterns, architecture layering, modularization, and testing.</li>
+<li><strong>Data management</strong>: Data storage, networking, authentication, pagination, and performance.</li>
+<li><strong>Feature development</strong>: Release strategy, force upgrading, feature flags, remote config, A/B testing, observability and analytics, localization, privacy, accessibility, push notifications, app size, and CI/CD.</li>
+<li><strong>Supporting different devices</strong>: Different form factors, and OS and SDK versions.</li>
+</ul>
+<h2 id="architecture">Architecture</h2>
+<p>A well-designed architecture serves two essential purposes in mobile development: it provides the foundation for building robust, maintainable apps, and it creates a shared language that helps developers collaborate effectively.</p>
+<p>Mobile apps can be built using several architectural approaches. Among the most widely adopted are Clean Architecture [1] and Google's guide to app architecture [2], which emphasizes Unidirectional Data Flow [3] and the repository pattern [4]. We can also find various UI-focused architectures including familiar patterns such as MVC [5], MVVM [6], MVI, or other Redux-like patterns as well as more specialized approaches such as VIPER [7], Uber's RIBs [8], Airbnb's Mavericks [9], or Slack's Circuit [10] libraries. These UI layer architectures typically work alongside other patterns to create complete solutions.</p>
+<p>Let's explore key architectural concepts we might encounter during interviews. We'll start with common patterns and examine how they apply to both UI and data layers, following Google's architectural guidelines. From there, we'll branch into related topics, showing how to think through and discuss architectural decisions effectively.</p>
+<h3 id="common-architectural-patterns">Common architectural patterns</h3>
+<p>While there are many ways to structure a mobile app, certain architectural principles are essential for building robust and scalable solutions. Let's explore some of the most important patterns that will strengthen our answers.</p>
+<h4 id="separation-of-concerns">Separation of concerns</h4>
+<p>One of the fundamental principles of good architecture is keeping UI logic separate from other parts of your code [11]. Rather than cramming everything into the UI layer, each component should have a focused responsibility. UI classes should handle only what they're meant to: displaying content and responding to user interactions.</p>
+<p>By dividing responsibilities across different components, our code becomes cleaner and more maintainable. This approach makes testing easier since we can verify each component in isolation. It also helps avoid common pitfalls related to the UI lifecycle, as the business logic lives independently from UI-specific concerns.</p>
+<h4 id="unidirectional-data-flow">Unidirectional Data Flow</h4>
+<p>The Unidirectional Data Flow (UDF) pattern [3] creates a predictable way for data to move through the app by enforcing a single direction of flow. Here's how it works:</p>
+<p>Data starts at a source (e.g., a database) and flows through the app until it reaches its final destination, typically the UI. As this data passes through different layers, each one can transform it based on business logic. When something needs to change the data, it sends events flowing through the other direction back to the source. The source exposes ways to let other parts of the app request these changes.</p>
+<p>This one-way flow, as shown in Figure 1, brings several key benefits:</p>
+<ul>
+<li>It makes data changes more predictable since they can only happen through defined paths.</li>
+<li>It reduces bugs by limiting where and how data can be modified.</li>
+<li>It simplifies debugging because we can trace exactly how data moves through the app.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline.  On the left is a 'Source' component, a rectangular box labeled as such, which feeds 'State' data to a central processing unit. This central unit is depicted as a larger rectangle containing four smaller, identically sized rectangles representing individual 'Business logic transformations'.  These transformations process the incoming 'State' data.  The processed data, labeled as 'Events', is then sent to a 'Consumer' component on the right, another rectangular box with the label 'Consumer'.  A dotted line indicates a feedback loop where the 'Consumer' sends information back to the 'Source'.  The solid line from 'Source' to 'Consumer' represents the unidirectional flow of data through the transformations, while the dotted line represents a bidirectional feedback mechanism." loading="lazy" width="602" height="132" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-1-MYGRRSOP.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: Unidirectional Data Flow (UDF) in action</figcaption></div></figure>
+<h4 id="reactive-programming">Reactive programming</h4>
+<p>Throughout this book, we use reactive programming [12] to implement Unidirectional Data Flow. At its core, reactive programming creates a stream of data that flows from a source to consumers who "subscribe" to receive updates. This approach has gained widespread adoption in mobile development because it elegantly handles asynchronous data and helps create responsive apps.</p>
+<p>Modern mobile platforms offer several powerful tools for reactive programming. On Android, we can use Kotlin Flows or RxJava, while iOS developers typically work with Combine or RxSwift. For simpler cases where we just need a one-off asynchronous operation, Kotlin's suspend functions and Swift's async-await provide lighter-weight alternatives.</p>
+<p>While callbacks and event buses can work well for specific use cases, they might complicate state management. We recommend using reactive programming's stream-based approach instead, as it offers a more straightforward way to handle data flow in our apps. This makes the code easier to maintain and reason about over time.</p>
+<p>As previously mentioned, every solution involves trade-offs. Event buses, for instance, can help reduce coupling between components in the codebase.</p>
+<h4 id="immutable-data-structures">Immutable data structures</h4>
+<p>When building modern mobile apps, particularly those using unidirectional data flow, immutable data structures play a key role in managing state. By making data immutable (i.e., data can't be changed after creation), we reduce bugs and make our app's behavior more predictable. This is particularly valuable in mobile apps where multiple threads often need to access the same data simultaneously.</p>
+<p>While we might occasionally need mutable data structures for performance-critical features, these cases are rare. When we do use mutable data, it's best to isolate it from the app's main state and carefully control how it can be modified. For example, we might use mutable structures in a specialized image processing module, but keep the rest of our app's data immutable.</p>
+<h4 id="single-source-of-truth-ssot">Single source of truth (SSOT)</h4>
+<p>In modern mobile apps, each data type needs a clear owner: a Single Source of Truth (SSOT) [13]. The SSOT has <strong>exclusive</strong> authority to modify its data and follows the Unidirectional Data Flow pattern by:</p>
+<ul>
+<li>Receiving events that request data changes.</li>
+<li>Processing those changes according to business logic.</li>
+<li>Exposing the updated state as immutable data.</li>
+</ul>
+<p>Let's look at how this works in practice. A local database often serves as the SSOT for offline data, while UI state holders own their screen's display state. Figure 2 illustrates these common SSOT patterns.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified data flow diagram for a mobile application.  A database (DB) containing 'Business data' is connected to 'Repository 1', which also receives 'Business data'.  'Repository 2' provides 'Other data' to a 'State Holder' component.  'Repository 1' and 'Repository 2' are rectangular boxes representing data storage or retrieval mechanisms.  'Business data' flows from the DB and 'Repository 1' into the 'State Holder', a central component managing application state.  The 'State Holder' also contains 'UI state' data.  Finally, 'UI state' flows from the 'State Holder' to the 'UI' (User Interface) component, a rectangular box representing the application's visual presentation to the user.  The arrows indicate the direction of data flow.  The 'State Holder' acts as a central hub, aggregating data from different sources ('Repository 1', 'Repository 2', and implicitly, the DB) before sending the relevant 'UI state' to the UI for display." loading="lazy" width="602" height="216" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-2-6X2BZBPM.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Single source of truth patterns in practice.  The Database is the SSOT</figcaption></div></figure>
+<p>for business or application data, and the State Holder is the SSOT for UI state.</p>
+<p>By designating clear owners for each data type, we create a more maintainable system where data flows predictably and state changes are more predictable and traceable. This makes bugs easier to isolate and fix, and helps maintain consistent state even in multi-threaded scenarios.</p>
+<h4 id="dependency-injection">Dependency Injection</h4>
+<p>As the app grows in complexity, different components need to work together to accomplish business goals. These relationships between components create dependencies that need careful management. While both Dependency Injection [14] and Service Locator [15] patterns can handle this management, we focus on Dependency Injection in this book.</p>
+<p>Why choose Dependency Injection? Think of it as letting components receive what they need rather than creating it themselves. Instead of a component reaching out to create its dependencies, they're provided from the outside. This makes the code more flexible and easier to test since we can swap out dependencies as needed.</p>
+<p>For example, imagine a component that needs to make network calls. Rather than having the component create its own network client, we can pass in (or "inject") that client through the component's constructor. This approach, known as constructor injection, makes it clear what each component needs to function and allows us to provide different implementations for testing or handle future changes more gracefully.</p>
+<p>We specifically avoid the Service Locator pattern because it can mask dependencies and complicate testing if not implemented carefully. By being explicit about dependencies through injection, we create code that's easier to understand, maintain, and verify.</p>
+<p>When reading the architecture diagrams in this book, it's important to understand that arrows show how data moves through the system, not component dependencies. Take Figure 3, where we can see the UI state flowing from the state holder to the UI component. While the UI depends on the state holder to access and subscribe to this data, we don't explicitly show this dependency with dotted lines in our diagrams to keep them clean and focused on data flow.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture diagram showing the data flow and dependency between two components: a 'State Holder' and a 'UI' (User Interface).  A solid arrow labeled 'Data flow' points from the 'State Holder' to the 'UI,' indicating that data is unidirectionally transmitted from the State Holder to the UI.  A dashed, curved arrow labeled 'Depends on' connects the 'UI' back to the 'State Holder,' illustrating that the UI's functionality relies on the data and state maintained within the State Holder.  The boxes representing 'State Holder' and 'UI' are simple rectangles containing their respective labels.  The diagram visually depicts a system where the UI displays information provided by the State Holder, and its operation is dependent on the data held within the State Holder." loading="lazy" width="602" height="147" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-3-QFRVTOVT.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: Relationship between dependencies in this book's diagrams</figcaption></div></figure>
+<p>In the high-level architecture diagrams of this book, notice we represent Dependency Injection as a box between different architectural layers. This box acts as a boundary that helps keep components loosely coupled, as shown in Figure 4.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-side architecture employing dependency injection.  A rounded rectangle labeled 'Client' encloses the entire system. Inside, a light-grey rectangular block labeled 'Dependency Injection' sits at the top, representing the mechanism for providing dependencies. Below this, labeled 'Data layer,' are three rectangular boxes representing data repositories: 'Hotels Repository,' 'Amenities Repository,' and 'Reservations Repository.'  Upward-pointing arrows connect each repository to the 'Dependency Injection' block, illustrating how these repositories are injected as dependencies into the client.  The overall diagram shows how the client accesses data through these repositories, managed by the dependency injection mechanism." loading="lazy" width="602" height="239" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-4-H7BRAWD5.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: Dependency Injection component in high-level architecture diagrams</figcaption></div></figure>
+<h4 id="decoupling-components">Decoupling components</h4>
+<p>Decoupling key components in our architecture lets them evolve independently, making the app more maintainable and easier to scale. This separation is particularly important in mobile apps not just for flexibility, but also for practical reasons such as improving testability and reducing build times when working with modules.</p>
+<p>The main strategy for decoupling is to have components depend on interfaces or abstract classes instead of concrete implementations. This creates a "loose coupling" between components, where changes in one area don't ripple through the entire system.</p>
+<p>This approach is especially valuable in several common scenarios:</p>
+<ul>
+<li>When classes interact across different architectural layers.</li>
+<li>When we want to avoid being tied to a specific third-party solution.</li>
+<li>When we need to swap between different implementations of the same functionality.</li>
+</ul>
+<p>For example, in Figure 5, MapsRepository works with a MapsProvider interface rather than any specific implementation. This flexibility allows us to use MapsTestDouble during testing, while in production we can A/B test between MapsInHouseProvider and Maps3rdPartyProvider to see which better serves our users.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system design diagram illustrating the relationship between different map providers and a central Maps Repository.  Three distinct map providers – 'Maps TestDouble Provider,' 'Maps InHouse Provider,' and 'Maps 3rdParty Provider' – are shown at the bottom, each implementing a common interface, indicated by a dotted line labeled 'implements,' that connects them to a higher-level 'Maps Provider' component.  A solid arrow points from the 'Maps Provider' to a 'Maps Repository' component, indicating that the 'Maps Provider' sends data to the 'Maps Repository.'  The diagram showcases an abstraction layer where the 'Maps Provider' acts as an interface, allowing the system to use different map providers interchangeably without modifying the core logic that interacts with the 'Maps Repository.'" loading="lazy" width="602" height="219" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-5-46A337JI.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Decoupling components from implementation details</figcaption></div></figure>
+<p>using a MapsProvider in a hypothetical app</p>
+<h4 id="error-propagation">Error propagation</h4>
+<p>Error propagation is a critical aspect of ensuring that applications are robust, reliable, and user-friendly. Proper handling and propagation of errors help in diagnosing issues, preventing application crashes, and improving the overall user experience.</p>
+<p>The UI layer should show user-friendly error messages when things go wrong, handle simple validations such as checking form inputs, and display appropriate UI elements to indicate error states.</p>
+<p>Other layers of the hierarchy should handle business logic errors such as invalid data, manage failures from data sources such as network or database issues, and pass relevant errors up to the UI layer when users need to know about them.</p>
+<p>Modern mobile frameworks provide built-in tools for handling errors. For example:</p>
+<ul>
+<li>Kotlin coroutines use structured concurrency to propagate exceptions naturally.</li>
+<li>RxJava and RxSwift can handle errors in their data streams using operators such as onError.</li>
+</ul>
+<p>When working with platforms that don't provide these tools, we can implement a Result type that wraps return values. This pattern lets us explicitly model success and failure cases, making error handling more predictable. However, when using modern frameworks (e.g., Kotlin coroutines), this extra layer isn't necessary since error handling is already built in.</p>
+<h4 id="minimal-data-exposure">Minimal data exposure</h4>
+<p>When data flows through the app's architecture, each component should only receive the minimum data it needs to function. This principle applies both to communication between architectural layers and when fetching from data sources such as local databases or backend APIs.</p>
+<p>Let's look at a practical example from a chat app: When showing a conversation list screen, the UI only needs basic information like contact names, latest message previews, and timestamps. It shouldn't receive the full message history for every conversation just to display these preview cards.</p>
+<p>This "less is more" approach offers several key benefits:</p>
+<ul>
+<li><strong>Better performance</strong>
+<ul>
+<li>Reduces memory usage and CPU load since there's less data to process.</li>
+<li>Minimizes network bandwidth consumption.</li>
+<li>Improves battery life by reducing unnecessary data processing.</li>
+</ul>
+</li>
+<li><strong>Easier maintenance</strong>
+<ul>
+<li>Simpler systems that are easier to test and debug.</li>
+<li>More straightforward scaling as the app grows.</li>
+<li>Clearer data flows between components.</li>
+</ul>
+</li>
+</ul>
+<p>Data transformation usually happens at the boundaries between components. For example, when the network layer receives a response from the backend, it can map that data down to just what the repository needs, stripping out unnecessary fields. This ensures each layer only handles data relevant to its responsibilities.</p>
+<h3 id="architectural-choices">Architectural choices</h3>
+<p>Let's shift from the core architectural patterns we just covered to some specific implementation choices we use throughout this book. While those foundational patterns are essential for any scalable mobile architecture, the choices we'll discuss here are more flexible. You can adapt or replace them based on your experience and preferences.</p>
+<p>This section focuses on the key details you need to understand the Architecture decisions made in this book, though I encourage you to deeply explore these topics to develop your own perspective for interviews. Let's examine these practical architectural decisions.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Duolingo improved app responsiveness and developer productivity by adopting MVVM and using Android Jetpack libraries such as Dagger/Hilt for dependency injection [16].</p><p>Uber scaled its apps by enforcing module isolation through a plugin system and RIBs [17]. Each feature is developed as a plugin with well-defined integration points in the app that allows 200+ developers to build features in parallel without stepping on each other's code.</p><p>Notion's architecture emphasizes a flexible data model and unidirectional data flow, which brought power but also complexity to their mobile clients [18].</p></div>
+<h4 id="googles-guide-to-app-architecture">Google's guide to App Architecture</h4>
+<p>Let's explore our core architectural approach, which builds on Google's guide to app architecture [2]. While originally created for Android, its principles work remarkably well for iOS too, making it a solid foundation for both platforms.</p>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>If you have experience with a particular architecture that you've found effective for mobile apps, don't hesitate to discuss it in your interview. While this book uses Google's guide to app architecture as our reference point (since it embodies many core architectural principles), your personal experience with other approaches can be equally valuable.</p></div>
+<p>At its heart, this architecture uses two primary layers: UI [19] and data [20]. Think of the UI layer as what users see and interact with, while the data layer handles all the behind-the-scenes business logic and storage. Some apps also benefit from an optional domain layer [21] that sits between UI and data, making it easier to share and reuse common interactions. Figure 6 illustrates how data flows through these layers.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a three-layered architecture diagram, illustrating the flow of data in a mobile application.  The leftmost rectangle is labeled 'Data Layer,' representing the data storage and retrieval component.  A unidirectional arrow points from the 'Data Layer' to the center rectangle, labeled '(Optional) Domain Layer,' indicating that data flows from the data layer to the domain layer. The domain layer, depicted with a dotted-line border to signify its optional nature, represents the business logic and data processing.  Finally, another unidirectional arrow connects the 'Domain Layer' to the rightmost rectangle labeled 'UI Layer,' showing the flow of processed data from the domain layer to the user interface layer for presentation to the user.  The overall flow depicts a linear progression of data from storage, through optional processing, to final presentation." loading="lazy" width="602" height="83" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-6-XTJA5MAB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: How data flows through the different layers recommended</figcaption></div></figure>
+<p>by Google's Guide to app architecture</p>
+<h4 id="ui-layer">UI layer</h4>
+<p>The UI layer can also be referred to as the presentation layer. According to the documentation [19]:</p>
+<p>"<em>The role of the UI is to display the application data on the screen and also to serve as the primary point of user interaction. Whenever this application data changes, either due to user interaction (such as pressing a button) or external input (such as a network response), the UI should update to reflect the changes.</em></p>
+<p><em>The UI layer is made up of two things:</em></p>
+<ul>
+<li><em>UI elements that render the data on the screen.</em></li>
+<li><em>State holders that hold data, expose it to the UI, and handle logic.</em></li>
+</ul>
+<p><em>Effectively, the UI is a visual representation of the application state as retrieved from the data layer.</em>"</p>
+<p>The UI layer relies on the data layer (or domain layer if present) as its source of data. The state holder acts as an intermediary, processing this data to create the UI state, essentially a blueprint of what should be shown on screen. As stated simply in the documentation: "<em>if the UI is what the user sees, the UI state is what the app says users should see.</em>"</p>
+<p>Figure 7 illustrates how this works in practice. Each screen in the app is represented as a component with its own state holder. These state holders receive their data through dependency injection from other layers of the architecture.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-side UI layer architecture diagram for a mobile application.  The diagram is contained within a rounded rectangle labeled 'Client' and further subdivided by a dashed line indicating the 'UI layer'.  Within this layer, three distinct functional areas are depicted as rectangular boxes: 'News Feed Screen', 'Post Detail Screen', and 'Create Post Screen'. Each screen is connected via an upward-pointing arrow to a corresponding 'State Holder' component: 'News Feed State Holder', 'Post Detail State Holder', and 'Create Post State Holder'. These state holders are also represented as rectangular boxes and are positioned below their respective screens.  The arrows indicate a unidirectional data flow, suggesting that the screens access and potentially update the data held within their associated state holders.  The overall structure illustrates a separation of concerns, where the UI screens handle presentation and user interaction, while the state holders manage the underlying application data for each screen." loading="lazy" width="602" height="308" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-7-5PL4XP6M.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7: UI layer in high-level architecture diagrams</figcaption></div></figure>
+<p>Building on the architectural patterns we discussed earlier, the flow of data follows a clear path: The data and domain layers expose streams of business data, which state holders transform into immutable UI states. The UI layer then subscribes to this state to display content and sends back events to request changes. These events flow through the state holder and ultimately update both the application state and UI.</p>
+<p>We might wonder whether this architecture follows MVVM or MVI patterns. The answer is that it could be either: this architecture implements Unidirectional Data Flow, which can align with both patterns depending on how we structure the UI state streams and event handling. Rather than prescribe one approach, we believe either pattern can work well when properly implemented. While this distinction could come up during the deep dive portion of the interview, remember to keep the focus on the overall system design rather than getting too caught up in the specifics of any single component unless the interviewer asks about it.</p>
+<h4 id="data-layer">Data layer</h4>
+<p>The data layer implements the repository pattern, providing a clean abstraction for all data access within the application. As stated in the documentation [20]:</p>
+<p><em>"The data layer contains application data and business logic. The business logic is what gives value to your app—it's made of rules that determine how your app creates, stores, and changes data. The data layer is made of repositories that each can contain zero to many data sources. You should create a repository class for each different type of data you handle in your app.</em></p>
+<p><em>Repository classes are responsible for the following tasks:</em></p>
+<ul>
+<li><em>Exposing data to the rest of the app.</em></li>
+<li><em>Centralizing changes to the data.</em></li>
+<li><em>Resolving conflicts between multiple data sources.</em></li>
+<li><em>Abstracting sources of data from the rest of the app.</em></li>
+<li><em>Containing business logic.</em></li>
+</ul>
+<p><em>Each data source class should have the responsibility of working with only one source of data, which can be a file, a network source, or a local database. Data source classes are the bridge between the application and the system for data operations."</em></p>
+<p>Figure 8 illustrates how the data layer typically works in a mobile app. At its core are two main data sources: the remote data source that communicates with the backend, and the local data source that handles data storage on the device. As we saw in chapters covering case studies, apps often use a database for this local storage to efficiently manage and persist data on the device.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-side data layer architecture employing dependency injection.  The diagram shows a rectangular 'Client' container encompassing the data layer. Within this container, a light-grey rectangle labeled 'Dependency Injection' sits at the top, indicating the mechanism for managing data sources. Below, two rectangular 'Repository' components are shown, one labeled 'X Repository' and the other 'Y Repository'.  'X Repository' receives input from an 'X Local DataSource' and an 'X Remote DataSource'. The 'X Local DataSource' receives input from a cylindrical database labeled 'X DB'.  'Y Repository' receives input from a 'Y Local DataSource'. Arrows depict the flow of data:  'X Local DataSource' and 'X Remote DataSource' feed into 'X Repository', which in turn feeds into the 'Dependency Injection' layer. Similarly, 'Y Local DataSource' feeds into 'Y Repository', which also connects to the 'Dependency Injection' layer.  The 'Dependency Injection' layer manages the selection and injection of the appropriate data source into the repositories, allowing for flexible data access." loading="lazy" width="602" height="308" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-8-GXCTB7YP.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8: Data layer in high-level architecture diagrams</figcaption></div></figure>
+<p>Since repositories serve as the main entry points to the data layer, it makes sense to define them as interfaces. This allows us to swap different implementations through dependency injection: we can use the real implementation when the app is running normally, and switch to test doubles during testing.</p>
+<h4 id="navigation">Navigation</h4>
+<p>For most MSD interviews, we take a simplified approach to navigation. Instead of diving into complex navigation patterns, we'll assume that a global Navigator, or Coordinator, handles screen transitions and dependency management.</p>
+<p>This Navigator is responsible for:</p>
+<ul>
+<li>Moving between different screens in the app.</li>
+<li>Providing required dependencies to each screen, including static dependencies such as state holders and platform services, and dynamic data such as item IDs needed for detail screens.</li>
+</ul>
+<p>The Navigator works with our dependency injection system to create and provide these dependencies correctly. When working through interview problems, we typically won't need to design complex navigation flows unless specifically asked. Most exercises focus on core functionality rather than navigation architecture. In our diagrams throughout this book, we represent navigation as shown in Figure 9.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-side architecture diagram for a mobile application, likely a social media platform with news feeds and post creation functionality.  The diagram is enclosed within a rounded rectangle labeled 'Client' and shows a 'UI layer' at the top, containing a rectangular component labeled 'Navigator.'  This Navigator component has downward arrows connecting it to three distinct screen components: 'News Feed Screen,' 'Post Detail Screen,' and 'Create Post Screen.' Each screen component is further connected to a corresponding 'State Holder' component (e.g., 'News Feed Screen' connects to 'News Feed State Holder').  These state holders likely manage the data and state associated with each screen.  The arrows indicate the flow of control and data; the Navigator controls which screen is displayed, and the screens interact with their respective state holders to manage data.  The overall structure suggests a layered architecture where the Navigator manages navigation between screens, and each screen interacts with its dedicated state holder to maintain its data." loading="lazy" width="602" height="399" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-9-UVYEQLRK.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9: Navigation represented in architecture diagrams</figcaption></div></figure>
+<p>In real-world applications, navigation becomes much more complex. As apps grow to include many screens, dialogs, and user flows, carefully managing navigation becomes critical. This complexity multiplies when adding deep linking support [22], which introduces additional entry points into our app that must be properly handled.</p>
+<h4 id="modularization">Modularization</h4>
+<p>Modularization is a powerful way to structure mobile apps into separate, independent building blocks. While modularization offers several benefits such as easier maintenance and better scalability, its biggest advantage is faster build times. However, modularization requires careful planning. Adding more modules can increase complexity and overhead if not managed thoughtfully.</p>
+<p>When implemented well, modularization speeds up builds in three key ways:</p>
+<ul>
+<li>Uses build resources more efficiently.</li>
+<li>Reduces how much code needs recompiling.</li>
+<li>Allows for parallel compilation of different modules.</li>
+</ul>
+<p>While we won't dive deep into modularization in later chapters, it's worth mentioning in interviews. The mobile industry increasingly follows the "contract module" pattern where each component has at least two modules: an API module and an implementation module. This separation means that when we change how something is implemented, modules that only depend on its API don't need to rebuild.</p>
+<p>Let's look at a concrete example in Figure 10. Here we have several types of modules:</p>
+<ul>
+<li><strong>Feature modules</strong> handle the UI for specific screens (e.g., "X feature module" in the diagram).</li>
+<li><strong>API modules</strong> define the interfaces that features need (e.g., "X data layer api module" in the diagram).</li>
+<li><strong>Implementation modules</strong> contain the actual code behind those interfaces (e.g., "X data layer impl module" in the diagram).</li>
+<li><strong>Test modules</strong> provide test implementations (e.g., "X data layer test module" in the diagram).</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a modular system design, likely for a mobile application.  The diagram shows five rectangular boxes representing different modules: 'app module,' 'X feature module,' 'test module,' 'X data layer api module,' and 'X data layer impl module,' and 'X data layer test module'.  Dashed arrows indicate dependencies or data flow. The 'app module' depends on the 'X feature module' (indicated by a dashed arrow labeled 'depends on'). The 'X feature module' depends on the 'X data layer api module' (indicated by a downward dashed arrow). The 'app module' also connects to the 'X data layer impl module' via a downward dashed arrow.  The 'test module' is connected to the 'app module' with a horizontal dashed arrow, indicating a testing relationship.  Finally, the 'test module' depends on the 'X data layer test module' (indicated by a downward dashed arrow).  There's also a dashed arrow connecting the 'X data layer api module' and 'X data layer impl module', suggesting an interaction or data exchange between these two data layer modules.  A final loop connects the 'X data layer test module' to the 'X data layer api module' with a dashed arrow, suggesting a cyclical testing or feedback mechanism." loading="lazy" width="602" height="332" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-10-6JDX5KT7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10: Contract modules pattern in action</figcaption></div></figure>
+<p>When implementation details change, feature modules don't need to rebuild because they only depend on the stable API modules. But we might wonder, "how do features know which implementation to use"? This is where the app module comes in. It sits at the top level, connecting everything together by injecting the right implementations as dependencies. Similarly, when running tests, the test module provides test implementations instead of the real ones.</p>
+<p>For a deeper dive into modularization, check out Google's guide to app modularization [23], which expands on the architectural principles we've discussed in this chapter.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Airbnb restructured its large iOS app into nearly 1,500 modules to improve team productivity [24].</p><p>Robinhood modularized its Android app to combat a “giant monolith” module that was slowing builds and entangling features. They split the app into feature-specific modules which improved build times [25].</p></div>
+<h4 id="testing">Testing</h4>
+<p>Testing should be a key part of the interview discussion, as it demonstrates how our architecture supports quality and maintainability. While testing often comes up naturally when discussing dependency injection or modularization, we should also be prepared to outline our overall testing strategy for the system we're designing.</p>
+<p>Mobile apps typically implement several types of automated tests, though terminology can vary across teams and organizations. When discussing testing approaches in the interview, be clear about how you define each type of test to ensure shared understanding. Here are the main categories you'll likely want to cover:</p>
+<ul>
+<li><strong>Unit tests</strong>. The foundation of the testing pyramid, unit tests verify individual components in isolation. By replacing dependencies with test doubles, we can validate specific behaviors and code paths. These tests are fast, reliable, and help catch issues early.</li>
+<li><strong>Component, Integration, and/or Navigation tests</strong>. These tests validate how multiple components work together by using some real implementations instead of test doubles. While they provide more comprehensive coverage than unit tests, they tend to run slower and may require more maintenance. They're particularly valuable for validating critical user flows and navigation paths.</li>
+<li><strong>Screenshot tests</strong>. These tests fill an important gap in UI testing that unit tests can't easily cover: visual elements such as layouts, fonts, and styling. They work by capturing a reference image of a UI component and comparing it against future changes to catch unintended visual regressions. While simple in concept, they're powerful for maintaining visual consistency.</li>
+<li><strong>End-to-end tests</strong>. Sitting at the top of the testing pyramid, end-to-end tests verify that the app works correctly with real backend services and dependencies. While these tests provide the most comprehensive validation, they're also the most expensive to maintain and the most likely to be flaky due to network conditions or backend state. We should have fewer of these tests, focusing on the most critical user journeys.</li>
+</ul>
+<p>Beyond these categories, there are specialized tests that can be applied across different layers of the testing pyramid. These include <strong>accessibility tests</strong> to verify app usability for all users, <strong>performance tests</strong> to catch slowdowns and bottlenecks, <strong>memory management</strong> tests to identify leaks, and <strong>security tests</strong> to validate data protection measures. While these tests focus on specific quality aspects rather than functionality, they're crucial for delivering a robust and inclusive mobile app.</p>
+<p>Testing in mobile development is well-documented, with many established patterns and best practices. Here are some key resources that can help guide the testing strategy:</p>
+<ul>
+<li>Google's fundamentals of testing apps [26].</li>
+<li>The robot pattern [27].</li>
+<li>Faking interactions with the backend using OHHTTPStubs [28] for iOS and MockWebServer [29] for Android.</li>
+</ul>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Slack's Android team made UI tests a first-class part of development by focusing on “targeted and hermetic” UI tests. Read more in their testing series [30].</p><p>Bitrise shared their recommended mobile testing strategy [31], and you can read how Netflix [32] and Dropbox [33] test their mobile apps.</p></div>
+<h2 id="data-storage">Data Storage</h2>
+<p>Mobile apps need effective data storage to create great user experiences. Whether it's remembering user preferences, caching network responses, or storing offline content, how we manage data directly impacts app performance and reliability. Let's explore the different storage options available and understand when to use each one.</p>
+<p>Before diving into storage solutions, let's look at the main types of data the app might need to handle:</p>
+<ul>
+<li><strong>User data</strong> such as profile information, app settings, and user preferences that customize the experience. This includes everything from theme choices to notification settings.</li>
+<li><strong>User files</strong> such as photos, videos, and documents that users create or upload in the app. These files remain on the device unless synced to servers, and the app loses access if users delete them.</li>
+<li><strong>Business data</strong> or core application data the app shows to users such as news articles, product listings, or chat messages. If users remove this data from their device, the app can typically retrieve it again from the backend.</li>
+<li><strong>Sensitive information</strong> such as authentication tokens, encryption keys, and other security-critical data that requires special protection. This data often needs secure storage mechanisms to prevent unauthorized access.</li>
+<li><strong>Cache data</strong>, that is, temporary data stored to improve app performance, such as downloaded images or pre-computed results. This data can live in memory or on disk depending on size and how long it needs to persist.</li>
+<li><strong>Temporary data</strong> such as upload file chunks, form drafts, or undo history. This data can be safely discarded when no longer needed or when the app closes.</li>
+</ul>
+<p>While some data needs persistent storage on disk, other data can live briefly in memory and be released when the system needs resources. The key is choosing the right storage approach based on the data's lifetime and access patterns.</p>
+<h3 id="data-storage-options">Data storage options</h3>
+<p>When our app needs to persist data to disk, choosing the right storage mechanism is crucial. The best choice depends on what type of data we're storing and how we plan to use it. Let's explore the available options.</p>
+<h4 id="key-value-storage">Key-value storage</h4>
+<p>Key-value storage provides a simple way to store basic data types such as strings, integers, and booleans. Think of it as a dictionary where each piece of data (the value) is accessed through a unique identifier (the key). This storage type works well for straightforward data such as user preferences, app settings, and feature toggles.</p>
+<p>The beauty of key-value storage lies in its simplicity. The APIs are easy to implement and use, requiring minimal setup. When working with small datasets, read and write operations are fast and efficient.</p>
+<p>However, key-value storage isn't suitable for every scenario. It struggles with large amounts of data or complex data structures, relationships between data items, advanced querying needs, data integrity enforcement, and transactional operations. Additionally, key-value stores typically offer less security than specialized secure storage solutions unless we implement extra protection measures.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Both Android and iOS provide native key-value storage solutions:</p><ul>
+<li>
+<p>Android offers SharedPreferences [34] and DataStore [35].</p>
+</li>
+<li>
+<p>iOS offers UserDefaults [36] and Property Lists (Plists) [37].</p>
+</li>
+</ul></div>
+<h4 id="on-device-secure-storage">On-device secure storage</h4>
+<p>When handling sensitive data such as user credentials, payment details, or cryptographic keys, secure on-device storage becomes essential. This specialized storage leverages hardware security features built into mobile devices to protect sensitive information from unauthorized access.</p>
+<p>The key benefit of secure storage is its robust encrypted data protection. This helps apps meet strict data protection requirements while providing strong security guarantees. Modern platforms such as Android's Keystore system [38] and iOS's Keychain [39] services make implementing secure storage straightforward.</p>
+<p>However, secure storage does come with some trade-offs:</p>
+<ul>
+<li>Implementation is more complex than basic storage options.</li>
+<li>Testing and debugging can be more challenging.</li>
+<li>Encryption and decryption operations add performance overhead.</li>
+<li>Resource usage may impact low-end devices.</li>
+<li>Storage capacity is often limited, making it unsuitable for large datasets.</li>
+</ul>
+<p>On iOS, the Keychain provides an additional benefit, integration with iCloud Keychain lets us securely sync credentials across a user's devices using end-to-end encryption.</p>
+<h4 id="relational-databases">Relational Databases</h4>
+<p>When the app needs to handle complex data efficiently, relational databases provide a robust storage solution. They excel at managing large datasets, handling complex queries, and maintaining relationships between different types of data. This makes them ideal for storing both business data and cached content that needs to persist on disk.</p>
+<p>Key advantages of relational databases include:</p>
+<ul>
+<li>Optimized data retrieval and manipulation that scales well with large datasets.</li>
+<li>Powerful indexing capabilities to speed up search operations.</li>
+<li>Built-in management of relationships between data entities.</li>
+<li>Strong data integrity guarantees.</li>
+<li>Support for schema migrations as the data model evolves.</li>
+</ul>
+<p>However, relational databases also come with some trade-offs to consider:</p>
+<ul>
+<li>More complex setup and maintenance compared to simpler storage options.</li>
+<li>Schema design requires careful planning.</li>
+<li>Higher resource consumption that can impact app performance.</li>
+<li>Potential latency overhead, especially for complex queries.</li>
+</ul>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>For mobile development, SQLite serves as the foundation, with both Android and iOS providing native support. Google officially supports the Room persistence library [40] for Android, while Apple offers Core Data for iOS [41].</p></div>
+<h4 id="non-relational-databases">Non-relational Databases</h4>
+<p>While relational databases are commonly used in mobile development due to their native platform support, non-relational databases can be a compelling alternative depending on the data needs.</p>
+<p>For mobile apps, Realm [42] stands out as a popular non-relational option. Its focus on simplicity and speed, combined with built-in support for reactive programming and real-time sync, makes it particularly well-suited for mobile use cases. Firebase Realtime Database [43] offers another approach, providing a cloud-based NoSQL solution with offline support that automatically syncs data when connectivity returns.</p>
+<p>The key advantage of non-relational databases is their flexibility: they don't require predefined schemas, making them ideal for storing unstructured or semi-structured data. They also excel at high-performance read and write operations.</p>
+<p>However, this flexibility comes with trade-offs. Non-relational databases work best when the app needs simple CRUD operations rather than complex queries. They typically lack the ACID transactions and referential integrity guarantees that relational databases provide through features such as foreign keys and constraints. This can lead to potential data consistency challenges that we'll need to handle in the application logic.</p>
+<h4 id="files-and-directories">Files and Directories</h4>
+<p>Sometimes the data needs don't fit neatly into databases or key-value stores. In these cases, storing data directly in files can be a good alternative. This approach works particularly well for binary data or scenarios like note-taking apps where each note is saved as a separate text file.</p>
+<p>The main advantage of file storage is its flexibility, we're not constrained by database schemas and can create our own custom file formats. Implementation is straightforward since we're just working with basic file I/O operations. Files are also portable across different platforms and can be included in backup systems.</p>
+<p>The trade-off is that we lose the structure and features that databases provide. We'll need to handle everything manually: ensuring data integrity, building query capabilities, managing concurrent access, and planning for scalability.</p>
+<p>Both iOS and Android provide native APIs for file operations. On iOS, we'll work with FileManager [44], while Android offers its File APIs [45]. These let the app read and write directly to internal or external storage, which is especially useful when dealing with large files or complex data structures that don't map well to database tables.</p>
+<h4 id="storage-options-comparison-table">Storage options comparison table</h4>
+<p>Table 1 provides a comprehensive comparison of the major storage options available for mobile apps. Use this as a reference when evaluating which storage mechanism best addresses the specific requirements during an interview.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th>Storage Mechanism</th><th>Advantages</th><th>Disadvantages</th><th>Use Cases</th><th>Examples</th></tr></thead><tbody><tr><td><strong>Key-value storage</strong></td><td>Simple to implement and use, fast read and write operations for small data sets.</td><td>Not suitable for large amounts of data or complex data structures, lacks advanced querying, less secure.</td><td>Storing non-sensitive user data such as preferences, settings, app configuration.</td><td>Android: SharedPreferences, DataStore. iOS: UserDefaults, Property Lists (Plists).</td></tr><tr><td><strong>On-device secure storage</strong></td><td>Secure storage for sensitive data, encrypted at rest and in transit, complies with data protection standards.</td><td>More complex to implement, performance overhead from encryption / decryption, limited storage capacity.</td><td>Storing sensitive information such as user credentials, payment information, cryptographic keys.</td><td>Android: Keystore. iOS: Keychain, iCloud Keychain.</td></tr><tr><td><strong>Relational Databases</strong></td><td>Efficient management of large datasets, supports complex queries, ensures data integrity.</td><td>More complex setup and maintenance, resource intensive, potential latency.</td><td>Handling large datasets, maintaining relationships between data entities, performing complex queries.</td><td>Android: SQLite, Room library. iOS: SQLite, Core Data.</td></tr><tr><td><strong>Non- relational Databases</strong></td><td>Flexible schema-less data models, high performance for read/write operations.</td><td>Limited support for complex queries, potential inconsistency issues.</td><td>Handling unstructured or semi-structured data.</td><td>Android and iOS: Realm, Firebase Realtime Database, Couchbase Lite.</td></tr><tr><td><strong>Files and Directories</strong></td><td>Flexible storage formats, simple implementation, easy data sharing between platforms.</td><td>Lack of structure, requires manual management of data integrity, concurrency, and scalability.</td><td>Handling binary data, use cases like note-taking apps where data is stored as individual files.</td><td>Android: File APIs. iOS: FileManager.</td></tr></tbody></table></div>
+<p class="tableCaption">Table 1: Storage options comparison</p>
+<h4 id="storage-selection-decision-tree">Storage selection decision tree</h4>
+<p>While the comparison table offers a detailed view of each storage option, a decision tree provides a structured approach to selecting the most appropriate storage solution based on the specific requirements.</p>
+<p>During an interview, walking through this decision tree demonstrates a methodical approach to storage selection. Rather than simply naming a storage option, you can explain your reasoning at each decision point, showing how we've considered security needs, data complexity, relationship requirements, and access patterns.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a decision tree for choosing the appropriate data storage solution for a mobile application.  The tree starts with a question about data security: 'Is the data security-critical (credentials, tokens, keys)?' A 'YES' answer leads to 'On-device secure storage,' while 'NO' proceeds to the next question: 'Does the data have complex relationships or need advanced querying?'  A 'YES' answer leads to a question about data structure rigidity ('Is the data structure rigid and well-defined?'). A 'YES' to this leads to 'Relational Database,' and a 'NO' leads to 'Non-relational Database.' If the answer to the second question is 'NO,' the flow continues to 'Is it primarily binary data (images, audio, video)?' A 'YES' answer directs to 'Custom/Binary Storage,' and a 'NO' leads to the final question: 'Is it simple key-value pairs?'  A 'YES' answer again points to 'Custom/Binary Storage,' while a 'NO' loops back to the 'Is the data structure rigid and well-defined?' question, completing the decision process.  The entire diagram uses cloud shapes for questions and rectangular boxes for storage solutions, with arrows indicating the flow based on 'YES' or 'NO' answers." loading="lazy" width="602" height="625" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-11-YSWA4ACW.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11: Storage options decision tree</figcaption></div></figure>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>The comparison table and decision tree offer a simplified framework to guide storage decisions during interviews, but real applications often require more nuanced approaches.</p><p>Often, mobile apps require multiple storage solutions working together. For example, a social media app might use:</p><ul>
+<li>
+<p>Secure storage for authentication tokens.</p>
+</li>
+<li>
+<p>A relational database for structured content such as user profiles and posts.</p>
+</li>
+<li>
+<p>Key-value storage for app settings and preferences.</p>
+</li>
+<li>
+<p>File storage for cached images and media.</p>
+</li>
+</ul></div>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Netflix chose the Realm mobile database for storing video metadata on devices to support offline downloads [46].</p><p>Trello redesigned its mobile data layer to work offline by making the local database the single source of truth [47].</p></div>
+<h3 id="how-mobile-apps-save-and-share-data">How mobile apps save and share data</h3>
+<p>While mobile apps have various storage options available, they all ultimately save data as files on the device's disk. What differs between these options is how they organize, manage, and provide access to this data through their respective APIs.</p>
+<p>By default, mobile operating systems use a sandboxed storage model: each app gets its own private storage space that other apps cannot access. This internal storage provides a basic level of security and data isolation.</p>
+<p>However, this protection has limitations. Users who jailbreak their iOS devices or root their Android devices can bypass these security measures and potentially access or modify any app's internal storage. For sensitive data that requires additional protection, secure storage solutions backed by hardware-level security features offer stronger safeguards against unauthorized access, even on compromised devices.</p>
+<h4 id="accessing-device-wide-storage">Accessing device-wide storage</h4>
+<p>Mobile platforms provide mechanisms for apps to interact with storage areas that exist outside their private sandbox. This enables important functionality such as saving photos to the device gallery or accessing documents from other apps.</p>
+<p>On Android, shared storage areas allow multiple apps to access common files. This includes both the device's built-in storage (sometimes called "external storage" even though it's physically inside the device) and removable storage (such as SD cards). Apps commonly use these areas to store files meant to be shared, such as photos, videos, and documents.</p>
+<p>iOS takes a different approach with more controlled access points. Instead of a general shared storage area, iOS offers specific directories for different purposes:</p>
+<ul>
+<li>The Documents Directory stores files that users should be able to access and that get backed up to iCloud.</li>
+<li>The Library directory holds data that apps need to share but shouldn't be directly visible to users.</li>
+</ul>
+<p>Users can access shared files through iOS's Files app, and other apps can request access to them when needed. We can find a complete list of these directories in the FileManager documentation [48].</p>
+<h4 id="working-with-media-and-files-from-other-apps">Working with media and files from other apps</h4>
+<p>Some mobile apps need to access content created by other apps, whether that's photos from<br>
+the camera app or documents downloaded from a web browser.</p>
+<p>Both platforms provide system APIs specifically designed for this purpose:</p>
+<ul>
+<li>On iOS, the PHAsset and PHImageManager APIs let apps load photos and videos from the user's media library [49], while UIDocumentPickerViewController enables users to browse and select files from anywhere on their device [50].</li>
+<li>On Android, the MediaStore API provides access to media files such as photos and videos, while the Storage Access Framework creates a standardized way for users to browse and open documents from any compatible file provider. For the latest Android storage APIs, check out the data and file storage overview guide [51].</li>
+</ul>
+<p>These APIs handle the necessary permissions and security checks, ensuring that users remain in control of which apps can access their personal content. When an app requests access to these files, the system will show a permission dialog, allowing the user to approve or deny the request.</p>
+<h4 id="sharing-data-between-your-own-apps">Sharing data between your own apps</h4>
+<p>Developers creating multiple apps often need a way for those apps to share data with each other. Both Android and iOS provide secure mechanisms for this purpose.</p>
+<p>Android uses Content Providers [52] for this scenario. By configuring specific permissions and signing requirements [53], developers can ensure that only their own apps can access specific shared data. This works by restricting access to apps signed with the same developer certificate.</p>
+<p>iOS implements App Groups [54] for this purpose. When apps are part of the same development team, App Groups create shared containers that all member apps can access. This enables sharing various types of data, including UserDefaults settings [55] and files, between related applications.</p>
+<p>Both approaches provide fine-grained control over data sharing while maintaining security boundaries that prevent unauthorized access from other developers' applications.</p>
+<h2 id="networking-and-api-design">Networking and API design</h2>
+<p>Whether fetching data from servers or syncing information across devices, how we handle networking can make or break the user experience. Let's explore HTTP, the foundational protocol for client-server communication that we use multiple times throughout this book.</p>
+<h3 id="http-and-rest-apis">HTTP and REST APIs</h3>
+<p>When building mobile apps that communicate with backends, HTTP (Hypertext Transfer Protocol) is often the go-to choice. Its widespread adoption and robust feature set make it particularly well-suited for client-initiated requests.</p>
+<p>HTTP offers several key advantages:</p>
+<ul>
+<li>Universal compatibility across platforms, devices, and networks.</li>
+<li>Stateless design that improves scalability since servers don't need to track session information between requests.</li>
+<li>Support for persistent connections in modern versions (HTTP/1.1 and HTTP/2), allowing multiple exchanges over a single connection.</li>
+<li>Flexibility to handle various data formats beyond just JSON, including HTML, XML, and binary data.</li>
+<li>Built-in header system for exchanging metadata between clients and servers.</li>
+<li>Strong security through HTTPS encryption, ensuring data remains private and authentic.</li>
+</ul>
+<p>When the mobile app communicates with a server, each HTTP request has several key components:</p>
+<ol>
+<li>The HTTP verb (e.g., GET or POST) that specifies what action to take.</li>
+<li>A resource path that identifies what data we want to access or modify.</li>
+<li>Headers containing metadata about the request, such as authentication tokens or expected response formats.</li>
+<li>Optional request data, either in the body for operations such as creating new content, or as query parameters in the URL.</li>
+</ol>
+<p>Let's look at a typical HTTP request:</p>
+<pre><code>Accept: application/json
+Authorization: Bearer \&lt;token\&gt;
+GET https://my-backend-name.com/v1/news?after=timestamp\&amp;limit=30
+</code></pre>
+<p>Breaking this down:</p>
+<ul>
+<li>It's a secure HTTPS request to fetch news data.</li>
+<li>The Authorization header contains the user's authentication token.</li>
+<li>The Accept header tells the server to return JSON.</li>
+<li>Query parameters after and limit help filter the results, asking for 30 posts after a specific timestamp.</li>
+</ul>
+<p>Query parameters are especially useful with GET requests since they can't include data in their body. By adding these parameters to the URL, we can specify exactly what data we want while keeping the request safe and idempotent, meaning it won't modify any data on the server, no matter how many times it's called.</p>
+<p>While HTTP/1.1 defines these basic methods [56] and their intended uses, most modern APIs build additional conventions on top of HTTP. This is where REST comes in, providing a standardized approach to designing backend services.</p>
+<h4 id="designing-rest-apis">Designing REST APIs</h4>
+<p>When building backend services that need to scale, consistency is key, especially in how we define and structure our HTTP endpoints. REST (Representational State Transfer) has emerged as a popular architectural approach that provides standard conventions for making HTTP requests and handling responses. Its widespread adoption means we'll find excellent documentation and support across the development community [57].</p>
+<p>There are many different styles of designing REST interfaces, so let's walk through the core REST practices we'll use throughout this book:</p>
+<ul>
+<li>The main HTTP verbs map naturally to CRUD operations [58]:
+<ul>
+<li>GET to retrieve data.</li>
+<li>POST to create new resources.</li>
+<li>PUT to update existing ones.</li>
+<li>DELETE to remove resources.</li>
+</ul>
+</li>
+<li>Each resource in our API should ideally have a unique URI that clearly identifies it. For example:
+<ul>
+<li><code>GET /users</code> retrieves all users.</li>
+<li><code>GET /users/1</code> gets details for the user with ID 1.</li>
+</ul>
+</li>
+<li>Use query parameters thoughtfully. They help filter, sort, and paginate results. For example:
+<ul>
+<li><code>GET /users?role=admin\&amp;sort=lastname_asc\&amp;page=2\&amp;limit=30</code></li>
+</ul>
+</li>
+<li>Choose clear resource names.
+<ul>
+<li>Use nouns to represent resources
+<ul>
+<li>e.g., <code>GET /posts</code> instead of <code>GET /query-posts</code>.</li>
+</ul>
+</li>
+<li>Use plural forms consistently
+<ul>
+<li>e.g., <code>GET /posts/{postId}</code> instead of <code>GET /post/{postId}</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Structure nested resources. For related resources, use sub-resource paths:
+<ul>
+<li>Good: <code>GET /v1/posts/{postId}/attachments/{attachmentId}</code></li>
+<li>Avoid: <code>GET /v1/posts/{postId}?attachment=attachmentId</code></li>
+</ul>
+</li>
+<li>Version the API consistently. Use global versioning to keep our API structure clean:
+<ul>
+<li>Good: <code>GET /v1/posts/{postId}/attachments</code></li>
+<li>Avoid: <code>GET /posts/{postId}/v1/attachments</code></li>
+</ul>
+</li>
+</ul>
+<p>REST also defines standard HTTP response codes that help clients understand the result of their requests. Here are the most common ones we'll encounter:</p>
+<ul>
+<li><code>200 OK</code>:
+<ul>
+<li>The request succeeded.</li>
+<li>Typically returned for successful GET and PUT operations.</li>
+</ul>
+</li>
+<li><code>201 Created</code>:
+<ul>
+<li>A new resource was successfully created.</li>
+<li>Common response for POST requests that create items.</li>
+</ul>
+</li>
+<li><code>400 Bad request</code>:
+<ul>
+<li>Client side error. The server couldn't process the request due to invalid syntax or missing data.</li>
+</ul>
+</li>
+<li><code>403 Forbidden</code>:
+<ul>
+<li>Authentication succeeded but the client lacks permission for this resource.</li>
+</ul>
+</li>
+<li><code>404 Not found</code>:
+<ul>
+<li>The requested resource doesn't exist on the server.</li>
+</ul>
+</li>
+<li><code>500 Internal Server Error</code>:
+<ul>
+<li>Server side error. Something went wrong on the server while processing the request.</li>
+</ul>
+</li>
+</ul>
+<p>By following these standardized REST conventions, we create APIs that are intuitive, predictable, and scale well as the app grows.</p>
+<h4 id="data-encoding-format">Data encoding format</h4>
+<p>When transferring data over HTTP, we have flexibility in how that data is formatted. HTTP itself doesn't care about the data format, it just needs the client and server to agree on what format they're using. They establish this agreement through HTTP headers such as Content-Type and Accept.</p>
+<p>We can choose from several common formats such as JSON (application/json), XML (application/xml or text/xml), Protocol Buffers (application/x-protobuf), and CSV (text/csv). The best choice depends on our specific needs around readability, efficiency, platform support, and how easy it is to work within the codebase.</p>
+<p>JSON (JavaScript Object Notation) has emerged as the most popular choice for modern REST APIs, and for good reason. It's human-readable, works efficiently, and integrates smoothly with most programming languages since it closely matches how they structure data. The fact that JSON is so widely supported means we can parse it easily using standard library functions, without needing extra dependencies. Table 2 compares the different formats we could use and their use cases.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;"><strong>Format</strong></th><th style="text-align: left;"><strong>Advantages</strong></th><th style="text-align: left;"><strong>Disadvantages</strong></th><th style="text-align: left;"><strong>Use cases</strong></th></tr></thead><tbody><tr><td style="text-align: left;">JSON</td><td style="text-align: left;">Human-readable, easy to use and parse, widely supported across platforms and languages, compact in size compared to XML.</td><td style="text-align: left;">Less efficient in terms of size and parsing speed compared to binary formats such as Protocol Buffers, no built-in schema enforcement.</td><td style="text-align: left;">Lightweight data exchange. Common for Web APIs and Mobile apps.</td></tr><tr><td style="text-align: left;">XML</td><td style="text-align: left;">Human-readable, supports complex data structures and metadata through attributes. It's widely supported and supports a robust schema validation with XSD.</td><td style="text-align: left;">Verbose, larger file size, slower parsing compared to JSON and Protocol Buffers, more complex to write and maintain.</td><td style="text-align: left;">Data interchange in enterprise applications, document-centric data, cases requiring extensive metadata.</td></tr><tr><td style="text-align: left;">Protocol Buffers</td><td style="text-align: left;">Compact and efficient binary format, faster serialization and deserialization, strict schema enforcement, backward and forward compatibility.</td><td style="text-align: left;">Less human-readable, requires defining .proto files and using code generation tools, more complex to set up.</td><td style="text-align: left;">Performance-critical applications, large-scale data transmission, systems requiring strict schema enforcement and versioning.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 2: Trade-offs for encoding data over the network</p></p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Lyft evolved its mobile networking from ad-hoc REST+JSON to a unified IDL (Interface Definition Language) using Protocol Buffers. Lyft's system can handle both gRPC calls (for new, streaming or binary-optimized APIs) and traditional HTTPS+JSON (for backward compatibility) [59].</p><p>Reddit migrated from a monolithic backend API to GraphQL to better serve mobile clients [60], and Airbnb too [61].</p><p>Snapchat has integrated the QUIC (Quick UDP Internet Connections) protocol to enhance its networking performance, particularly in mobile environments [62].</p></div>
+<h3 id="authentication">Authentication</h3>
+<p>For mobile apps managing sensitive or personalized data, robust authentication is critical. We must ensure that users are verified as legitimate before accessing protected resources.</p>
+<h4 id="token-based-authentication">Token-based authentication</h4>
+<p>Token-based authentication is widely adopted in mobile apps due to its efficiency and flexibility. Unlike traditional session-based methods, it offers:</p>
+<ul>
+<li>Stateless operations: No server-side session storage, enhancing scalability.</li>
+<li>Cross-platform compatibility: Seamless use across diverse devices.</li>
+<li>Granular access control: Tokens embed permissions and expiration details.</li>
+<li>Reduced backend overhead: Validation occurs without frequent database queries.</li>
+</ul>
+<p>The most common implementation uses <strong>JSON Web Tokens (JWT)</strong> [63], which are compact, self-contained tokens that securely transmit information between parties as a JSON object.</p>
+<h4 id="authentication-flow">Authentication flow</h4>
+<ol>
+<li><strong>Initial login</strong>: Clients submit user credentials (e.g., username/password) to the backend Authentication service, which validates them against registered user data.</li>
+<li><strong>Token generation</strong>: Upon successful verification, the backend issues two tokens:
+<ul>
+<li>An <strong>access token</strong> (JWT): Short-lived (e.g., 15-30 minutes), containing user identity and permissions.</li>
+<li>A <strong>refresh token</strong>: Longer-lived, used to obtain new access tokens without requiring the user to log in again.</li>
+</ul>
+</li>
+<li><strong>Secure token storage</strong>: The app securely stores both tokens using platform-specific secure storage mechanisms.
+<ul>
+<li>Android provides the Android Keystore system [64] to create and store cryptographic keys that never leave the device's secure hardware. Apps can encrypt tokens before storing them in SharedPreferences or DataStore.</li>
+<li>iOS offers the Keychain Services API [65] with multiple protection classes to secure tokens, ensuring they're encrypted at rest and only accessible when the device is unlocked.</li>
+</ul>
+</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for user authentication in a mobile application.  A user initiates the process by clicking 'Authenticate,' leading to a 'Login Screen.'  Successful login updates the 'Login State Holder.'  The 'Login State Holder' interacts with the 'Authentication Repository,' which in turn communicates with the 'Authentication Remote DataSource' (labeled '1').  The 'Authentication Repository' also receives information labeled '3' from the 'Token Repository,' which stores tokens retrieved from secure storage.  The 'Token Repository' persists data in 'Secure Storage.'  A 'Backend Authentication Service' (labeled '2') interacts bidirectionally with both the 'Backend' and a 'Third Party Identity Provider' (within a dashed box labeled 'Third Party'), suggesting integration with an external authentication service.  The arrows indicate the flow of information and authentication data between the components.  The numbers (1, 2, 3) are labels highlighting key interactions." loading="lazy" width="602" height="547" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-12-HLGD4UER.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12: User authentication data flow</figcaption></div></figure>
+<div class="note-block"><p><strong>📝 Note:</strong></p><p>To simplify the backend and minimize the complexity of key management, companies can leverage an external Identity Provider for token issuance and validation, as illustrated in Figure 12. This provider offers a JWKS (JSON Web Key Set) endpoint, enabling systems to retrieve public keys for validating JWTs securely without exposing private signing keys.</p></div>
+<h4 id="authenticated-requests-and-token-renewal">Authenticated requests and token renewal</h4>
+<p>Once authentication is complete, the app uses the tokens for secure API access.</p>
+<p>To <strong>make authenticated requests</strong>, the app includes the access token in the Authorization header of each API request: Authorization: Bearer &lt;access_token&gt;. API gateways then use these public keys to authenticate incoming JWTs, ensuring requests are verified before being forwarded to backend services.</p>
+<p><strong>When the access token expires</strong>, the app uses the refresh token to request a new one:</p>
+<ol>
+<li>The app detects an expired access token (either proactively by checking its expiration or reactively when receiving a 401 Unauthorized response).</li>
+<li>It sends the refresh token to a token renewal endpoint.</li>
+<li>If the refresh token is valid, the server issues a new access token (and sometimes a new refresh token too).</li>
+<li>The app saves these new tokens and retries the original request using the new access token. If the refresh token is invalid, the backend returns an error and the user should be logged out from the app.</li>
+</ol>
+<h4 id="enhanced-security-options">Enhanced security options</h4>
+<p>To further strengthen authentication, consider implementing:</p>
+<ul>
+<li><strong>Multi-factor authentication (MFA)</strong>: Require additional verification beyond passwords, such as SMS codes, authenticator apps, or biometrics.</li>
+<li><strong>Biometric authentication</strong>: Leverage fingerprint or facial recognition for a more user-friendly yet secure experience.</li>
+<li><strong>Certificate pinning</strong>: Ensure that authentication requests are sent only to legitimate servers, preventing man-in-the-middle attacks.</li>
+<li><strong>Trusted device registry</strong>: The backend maintains a list of known devices for each user.</li>
+<li><strong>Device fingerprinting</strong>: We collect non-sensitive device attributes to create a unique signature.</li>
+<li><strong>New device alerts</strong>: Users receive notifications when their account is accessed from a new device.</li>
+<li><strong>Suspicious activity detection</strong>: The system flags unusual patterns, such as logging in from a new location or device in close succession.</li>
+</ul>
+<p>By implementing robust token-based authentication, mobile apps can ensure that only authorized users access protected resources while maintaining a smooth, secure user experience.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Uber recently rolled out passkey support in its mobile apps, embracing a passwordless login experience [66].</p><p>Many apps, such as Robinhood, mark devices as "trusted" when they have successfully completed Multi-Factor Authentication. After that, subsequent logins from the same device may be streamlined so that users can log in without providing the second authentication factor. This balances security with convenience by not asking for 2FA at every single login on the same phone [67].</p></div>
+<h3 id="content-delivery-network-cdn">Content Delivery Network (CDN)</h3>
+<p>A Content Delivery Network (CDN) distributes servers across different geographical locations to efficiently deliver static content to users. Think of it as a global network of content storage points, each serving users in its nearby area.</p>
+<p>In mobile apps, CDNs excel at delivering content that stays relatively stable and often requires significant bandwidth, such as app icons and images, video content, HTML pages, and app assets and resources.</p>
+<p>Why use a CDN? By storing frequently accessed content closer to users, CDNs significantly reduce the load on our main backend servers. Instead of every request going to the backend, users receive content from the nearest CDN server. This approach offers several key benefits:</p>
+<ul>
+<li>Faster load times since content comes from nearby servers.</li>
+<li>Reduced latency as there's less distance for data to travel.</li>
+<li>Better user experience through quicker content delivery.</li>
+<li>Lower backend costs by offloading heavy content delivery.</li>
+</ul>
+<p>When should you consider adding a CDN? Let's examine the trade-offs in Table 3.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">CDN Advantages</th><th style="text-align: left;">CDN Disadvantages</th></tr></thead><tbody><tr><td style="text-align: left;">Better performance: Reduced latency and faster load times due to content being stored closer to users. <br>Efficient traffic management: Handles large volumes and sudden spikes, preventing bottlenecks. <br>Reliability and scalability: Offers redundancy and easy scaling. <br>Reduced origin server load: Caches static content such as images, videos, and HTML pages.</td><td style="text-align: left;">Cost: Can become expensive as usage increases. <br>Added complexity: Requires configuration, cache management, and client integration. <br>External dependency: Your app's performance partly relies on the CDN provider's uptime and performance. <br>Content freshness challenges: Ensuring up-to-date content requires careful cache management.</td></tr></tbody></table></div>
+<p class="tableCaption">Table 3: CDN advantages and disadvantages</p>
+<p>Despite the disadvantages, CDNs are a great solution for apps that have a worldwide user base. Figure 13 illustrates how a CDN fits into our overall system architecture.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture diagram showing the interaction between a client, a CDN (Content Delivery Network), and a backend server.  A rectangular box labeled 'Client' represents the user's mobile device or application.  Two arrows, labeled 'https,' connect the Client to a rectangular box labeled 'CDN,' indicating that the client retrieves content via HTTPS requests from the CDN.  Another rectangular box labeled 'Backend' is connected to the CDN via an upward-pointing arrow also labeled 'https,' showing that the CDN pulls content from the backend server using HTTPS.  Finally, a second 'https'-labeled arrow connects the Backend to the Client, indicating that the client can also directly request content from the backend server, likely as a fallback if the CDN doesn't have the requested content.  The overall flow suggests a system where the CDN acts as a cache, serving content to the client more quickly than directly accessing the backend, improving performance and reducing load on the backend server." loading="lazy" width="542" height="271" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-13-WRLLF6EA.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13: CDN in a typical architecture diagram</figcaption></div></figure>
+<h3 id="pagination">Pagination</h3>
+<p>Pagination is a fundamental pattern we encounter frequently in MSD interviews. Any time we're working with lists of data, pagination should be one of your first considerations. Whether it's a social media feed showing posts or a messaging system handling attachments, breaking large datasets into manageable chunks is crucial for scalability.</p>
+<p>Whenever we encounter a list in your system, we need to ask ourselves two questions:</p>
+<ol>
+<li>Is there a natural limit to how many items should be displayed at once?</li>
+<li>Would sending the entire dataset in a single response strain network or device resources?</li>
+</ol>
+<p>If sending the full dataset would be resource-intensive, pagination is likely the right solution. By loading data in smaller batches, you improve both performance and scalability while reducing memory usage on mobile devices.</p>
+<p>When implementing pagination, we'll typically choose between two main approaches: offset pagination and cursor-based pagination. Let's explore how each approach works and when to use them.</p>
+<h4 id="offset-pagination">Offset pagination</h4>
+<p>Let's explore offset pagination, where we request data by specifying which page we want and how many items should be on each page.</p>
+<p>Let's consider this example request: GET /v1/feed?page=3&amp;limit=30.</p>
+<p>Here, we're asking for the third page of results, with 30 items per page. The backend would skip the first 60 items (2 pages × 30 items) and return the next 30 items.</p>
+<p>When using offset pagination, the backend typically includes metadata about the overall dataset. This helps clients understand where they are in the full list of results. Here's what a response might look like:</p>
+<pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">"feed"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> … <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">"paging"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">"page"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">"total_pages"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">12</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">"total_items"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1000</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>Offset pagination shines when working with stable, fixed-size datasets. It's straightforward to implement since it maps naturally to database queries, and it lets users jump directly to any page they want. However, it has some important limitations.</p>
+<p>As your dataset grows larger, performance starts to suffer. The database needs to count and skip over more rows each time, which gets increasingly expensive. It's also problematic for frequently updated data, by the time a user reaches page 3, the content from pages 1 and 2 might have changed completely.</p>
+<p>You could try to handle these issues on the client side by detecting and removing duplicates, but this creates new problems: extra processing overhead, wasted bandwidth, and the need for additional requests to fill in gaps.</p>
+<p>This approach works well for applications with:</p>
+<ul>
+<li>Moderate-sized, stable datasets.</li>
+<li>Simple navigation needs.</li>
+<li>Predictable content, such as educational materials or e-commerce catalogs.</li>
+</ul>
+<h4 id="cursor-based-pagination">Cursor-based pagination</h4>
+<p>We can think of cursor-based pagination like using a bookmark in a long book. Instead of jumping to a specific page number, you use the bookmark (cursor) to track where we left off and continue reading from there.</p>
+<p>Here's how it works in practice. When requesting data, the client includes a cursor that points to their current position: GET /v1/feed?after=&lt;cursor&gt;&amp;limit=30.</p>
+<p>For the very first request, there's no cursor yet, so that field stays empty. The backend's response includes not just the data, but also cursors for moving forward and backward through the dataset:</p>
+<pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">"feed"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> … <span class="hljs-punctuation">}</span>
+  <span class="hljs-attr">"paging"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">"size"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">20</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">"next_cursor"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"bmV4dF9jdXJzb3IK"</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">"prev_cursor"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"Y3Vyc29yIF8gcHJldg=="</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>To load the next set of items, the client simply uses the next_cursor value:<br>
+GET /v1/feed?after=bmV4dF9jdXJzb3IK&amp;limit=30.</p>
+<p>A key advantage of cursor-based pagination is its flexibility with page sizes. Unlike offset pagination, we can request different amounts of data with each call. The cursor itself typically maps to a unique identifier in the data, such as a primary key or timestamp. While sequential IDs are common, what matters most is having a consistent way to order the records.</p>
+<p>For example, in a news feed system, we might use the postId as the cursor. These cursors are often encoded (commonly with Base64) before sending them over the network. This encoding helps standardize the format and prevents potential issues with special characters in URLs.</p>
+<p>This approach works particularly well for frequently changing datasets such as social media feeds, event logs, and systems with continuous updates. Companies such as Meta [68] and Slack [69] use this pattern in their APIs. The main limitation compared to offset pagination is that users can't jump directly to a specific page, they need to navigate through the data sequentially.</p>
+<h4 id="choosing-the-right-limit-number">Choosing the right limit number</h4>
+<p>The limit parameter controls how many items we fetch in each request, and its optimal value depends on the content we're dealing with. For lightweight content, we can use higher limits, while heavier content requires lower limits to maintain good performance.</p>
+<p><strong>The ideal limit value varies based on your app and content type, so it's worth experimenting to find the right balance for your specific use case</strong>. However, we can broadly evaluate different limit options:</p>
+<ul>
+<li>10 to 20 items
+<ul>
+<li>Ensures quick response times and minimal data transfer per request. Suitable for highly dynamic feeds with frequent updates.</li>
+<li>May require more frequent requests, potentially leading to more loading indicators and a less smooth experience.</li>
+</ul>
+</li>
+<li>30 to 50 items
+<ul>
+<li>Provides a good balance between data transfer and the need for frequent requests. Users can scroll through posts for a longer period before needing more data.</li>
+<li>Slightly larger data payload per request but usually manageable for most modern mobile networks.</li>
+</ul>
+</li>
+<li>50+ items
+<ul>
+<li>Reduces the frequency of data fetches, offering a smoother scrolling experience. Suitable for less dynamic feeds where content does not update as frequently.</li>
+<li>Larger data payloads can be slower to load on slower networks or older devices. This could be a concern depending on the scale of the app.</li>
+</ul>
+</li>
+</ul>
+<p>Instead of using a fixed limit number, we could further enhance the solution by implementing <strong>adaptive pagination</strong>, which dynamically adjusts the limit based on factors like network conditions or user behavior:</p>
+<ul>
+<li>For users who scroll quickly, we might increase the limit for a smoother experience.</li>
+<li>For users who spend more time on the content, we could lower the limit to reduce unnecessary data transfer.</li>
+</ul>
+<div class="note-block"><p><strong>📌 Remember:</strong> Selecting the right limit value in pagination is important as it directly affects both system performance and user experience. The optimal value typically depends on content weight. Generally, a limit between 20 and 50 items strikes a good balance between user experience and efficient data loading.</p></div>
+<h4 id="pagination-comparison-table">Pagination comparison table</h4>
+<p>Table 4 compares key pagination approaches used in mobile apps. Use this reference to quickly evaluate which strategy aligns with your specific requirements and constraints.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th>Pagination Method</th><th>Advantages</th><th>Disadvantages</th><th>Use Cases</th></tr></thead><tbody><tr><td><strong>Offset pagination</strong></td><td>Simple to implement, easy to navigate specific pages, maps well to database queries.</td><td>Performance degrades with large datasets, can be inaccurate with frequent updates, and may cause duplicates.</td><td>Apps with moderately sized datasets requiring straightforward navigation such as educational apps, e-commerce platforms, forums.</td></tr><tr><td></td><td>Example: GET /v1/feed?page=3&amp;limit=30</td><td></td><td></td></tr><tr><td><strong>Cursor- based pagination</strong></td><td>Efficient for large-scale datasets, handles frequent updates well, flexible limit per request, stateless backend.</td><td>Cannot jump to a specific page without traversing previous pages, may require encoding for security.</td><td>Real-time and large-scale applications with high-frequency updates such as social media feeds, event logs.</td></tr><tr><td></td><td>Example: GET /v1/feed?after=bmV4dF9jdXJzb3IK&amp;limit=30</td><td></td><td></td></tr></tbody></table></div>
+<p class="tableCaption">Table 4: Pagination options comparison</p>
+<h4 id="pagination-selection-decision-tree">Pagination selection decision tree</h4>
+<p>When determining which pagination approach to implement, several factors come into play. The decision tree in Figure 14 offers a structured path through these considerations, guiding us to an appropriate pagination strategy based on the app's specific needs and data characteristics.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a decision tree for choosing between different pagination strategies in database design.  The tree starts with a cloud-shaped node asking 'Is the dataset frequently updated or dynamic?'. A 'YES' answer leads to a rectangular node labeled 'Cursor-based pagination'. A 'NO' answer proceeds to another cloud-shaped node asking 'Need random access to pages?'.  A 'YES' response directs the flow to a rectangular node labeled 'Offset pagination'. A 'NO' answer leads to a final cloud-shaped node asking 'Is scalability and performance for large datasets a priority?'.  A 'YES' answer connects back to the 'Offset pagination' node, while a 'NO' answer also connects to the 'Offset pagination' node, completing the decision tree.  Arrows indicate the flow of decision-making based on the answers to each question.  The final choice of pagination method depends on the answers to these three questions regarding dataset characteristics and performance requirements." loading="lazy" width="602" height="496" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-14-5472SFSG.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14: Pagination options decision tree</figcaption></div></figure>
+<div class="note-block"><p><strong>⚠️ Disclaimer!</strong></p><p>While this decision tree and comparison table provide structured guidance for selecting storage options, they intentionally simplify complex considerations.</p><p>Real-world implementations often involve additional factors such as backend architecture constraints, existing API patterns, and specific performance characteristics of your data. Use these tools to frame your interview discussion, but be prepared to acknowledge the nuances that might influence your final decision.</p></div>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Slack transitioned from offset-based to cursor-based pagination to efficiently handle large datasets and ensure consistent data retrieval [70].</p><p>Discord uses virtualization for infinite lists to handle pagination smoothly. The result was a 14% drop in memory usage on startup for heavy users and faster load times [71].</p><p>Shopify moved to relative cursor pagination using a last-seen item ID to fetch the next page [72].</p></div>
+<h2 id="performance">Performance</h2>
+<p>Performance optimization forms a critical pillar of mobile app quality that directly impacts user satisfaction, retention, and commercial success. As apps grow in complexity and user expectations rise, maintaining responsive experiences becomes increasingly challenging, yet more essential than ever.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Performance considerations show our technical depth in creating responsive, efficient applications. We can mention this when discussing data-intensive features, animations, background processing, or systems that need to work on lower-end devices. This topic is universally relevant but becomes critical when designing apps that handle large datasets, complex real-time requirements, or need to operate in challenging network environments.</p></div>
+<p>Poor performance can seriously impact user retention, Google even downranks underperforming apps in the Play Store [73]. Users commonly uninstall apps that suffer from crashes, excessive data usage, battery drain, and UI jank [74].</p>
+<h3 id="holistic-performance-approach">Holistic performance approach</h3>
+<p>Effective performance optimization requires a systematic approach that spans the entire app architecture:</p>
+<ul>
+<li><strong>UI responsiveness</strong> ensures the app feels immediate and fluid. The primary thread should remain free for user interactions by offloading heavy operations to background threads.</li>
+<li><strong>Network efficiency</strong> minimizes both latency and data consumption.</li>
+<li><strong>Memory management</strong> prevents crashes and background crashes while enabling smooth multitasking experiences.</li>
+<li><strong>Battery optimization</strong> extends effective usage time by minimizing power-intensive operations. Location services, continuous network activity, and wake locks are particularly costly for battery life.</li>
+</ul>
+<h3 id="measurement-driven-optimization">Measurement-driven optimization</h3>
+<p>Performance optimization must be grounded in empirical data rather than assumptions or theoretical bottlenecks:</p>
+<ul>
+<li><strong>Baseline metrics</strong> through comprehensive performance testing provides objective data against which to measure improvements.</li>
+<li><strong>Continuous monitoring</strong> via production analytics reveals how your application performs in real-world conditions across diverse devices, networks, and usage patterns.</li>
+<li><strong>Targeted instrumentation</strong> helps identify specific bottlenecks in critical paths.</li>
+<li><strong>Incremental validation</strong> after each optimization confirms actual improvements and helps avoid regressions. Small, focused changes with measurable outcomes are preferable to large, speculative refactorings.</li>
+</ul>
+<p>During MSD interviews, pay special attention to performance implications when discussing background components. Whether we're designing pre-fetching services or location-based features, we should be prepared to explain how we'll optimize their resource usage to maintain a smooth user experience. The best designs balance functionality with efficient resource consumption.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Instagram improves UX by prefetching data in the background, ensuring seamless content delivery even under poor network conditions [75]. Also, they launched features such as Data Saver mode to let users on limited plans control data usage [76].</p><p>Robinhood implemented Server-Driven UI to speed up feature delivery [77].</p><p>Spotify implemented batched metadata downloads stored on the device's disk, along with pre-computed sorting to reduce startup and view-load times [78].</p><p>Lyft achieved a 21% reduction in ANRs by optimizing disk read operations and implementing memory caching strategies [79].</p><p>Uber developed a sophisticated failover handling mechanism within its mobile networking infrastructure to ensure reliable and low-latency communication for its apps [80].</p></div>
+<h2 id="feature-development">Feature development</h2>
+<p>While solid architecture creates a strong foundation for our app, thoughtful feature deployment strategies ensure users actually experience our innovations smoothly. This section explores practical approaches to releasing and managing features at scale.</p>
+<p>While these topics may not be central to every interview question, they demonstrate valuable perspectives that can set candidates apart when discussing how they'd implement a large-scale mobile solution. Interviewers are often looking for candidates who understand not just how to build features, but how to deliver them safely to users. Being prepared to discuss these operational aspects shows we've thought beyond pure implementation to consider the entire product lifecycle.</p>
+<h3 id="gradual-release-strategy">Gradual release strategy</h3>
+<p>When deploying new app versions or significant features, a gradual rollout approach helps identify and address potential issues before they affect your entire user base. We can think of it as a safety net, we can spot and fix problems while they're still manageable, rather than having them impact all our users at once.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Discussing gradual release strategies demonstrates your understanding of risk management in mobile development. We can mention this when explaining how we'd roll out complex features or significant architectural changes that could potentially impact user experience. It's particularly relevant for apps with large user bases or when designing features that might strain backend resources if released to everyone simultaneously.</p></div>
+<p>Both major app stores support gradual rollouts, though they implement the concept differently:</p>
+<ul>
+<li><strong>Google Play Store</strong> offers staged rollouts [81] that provide granular control over both timing and audience percentage. You can start with as little as 1% of your user base and incrementally increase availability as confidence grows.</li>
+<li><strong>Apple's App Store</strong> provides phased releases [82] on a fixed 7-day schedule with predetermined daily user percentages. While less flexible than Google's approach, this system still provides valuable protection against widespread issues.</li>
+</ul>
+<p>A crucial difference between platforms concerns rollback capabilities. If serious problems emerge, Google Play allows developers to halt distribution and revert affected users to the previous version. Apple's platform currently lacks this safety feature; once an update is delivered to a user, they remain on that version until a new update is released and installed.</p>
+<p>If we need even more controlled testing before a wide release, both platforms provide additional options:</p>
+<ul>
+<li><strong>Beta programs</strong> (TestFlight for iOS [83], Play Store Beta testing for Android) allow you to distribute builds to registered testers outside your organization.</li>
+<li><strong>Internal testing tracks</strong> enable team members to validate release candidates using the same distribution channels as production builds.</li>
+<li><strong>Employee dogfooding</strong> programs formalize the practice of having team members use pre-release versions in their daily lives to catch usability issues and edge cases.</li>
+</ul>
+<p>When implementing a gradual release strategy, focus on:</p>
+<ul>
+<li><strong>Monitoring capability</strong>: Ensure you have robust analytics and crash reporting configured to quickly identify problems during the staged rollout.</li>
+<li><strong>Severity thresholds</strong>: Define clear metrics that would trigger a rollout pause or rollback (e.g., crash rate increases above 1%).</li>
+</ul>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Notion's mobile team has taken an approach of weekly releases on both iOS and Android [18].</p></div>
+<h3 id="force-upgrading">Force upgrading</h3>
+<p>At times, mobile applications need to sunset older versions to ensure security, maintain performance, or deliver critical functionality improvements. Force upgrading is a strategic technique that prompts users on outdated app versions to update before they can continue using the app. This approach balances user experience with technical and business necessities.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Force upgrading shows our awareness of maintaining app stability and security across our user base. We can mention this when discussing API versioning strategies, security-critical updates, or scenarios where supporting multiple client versions would significantly increase backend complexity. It's especially relevant when the system design includes breaking changes that would make older app versions incompatible with new backend implementations.</p></div>
+<p>Force upgrades should be implemented with clear justification, as they create friction in the user experience. The most compelling reasons to implement this pattern include:</p>
+<ol>
+<li><strong>Backend compatibility changes</strong>: When significant API changes or deprecations occur, maintaining backward compatibility with all prior app versions becomes increasingly costly and complex. After verifying the new backend works reliably, you can retire old APIs and require affected users to upgrade.</li>
+<li><strong>Security vulnerabilities</strong>: When critical security flaws are discovered in older app versions, upgrading users becomes a priority to protect both their data and your systems. In highly regulated industries, security-driven force upgrades may even be a compliance requirement.</li>
+<li><strong>Regulatory compliance</strong>: New regulations, particularly in healthcare, finance, or privacy domains, may introduce requirements that older app versions cannot satisfy. In these cases, force upgrades help maintain legal compliance across your user base.</li>
+<li><strong>Analytics consistency</strong>: As your analytics strategy evolves, fragmenting your user base across multiple app versions can compromise data integrity and decision-making. Consolidating users on newer versions could create a more consistent analytics foundation.</li>
+</ol>
+<h4 id="implementation-approaches">Implementation approaches</h4>
+<p>Force upgrading exists on a spectrum of enforcement, with varying levels of urgency:</p>
+<ul>
+<li><strong>Hard upgrades</strong> completely prevent app usage until the user updates. This approach is appropriate for critical security vulnerabilities or major backend incompatibilities. The UI typically consists of a modal screen explaining the need to upgrade, with a prominent call-to-action that directs users to their platform's app store.</li>
+<li><strong>Soft upgrades</strong> encourage updating while still allowing limited app functionality. This approach balances user experience with technical requirements. Users typically see a dismissible prompt when launching the app, with persistent reminders during their session. While less disruptive, this approach takes longer to migrate users to newer versions.</li>
+<li><strong>Tiered grace periods</strong> offer a compromise by starting with soft prompts that gradually transition to hard requirements after a defined timeframe. This gives users adequate warning while ensuring eventual compliance.</li>
+</ul>
+<h4 id="technical-implementation">Technical implementation</h4>
+<p>The standard implementation follows a straightforward flow:</p>
+<ol>
+<li>During app initialization, the client sends its version information to a dedicated version-checking endpoint.</li>
+<li>The backend evaluates this version against current policies.</li>
+<li>Based on this evaluation, the backend returns a response indicating whether an upgrade is required and the type of upgrade (hard or soft).</li>
+<li>The client presents the appropriate UI based on the response, either blocking further access or displaying dismissible prompts.</li>
+</ol>
+<h4 id="practical-considerations">Practical considerations</h4>
+<p>When implementing force upgrading, several practical factors require attention:</p>
+<ul>
+<li><strong>Network conditions</strong>: Users in areas with poor connectivity may struggle to download updates. Consider implementing offline grace periods that allow temporary access even when updates are required.</li>
+<li><strong>Device constraints</strong>: Some users may have older devices that cannot support your newest app version.</li>
+<li><strong>Staged enforcement</strong>: For non-critical updates, consider rolling out the force upgrade requirement gradually, similar to how you might roll out a new app version. This prevents overwhelming app store infrastructure and support channels.</li>
+</ul>
+<p>By thoughtfully implementing force upgrading capabilities, we maintain greater control over our app ecosystem while ensuring users benefit from important improvements and protections. When used well, this approach helps both users and development teams by reducing fragmentation and technical debt.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Uber implemented a force-upgrade process to help manage the challenges of scaling their mobile app infrastructure [84].</p></div>
+<h3 id="feature-flags-remote-config-and-ab-testing">Feature flags, remote config, and A/B testing</h3>
+<p>Modern mobile apps need to evolve rapidly while maintaining stability, a challenge that calls for dynamic control systems. Feature flags, remote configuration, and A/B testing form a powerful toolkit that enables controlled experimentation and deployment without requiring app store updates.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>This topic demonstrates our knowledge of modern, data-driven development practices. We can mention it when discussing how to validate design decisions with real users, implement gradual feature rollouts, or manage complex features across different user segments. It's particularly valuable when explaining how our system could support experimentation without requiring constant app updates through the app stores.</p></div>
+<p>At its core, <strong>this approach separates feature availability from code deployment</strong>. When a user launches the app, it connects to backend services to determine which features should be activated based on various criteria:</p>
+<ul>
+<li>User characteristics (e.g., demographics, subscription tier, or usage patterns).</li>
+<li>Device capabilities (e.g., hardware specifications or operating system version).</li>
+<li>Environmental factors (e.g., geographic location, or network conditions).</li>
+<li>Experimental groups (e.g., random assignment or user cohorts).</li>
+</ul>
+<p>Product teams typically manage these rules through dedicated management interfaces (e.g., Content Management System (CMS)) that provide visualization and control without requiring engineering intervention for each update.</p>
+<p>Feature flags enable effective <strong>A/B testing</strong> by showing different variants to different users. The backend controls not just whether a feature is enabled, but which version users see. By tracking analytics for each variant, teams can measure effectiveness and make data-driven decisions.</p>
+<h4 id="strategic-applications">Strategic applications</h4>
+<p>This toolkit serves multiple essential functions in mobile apps:</p>
+<ul>
+<li><strong>Risk management</strong>: By limiting new functionality to a subset of users initially, we can contain the impact of potential issues.</li>
+<li><strong>Staged rollouts</strong>: Features can be introduced gradually to increasing percentages of users, allowing us to monitor performance impacts, server load, and user reception before committing to full deployment.</li>
+<li><strong>Performance optimization</strong>: A/B testing provides empirical data about which implementations deliver better performance metrics, helping teams make evidence-based decisions.</li>
+<li><strong>Infrastructure updates</strong>: When migrating to new backend systems or third-party services, feature flags allow us to control traffic flow between old and new implementations, enabling seamless transitions.</li>
+</ul>
+<h4 id="implementation-considerations">Implementation considerations</h4>
+<p>While powerful, feature flags and A/B testing require careful management:</p>
+<ul>
+<li><strong>Code complexity</strong>. Each flag adds branching logic and potential interactions. This complexity grows as we add more flags.</li>
+<li><strong>Technical debt</strong>. Flags that remain after features are fully launched create unnecessary complexity. Regular cleanup is essential.</li>
+<li><strong>Testing challenges</strong>. Testing all possible flag combinations becomes increasingly difficult as the system grows.</li>
+<li><strong>UX understanding</strong>. Multiple active flags make it harder to understand exactly what different users experience.</li>
+</ul>
+<p>When properly implemented, feature flags, remote configuration, and A/B testing transform how mobile applications evolve, enabling data-driven development, controlled experimentation, and rapid response to emerging issues or opportunities. This approach has become standard practice at companies operating at scale, where the ability to move quickly while maintaining stability creates significant competitive advantage.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Netflix is famously data-driven, running A/B tests on nearly every product change. They built an internal Experimentation Platform (codename “ABlaze”) that lets any team define an experiment, target a subset of users, and track metrics [85].</p><p>Duolingo attributes a lot of its product success to extensive A/B testing. On the engineering side, this means building an experimentation framework into the app [86].</p></div>
+<h3 id="observability-analytics-monitoring-and-reporting">Observability, analytics, monitoring, and reporting</h3>
+<p>Mobile apps require comprehensive visibility into their performance, user behavior, and error states. A robust measurement strategy helps engineering teams deliver stable experiences while providing product teams with insights to drive decision-making.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Discussing these elements shows we understand that successful systems require ongoing measurement and optimization. We can mention these when explaining how we'd validate that your design meets performance requirements, identify potential bottlenecks, or track user engagement with key features. This topic is especially relevant when designing systems that need to scale significantly or when proposing complex architecture that would benefit from robust monitoring.</p></div>
+<p>A complete visibility system addresses multiple dimensions of app performance and usage:</p>
+<ul>
+<li><strong>Technical performance monitoring</strong> tracks system-level metrics such as response times, resource utilization, and error rates. This data helps identify bottlenecks, optimize code paths, and ensure the app remains responsive across varying device capabilities and network conditions.</li>
+<li><strong>User behavior analytics</strong> captures how people interact with the application, including navigation patterns, feature usage, and conversion metrics. These insights inform product decisions by revealing which aspects of the app deliver value and where friction points exist.</li>
+<li><strong>Error tracking</strong> identifies crashes, exceptions, and non-fatal errors that impact user experience.</li>
+<li><strong>Business metrics reporting</strong> connects technical performance to commercial outcomes by measuring key performance indicators that align with organizational goals, such as engagement, retention, and monetization metrics.</li>
+</ul>
+<h4 id="error-classification-and-management">Error classification and management</h4>
+<p>When implementing error tracking, it's crucial to differentiate between different types of failures:</p>
+<ul>
+<li><strong>Fatal errors</strong> cause the app to crash completely.</li>
+<li><strong>Non-fatal errors</strong> allow the app to continue running but may prevent specific features from functioning correctly.</li>
+<li><strong>Degraded states</strong> occur when the app continues functioning but with reduced performance or capability.</li>
+</ul>
+<p>Each error type requires appropriate instrumentation to ensure visibility. While crash reporting frameworks capture fatal errors automatically, non-fatal errors and degraded states require explicit instrumentation in the codebase.</p>
+<h4 id="architectural-considerations">Architectural considerations</h4>
+<p>From an architecture perspective, analytics and monitoring systems should be designed for minimal performance impact while delivering maximum insight:</p>
+<ul>
+<li><strong>Sampling strategies</strong> reduce data volume while maintaining statistical validity by collecting comprehensive data from a representative subset of users or sessions rather than exhaustively tracking everything.</li>
+<li><strong>Efficient data collection</strong> typically involves batching events, compressing payloads, and being selective about collection frequency.</li>
+<li><strong>Robust offline handling</strong> ensures that analytics data isn't lost when the device lacks connectivity.</li>
+<li><strong>Contextual information</strong> automatically adds relevant metadata to events, such as device information, app version, and user segments. This context makes analysis more powerful by enabling multidimensional filtering and segmentation.</li>
+</ul>
+<p>In high-level architecture diagrams, analytics components typically appear as cross-cutting concerns that integrate with multiple subsystems. Figure 15 shows how the Analytics repository is often added to the app high-level architecture diagram.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-side data layer architecture employing dependency injection.  The diagram is enclosed within a rounded rectangle labeled 'Client,' containing a light-grey rectangular area at the top labeled 'Dependency Injection.' Below this, the 'Data layer' is depicted.  Two main components are shown: an 'Analytics Repository' and an 'X Repository.' The 'Analytics Repository' receives data from two sources: 'Analytics Local DataSource' and 'Analytics Remote DataSource,' indicated by arrows pointing towards it.  Similarly, the 'X Repository' receives data from an 'X Local DataSource,' also shown with an arrow.  Arrows pointing upwards from both repositories connect to the 'Dependency Injection' layer, illustrating how these repositories are injected into the client application.  The overall structure showcases how the client accesses data through repositories, which in turn abstract away the specifics of data sources, enabling flexible data access and maintainability through dependency injection." loading="lazy" width="602" height="341" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-15-BTBJXC5J.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15: Analytics represented in architecture diagrams</figcaption></div></figure>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Pinterest built an end-to-end JSON logging system for their iOS and Android clients. The idea was to make logging “schemaless” and easy [87].</p><p>Slack developed a bespoke tracing system, SlackTrace, to monitor the flow of notifications across their infrastructure, aiming to standardize data formats and simplify debugging [88].</p><p>Signal takes a unique stance on analytics: it collects virtually none in order to protect user privacy. The Signal app does not have the typical mobile analytics or crash-reporting SDKs that most apps use [89].</p></div>
+<h3 id="localization">Localization</h3>
+<p>Adapting your application for global audiences involves much more than simply translating text. Comprehensive localization transforms every aspect of your app to feel native to users across different regions, languages, and cultural contexts. When implemented thoughtfully, localization significantly expands your potential user base while improving engagement and retention in international markets.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Localization demonstrates our awareness of developing for global audiences. We can mention it when designing apps intended for international markets or discussing text-heavy interfaces that would need translation. It's particularly relevant when explaining how our architecture handles variable content lengths, right-to-left languages, or region-specific features that might affect our core design decisions.</p></div>
+<h4 id="beyond-text-translation">Beyond text translation</h4>
+<p>While text translation forms the foundation of localization, a complete strategy addresses multiple dimensions of cultural adaptation:</p>
+<ul>
+<li><strong>Number and currency formatting</strong> varies dramatically across regions.</li>
+<li><strong>Date and time representation</strong> follows different conventions worldwide.</li>
+<li><strong>Pluralization rules</strong> differ across languages, often in complex ways that go beyond simply adding 's' for plurals.</li>
+<li>Text direction requires special consideration for <strong>right-to-left (RTL) languages</strong> such as Arabic, Hebrew, and Persian.</li>
+<li><strong>Visual and cultural elements</strong> including colors, symbols, and imagery may carry different meanings or connotations across cultures.</li>
+</ul>
+<p>While Android and iOS share similar localization concepts, they handle implementation differently: iOS offers built-in support for exporting translations [90], whereas Android implements localization through its resource system [91].</p>
+<h4 id="localization-challenges">Localization challenges</h4>
+<p>Implementing comprehensive localization presents several technical challenges:</p>
+<ul>
+<li><strong>Adaptable UI design</strong> must accommodate text expansion and contraction across languages. German and Finnish translations typically require 30-40% more space than English, while Chinese often uses significantly less.</li>
+<li><strong>Dynamic language switching</strong> allows users to change their preferred language without restarting the application. This requires careful management of resource loading and UI refreshing to ensure a smooth transition between languages.</li>
+<li><strong>Resource optimization</strong> becomes critical as localization assets multiply. Each supported language increases app size, potentially affecting download conversion rates and device storage requirements.</li>
+<li><strong>Testing complexity</strong> increases exponentially with each supported language.</li>
+<li><strong>Backend API localization</strong> ensures that content delivered from the backend appears in the user's preferred language. This typically involves including language preference parameters in API requests and designing backend systems to return appropriately localized responses.</li>
+</ul>
+<p>By approaching localization as a fundamental aspect of our architecture rather than an afterthought, our apps can deliver truly global reach while maintaining excellent user experiences across diverse markets and cultures.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Netflix, available in 190+ countries, built a sophisticated pipeline to ingest, translate, and serve UI strings for all their apps [92].</p><p>Netflix even uses pseudo-localization (artificially elongating text and adding accented characters) as a testing step to ensure UIs will accommodate other languages and scripts [93].</p></div>
+<h3 id="privacy">Privacy</h3>
+<p>Privacy considerations have evolved from optional features to essential requirements in mobile apps. As regulations tighten globally and user awareness grows, implementing robust privacy measures is crucial for both legal compliance and maintaining user trust. A thoughtful privacy strategy must address regulatory requirements, technical safeguards, and transparent user experiences.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Privacy considerations show we understand the regulatory and ethical dimensions of mobile development. We can mention this when discussing features that handle sensitive user data, systems that require cross-device synchronization, or designs targeting regions with strict privacy laws like Europe (GDPR) or California (CCPA). It's especially important when explaining data storage decisions, authentication mechanisms, or user consent flows.</p></div>
+<h4 id="navigating-regulatory-landscapes">Navigating regulatory landscapes</h4>
+<p>Mobile applications often operate across multiple jurisdictions, each with unique privacy frameworks that dictate how user data must be handled:</p>
+<ul>
+<li><strong>The European Union's General Data Protection Regulation (GDPR)</strong> [94] established a comprehensive framework that fundamentally changed how organizations approach data privacy.</li>
+<li>The UK follows the <strong>Data Protection Act (DPA)</strong> [95] for data protection standards.</li>
+<li><strong>Health Insurance Portability and Accountability Act (HIPAA)</strong> [96] regulates protected health information in the United States.</li>
+<li>Australian apps need to follow the <strong>Privacy Principles (APPs)</strong> [97].</li>
+</ul>
+<p>The regulatory landscape continues to evolve rapidly, with new privacy laws emerging regularly around the world. Staying current with these developments is essential for maintaining compliance across global markets.</p>
+<h4 id="technical-implementation-strategies">Technical implementation strategies</h4>
+<p>Implementing privacy protection requires a layered approach that secures user data throughout its lifecycle:</p>
+<ul>
+<li><strong>Data minimization</strong> forms the foundation of modern privacy practice. Collect only the information necessary for your app's core functionality.</li>
+<li><strong>Secure data transit</strong> protects information as it moves between client and server.</li>
+<li><strong>Protected storage</strong> safeguards data at rest on both device and server. For example, we should encrypt sensitive information using industry-standard algorithms such as AES-256, with proper key management practices to maintain security.</li>
+<li><strong>Access controls</strong> ensure that users can only access data they're authorized to view.</li>
+<li><strong>Data anonymization and pseudonymization</strong> reduce privacy risks by separating personal identifiers from usage data.</li>
+<li><strong>Security testing</strong> conducts regular penetration testing to identify vulnerabilities, and test both client and server-side security measures.</li>
+</ul>
+<p>Beyond these regional requirements, it's essential to stay current with mobile security best practices. The OWASP [98] mobile security risks list, updated annually, provides a comprehensive overview of emerging threats and recommended protections.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Meta has been exploring privacy-preserving machine learning to improve products without compromising user data. One cutting-edge approach is Federated Learning with Differential Privacy (FL-DP) [99].</p></div>
+<h3 id="accessibility">Accessibility</h3>
+<p>Creating truly inclusive mobile apps means ensuring everyone can use your product effectively, regardless of their abilities or how they interact with their devices. Accessibility isn't just about compliance with regulations, it's about expanding our application's reach and building products that work well for all users.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Discussing accessibility demonstrates our commitment to inclusive design principles. We can mention this when explaining interface design decisions, navigation patterns, or interaction models that need to work for all users. It's particularly relevant when designing public-facing applications, especially those subject to legal accessibility requirements such as government, education, or healthcare apps.</p></div>
+<p>Leading platforms provide comprehensive accessibility guidelines that help you build more inclusive apps: Web Content Accessibility Guidelines (WCAG) [100], Apple's Human Interface Guidelines for iOS [101], and Google's Material Design Accessibility Guidelines for Android [102].</p>
+<h4 id="platform-implementation-techniques">Platform implementation techniques</h4>
+<p>Both Android and iOS provide comprehensive accessibility frameworks that help developers create inclusive apps:</p>
+<ul>
+<li><strong>Screen readers</strong> (VoiceOver on iOS, Talkback on Android) support enables users with visual impairments to navigate applications through audio feedback.</li>
+<li><strong>Dynamic text sizing</strong> allows users to adjust text display to their needs.</li>
+<li><strong>Color and contrast</strong> considerations help users with color blindness or low vision.</li>
+<li><strong>Touch targets</strong> should be sufficiently large to accommodate users with motor control challenges.</li>
+</ul>
+<h4 id="testing-and-validation">Testing and validation</h4>
+<p>Comprehensive accessibility testing combines automated checks with human evaluation:</p>
+<ul>
+<li><strong>Automated testing tools</strong> such as Accessibility Scanner (Android) and Accessibility Inspector (iOS) identify common issues such as missing labels, insufficient contrast, and small touch targets.</li>
+<li><strong>Manual testing with assistive technologies</strong> provides deeper insight into how real users might experience your application. Navigating the entire app using only VoiceOver or TalkBack reveals usability issues that automated tools might miss.</li>
+<li><strong>User testing with people with disabilities</strong> delivers the most valuable feedback.</li>
+</ul>
+<p>By integrating accessibility considerations throughout your development process rather than treating them as an afterthought, you build more robust applications that work better for everyone.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>The BBC has led by example with comprehensive Mobile Accessibility Guidelines [103].</p></div>
+<h3 id="push-notifications">Push notifications</h3>
+<p>Push notifications enable apps to reach users even when they're not actively using the application. This capability is invaluable for sharing important updates, delivering time-sensitive information, or re-engaging users with your app. While powerful, push notifications have inherent limitations that you should understand when incorporating them into your mobile system design.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Both iOS and Android implement push notifications through platform-specific services: iOS uses Apple Push Notification Service (APNs) [104], while Android relies on Firebase Cloud Messaging (FCM) [105].</p><p>These services act as intermediaries between your backend and user devices.</p></div>
+<p>The typical flow for push notifications follows these steps:</p>
+<ol>
+<li>Our app registers with the platform's notification service during installation.</li>
+<li>The service provides a unique device token to identify that installation.</li>
+<li>Our app sends this token to the backend.</li>
+<li>When the backend needs to notify a user, it sends the message to the appropriate platform service.</li>
+<li>The platform service attempts to deliver the notification to the user's device.</li>
+</ol>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Push notifications demonstrate our understanding of user engagement strategies beyond the app itself. If the interviewer is interested in this topic, they usually add it as a functional requirement. If that's not the case, you can mention push notifications when discussing systems that deliver time-sensitive information, require user re-engagement, or include asynchronous interactions. It's particularly relevant when designing messaging apps, social platforms, or any application where users benefit from being notified about events even when they're not actively using the app.</p></div>
+<h4 id="push-notifications-delivery-challenges">Push notifications delivery challenges</h4>
+<p>Several factors can prevent successful notification delivery:</p>
+<ul>
+<li><strong>Device constraints</strong>
+<ul>
+<li>Notifications queue when devices are offline or in airplane mode.</li>
+<li>Platform servers eventually drop queued notifications that can't be delivered.</li>
+<li>Battery-saving modes may delay or block notification delivery.</li>
+</ul>
+</li>
+<li><strong>Platform limitations</strong>
+<ul>
+<li>Both APNs and FCM implement throttling mechanisms to protect system resources.</li>
+<li>Android manufacturer customizations can affect background process handling differently.</li>
+<li>Platform-specific payload size limits restrict the amount of data you can include.</li>
+</ul>
+</li>
+<li><strong>User controls</strong>
+<ul>
+<li>Users can disable notifications through system settings.</li>
+<li>They may deny notification permissions during the first app launch.</li>
+<li>Do Not Disturb settings and focus modes can temporarily block delivery.</li>
+</ul>
+</li>
+</ul>
+<p>Given these limitations, push notifications should serve as a supplementary communication channel rather than your primary method for delivering critical information. They're excellent for enhancing engagement, but your system design should include alternative mechanisms for essential updates.</p>
+<p>Chapter 4: Design a Chat app covers push notifications in detail. Figure 16 shows the push notifications-related components in its high-level architecture diagram.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for push notifications.  The diagram shows a 'Data layer' containing a 'Messages Repository' box.  Below this is a 'Push Notifications Client' box, connected to the 'Messages Repository' via an upward-pointing arrow, indicating data flow from the client to the repository.  To the right, a 'Backend' box communicates with a 'Push Notifications Provider' box (labeled 'Third Party') via an arrow labeled 'https,' signifying an HTTPS connection.  The 'Push Notifications Client' and 'Push Notifications Provider' are connected by a line labeled 'Persistent TCP connection,' illustrating a persistent TCP connection between the client and the third-party provider.  The dashed lines around the 'Data layer' and the 'Push Notifications Provider' visually group related components.  The overall flow suggests that the client sends push notification data to the repository, the backend interacts with the third-party provider (likely for sending the notifications), and the client maintains a persistent connection with the provider for receiving notifications." loading="lazy" width="602" height="359" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/mobile-system-design-building-blocks/figure-10-16-QQBA3NUU.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16: Push notifications–related components in the Chat system design</figcaption></div></figure>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Slack extended their notification system to send broader notification types and not just direct messages and mentions [106].</p><p>Duolingo built a high-scale notification system to handle its massive user base and engagement campaigns [107].</p></div>
+<h3 id="app-size">App size</h3>
+<p>App size directly impacts both user acquisition and retention. App size influences user behavior in measurable ways. Google's research shows that each additional 6MB in APK size reduces installation conversion rates by approximately 1% [108]. This effect becomes even more pronounced in markets with limited data plans or on devices with storage constraints.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>App size considerations show our awareness of practical download and installation constraints. We can mention this when discussing applications targeting regions with limited bandwidth, apps containing substantial offline content, or designs requiring numerous third-party libraries. It's especially relevant when our target audience includes users with storage-constrained devices or limited data plans.</p></div>
+<p>Two primary contributors typically influence app size:</p>
+<ol>
+<li><strong>Third-party libraries</strong> add functionality but often come with significant size overhead. Each library should justify its footprint by providing essential capabilities that would be impractical to build in-house.</li>
+<li><strong>Media assets</strong> such as images, videos, and audio files enhance user experience but can quickly inflate app size. When addressing asset management in your interview, discuss strategies such as:
+<ul>
+<li>Using vector graphics where appropriate to maintain quality across device resolutions.</li>
+<li>Implementing on-demand asset downloading for infrequently accessed features.</li>
+<li>Leveraging server-side image optimization based on device capabilities.</li>
+</ul>
+</li>
+</ol>
+<p>When discussing app size optimization in interviews, demonstrate an awareness of platform-specific approaches.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Both Android [109] and iOS [110] offer comprehensive tools and documentation for reducing app size.</p><ul>
+<li>
+<p>For Android, we can mention techniques like R8 code shrinking, resource shrinking, and App Bundles that deliver only the code and resources needed for specific device configurations. -</p>
+</li>
+<li>
+<p>For iOS, we can highlight app thinning, on-demand resources, and Swift's whole module optimization.</p>
+</li>
+</ul></div>
+<p>By integrating thoughtful app size considerations into your mobile system design, we demonstrate awareness of the practical constraints that affect real-world app distribution and adoption.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Instagram built an Instagram Lite Android app with an initial size of just 573 KB [111].</p></div>
+<h3 id="cicd">CI/CD</h3>
+<p>Mobile apps depend heavily on automation for consistent, reliable delivery. Continuous Integration and Continuous Delivery/Deployment (CI/CD) practices streamline the testing and release process, ensuring high quality across development stages.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>CI/CD knowledge demonstrates our understanding of the complete development lifecycle. We can bring this up when discussing how our design would be implemented in practice, especially for complex systems requiring frequent updates or when explaining how to maintain quality across multiple platforms. It's particularly relevant when describing how your architecture supports testability or when proposing designs that would involve complex integration requirements.</p></div>
+<h4 id="continuous-integration-ci">Continuous Integration (CI)</h4>
+<p>Continuous Integration focuses on frequently merging code changes into a shared repository. Each time developers push changes, automated pipelines perform these essential functions:</p>
+<ul>
+<li>Building the app to catch compilation errors early.</li>
+<li>Running unit and integration tests to ensure functionality.</li>
+<li>Analyzing code quality through static analysis tools.</li>
+</ul>
+<p>This creates a valuable feedback loop where issues are detected immediately rather than accumulating over time. Tools such as Fastlane [112], GitHub Actions [113], or Bitrise [114] handle these automated checks, ensuring consistent quality without manual intervention.</p>
+<h4 id="continuous-delivery-cd">Continuous Delivery (CD)</h4>
+<p>While CI focuses on code quality, Continuous Delivery automates the preparation and distribution of releases. Once code passes CI checks, CD pipelines handle:</p>
+<ul>
+<li>Configuring app signing and credentials.</li>
+<li>Setting environment-specific variables.</li>
+<li>Generating release builds.</li>
+<li>Distributing builds to testing environments.</li>
+</ul>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Mobile apps have unique CD requirements around code signing:</p><ul>
+<li>
+<p>Android uses keystore files to verify app authenticity.</p>
+</li>
+<li>
+<p>iOS requires provisioning profiles and certificates, often managed through tools such as Fastlane Match [115].</p>
+</li>
+</ul><p>Each environment (e.g., development, QA, and production) also needs its own configuration:</p><ul>
+<li>
+<p>Android uses build.gradle flavors and buildConfigField.</p>
+</li>
+<li>
+<p>iOS uses Xcode build configurations and schemes.</p>
+</li>
+</ul></div>
+<h4 id="continuous-deployment">Continuous Deployment</h4>
+<p>In its purest form, Continuous Deployment automatically pushes changes to production after they pass all quality checks. Unlike web or backend deployments, releases aren't instantaneously available to users because app store review processes can introduce unpredictable delays.</p>
+<p>The key benefit of CI/CD is consistency! It removes manual steps that could introduce errors while ensuring every release follows the same proven process. Knowledge on this area shows interviewers we're not just focused on architectural excellence, but also on the practical aspects of delivering high-quality software reliably and efficiently.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Duolingo drastically improved its mobile CI/CD pipeline, cutting Android and iOS build times by 68% [116].</p><p>Pinterest's iOS team transitioned to using Bazel as their build system resulted in a 21% reduction in clean build times [117].</p></div>
+<h3 id="security">Security</h3>
+<p>Security forms an essential foundation for any mobile app. At its core, mobile security involves protecting user data, ensuring system integrity, and preventing unauthorized access. All while maintaining a smooth user experience.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Security considerations show your awareness of protecting user data and system integrity. Mention this when discussing features that handle sensitive information, authentication workflows, or data storage decisions.</p><p>It's particularly relevant when designing finance, healthcare, or enterprise applications, or when explaining how your architecture safeguards against common mobile vulnerabilities.</p></div>
+<p>Rather than diving deeply into implementation details, let's explore the main security domains that mobile devs should be familiar with. While security is a complex topic that would require specialized expertise to fully address, a general understanding of these areas will help you navigate MSD interviews effectively.</p>
+<h4 id="device-security">Device security</h4>
+<p>Mobile devices operate in varied and often unpredictable environments. Key considerations include:</p>
+<ul>
+<li><strong>iOS Jailbreak</strong> [118] <strong>/ Android Root</strong> [119] <strong>detection</strong>: Identifying compromised operating systems that bypass security controls.</li>
+<li><strong>App integrity verification</strong>: Ensuring the application hasn't been tampered with.
+<ul>
+<li>On Android, the Play Integrity API [120] verifies the app's authenticity and flags modifications.</li>
+<li>On iOS, App Attest [121] ensures the app runs as intended, unaltered by external interference.</li>
+</ul>
+</li>
+<li><strong>Secure local storage</strong>: Properly handling sensitive data stored on the device.</li>
+<li><strong>Code obfuscation</strong>: Making it harder for attackers to reverse-engineer your application.
+<ul>
+<li>On Android, tools such as R8 [122] can automatically scramble your code, changing the names of classes and methods while keeping the app's functionality intact.</li>
+</ul>
+</li>
+</ul>
+<h4 id="network-security">Network security</h4>
+<p>Protecting data in transit requires multiple security layers:</p>
+<ul>
+<li><strong>Transport Layer Security (TLS)</strong>: Encrypting all client-server communications.</li>
+<li><strong>Certificate pinning</strong> [123]: Preventing man-in-the-middle attacks by validating server certificates.</li>
+<li><strong>API security</strong>: Defending against common web vulnerabilities like injection attacks.</li>
+<li><strong>Secure offline operations</strong>: Maintaining security even when connectivity is intermittent.</li>
+</ul>
+<h4 id="data-security">Data security</h4>
+<p>Even when stored locally, sensitive data requires protection:</p>
+<ul>
+<li><strong>Encryption at rest</strong>: Securing stored data using strong encryption algorithms.</li>
+<li><strong>Secure key management</strong>: Properly handling encryption keys.</li>
+<li><strong>Sensitive data handling</strong>: Minimizing exposure of PII [124] and confidential information.</li>
+<li><strong>Data minimization</strong>: Collecting and storing only essential information.</li>
+</ul>
+<h4 id="balancing-security-and-user-experience">Balancing security and user experience</h4>
+<p>While robust security is essential, it shouldn't come at the expense of usability. Consider these principles:</p>
+<ul>
+<li>Apply stricter security measures to high-risk operations, using contextual security.</li>
+<li>Provide clear explanations when requesting sensitive permissions.</li>
+<li>Implement security measures proportional to the sensitivity of protected data.</li>
+<li>Use security measures that align with platform conventions and user expectations.</li>
+</ul>
+<p>Remember that client-side security is just one layer of defense. A comprehensive security strategy requires both strong mobile protections and a well-secured backend working together.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Signal's entire system design centers on user privacy. All messages and calls are end-to-end encrypted, meaning that not even Signal's servers can read user content [125].</p></div>
+<h2 id="supporting-different-devices">Supporting different devices</h2>
+<p>Building for a wide range of devices and platforms introduces unique challenges that can strongly influence your design choices.</p>
+<p>In MSD interviews, demonstrating awareness of device fragmentation shows depth of understanding that extends beyond purely functional concerns. The ability to build solutions that work consistently across different hardware capabilities, screen sizes, and operating system versions reveals a mature perspective on mobile development challenges.</p>
+<p>While these topics might not dominate interview discussions, they could emerge during the deep dive phase as interviewers assess how thoroughly candidates consider the practical implementation challenges of the design. Being prepared to address these concerns demonstrates both technical insight and product awareness.</p>
+<h3 id="phone-tablets-and-other-form-factors">Phone, tablets, and other form factors</h3>
+<p>Supporting multiple device types isn't just a nice-to-have feature, it's often a core business requirement that can significantly expand your app's reach. While phones remain the primary platform for most apps, tablets, foldables, wearables, and even TVs offer unique opportunities to engage users in different contexts.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>Discussing multi-form factor support shows our ability to design adaptable interfaces and architecture. We can mention this when explaining how our system would accommodate different screen sizes, input methods, or device capabilities. It's particularly relevant when designing applications that need to provide consistent experiences across phones, tablets, foldables, or other specialized hardware.</p></div>
+<p>The key to a successful multi-form factor strategy lies in strategic modularization. The app's core business logic and data layer can generally remain consistent across devices, as these components operate independently of screen size or input methods. It's primarily the UI and navigation layers that require device-specific adaptations to deliver optimal user experiences.</p>
+<p>Consider how different form factors change user expectations and interaction patterns:</p>
+<ul>
+<li><strong>Tablets</strong> benefit from larger screens that can display more content simultaneously. A tablet interface might show both a list of messages and their content side-by-side, while a phone would present these as sequential screens.</li>
+<li><strong>Foldables</strong> present a hybrid challenge, functioning as both phones and tablets depending on their state. Well-designed apps adapt dynamically as the device transforms between folded and unfolded states.</li>
+<li><strong>Wearables</strong> demand extremely focused interfaces with glanceable information and simplified interactions due to their limited screen real estate.</li>
+<li><strong>TVs</strong> require interfaces that work well with remote controls rather than touch, with larger visual elements optimized for viewing from a distance.</li>
+</ul>
+<p>Modern UI frameworks such as Jetpack Compose for Android and SwiftUI for iOS have made developing adaptive interfaces substantially easier. These declarative UI systems allow developers to create responsive layouts that automatically adjust to different screen dimensions and orientations.</p>
+<p>Beyond the UI layer, certain data layer optimizations may be necessary for different form factors. For example:</p>
+<ul>
+<li>Adjusting caching strategies based on available device memory.</li>
+<li>Implementing form factor-specific image resolutions to balance quality with performance.</li>
+<li>Tailoring prefetching algorithms based on expected connectivity and usage patterns.</li>
+</ul>
+<p>For more information about building for different form factors, check out Android [126] and Apple [127] documentation.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Spotify adapts their app to different screen sizes and resolutions, ensuring that users have a seamless experience regardless of the form factor [128].</p><p>Google Photos enhanced user engagement on large screens by implementing responsive layouts tailored for tablets, foldables, and ChromeOS devices [129].</p><p>Microsoft enhanced the user experience of Outlook, Teams, and Office on large-screen Android devices by optimizing layouts and incorporating multi-window and multi-instance capabilities, resulting in increased active users and retention [130].</p></div>
+<h3 id="os-and-sdk-versions">OS and SDK versions</h3>
+<p>Supporting multiple OS versions poses a challenge that involves balancing user reach with development complexity. Each decision in this space involves trade-offs between backward compatibility and leveraging the latest platform capabilities.</p>
+<div class="note-block"><p><strong>🎯 When to bring it up</strong></p><p>OS and SDK version support demonstrates our understanding of platform evolution and backward compatibility challenges. We can mention this when discussing feature implementation strategies that might depend on newer platform capabilities, security considerations across different OS versions, or approaches to maintain functionality on older devices. It's especially relevant when targeting platforms with fragmented version adoption such as Android or when designing features that leverage cutting-edge platform capabilities.</p></div>
+<h5 id="minimum-os-version-support">Minimum OS version support</h5>
+<p>The minimum OS version establishes which devices can install and run the app. This decision directly impacts the potential user base: choosing a higher minimum version may exclude users with older devices, while supporting very old versions can significantly increase development and testing complexity.</p>
+<p>When selecting a minimum version, we should consider not just market share statistics but also the specific capabilities our app requires. For example, features such as augmented reality, or certain security protocols may only be available from specific OS versions forward.</p>
+<p>This decision should be data-driven, weighing several factors:</p>
+<ul>
+<li>Current OS distribution among your target market.</li>
+<li>Critical platform capabilities needed for core functionality.</li>
+<li>Testing resources available to validate across multiple versions.</li>
+<li>Security and performance considerations of older OS versions.</li>
+</ul>
+<h5 id="target-os-version">Target OS version</h5>
+<p>While the minimum version defines backward compatibility, the target version determines which newer platform features the app can fully utilize. This is typically set to the most recent stable OS release.</p>
+<p>Regularly updating your target version allows us to:</p>
+<ul>
+<li>Implement performance improvements offered by newer SDKs.</li>
+<li>Access enhanced security features and privacy protections.</li>
+<li>Utilize modern APIs that may replace deprecated functionality.</li>
+<li>Offer users the best possible experience on current devices.</li>
+</ul>
+<p>The gap between the minimum and target versions determines how much version-specific code your app will need to maintain. Wider gaps could potentially require more conditional logic and compatibility layers, increasing complexity and potential for runtime issues.</p>
+<h5 id="api-deprecation-management">API deprecation management</h5>
+<p>Platform evolution inevitably leads to API deprecation as operating systems improve and replace older functionality. Proactively addressing deprecation warnings prevents technical debt from accumulating and reduces the risk of critical failures when APIs are eventually removed.</p>
+<p>Effective deprecation management involves:</p>
+<ul>
+<li>Regularly reviewing compiler warnings and deprecation notices.</li>
+<li>Creating a prioritized migration plan for affected code.</li>
+<li>Testing thoroughly on both older and newer OS versions.</li>
+<li>Maintaining clear documentation of version-specific implementations.</li>
+</ul>
+<h5 id="strategic-testing-approach">Strategic testing approach</h5>
+<p>Testing across supported OS versions requires a systematic approach to ensure consistent behavior. For example, rather than testing every feature on every version, we could focus on:</p>
+<ul>
+<li>Full coverage testing on minimum, target, and one middle version.</li>
+<li>Smoke testing on all supported versions.</li>
+<li>Deeper testing of features that rely on version-specific implementations.</li>
+<li>Prioritizing test scenarios based on real-world usage analytics.</li>
+</ul>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>OS update adoption rates vary significantly between platforms. iOS users typically upgrade more quickly than Android users, who may be constrained by manufacturer limitations or device age.</p></div>
+<p>The OS version strategy should evolve over time. We should regularly reassess minimum version requirements as user analytics shift, using each major app update as an opportunity to potentially drop support for older versions that represent a diminishing percentage of the user base.</p>
+<h2 id="resources">Resources</h2>
+<p>[1] The Clean Architecture <a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html" target="_blank" rel="noopener noreferrer">https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html</a><br>
+[2] Guide to app architecture: <a href="https://developer.android.com/topic/architecture" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/architecture</a><br>
+[3] Unidirectional Data Flow: <a href="https://en.wikipedia.org/wiki/Unidirectional%5C_Data%5C_Flow%5C_(computer%5C_science)" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Unidirectional\_Data\_Flow\_(computer\_science)</a><br>
+[4] The repository pattern: <a href="https://www.geeksforgeeks.org/repository-design-pattern/" target="_blank" rel="noopener noreferrer">https://www.geeksforgeeks.org/repository-design-pattern/</a><br>
+[5] Model View Controller architecture: <a href="https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/MVC.html" target="_blank" rel="noopener noreferrer">https://developer.apple.com/library/archive/documentation/General/Conceptual/DevPedia-CocoaCore/MVC.html</a><br>
+[6] Model View ViewModel architecture: <a href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel</a><br>
+[7] VIPER architecture: <a href="https://www.techtarget.com/whatis/definition/VIPER" target="_blank" rel="noopener noreferrer">https://www.techtarget.com/whatis/definition/VIPER</a><br>
+[8] Uber's RIBs <a href="https://github.com/uber/RIBs/wiki" target="_blank" rel="noopener noreferrer">https://github.com/uber/RIBs/wiki</a><br>
+[9] Airbnb's Mavericks <a href="https://airbnb.io/mavericks" target="_blank" rel="noopener noreferrer">https://airbnb.io/mavericks</a><br>
+[10] Slack's Circuit architecture library: <a href="https://slackhq.github.io/circuit/" target="_blank" rel="noopener noreferrer">https://slackhq.github.io/circuit/</a><br>
+[11]: Separation of concerns: <a href="https://en.wikipedia.org/wiki/Separation%5C_of%5C_concerns" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Separation\_of\_concerns</a><br>
+[12] Reactive programming: <a href="https://en.wikipedia.org/wiki/Reactive%5C_programming" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Reactive\_programming</a><br>
+[13]: Single Source of Truth: <a href="https://en.wikipedia.org/wiki/Single%5C_source%5C_of%5C_truth" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Single\_source\_of\_truth</a><br>
+[14] Dependency Injection: <a href="https://en.wikipedia.org/wiki/Dependency%5C_injection" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Dependency\_injection</a><br>
+[15]: Service Locator pattern <a href="https://en.wikipedia.org/wiki/Service%5C_locator%5C_pattern" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Service\_locator\_pattern</a><br>
+[16] Duolingo improvements to architecture <a href="https://android-developers.googleblog.com/2021/08/android-app-excellence-duolingo.html" target="_blank" rel="noopener noreferrer">https://android-developers.googleblog.com/2021/08/android-app-excellence-duolingo.html</a><br>
+[17] Uber's plugin system and RIBs: <a href="https://www.uber.com/blog/plugins" target="_blank" rel="noopener noreferrer">https://www.uber.com/blog/plugins</a><br>
+[18] Notion architecture insights: <a href="https://newsletter.pragmaticengineer.com/p/notion-going-native-on-ios-and-android" target="_blank" rel="noopener noreferrer">https://newsletter.pragmaticengineer.com/p/notion-going-native-on-ios-and-android</a><br>
+[19] UI layer: <a href="https://developer.android.com/topic/architecture/ui-layer" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/architecture/ui-layer</a><br>
+[20] Data layer: <a href="https://developer.android.com/topic/architecture/data-layer" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/architecture/data-layer</a><br>
+[21] Domain layer: <a href="https://developer.android.com/topic/architecture/domain-layer" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/architecture/domain-layer</a><br>
+[22] Deep links: <a href="https://en.wikipedia.org/wiki/Mobile%5C_deep%5C_linking" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Mobile\_deep\_linking</a><br>
+[23] Guide to Android app modularization: <a href="https://developer.android.com/topic/modularization" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/modularization</a><br>
+[24] Airbnb iOS modularization story: <a href="https://medium.com/airbnb-engineering/designing-for-productivity-in-a-large-scale-ios-application-9376a430a0bf" target="_blank" rel="noopener noreferrer">https://medium.com/airbnb-engineering/designing-for-productivity-in-a-large-scale-ios-application-9376a430a0bf</a><br>
+[25] Robinhood modularization story: <a href="https://medium.com/robinhood-engineering/breaking-up-the-app-module-monolith-the-story-of-robinhoods-android-app-707fb993a50c" target="_blank" rel="noopener noreferrer">https://medium.com/robinhood-engineering/breaking-up-the-app-module-monolith-the-story-of-robinhoods-android-app-707fb993a50c</a><br>
+[26] Google's fundamentals of testing Android apps: <a href="https://developer.android.com/training/testing/fundamentals" target="_blank" rel="noopener noreferrer">https://developer.android.com/training/testing/fundamentals</a><br>
+[27] The robot pattern: <a href="https://jakewharton.com/testing-robots/" target="_blank" rel="noopener noreferrer">https://jakewharton.com/testing-robots/</a><br>
+[28] OHHTTPStubs: <a href="https://github.com/AliSoftware/OHHTTPStubs" target="_blank" rel="noopener noreferrer">https://github.com/AliSoftware/OHHTTPStubs</a><br>
+[29] MockWebServer: <a href="https://github.com/square/okhttp/tree/master/mockwebserver" target="_blank" rel="noopener noreferrer">https://github.com/square/okhttp/tree/master/mockwebserver</a><br>
+[30] Slack's Android automation testing series: <a href="https://slack.engineering/android-ui-automation-part-1-building-trust/" target="_blank" rel="noopener noreferrer">https://slack.engineering/android-ui-automation-part-1-building-trust/</a><br>
+[31] Bitrise's mobile testing pyramid: <a href="https://bitrise.io/blog/post/mastering-the-mobile-testing-pyramid" target="_blank" rel="noopener noreferrer">https://bitrise.io/blog/post/mastering-the-mobile-testing-pyramid</a><br>
+[32] Netflix's mobile testing strategy: <a href="https://medium.com/androiddevelopers/netflix-app-testing-at-scale-eb4ef6b40124" target="_blank" rel="noopener noreferrer">https://medium.com/androiddevelopers/netflix-app-testing-at-scale-eb4ef6b40124</a><br>
+[33] Dropbox's mobile testing strategy: <a href="https://medium.com/androiddevelopers/how-dropbox-leverages-testing-to-maintain-high-level-of-trust-at-scale-b7b1bdf6161e" target="_blank" rel="noopener noreferrer">https://medium.com/androiddevelopers/how-dropbox-leverages-testing-to-maintain-high-level-of-trust-at-scale-b7b1bdf6161e</a><br>
+[34] Android's SharedPreferences: <a href="https://developer.android.com/training/data-storage/shared-preferences" target="_blank" rel="noopener noreferrer">https://developer.android.com/training/data-storage/shared-preferences</a><br>
+[35] Android's DataStore: <a href="https://developer.android.com/topic/libraries/architecture/datastore" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/libraries/architecture/datastore</a><br>
+[36] iOS' UserDefaults: <a href="https://developer.apple.com/documentation/foundation/userdefaults" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/foundation/userdefaults</a><br>
+[37] iOS' Information Property List: <a href="https://developer.apple.com/documentation/bundleresources/information-property-list" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/bundleresources/information-property-list</a><br>
+[38] Android Keystore system: <a href="https://developer.android.com/privacy-and-security/keystore" target="_blank" rel="noopener noreferrer">https://developer.android.com/privacy-and-security/keystore</a><br>
+[39] iOS Keychain services: <a href="https://developer.apple.com/documentation/security/keychain-services" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/security/keychain-services</a><br>
+[40] Android's Jetpack Room: <a href="https://developer.android.com/training/data-storage/room" target="_blank" rel="noopener noreferrer">https://developer.android.com/training/data-storage/room</a><br>
+[41] iOS' Core Data: <a href="https://developer.apple.com/documentation/coredata/" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/coredata/</a><br>
+[42] Realm non-relational database: <a href="https://www.mongodb.com/docs/atlas/device-sdks/" target="_blank" rel="noopener noreferrer">https://www.mongodb.com/docs/atlas/device-sdks/</a><br>
+[43] Firebase Realtime Database: <a href="https://firebase.google.com/docs/database" target="_blank" rel="noopener noreferrer">https://firebase.google.com/docs/database</a><br>
+[44] iOS' FileManager: <a href="https://developer.apple.com/documentation/foundation/filemanager" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/foundation/filemanager</a><br>
+[45] Android's data and file storage overview guide: <a href="https://developer.android.com/training/data-storage" target="_blank" rel="noopener noreferrer">https://developer.android.com/training/data-storage</a><br>
+[46] Netflix usage of the Realm database: <a href="https://netflixtechblog.com/netflix-downloads-on-android-d79db40f1732" target="_blank" rel="noopener noreferrer">https://netflixtechblog.com/netflix-downloads-on-android-d79db40f1732</a><br>
+[47] Trello's offline-first approach: <a href="https://www.atlassian.com/blog/atlassian-engineering/sync-architecture" target="_blank" rel="noopener noreferrer">https://www.atlassian.com/blog/atlassian-engineering/sync-architecture</a><br>
+[48] iOS' available File directories: <a href="https://developer.apple.com/documentation/foundation/filemanager/searchpathdirectory" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/foundation/filemanager/searchpathdirectory</a><br>
+[49] iOS' fetching assets: <a href="https://developer.apple.com/documentation/photokit/fetching-assets" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/photokit/fetching-assets</a><br>
+[50] iOS' UIDocumentPickerViewController: <a href="https://developer.apple.com/documentation/uikit/uidocumentpickerviewcontroller" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/uikit/uidocumentpickerviewcontroller</a><br>
+[51] Android's File APIs: <a href="https://developer.android.com/training/data-storage/shared/documents-files" target="_blank" rel="noopener noreferrer">https://developer.android.com/training/data-storage/shared/documents-files</a><br>
+[52] Android's Content Providers: <a href="https://developer.android.com/guide/topics/providers/content-provider-basics" target="_blank" rel="noopener noreferrer">https://developer.android.com/guide/topics/providers/content-provider-basics</a><br>
+[53] Content Providers with special permissions: <a href="https://developer.android.com/guide/topics/providers/content-provider-basics#Permissions" target="_blank" rel="noopener noreferrer">https://developer.android.com/guide/topics/providers/content-provider-basics#Permissions</a><br>
+[54] iOS' App Groups: <a href="https://developer.apple.com/documentation/xcode/configuring-app-groups" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/xcode/configuring-app-groups</a><br>
+[55] Configuring App Groups on iOS <a href="https://developer.apple.com/documentation/Foundation/UserDefaults/init(suiteName" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/Foundation/UserDefaults/init(suiteName</a>:)<br>
+[56] HTTP/1.1 RFC: <a href="https://www.rfc-editor.org/rfc/rfc7231" target="_blank" rel="noopener noreferrer">https://www.rfc-editor.org/rfc/rfc7231</a><br>
+[57] What is REST: <a href="https://www.codecademy.com/article/what-is-rest" target="_blank" rel="noopener noreferrer">https://www.codecademy.com/article/what-is-rest</a><br>
+[58] CRUD operations: <a href="https://en.wikipedia.org/wiki/Create,%5C_read,%5C_update%5C_and%5C_delete" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Create,\_read,\_update\_and\_delete</a><br>
+[59] Lyft usage of Protocol buffers and gRPC: <a href="https://eng.lyft.com/lyfts-journey-through-mobile-networking-d8e13c938166" target="_blank" rel="noopener noreferrer">https://eng.lyft.com/lyfts-journey-through-mobile-networking-d8e13c938166</a><br>
+[60] Reddit usage of GraphQL: <a href="https://blog.bytebytego.com/p/reddits-architecture-the-evolutionary" target="_blank" rel="noopener noreferrer">https://blog.bytebytego.com/p/reddits-architecture-the-evolutionary</a><br>
+[61] Airbnb usage of GraphQL: <a href="https://medium.com/airbnb-engineering/how-airbnb-is-moving-10x-faster-at-scale-with-graphql-and-apollo-aa4ec92d69e2" target="_blank" rel="noopener noreferrer">https://medium.com/airbnb-engineering/how-airbnb-is-moving-10x-faster-at-scale-with-graphql-and-apollo-aa4ec92d69e2</a><br>
+[62] Snapchat QUIC: <a href="https://eng.snap.com/quic-at-snap" target="_blank" rel="noopener noreferrer">https://eng.snap.com/quic-at-snap</a><br>
+[63] JSON Web Token (JWTs): <a href="https://en.wikipedia.org/wiki/JSON%5C_Web%5C_Token" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/JSON\_Web\_Token</a><br>
+[64] Android Keystore system: <a href="https://developer.android.com/privacy-and-security/keystore" target="_blank" rel="noopener noreferrer">https://developer.android.com/privacy-and-security/keystore</a><br>
+[65] iOS Keychain services: <a href="https://developer.apple.com/documentation/security/keychain-services" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/security/keychain-services</a><br>
+[66] Uber and passkeys: <a href="https://www.uber.com/blog/use-passkeys-wherever-you-sign-in-to-uber" target="_blank" rel="noopener noreferrer">https://www.uber.com/blog/use-passkeys-wherever-you-sign-in-to-uber</a><br>
+[67] Robinhood's trusted devices: <a href="https://robinhood.com/gb/en/support/articles/trusted-devices/" target="_blank" rel="noopener noreferrer">https://robinhood.com/gb/en/support/articles/trusted-devices/</a><br>
+[68] Cursor-based pagination at Meta: <a href="https://developers.facebook.com/docs/graph-api/reference/page/feed/" target="_blank" rel="noopener noreferrer">https://developers.facebook.com/docs/graph-api/reference/page/feed/</a><br>
+[69] Cursor-based pagination at Slack: <a href="https://api.slack.com/apis/pagination" target="_blank" rel="noopener noreferrer">https://api.slack.com/apis/pagination</a><br>
+[70] Slack's migration to cursor-based pagination: <a href="https://slack.engineering/evolving-api-pagination-at-slack/" target="_blank" rel="noopener noreferrer">https://slack.engineering/evolving-api-pagination-at-slack/</a><br>
+[71] Discord and its virtualization for infinite lists:<br>
+<a href="https://discord.com/blog/supercharging-discord-mobile-our-journey-to-a-faster-app" target="_blank" rel="noopener noreferrer">https://discord.com/blog/supercharging-discord-mobile-our-journey-to-a-faster-app</a><br>
+[72] Shopify's relative cursor implementation: <a href="https://shopify.engineering/pagination-relative-cursors" target="_blank" rel="noopener noreferrer">https://shopify.engineering/pagination-relative-cursors</a><br>
+[73] Google downranks poorly performant apps in the Play Store: <a href="https://www.theverge.com/2017/8/3/16078644/android-apps-play-store-ranking-machine-learning" target="_blank" rel="noopener noreferrer">https://www.theverge.com/2017/8/3/16078644/android-apps-play-store-ranking-machine-learning</a><br>
+[74] Why users uninstall apps: <a href="https://appsamurai.com/blog/10-reasons-for-why-people-uninstall-your-mobile-app/" target="_blank" rel="noopener noreferrer">https://appsamurai.com/blog/10-reasons-for-why-people-uninstall-your-mobile-app/</a><br>
+[75] Instagram's prefetching solution: <a href="https://instagram-engineering.com/improving-performance-with-background-data-prefetching-b191acb39898" target="_blank" rel="noopener noreferrer">https://instagram-engineering.com/improving-performance-with-background-data-prefetching-b191acb39898</a><br>
+[76] Instagram's Data Saver mode:<br>
+<a href="https://instagram-engineering.com/instagram-data-saver-mode-ffb01fd5a6bd" target="_blank" rel="noopener noreferrer">https://instagram-engineering.com/instagram-data-saver-mode-ffb01fd5a6bd</a><br>
+[77] Robinhood's server-driven UI approach: <a href="https://newsroom.aboutrobinhood.com/how-server-driven-ui-is-helping-frontend-engineers-scale-impact" target="_blank" rel="noopener noreferrer">https://newsroom.aboutrobinhood.com/how-server-driven-ui-is-helping-frontend-engineers-scale-impact</a><br>
+[78] Spotify client architecture modernization with batched metadata downloads:<br>
+<a href="https://engineering.atspotify.com/2020/05/spotify-modernizes-client-side-architecture-to-accelerate-service-on-all-devices" target="_blank" rel="noopener noreferrer">https://engineering.atspotify.com/2020/05/spotify-modernizes-client-side-architecture-to-accelerate-service-on-all-devices</a><br>
+[79] Lyft's reduction of ANRs:<br>
+<a href="https://eng.lyft.com/prioritizing-app-stability-cb7b4cf65d50" target="_blank" rel="noopener noreferrer">https://eng.lyft.com/prioritizing-app-stability-cb7b4cf65d50</a><br>
+[80] Uber's failover handling mechanism: <a href="https://eng.uber.com/eng-failover-handling/" target="_blank" rel="noopener noreferrer">https://eng.uber.com/eng-failover-handling/</a><br>
+[81] Google Play Store's staged rollouts: <a href="https://support.google.com/googleplay/android-developer/answer/6346149" target="_blank" rel="noopener noreferrer">https://support.google.com/googleplay/android-developer/answer/6346149</a><br>
+[82] Apple's App Store phased updates <a href="https://developer.apple.com/help/app-store-connect/update-your-app/release-a-version-update-in-phases/" target="_blank" rel="noopener noreferrer">https://developer.apple.com/help/app-store-connect/update-your-app/release-a-version-update-in-phases/</a><br>
+[83] Apple's TestFlight builds: <a href="https://developer.apple.com/testflight/" target="_blank" rel="noopener noreferrer">https://developer.apple.com/testflight/</a><br>
+[84] Uber's approach to force-upgrade:<br>
+<a href="https://bitrise.io/blog/post/q-and-a-on-building-apps-at-scale-part-1" target="_blank" rel="noopener noreferrer">https://bitrise.io/blog/post/q-and-a-on-building-apps-at-scale-part-1</a><br>
+[85] Netflix's A/B testing approach:<br>
+<a href="https://netflixtechblog.com/its-all-a-bout-testing-the-netflix-experimentation-platform-4e1ca458c15" target="_blank" rel="noopener noreferrer">https://netflixtechblog.com/its-all-a-bout-testing-the-netflix-experimentation-platform-4e1ca458c15</a><br>
+[86] Duolingo's approach to A/B testing: <a href="https://blog.duolingo.com/unique-engineering-problems" target="_blank" rel="noopener noreferrer">https://blog.duolingo.com/unique-engineering-problems</a><br>
+[87] Pinterest's logging schemaless solution: <a href="https://medium.com/pinterest-engineering/build-an-end-to-end-json-logging-system-for-clients-apps-58ad008a1ce9" target="_blank" rel="noopener noreferrer">https://medium.com/pinterest-engineering/build-an-end-to-end-json-logging-system-for-clients-apps-58ad008a1ce9</a><br>
+[88] Slack's push notifications tracing:<br>
+<a href="https://slack.engineering/tracing-notifications" target="_blank" rel="noopener noreferrer">https://slack.engineering/tracing-notifications</a><br>
+[89] Signal's unique stance on no analytics: <a href="https://signal.org/blog/signal-is-for-everyone" target="_blank" rel="noopener noreferrer">https://signal.org/blog/signal-is-for-everyone</a><br>
+[90] Apple's export localizations for translation: <a href="https://developer.apple.com/documentation/xcode/exporting-localizations/" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/xcode/exporting-localizations/</a><br>
+[91] Android's guide to localization: <a href="https://developer.android.com/guide/topics/resources/localization" target="_blank" rel="noopener noreferrer">https://developer.android.com/guide/topics/resources/localization</a><br>
+[92] Netflix's localization approach: <a href="https://netflixtechblog.medium.com/now-streaming-in-your-language-the-technology-behind-netflixs-global-interface-e0c732c69b16" target="_blank" rel="noopener noreferrer">https://netflixtechblog.medium.com/now-streaming-in-your-language-the-technology-behind-netflixs-global-interface-e0c732c69b16</a><br>
+[93] Netflix's pseudo-localization for testing purposes:<br>
+<a href="https://netflixtechblog.com/pseudo-localization-netflix-12fff76fbcbe" target="_blank" rel="noopener noreferrer">https://netflixtechblog.com/pseudo-localization-netflix-12fff76fbcbe</a><br>
+[94] General Data Protection Regulation (GDPR): <a href="https://gdpr-info.eu/" target="_blank" rel="noopener noreferrer">https://gdpr-info.eu/</a><br>
+[95] Data Protection Act (DPA) <a href="https://www.gov.uk/data-protection" target="_blank" rel="noopener noreferrer">https://www.gov.uk/data-protection</a><br>
+[96] Health Insurance Portability and Accountability Act (HIPAA): <a href="https://www.cdc.gov/phlp/publications/topic/hipaa.html" target="_blank" rel="noopener noreferrer">https://www.cdc.gov/phlp/publications/topic/hipaa.html</a><br>
+[97] Australian Privacy Principles (APPs): <a href="https://www.oaic.gov.au/privacy/australian-privacy-principles" target="_blank" rel="noopener noreferrer">https://www.oaic.gov.au/privacy/australian-privacy-principles</a><br>
+[98] Top mobile risks from OWASP: <a href="https://owasp.org/www-project-mobile-top-10/" target="_blank" rel="noopener noreferrer">https://owasp.org/www-project-mobile-top-10/</a><br>
+[99] Meta's Federated Learning with Differential Privacy (FL-DP):<br>
+<a href="https://engineering.fb.com/2022/06/14/production-engineering/federated-learning-differential-privacy" target="_blank" rel="noopener noreferrer">https://engineering.fb.com/2022/06/14/production-engineering/federated-learning-differential-privacy</a><br>
+[100] Web Content Accessibility Guidelines (WCAG): <a href="https://www.w3.org/TR/WCAG21/" target="_blank" rel="noopener noreferrer">https://www.w3.org/TR/WCAG21/</a><br>
+[101] Apple's Human Interface Guidelines: <a href="https://developer.apple.com/design/human-interface-guidelines" target="_blank" rel="noopener noreferrer">https://developer.apple.com/design/human-interface-guidelines</a><br>
+[102] Google's Material Design Accessibility Guidelines: <a href="https://m3.material.io/foundations/overview/principles" target="_blank" rel="noopener noreferrer">https://m3.material.io/foundations/overview/principles</a><br>
+[103] BBC's accessibility guidelines:<br>
+<a href="https://www.bbc.co.uk/accessibility/forproducts/guides/mobile" target="_blank" rel="noopener noreferrer">https://www.bbc.co.uk/accessibility/forproducts/guides/mobile</a><br>
+[104] Apple Push Notification service: <a href="https://en.wikipedia.org/wiki/Apple%5C_Push%5C_Notification%5C_service" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Apple\_Push\_Notification\_service</a><br>
+[105] Firebase Cloud Messaging: <a href="https://en.wikipedia.org/wiki/Firebase%5C_Cloud%5C_Messaging" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Firebase\_Cloud\_Messaging</a><br>
+[106] Slack's notification system: <a href="https://slack.engineering/into-the-clouds/" target="_blank" rel="noopener noreferrer">https://slack.engineering/into-the-clouds/</a><br>
+[107] Duolingo's notification system: <a href="https://www.infoq.com/presentations/duolingo-high-scale-notification" target="_blank" rel="noopener noreferrer">https://www.infoq.com/presentations/duolingo-high-scale-notification</a><br>
+[108] Shrinking APKs, growing installs blog post: <a href="https://medium.com/googleplaydev/shrinking-apks-growing-installs-5d3fcba23ce2" target="_blank" rel="noopener noreferrer">https://medium.com/googleplaydev/shrinking-apks-growing-installs-5d3fcba23ce2</a><br>
+[109] Reduce Android app's size: <a href="https://developer.android.com/topic/performance/reduce-apk-size" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/performance/reduce-apk-size</a><br>
+[110] Reduce iOS app's size: <a href="https://developer.apple.com/documentation/xcode/reducing-your-app-s-size" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/xcode/reducing-your-app-s-size</a><br>
+[111] Instagram Lite app: <a href="https://www.theverge.com/2018/6/28/17512874/instagram-lite-app-developing-world-low-data-usage" target="_blank" rel="noopener noreferrer">https://www.theverge.com/2018/6/28/17512874/instagram-lite-app-developing-world-low-data-usage</a><br>
+[112] Fastlane: <a href="https://fastlane.tools/" target="_blank" rel="noopener noreferrer">https://fastlane.tools/</a><br>
+[113] Github Actions: <a href="https://github.com/features/actions" target="_blank" rel="noopener noreferrer">https://github.com/features/actions</a><br>
+[114] Bitrise: <a href="https://bitrise.io/" target="_blank" rel="noopener noreferrer">https://bitrise.io/</a><br>
+[115] Fastlane Match: <a href="https://docs.fastlane.tools/actions/match/" target="_blank" rel="noopener noreferrer">https://docs.fastlane.tools/actions/match/</a><br>
+[116] Duolingo CI/CD improvements: <a href="https://blog.duolingo.com/sped-up-android-ios-builds" target="_blank" rel="noopener noreferrer">https://blog.duolingo.com/sped-up-android-ios-builds</a><br>
+[117] Pinterest CI/CD improvements with Bazel:<br>
+<a href="https://medium.com/pinterest-engineering/developing-fast-reliable-ios-builds-at-pinterest-part-one-cb1810407b92" target="_blank" rel="noopener noreferrer">https://medium.com/pinterest-engineering/developing-fast-reliable-ios-builds-at-pinterest-part-one-cb1810407b92</a><br>
+[118] iOS jailbreaking: <a href="https://en.wikipedia.org/wiki/IOS%5C_jailbreaking" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/IOS\_jailbreaking</a><br>
+[119] Rooting on Android: <a href="https://en.wikipedia.org/wiki/Rooting%5C_(Android)" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Rooting\_(Android)</a><br>
+[120] Android Play Integrity APIs: <a href="https://developer.android.com/google/play/integrity" target="_blank" rel="noopener noreferrer">https://developer.android.com/google/play/integrity</a><br>
+[121] iOS apps integrity: <a href="https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/devicecheck/establishing-your-app-s-integrity</a><br>
+[122] R8 Android code shrinking tool: <a href="https://developer.android.com/build/shrink-code" target="_blank" rel="noopener noreferrer">https://developer.android.com/build/shrink-code</a><br>
+[123] HTTP Public Key Pinning: <a href="https://en.wikipedia.org/wiki/HTTP%5C_Public%5C_Key%5C_Pinning" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/HTTP\_Public\_Key\_Pinning</a><br>
+[124] Personally Identifiable Information (PII): <a href="https://en.wikipedia.org/wiki/Personal%5C_data" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Personal\_data</a><br>
+[125] Signal's approach to privacy:<br>
+<a href="https://transcend.io/blog/industry-perspective-signal" target="_blank" rel="noopener noreferrer">https://transcend.io/blog/industry-perspective-signal</a><br>
+[126] Android form factors docs: <a href="https://developer.android.com/guide/topics/large-screens" target="_blank" rel="noopener noreferrer">https://developer.android.com/guide/topics/large-screens</a><br>
+[127] Apple form factors docs: <a href="https://developer.apple.com/design/human-interface-guidelines/layout" target="_blank" rel="noopener noreferrer">https://developer.apple.com/design/human-interface-guidelines/layout</a><br>
+[128] Spotify across screens developer story: <a href="https://www.youtube.com/watch?v=9_vbo6BZ0VU" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=9_vbo6BZ0VU</a><br>
+[129] Google Photos for large screens: <a href="https://developer.android.com/stories/apps/google-photos" target="_blank" rel="noopener noreferrer">https://developer.android.com/stories/apps/google-photos</a><br>
+[130] Microsoft products optimised for large screens: <a href="https://developer.android.com/stories/apps/microsoft" target="_blank" rel="noopener noreferrer">https://developer.android.com/stories/apps/microsoft</a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="youtube-app.html">← Previous</a>
+        <a href="quick-reference-cheat-sheet-for-msd-interview.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

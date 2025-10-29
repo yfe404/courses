@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Recommendation System - Machine Learning System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../machine-learning-system-design-interview.html">Machine Learning System Design Interview</a> /
+        Event Recommendation System
+    </div>
+
+    <div class="nav">
+        <a href="../machine-learning-system-design-interview.html">← Course Contents</a>
+        <a href="video-recommendation-system.html">← Previous</a>
+        <a href="ad-click-prediction-on-social-platforms.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">07</span> Event Recommendation System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/machine-learning-system-design-interview/event-recommendation-system" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">07</strong><h1>Event Recommendation System</h1></header><p>In this chapter, we design an event recommendation system similar to Eventbrite's. Eventbrite is a popular event management and ticketing marketplace which allows users to create, browse, and register events. A recommendation system personalizes the experience and displays events relevant to users.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a webpage interface for searching and displaying events.  The top section contains a search bar with fields for 'Search for keywords' and 'Enter location,' accompanied by a magnifying glass icon to initiate the search.  To the left of the search bar are navigation icons: a back arrow, a forward arrow, a refresh icon, and a document icon.  Below the search bar are filter options: 'Any day,' 'Any type,' 'Any category,' and 'Any distance' buttons, allowing users to refine their search.  A 'Sort by: Relevance' option is also present.  Below the filters, the heading 'Suggested events near San Francisco' appears, followed by event listings. Each event listing includes a small image placeholder icon, the event name (e.g., 'Monterey Paddle Saturday'), date and time (e.g., 'MON, MAR 14 @ 7:00 PM PDT'), location (e.g., 'Monterey Bay Kayaking - Monterey, CA'), price ('Starts at $30.00' or 'Free'), the number of attendees, and the number of spots remaining (e.g., '4 spots left').  The events are displayed in a card-like format, with a light-green and light-beige background differentiating them.  Three small circles in the upper right corner likely represent user account settings or notifications." width="600" height="578" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-01-1-5R4NZOIA.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.1: Recommended events</figcaption></div></figure></center>
+<h3 id="clarifying-requirements">Clarifying Requirements</h3>
+<p>Here is a typical interaction between a candidate and an interviewer.</p>
+<p><strong>Candidate:</strong> What is the business objective? Can I assume the main business objective is to increase ticket sales?<br>
+<strong>Interviewer:</strong> Yes, that sounds good.</p>
+<p><strong>Candidate:</strong> Besides attending an event, can users book hotels or restaurants on the platform?</p>
+<p><strong>Interviewer</strong>: For simplicity, let's assume only events are supported.</p>
+<p><strong>Candidate:</strong> An event is considered an ephemeral one-time occurrence item that only happens once, and then expires. Is this assumption correct?<br>
+<strong>Interviewer:</strong> That's an excellent observation.</p>
+<p><strong>Candidate:</strong> What event attributes are available? Can I assume we have access to the textual description of the event, price range, location, date and time, etc.?<br>
+<strong>Interviewer:</strong> Sure, those are fair assumptions.</p>
+<p><strong>Candidate:</strong> Do we have any annotated data?<br>
+<strong>Interviewer:</strong> We don't have a hand-labeled dataset. You can use event and user interaction data to construct the training dataset.</p>
+<p><strong>Candidate:</strong> Do we have access to the user's current location?<br>
+<strong>Interviewer:</strong> Yes. Since this problem focuses on a location-based recommendation system, let's assume users agree to share their location data.</p>
+<p><strong>Candidate:</strong> Can users become friends on the platform? Friendship information is valuable for building a personalized event recommendation system.<br>
+<strong>Interviewer:</strong> Good question. Yes, let's assume users can form friendships on our platform. A friendship is bidirectional, meaning if A is a friend of B, then B is also a friend of A.</p>
+<p><strong>Candidate:</strong> Can users invite others to events?<br>
+<strong>Interviewer:</strong> Yes.</p>
+<p><strong>Candidate:</strong> Can a user RSVP to an event?<br>
+<strong>Interviewer:</strong> For simplicity, let's assume only a registration option is available for an event.</p>
+<p><strong>Candidate:</strong> Are the events free or paid?<br>
+<strong>Interviewer:</strong> We need to support both.</p>
+<p><strong>Candidate:</strong> How many users and events are available?<br>
+<strong>Interviewer:</strong> We host around 1 million total events every month.</p>
+
+<p><strong>Candidate:</strong> How many daily active users visit the website/app?<br>
+<strong>Interviewer:</strong> Assume we have one million unique users per day.</p>
+<p><strong>Candidate:</strong> Since we are building a location-based event recommendation system, it's important to calculate the distance and travel time between two locations efficiently. Can we assume external APIs such as Google Maps API or other map services can be used to obtain such data?<br>
+<strong>Interviewer:</strong> Good point. Assume we can use third-party services to obtain location data.</p>
+<p>Let's summarize the problem statement. We are asked to design an event recommendation system, which displays a personalized list of events to users. When an event is finished, users can no longer register for it. In addition to registering for events, users can invite others to events and form friendships. The training data should be constructed online from user interactions. The primary goal of this system is to increase total ticket sales.</p>
+<h3 id="frame-the-problem-as-an-ml-task">Frame the Problem as an ML Task</h3>
+<h4 id="defining-the-ml-objective">Defining the ML objective</h4>
+<p>Based on the requirements, the business objective is to increase ticket sales. One way to translate this into a well-defined ML objective is to maximize the number of event registrations.</p>
+<h4 id="specifying-the-systems-input-and-output">Specifying the system's input and output</h4>
+<p>The input to the system is a user, and the output is the top k events ranked by relevance to the user.</p>
+<h4 id="choosing-the-right-ml-category">Choosing the right ML category</h4>
+<p>There are different ways to solve a recommendation problem:</p>
+<ul>
+<li>Simple rules, such as recommending popular events</li>
+<li>Embedding-based models which rely on content-based or collaborative filtering</li>
+<li>Reformulating it into a ranking problem</li>
+</ul>
+<p>Rule-based methods are good starting points to form a baseline. However, ML-based approaches usually lead to better outcomes. In this chapter, we reformulate the task into a ranking problem and use Learning to Rank (LTR) to solve it.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical diagram categorizing approaches to recommendation problems.  At the top, a rectangular box labeled 'Recommendation problems' serves as the root node.  Three rectangular boxes branch down from it: 'Rule-based,' 'Learning to rank,' and 'Embedding-based,' representing three major categories of recommendation system approaches.  The 'Learning to rank' category further branches into three sub-categories, each represented by a rectangular box: 'Pointwise,' 'Pairwise,' and 'Listwise,' indicating different levels of granularity in ranking optimization.  Arrows point from each parent node to its respective child nodes, illustrating the hierarchical relationship and indicating a flow of information or categorization from a broader approach to more specific methods within the recommendation system design." loading="lazy" width="475" height="196" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(475px, 100vw), (max-width: 1200px) min(475px, 80vw), min(475px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-02-1-6XOXW2Z6.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.2: Different approaches to solving recommendation problems</figcaption></div></figure></center>
+<p>LTR is a class of algorithmic techniques that apply supervised machine learning to solve ranking problems. The ranking problem can be formally defined as: "having a query and a list of items, what is the optimal ordering of the items from most relevant to least relevant to the query?" There are generally three LTR approaches: pointwise, pairwise, and listwise. Let's briefly examine each. Note that a detailed explanation of these approaches is beyond the scope of this book. If you're interested in learning more about LTR, refer to [1] .</p>
+<h5 id="pointwise-ltr">Pointwise LTR</h5>
+<p>In this approach, we go over each item and predict the relevance between the query and the item, using classification or regression methods. Note that the score of one item is predicted independently of other items.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram of a pointwise ranking model used in information retrieval.  Two inputs, labeled 'Item' and 'Query,' feed into a rectangular box representing the 'Pointwise ranking model.'  Arrows indicate the direction of information flow.  The model processes the 'Item' and 'Query' inputs simultaneously to generate a single output, a 'relevance score,' which is shown as an arrow pointing to the right from the model box.  The diagram illustrates how the model assesses the relevance of an 'Item' to a given 'Query' by producing a numerical score representing the degree of relevance." loading="lazy" width="367" height="72" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(367px, 100vw), (max-width: 1200px) min(367px, 80vw), min(367px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-03-1-7QZ2GTSA.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.3: Pointwise ranking model</figcaption></div></figure></center>
+<p>The final ranking is achieved by sorting the predicted relevance scores.</p>
+<h5 id="pairwise-ltr">Pairwise LTR</h5>
+<p>In this approach, the model takes two items and predicts which item is more relevant to the query.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a pairwise ranking model.  Two inputs feed into a rectangular box labeled 'Pairwise ranking model'. The first input is labeled '&lt;Item x, item y&gt;', representing a pair of items being compared. The second input is labeled 'Query,' suggesting that the comparison is relevant to a specific user query.  Arrows indicate the flow of information: both '&lt;Item x, item y&gt;' and 'Query' are input into the 'Pairwise ranking model'. The model processes this information and outputs a single result, 'item y &gt; item x', indicating that the model has determined item y to be ranked higher than item x based on the provided query and item pair.  The diagram illustrates a simple learning system where a pairwise comparison is used to train or evaluate a ranking model." loading="lazy" width="422" height="72" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(422px, 100vw), (max-width: 1200px) min(422px, 80vw), min(422px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-04-1-LYPZCSNZ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.4: Pairwise ranking model</figcaption></div></figure></center>
+<p>Some of the most popular pairwise LTR algorithms are RankNet [2], LambdaRank [3], and LambdaMART [4].</p>
+<h5 id="listwise-ltr">Listwise LTR</h5>
+<p>Listwise approaches predict the optimal ordering of an entire list of items, given the query.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified schematic of a listwise ranking model in machine learning.  A set of input items, represented as `&lt;Item 1, item 2, ..., item N&gt;`, along with a `Query`, are fed into a rectangular box labeled 'Listwise ranking model'.  Arrows indicate the flow of information:  The items and the query are inputs to the model. The model processes this input and outputs a ranked list of items, shown as 'item 5 &gt; item 2 &gt; ... &gt; item 8', where the '&gt;' symbol denotes the preference order, indicating that item 5 is ranked higher than item 2, and so on.  The model's output is a ranked list based on the input items and the query, suggesting a relevance-based ranking." loading="lazy" width="556" height="72" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(556px, 100vw), (max-width: 1200px) min(556px, 80vw), min(556px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-05-1-XAPAVO3T.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.5: Listwise ranking model</figcaption></div></figure></center>
+<p>Some popular listwise LTR algorithms are SoftRank [5], ListNet [6], and AdaRank [7].</p>
+<p>In general, pairwise and listwise approaches produce more accurate results, but they are more difficult to implement and train. For simplicity, we use the pointwise approach for this problem. In particular, we employ a binary classification model which takes a single event at a time and predicts the probability that the user will register for it. This approach is shown in Figure 7.6.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><div style="position: relative; width: 200px; height: 299px;"><img alt="Image represents a simplified model for predicting the probability of event registration.  At the bottom, two dashed-line boxes represent the input data: 'User,' symbolized by a person icon, and 'Event,' represented by three stacked horizontal lines suggesting multiple event attributes.  Arrows point upwards from these boxes to a central rectangular box labeled 'Binary classification model,' indicating that this model takes user and event data as input.  An arrow then points upwards from the 'Binary classification model' box to a smaller, rounded-corner box at the top, displaying '0.81,' which represents the predicted probability of event registration (presumably, an 81% chance). The title 'Probability of event registration' sits above the topmost box, clarifying the overall purpose of the diagram." loading="lazy" width="200" height="299" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(200px, 100vw), (max-width: 1200px) min(200px, 80vw), min(200px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-06-1-VLDA667U.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.6: Binary classification model</figcaption></div></figure></center>
+<h3 id="data-preparation">Data Preparation</h3>
+<h4 id="data-engineering">Data engineering</h4>
+<p>To engineer good features, we need first to understand the raw data available in the system. Since an event management platform is mainly centered around users and events, we assume the following data are available:</p>
+<ul>
+<li>Users</li>
+<li>Events</li>
+<li>Friendship</li>
+<li>Interactions</li>
+</ul>
+<h5 id="users">Users</h5>
+<p>The user data schema is shown below.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">ID</th><th style="text-align: left;">Username</th><th style="text-align: left;">Age</th><th style="text-align: left;">Gender</th><th style="text-align: left;">City</th><th style="text-align: left;">Country</th><th style="text-align: left;">Language</th><th style="text-align: left;">Time zone</th></tr></thead></table></div>
+<p class="tableCaption">Table 7.1: User data schema</p>
+<h5 id="events">Events</h5>
+<p>Table 7.2 shows what the event data might look like.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: center;">ID</th><th style="text-align: center;">Host User ID</th><th style="text-align: center;">Category/ Subcategory</th><th style="text-align: center;">Description</th><th style="text-align: center;">Price</th><th style="text-align: center;">Location</th><th style="text-align: center;">Date/Time</th></tr></thead><tbody><tr><td style="text-align: center;">1</td><td style="text-align: center;">5</td><td style="text-align: center;">Music Concert</td><td style="text-align: center;">Dua Lipa Tour in Miami</td><td style="text-align: center;">200-900</td><td style="text-align: center;">American Airlines Arena Miami, FL</td><td style="text-align: center;">09/18/2022 19:00-24:00</td></tr><tr><td style="text-align: center;">2</td><td style="text-align: center;">11</td><td style="text-align: center;">Sports Basketball</td><td style="text-align: center;">Golden State Warriors vs. Milwaukee Bucks</td><td style="text-align: center;">140-2500</td><td style="text-align: center;">Chase Center SF, CA</td><td style="text-align: center;">09/22/2022 17:00-19:00</td></tr><tr><td style="text-align: center;">3</td><td style="text-align: center;">7</td><td style="text-align: center;">Art Theater</td><td style="text-align: center;">The Comedy and Magic of Robert Hall</td><td style="text-align: center;">Free</td><td style="text-align: center;">San Jose Improv San Jose, CA</td><td style="text-align: center;">09/06/2022 18:00-19:30</td></tr></tbody></table></div>
+<p class="tableCaption">Table 7.2: Event data</p>
+<h5 id="friendship">Friendship</h5>
+<p>In Table 7.3, each row represents a friendship formed between two users, along with the timestamp of when it was formed</p>
+<div class="table-wrap" style="--table-min-width: 500px;"><table><thead><tr><th style="text-align: center;">User ID 1</th><th style="text-align: center;">User ID 2</th><th style="text-align: center;">Timestamp when friendship was formed</th></tr></thead><tbody><tr><td style="text-align: center;">28</td><td style="text-align: center;">3</td><td style="text-align: center;">1658451341</td></tr><tr><td style="text-align: center;">7</td><td style="text-align: center;">39</td><td style="text-align: center;">1659281720</td></tr><tr><td style="text-align: center;">11</td><td style="text-align: center;">25</td><td style="text-align: center;">1659312942</td></tr></tbody></table></div>
+<p class="tableCaption">Table 7.3: Friendship data</p>
+<h5 id="interactions">Interactions</h5>
+<p>Table 7.4 stores user interaction data, such as event registrations, invitations, and impressions. In practice, we may store interaction data in different databases, but for simplicity, we include them in a single table.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: center;">User ID</th><th style="text-align: center;">Event ID</th><th style="text-align: center;">Interaction type</th><th style="text-align: center;">Interaction value</th><th style="text-align: center;">Location (lat, long)</th><th style="text-align: center;">Timestamp</th></tr></thead><tbody><tr><td style="text-align: center;">4</td><td style="text-align: center;">18</td><td style="text-align: center;">Impression</td><td style="text-align: center;">-</td><td style="text-align: center;">38.8951 <br> -77.0364</td><td style="text-align: center;">1658450539</td></tr><tr><td style="text-align: center;">4</td><td style="text-align: center;">18</td><td style="text-align: center;">Register</td><td style="text-align: center;">Confirmation number</td><td style="text-align: center;">38.8951<br> -77.0364</td><td style="text-align: center;">1658451341</td></tr><tr><td style="text-align: center;">4</td><td style="text-align: center;">18</td><td style="text-align: center;">Invite</td><td style="text-align: center;">User 9</td><td style="text-align: center;">41.9241 <br> -89.0389</td><td style="text-align: center;">1658451365</td></tr></tbody></table></div>
+<p class="tableCaption">Table 7.4: Interaction data</p>
+<h4 id="feature-engineering">Feature engineering</h4>
+<p>Event-based recommendations are more challenging than traditional recommendations. An event is fundamentally different from a movie or a book, as there is no consumption after the event ends. Events are typically short-lived, meaning the time is short between event creation and when it finishes. As a result, there are not many historical interactions available for a given event. For this reason, event-based recommendations are intrinsically cold-start and suffer from a constant new-item problem.</p>
+<p>To overcome those issues, we put more effort into feature engineering to create as many meaningful features as possible. Due to space constraints, we will only discuss some of the most important features. In practice, the number of predictive features can be much higher.
+In this section, we create features related to each of the following categories:</p>
+<ul>
+<li>Location-related features</li>
+<li>Time-related features</li>
+<li>Social-related features</li>
+<li>User-related features</li>
+<li>Event-related features.</li>
+</ul>
+<h5 id="location-related-features">Location-related features</h5>
+<p><strong>How accessible is the event's location?</strong></p>
+<p>The accessibility of an event's location is an important factor. For example, if an event is high up in hills far from public transportation, the commute may discourage users from attending. Let's create the following features to capture accessibility:</p>
+<ul>
+<li>Walk score: Walk score is a number between 0 and 100, which measures how walkable an address is, based on the distance to nearby amenities. It is computed by analyzing various factors such as distance to amenities, pedestrian friendliness, population density, etc. We assume walk scores can be obtained from external data sources such as Google Maps, Open Street Map, etc. Table <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7.5</mn></mrow><annotation encoding="application/x-tex">7.5</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7.5</span></span></span></span> shows walk scores bucketized into 5 categories.</li>
+</ul>
+<div class="table-wrap"><table><thead><tr><th style="text-align: center;">Category</th><th style="text-align: center;">Walk score</th><th style="text-align: center;">Description</th></tr></thead><tbody><tr><td style="text-align: center;">1</td><td style="text-align: center;">90-100</td><td style="text-align: center;">No car needed</td></tr><tr><td style="text-align: center;">2</td><td style="text-align: center;">70-89</td><td style="text-align: center;">Very walkable</td></tr><tr><td style="text-align: center;">3</td><td style="text-align: center;">50-69</td><td style="text-align: center;">Somewhat walkable</td></tr><tr><td style="text-align: center;">4</td><td style="text-align: center;">25-49</td><td style="text-align: center;">Car-dependent</td></tr><tr><td style="text-align: center;">5</td><td style="text-align: center;">0-24</td><td style="text-align: center;">Requires a car</td></tr></tbody></table></div>
+<p class="tableCaption">Table 7.5: Walk score categories</p>
+<ul>
+<li>Walk score similarity: The difference between the event's walk score and the user's average walk score of previous events registered by the user.</li>
+<li>Transit score, transit score similarity, bike score, bike score similarity.</li>
+</ul>
+<p><strong>Is the event in the same country and city as the user?</strong><br>
+A very important deciding factor for a user is whether the event is in the same country and city where they are located. The following two features can be created:</p>
+<ul>
+<li>
+<p>If the user's country is the same as the event's country, this feature is 1, otherwise 0</p>
+</li>
+<li>
+<p>If the user's city is the same as the event's city, this feature is 1, otherwise 0</p>
+</li>
+</ul>
+<p><strong>Is the user comfortable with the distance?</strong><br>
+Some users may prefer events that are very close to their location, while others prefer events that are further away. We use the following features to capture this:</p>
+<ul>
+<li>The distance between the user's location and the event's location. This value can be obtained from external APIs and bucketized into a few categories. For example:
+<ul>
+<li>0: less than a mile</li>
+<li>1: 1-5 miles</li>
+<li>2: 5-20 miles</li>
+<li>3: 20-50 miles</li>
+<li>4: 50-100 miles</li>
+<li>5: +100 miles</li>
+</ul>
+</li>
+<li>Distance similarity: Difference between the distance to an event and the average distance (in reality, the median or percentile range can be used) to events previously registered by the user.</li>
+</ul>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a feature engineering process for a machine learning model.  The topmost box, 'Concatenated features,' acts as the output, receiving input from three distinct feature groups. The first group, labeled 'Accessibility,' contains three pairs of values: 'Transit score' (0.9), 'Transit score similarity' (0.03); 'Walk score' (0.2), 'Walk score similarity' (0.7); and 'Bike score' (0.1), 'Bike score similarity' (0.9).  The second group, 'Geographic,' includes binary indicators: 'Same city' (1) and 'Same country' (1). The third group, 'Distance,' processes a binary feature vector '0 0 0 1 1 0 0' which is then 'Bucketized' and undergoes 'One-hot' encoding, resulting in two numerical features: 'Distance similarity' (4) and 'Distance' (28).  All three feature groups contribute to the 'Concatenated features' which are then presumably used as input for a machine learning model (not shown in the diagram)." loading="lazy" width="672" height="305" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(672px, 100vw), (max-width: 1200px) min(672px, 80vw), min(672px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-07-1-PLLIDTN4.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.7: Location-related features</figcaption></div></figure></center>
+<h5 id="time-related-features">Time-related features</h5>
+<p><strong>How convenient is the time remaining until an event?</strong><br>
+Some users may plan events a few days in advance, while others don't. Let's create the following features to capture this:</p>
+<ul>
+<li>
+<p>The remaining time until the event begins. This feature can be bucketized into different categories and one-hot encoded. For example:</p>
+<ul>
+<li>0: less than 1 hour left until the event starts</li>
+<li>1: 1-2 hours</li>
+<li>2: 2-4 hours</li>
+<li>3: 4-6 hours</li>
+<li>4: 6-12 hours</li>
+<li>5: 12-24 hours</li>
+<li>6: 1-3 days</li>
+<li>7: 3-7 days</li>
+<li>8: +7 days</li>
+</ul>
+</li>
+<li>
+<p>Remaining time similarity: Difference between "remaining time" and average "remaining time" of events previously registered by the user.</p>
+</li>
+<li>
+<p>The estimated travel time from the user's location to the event's location. This value will be obtained from external services and bucketized into categories.</p>
+</li>
+<li>
+<p>Estimated travel time similarity: The difference between the estimated travel time to the event in question, and the average estimated travel time of events previously registered by the user.</p>
+</li>
+</ul>
+<p><strong>Are the date and time convenient for the user?</strong><br>
+Some users may prefer events that occur at weekends, while others prefer weekdays. Some users prefer events in the morning, while others may prefer evening events. To capture a user's historical preferences for days of the week, we create a user profile. This user profile is a vector of size 7 , and each value counts the number of events the user attended on a particular day. By dividing these values by the total number of attended events, we get the historical rate of event attendance for each day of the week. Figure 7.8 shows the per-day distribution of a user's previously attended events. As we can see, this user has never attended an event on Monday or Wednesday, so displaying an event that occurs on Wednesday may not be a good recommendation for this user. Per-hour user profiles can be created using a similar approach. Similarly, we add day and hour similarity.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a bar chart illustrating attendance rates across different days of the week.  The horizontal axis displays the days of the week, sequentially labeled from Sunday (Sun) to Saturday (Sat). The vertical axis represents the attendance rate, ranging from 0 to 1.0.  Each bar corresponds to a day, with its height indicating the attendance rate for that day.  The attendance rate is highest on Friday, approximately 0.5, and lowest on Tuesday, around 0.1.  Sunday shows a rate of approximately 0.2, while Thursday and Saturday have rates of approximately 0.15 and 0.3 respectively. Monday and Wednesday show relatively low attendance rates, below 0.1 and 0.15 respectively. The chart is titled implicitly by the label 'Attendance rate' placed to the left of the vertical axis." loading="lazy" width="390" height="241" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(390px, 100vw), (max-width: 1200px) min(390px, 80vw), min(390px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-08-1-CXSGX5XW.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.8: Per-day distribution of the event data</figcaption></div></figure></center>
+<p>A summary of time-related features is shown in Figure 7.9</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data preprocessing and feature engineering pipeline for a machine learning model.  The topmost box, 'Concatenated features,' acts as the output, receiving input from several processed features.  Below this, two sets of vertically stacked boxes, each labeled with ellipses ('...'), represent multiple input features that are initially bucketized and one-hot encoded by the 'Bucketize + One-hot' box.  This box processes the raw features and outputs numerical representations.  The resulting features are then connected to the 'Concatenated features' box.  Specifically, the processed features include 'Remaining time' (value 3), 'Estimated travel time' (value 86), 'Remaining time similarity' (value 1.5), 'Estimated travel time similarity' (value 12), 'Hour similarity' (value 0.7), and 'Day similarity' (value 0.3).  The bottom two features, 'Hour similarity' and 'Day similarity,' are grouped under 'Event's Day/Hour,' suggesting they represent temporal aspects of the data.  The other features relate to travel time and its similarity, possibly indicating a prediction task related to travel time estimation or comparison.  The entire diagram illustrates how multiple raw features are preprocessed, combined, and prepared as input for a subsequent machine learning model." loading="lazy" width="502" height="397" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(502px, 100vw), (max-width: 1200px) min(502px, 80vw), min(502px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-09-1-YXXJH2CQ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.9: Time-related features overview</figcaption></div></figure></center>
+<h4 id="social-related-features">Social-related features</h4>
+<p><strong>How many people are attending this event?</strong><br>
+In general, users are more likely to register for an event if there are a lot of other attendees. Let's extract the following features to capture this:</p>
+<ul>
+<li>Number of users registered for this event</li>
+<li>The ratio of the total number of registered users to the number of impressions</li>
+<li>Registered user similarity: The difference between the number of registered users for the event in question and previously registered events</li>
+</ul>
+<p><strong>Features related to attendance by friends</strong><br>
+A user is more likely to register for an event if their friends are attending it. Here are some of the features we can use:</p>
+<ul>
+<li>Number of the user's friends who registered for this event</li>
+<li>The ratio of the number of registered friends to the total number of friends</li>
+<li>Registered friend similarity: Difference between the number of registered friends for the event in question and previously registered events</li>
+</ul>
+<p><strong>Is the user invited to this event by others?</strong><br>
+Users are more likely to attend events to which they are invited. Some features that might be helpful are:</p>
+<ul>
+<li>The number of friends who invited this user to the event</li>
+<li>The number of fellow users who invited this person to the event</li>
+</ul>
+<p><strong>Is the event's host a friend of the user?</strong><br>
+Users tend to attend events created by their friends. We create a binary feature to reflect this: if the event's host is the user's friend, this value is 1, otherwise, 0.</p>
+<p><strong>How often has the user attended previous events created by this host?</strong><br>
+Some users are interested in following a particular host's events.</p>
+<h5 id="user-related-features">User-related features</h5>
+<p><strong>Age and gender</strong><br>
+Some events are geared toward specific ages and genders. For example, "Women in Tech" and "Life lessons to excel in your 30 s" are examples of events that may be specific to certain demographic groups. We create two features to capture this:</p>
+<ul>
+<li>User's gender, encoded with one-hot encoding</li>
+<li>User's age, bucketized into multiple categories and encoded with one-hot encoding</li>
+</ul>
+<h5 id="event-related-features">Event-related features</h5>
+<p><strong>Price of event:</strong><br>
+The price of an event might affect the user's decision to register for it. Some features to use are:</p>
+<ul>
+<li>Event's price, bucketized into a few categories. For example:
+<ul>
+<li>0: Free</li>
+<li>1: $1-$99</li>
+<li>2: $100-$499</li>
+<li>3: $500-$1,999</li>
+<li>4:+$2,000</li>
+</ul>
+</li>
+<li><strong>Price similarity:</strong> Difference between the price of the event in question and the average price of events previously registered for by the user.</li>
+</ul>
+<p><strong>How similar is this event's description to previously registered descriptions?</strong><br>
+This indicates the user's interests, based on previously registered events. For example, if the word "concert" repeatedly appears in the descriptions of previous events, it may indicate the user is interested in concert events. To capture this, we create a feature that represents the similarity between the event's description and the descriptions of previously registered events by the user. To compute the similarity, the description is converted into a numerical vector using TF-ID, and similarity is calculated using cosine distance.</p>
+<p>Note, this feature might be noisy as descriptions are manually provided by hosts. We can experiment by training our model with and without this feature, to measure its importance.</p>
+<p>Figure <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7.10</mn></mrow><annotation encoding="application/x-tex">7.10</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7.10</span></span></span></span> shows an overview of user features, event features, and social-related features.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for feature engineering in a machine learning model.  The topmost box, 'Concatenated features,' acts as the output, receiving input from three distinct feature groups: 'User features,' 'Event features,' and 'Social features.'  'User features' are derived from raw data ('Age' and 'Gender') using 'Bucketize + One-hot' encoding, resulting in numerical representations (e.g., age bucketed and gender one-hot encoded). 'Event features' include 'Price' (120) and 'Price similarity' (38), along with 'Event description similarity' (0.8). 'Social features' consist of '# Registered users' (125), 'Registered user ratio' (0.3), '# Registered friends' (21), 'Registered friend ratio' (0.01), 'Registered user similarity' (81), 'Registered friend similarity' (4), 'User-host registration rate' (0.8), 'Invitations from friends' (2), 'Invitations from users' (6), and 'Is the host friend with this user' (1).  Each feature group's components are numerically represented, and these numerical values are then combined in the 'Concatenated features' box to form the final feature vector for the machine learning model.  The dashed lines delineate the different feature groups." loading="lazy" width="906" height="403" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(906px, 100vw), (max-width: 1200px) min(906px, 80vw), min(906px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-10-1-PG2ZRYXQ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.10: User, event, and social features</figcaption></div></figure></center>
+<p>The features listed above are not exhaustive. There are lots of other predictive features that can be created in practice. For example, host-related features such as the host's popularity, user's search history, event's category, auto-generated event tags, etc. At an interview, it's not necessary to follow this section strictly. You can use it as a starting point and then discuss topics that are more relevant to the interviewer. Here are some potential talking points you might want to elaborate on:</p>
+<ul>
+<li><strong>Batch vs. streaming features:</strong> Batch (static) features refer to features that change less frequently, such as age, gender, and event description. These features can be computed periodically using batch processing and stored in a feature store. In contrast, streaming (aka dynamic) features change quickly. For example, the number of users registered for an event and the remaining time until an event, are dynamic features. The interviewer may want you to dive deeper into this topic and discuss batch vs. online processing in ML. If you're interested to learn more, refer to [8].</li>
+<li><strong>Feature computation efficiency.</strong> Computing features in real-time is not efficient. You may want to discuss this issue and possible ways to avoid it. For example, instead of computing the distance between the user's current location and the event's location as a feature, we can pass both locations to the model as two separate features, and rely on the model to implicitly compute useful information from the two locations. To learn more about how to prepare location data for ML models, refer to [9]</li>
+<li><strong>Using a decay factor</strong> for features that rely on the user's last X interactions. A decay factor gives more weight to the user's recent interactions/behaviors.</li>
+<li><strong>Using embedding learning</strong> to convert each event and user into an embedding vector. Those embedding vectors are used as the features representing the events and users.</li>
+<li><strong>Creating features from users’ attributes may create bias.</strong> For example, relying on age or gender to decide if an applicant is a good match for a job, may lead to discrimination. Since we create features from users’ attributes, it’s important to be aware of potential bias issues.</li>
+</ul>
+<h3 id="model-development">Model Development</h3>
+<h4 id="model-selection">Model selection</h4>
+<p>Binary classification problems can be solved by various ML methods. Let's take a look at the following:</p>
+<ul>
+<li>Logistic regression</li>
+<li>Decision tree</li>
+<li>Gradient-boosted decision tree (GBDT)</li>
+<li>Neural network</li>
+</ul>
+<h5 id="logistic-regression-lr">Logistic regression (LR)</h5>
+<p>LR models the probability of a binary outcome by using a linear combination of one or multiple features. For the details of LR, refer to [10].</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><div style="position: relative; width: 200px; height: 309px;"><img alt="Image represents a simplified diagram of a single neuron in a neural network.  At the bottom, a group of rectangular boxes labeled 'Input features' represent the input variables or features fed into the neuron.  Each input feature is connected to the central 'Sigmoid' box via weighted connections labeled ω₁, ω₂, ..., ω&lt;sub&gt;f-1&lt;/sub&gt;, ω&lt;sub&gt;f&lt;/sub&gt;, representing the weights assigned to each input feature.  These weights determine the influence of each input feature on the neuron's output. The 'Sigmoid' box represents the activation function applied to the weighted sum of the inputs.  An arrow from the 'Sigmoid' box points upwards to a rectangular box containing '0.8,' which represents the output of the neuron after the sigmoid function is applied to the weighted sum of the inputs.  The '0.8' indicates the neuron's activation level, a value between 0 and 1, produced by the sigmoid function. The ellipsis (...) indicates that there are more input features than explicitly shown." loading="lazy" width="200" height="309" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(200px, 100vw), (max-width: 1200px) min(200px, 80vw), min(200px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-11-1-Z73FFV5O.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.11: Logistic regression</figcaption></div></figure></center>
+<p>Let's see the pros and cons of LR.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li><strong>Fast inference speed.</strong> Computing a weighted combination of input features is fast.</li>
+<li><strong>Efficient training.</strong> Given the simple architecture, it's easy to implement, interpret, and train quickly.</li>
+<li>Works well when the data is linearly separable (Figure 7.12).</li>
+<li><strong>Interpretable and easy to understand.</strong> The weights assigned to each feature indicate the importance of different features, which gives us insight into why a decision was made.</li>
+</ul>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><div style="position: relative; width: 350px; height: 351px;"><img alt="Image represents a two-dimensional scatter plot illustrating a linear classification model.  The horizontal axis is labeled 'X1' and the vertical axis 'X2'.  The plot contains two types of data points: red 'X' symbols representing negative samples and empty circles representing positive samples. A dashed black line, labeled 'Decision Boundary,' diagonally traverses the plot, separating the positive and negative samples.  A dashed-line box in the upper right corner provides a legend, explicitly labeling the red 'X' as 'Negative samples,' the empty circles as 'Positive samples,' and the dashed black line as the 'Decision Boundary.' The arrangement shows that the decision boundary effectively separates the majority of positive and negative samples, although some misclassification might be present due to the proximity of some points to the boundary." loading="lazy" width="350" height="351" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(350px, 100vw), (max-width: 1200px) min(350px, 80vw), min(350px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-12-1-2IH25M2W.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.12: A linearly separable data with LR’s decision boundary</figcaption></div></figure></center>
+<p><strong>Cons:</strong></p>
+<ul>
+<li><strong>Non-linear problems can't be solved</strong> with LR, since it uses a linear combination of input features.</li>
+<li><strong>Multicollinearity</strong> occurs when two or more features are highly correlated. One of the known limitations of LR is that it cannot learn the task well when multicollinearity is present in the input features.</li>
+</ul>
+<p>In our system, the number of input features can be very large. Often, these features have complex and non-linear relations with the target variable (binary outcome). This complexity might be hard for LR to learn.</p>
+<h5 id="decision-tree">Decision tree</h5>
+<p>Decision trees are another class of learning methods that use a tree-like model of decisions and their possible consequences to make predictions. Figure 7.13 shows a simple decision tree with two features: age and gender. It also shows the corresponding decision boundary. Each leaf node in the decision tree indicates a binary outcome where "+" indicates the given input is classified as positive, and "-" means negative. To learn more about decision trees, refer to [11].</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of a decision tree and its corresponding decision boundary in a two-dimensional feature space.  The left side shows a decision tree where the root node is 'Age &lt; 30'.  A 'Yes' branch leads to a 'Gender' node, which further branches into 'Female' (leading to a leaf node labeled '-') and 'Male' (leading to a leaf node labeled '+'). A 'No' branch from the root node directly leads to a leaf node labeled '+'.  The leaf nodes represent classifications, with '+' indicating a positive class and '-' indicating a negative class. The right side displays a scatter plot with two features, X1 and X2.  Red 'x' symbols represent negative samples, while white circles represent positive samples. A dashed vertical line acts as the decision boundary, separating the positive and negative samples.  The plot visually demonstrates how the decision tree's rules translate into a linear decision boundary in the feature space." loading="lazy" width="610" height="295" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(610px, 100vw), (max-width: 1200px) min(610px, 80vw), min(610px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-13-1-EWXKHZMJ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.13: Decision tree (left) and the learned decision boundary (right)</figcaption></div></figure></center>
+<p><strong>Pros:</strong></p>
+<ul>
+<li><strong>Fast training:</strong> Decision trees are quick to train.</li>
+<li><strong>Fast inference:</strong> Decision trees make predictions quickly at inference time.</li>
+<li><strong>Little to no data preparation:</strong> Decision tree models don't require data normalization or scaling, since the algorithm does not depend on the distribution of the input features.</li>
+<li><strong>Interpretable and easy to understand.</strong> Visualizing the tree provides good insights into why a decision was made and what the important decision factors are.</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li><strong>Non-optimal decision boundary:</strong> decision tree models produce decision boundaries that are parallel to the axes in the feature space (Figure 7.13). This may not be the optimal way to find a decision boundary for certain data distributions.</li>
+<li><strong>Overfitting:</strong> Decision trees are very sensitive to small variations in data. A small change in input data may lead to different outcomes at serving time. Similarly, a small change in training data can lead to a totally different tree structure. This is a major issue and makes predictions less reliable.</li>
+</ul>
+<p>In practice, naive decision trees are rarely used. The reason is that they are too sensitive to variations of input data. To reduce the sensitivity of decision trees, two techniques are commonly used:</p>
+<ul>
+<li>Bootstrap aggregation (Bagging)</li>
+<li>Boosting</li>
+</ul>
+<p>These two techniques are widely used across the tech industry. It's essential to understand how they work. Let's take a closer look.</p>
+<h6 id="bagging">Bagging</h6>
+<p>Bagging is the ensemble learning method that trains a set of ML models in parallel, on multiple subsets of the training data. In bagging, the predictions of all these trained models are combined to make a final prediction. This significantly reduces the model's sensitivity to the change in data (variance).</p>
+<p>One example of bagging is the commonly used "random forest" model [12]. Random forest builds multiple decision trees in parallel during training, to reduce the model's sensitivity. To make a prediction, each decision tree independently predicts the output class (positive or negative) of the given input, and then a voting mechanism is used to combine these predictions to make a final prediction. Figure <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7.14</mn></mrow><annotation encoding="application/x-tex">7.14</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7.14</span></span></span></span> shows a random forest with three decision trees.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for ensemble learning, specifically a voting classifier.  A single 'Input' feeds into three separate decision tree classifiers, labeled T1, T2, and T3 respectively. Each tree (T1, T2, T3) is depicted as a binary tree structure with nodes representing decision points and leaf nodes representing class predictions.  The output of each tree (+ or -) is then fed into a 'Vote' module.  The 'Vote' module combines the predictions from the three trees, likely through a majority voting scheme (though the exact method isn't explicitly shown). The final output of the 'Vote' module (+) represents the ensemble's prediction.  The dashed boxes visually group each individual decision tree, highlighting their independent operation before their combined prediction." loading="lazy" width="615" height="453" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(615px, 100vw), (max-width: 1200px) min(615px, 80vw), min(615px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-14-1-MMKMMZSH.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.14: Random forest</figcaption></div></figure></center>
+<p>The bagging technique has the following advantages:</p>
+<ul>
+<li>Reduces the effect of overfitting (high variance).</li>
+<li>Does not significantly increase training time because the decision trees can be trained in parallel.</li>
+<li>Does not add much latency at the inference time because decision trees can process the input in parallel.</li>
+</ul>
+<p>Despite its advantages, bagging is not helpful when the model faces underfitting (high bias). To overcome bagging’s drawbacks, let’s discuss another technique called boosting.</p>
+<h6 id="boosting">Boosting</h6>
+<p>In ML, boosting involves training several weak classifiers sequentially to reduce prediction errors. The phrase "weak classifier" refers to a simple classifier that performs slightly better than random guesses. In boosting, multiple weak classifiers are converted into a single strong learning model. Figure <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7.15</mn></mrow><annotation encoding="application/x-tex">7.15</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">7.15</span></span></span></span> shows an example of boosting.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified illustration of a decision tree's operation in a machine learning context.  The diagram shows three stages, each enclosed within a dashed-line box.  The process begins with 'Input features' indicated by a left-pointing arrow entering the first box. This box contains a tree structure: a root node at the top connects to two child nodes, each of which further branches into two leaf nodes at the bottom.  A right-pointing arrow connects this first box to a second, similarly structured box, representing the next level of the decision tree.  This second box also shows a root node branching into two child nodes, each with two leaf nodes.  Another right-pointing arrow connects the second box to a third box, which is the final stage of the tree.  This third box shows a simplified tree structure, with a root node branching into two child nodes, each with a single leaf node. Finally, a right-pointing arrow labeled 'Output' emerges from the third box, indicating the final prediction or classification generated by the decision tree based on the input features.  The overall flow depicts the hierarchical decision-making process within a decision tree, progressing from input features through multiple levels of branching to a final output." loading="lazy" width="796" height="133" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(796px, 100vw), (max-width: 1200px) min(796px, 80vw), min(796px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-15-1-ICWGWKDU.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.15: A boosting example</figcaption></div></figure></center>
+<p><strong>Pros:</strong></p>
+<ul>
+<li><strong>Boosting reduces bias and variance.</strong> Combining weak classifiers leads to a strong model less sensitive to the change in data. To learn more about bias/variance tradeoffs, refer to [13].
+Cons:</li>
+<li><strong>Slower training and inference.</strong> Given the classifiers are trained based on the mistakes of the previous classifiers, they work sequentially. This adds to the serving time due to the sequential nature of boosting.</li>
+</ul>
+<p>The boosting method is usually preferred over bagging in practice because bagging is not helpful in cases of bias, whereas boosting reduces the effect of both bias and variance.</p>
+<p>Typical boosting-based decision trees are Adaboost [14], XGBoost [15], and Gradient boost [16]. They are commonly employed to train classification models.</p>
+<h5 id="gbdt">GBDT</h5>
+<p>GBDT is a commonly used tree-based model, utilizing GradientBoost to improve decision trees. Some variants of GBDT, such as XGBoost [15], have demonstrated strong performance in various ML competitions [17]. If you're interested in learning more about GBDT, refer to [18] [19].</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><div style="position: relative; width: 260px; height: 344px;"><img alt="Image represents a simplified machine learning model for predicting event registration.  At the top, a '+” symbol within a box signifies a new user registering for an event.  An arrow points downwards from this '+” box to a larger box labeled 'GBDT,' representing a Gradient Boosting Decision Tree model, the core of the prediction system.  Multiple smaller boxes, grouped and labeled 'Input features,' are connected via upward-pointing arrows to the GBDT box. These smaller boxes represent various input features used by the GBDT model to predict whether the user will register.  Three input feature boxes are explicitly shown, with an ellipsis ('...') indicating that there are more features not explicitly depicted. The overall flow shows that user registration data ('+') feeds into the GBDT model, which uses the input features to make a prediction (though the prediction itself isn't explicitly shown in the diagram)." loading="lazy" width="260" height="344" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(260px, 100vw), (max-width: 1200px) min(260px, 80vw), min(260px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-16-1-M4Z5WBZI.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.16: A GBDT model with a binary output</figcaption></div></figure></center>
+<p>Here are the pros and cons of the GBDT model.</p>
+<p><strong>Pros:</strong></p>
+<ul>
+<li><strong>Easy data preparation:</strong> Similar to decision trees, it does not require data preparation.</li>
+<li><strong>Reduces variance:</strong> GBDT reduces variance as it uses the boosting technique.</li>
+<li><strong>Reduces bias:</strong> GBDT reduces the prediction error by leveraging several weak classifiers, iteratively improving upon the misclassified data points from the previous classifiers.</li>
+<li>Works well with structured data.</li>
+</ul>
+<p><strong>Cons:</strong></p>
+<ul>
+<li><strong>Lots of hyperparameters to tune</strong>, such as the number of iterations, tree depth, regularization parameters, etc.</li>
+<li>GBDT does not work well on unstructured data such as images, videos, audio, etc.</li>
+<li><strong>Unsuitable for continual learning</strong> from streaming data.</li>
+</ul>
+<p>In our case, since the created features are structured data, GBDT or one of its variants such as XGBoost - is a good choice to experiment with.</p>
+<p>A major drawback of GBDT is that it is unsuitable for continual learning. In an event recommendation system, new data continuously becomes available to the system, such as recent user interactions, registrations, new events, and even new users. In addition, users' tastes and interests may change over time. It is vital for a good event recommendation system to adapt itself to new data, continuously. Without the possibility of continual learning, it is very costly to retrain GBDT from scratch regularly. Next, we explore neural networks which overcome this limitation.</p>
+<h5 id="neural-network-nn">Neural network (NN)</h5>
+<p>In an event recommendation system, we have many features that might not correlate linearly with the outcome. Learning these complex relationships is difficult. In addition, continual learning is necessary for adapting the model to new data.</p>
+<p>NNs are great at solving those challenges. They are capable of learning complex tasks with non-linear decision boundaries. Additionally, NN models can be fine-tuned on new data very easily, making them ideal for continual learning.
+If you are unfamiliar with the details of NNs, you are encouraged to read [20].</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><div style="position: relative; width: 260px; height: 344px;"><img alt="Image represents a simplified diagram of a neural network architecture.  At the bottom, labeled 'Input features,' are depicted two pairs of rectangular boxes representing sets of input features; an ellipsis (...) indicates that there are more such pairs not explicitly shown.  Arrows point upwards from these input features to a central rectangular box labeled 'Neural network,' signifying that the neural network processes these inputs.  From the neural network, a single arrow points upwards to a smaller, rectangular box labeled 'P' and titled 'Register probability,' indicating that the neural network outputs a probability value (represented by 'P') which is then registered or stored.  The overall flow shows the input features feeding into the neural network, which then produces a probability that is subsequently recorded." loading="lazy" width="260" height="344" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(260px, 100vw), (max-width: 1200px) min(260px, 80vw), min(260px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-17-1-ICNLYAOK.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.17: Neural network input-output</figcaption></div></figure></center>
+<p>Let's see its pros and cons.</p>
+<p><strong>Pros</strong></p>
+<ul>
+<li><strong>Continual learning:</strong> NNs are designed to learn from data and improve themselves continually.</li>
+<li>Works well with unstructured data such as text, image, video, or audio.</li>
+<li><strong>Expressiveness:</strong> NNs have expressive power due to their high number of learning parameters. They can learn very complex tasks and non-linear decision boundaries.</li>
+</ul>
+<p><strong>Cons</strong></p>
+<ul>
+<li><strong>Computationally expensive</strong> to train.</li>
+<li><strong>The quality of input data strongly influences the outcome:</strong> NNs are sensitive to input data. For example, if input features are in very different ranges, the model may converge slowly during the training phase. An important step for NNs is data preparation, such as normalization, log-scaling, one-hot encoding, etc.</li>
+<li><strong>Large training data</strong> is required to train NNs.</li>
+<li><strong>Black-box nature:</strong> NNs are not interpretable, meaning it's not easy to understand the influence of each feature upon the outcome, as the input features go through multiple layers of non-linear transformations.</li>
+</ul>
+<h5 id="which-model-should-we-select">Which model should we select?</h5>
+<p>Picking the right model is challenging. We often need to experiment with different models to determine which works best. We can choose the right model based on various factors:</p>
+<ul>
+<li>Complexity of the task</li>
+<li>Data distribution and data type</li>
+<li>Product requirements or constraints, such as training cost, speed, model size, etc
+In this problem, both GBDTs and NNs are good candidates for experimentation. We start with the GBDT variant, XGBoost, since it is fast to implement and train. The result can be used as an initial baseline.</li>
+</ul>
+<p>Once we have a baseline, we explore the possibility of building a better model with NNs. Neural networks are expected to work well here for the following reasons:</p>
+<ul>
+<li>Massive training data is available in our system. Users continuously interact with the system by registering for events, inviting friends, publishing new events, etc. Given the number of users, this creates a massive amount of data available for training.</li>
+<li>Data may not be linearly separable, and neural networks can learn non-linear data.</li>
+</ul>
+<p>When designing a NN architecture, several hyperparameters must be considered, including the number of hidden layers, neurons in each layer, activation function, etc. These can be determined by employing hyperparameter tuning techniques. NN architectural details are not typically the main focus of ML system design interviews, since there is no systematic way to choose the right architecture.</p>
+<h4 id="model-training">Model training</h4>
+<h5 id="constructing-the-dataset">Constructing the dataset</h5>
+<p>Building training and evaluation datasets is an essential step in developing a model. For example, let's look at how we compute features and their labels.</p>
+<p>To construct a single data point, we extract a <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟨</mo></mrow><annotation encoding="application/x-tex">\langle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">⟨</span></span></span></span> user, event <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\rangle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mclose">⟩</span></span></span></span> pair from the interaction data and compute the input features from the pair. We then label the data point with 1 if the user has registered for the event, and 0 if not.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a tabular dataset seemingly used for training a machine learning model.  The table has four columns. The first column, labeled '#', acts as a row identifier, with rows numbered '1' and '2'. The second column, labeled 'Extracted (user, event) features', contains a sequence of binary features (0s and 1s) for each row, representing extracted characteristics from user and event data.  Row 1 shows features [1, 0, 1, 1, 0, 1], and row 2 shows features [0, 0, 0, 1, 1, 0].  Each feature likely corresponds to a specific attribute of the user or event. The third column is labeled 'Label', and contains a single binary value (0 or 1) for each row, representing the target variable or class label for the corresponding features. Row 1 has a label of '1', and row 2 has a label of '0'.  The table structure suggests a supervised learning scenario where the model learns to predict the 'Label' based on the 'Extracted (user, event) features'." loading="lazy" width="500" height="118" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-18-1-2EEXCOQN.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.18: Constructed dataset</figcaption></div></figure></center>
+<p>One issue we may face after constructing the dataset is class imbalance. The reason is that users may explore tens or hundreds of events before registering for one. Therefore, the number of negative <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟨</mo></mrow><annotation encoding="application/x-tex">\langle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">⟨</span></span></span></span> user, event <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\rangle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mclose">⟩</span></span></span></span> pairs is significantly higher than positive data points. We can use one of the following techniques to address the class imbalance issue:</p>
+<ul>
+<li>
+<p>Use focal loss or class-balanced loss to train the classifier</p>
+</li>
+<li>
+<p>Undersample the majority class</p>
+</li>
+</ul>
+<h5 id="choosing-the-loss-function">Choosing the loss function</h5>
+<p>Since the model is a binary classification model, we use a typical classification loss function such as binary cross-entropy to optimize the neural network model.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><div style="position: relative; width: 300px; height: 388px;"><img alt="Image represents a simplified diagram of a binary classification neural network training process.  At the bottom, several rectangular boxes labeled 'Input features' represent the input data fed into the 'Neural network' box.  The neural network processes these features and produces a prediction, represented by the 'P' box. This prediction is then compared to the ground truth label, represented by the 'G' box, using 'Binary cross entropy' as the loss function. The result of this comparison (the loss) is used to update the weights within the neural network, ultimately aiming to minimize the difference between the prediction (P) and the ground truth (G).  The dashed box to the right clarifies that 'P' denotes the prediction and 'G' denotes the ground truth label.  Arrows indicate the flow of information: from input features to the neural network, from the neural network to the prediction (P), and from the prediction (P) and ground truth (G) to the binary cross entropy calculation, which then influences the neural network's weights (though this feedback loop isn't explicitly shown)." loading="lazy" width="300" height="388" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(300px, 100vw), (max-width: 1200px) min(300px, 80vw), min(300px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-19-1-4JBDNSJ2.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.19: Loss between the prediction and the label</figcaption></div></figure></center>
+<h3 id="evaluation">Evaluation</h3>
+<h4 id="offline-metrics">Offline metrics</h4>
+<p>To evaluate the ranking system, we consider the following options.</p>
+<p><strong>Recall@k or Precision@k.</strong> These metrics are not good fits because they do not consider the ranking quality of the output.</p>
+<p><strong>MRR, nDCG, or mAP.</strong> These three metrics are commonly used to measure ranking quality. But which one is best?</p>
+<p>MRR focuses on the rank of the first relevant item in the list, which is suitable in systems where only one relevant item is expected to be retrieved. However, in an event recommendation system, several recommended events may be relevant to the user. MRR is not a good fit.</p>
+<p>nDCG works well when the relevance score between a user and an item is non-binary. In contrast, mAP works only when the relevance scores are binary. Since events are either
+relevant (a user registered for it) or irrelevant (a user saw the event but did not register),
+mAP is a better fit.</p>
+<h4 id="online-metrics">Online metrics</h4>
+<p>In our case, the business objective is to increase revenue by increasing ticket sales. To measure the impact of the system on revenue, let's explore the following metrics:</p>
+<ul>
+<li>Click-through rate (CTR)</li>
+<li>Conversion rate</li>
+<li>Bookmark rate</li>
+<li>Revenue lift</li>
+</ul>
+<p><strong>CTR.</strong> A ratio showing how often users who see recommended events go on to click on an event.</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>C</mi><mi>T</mi><mi>R</mi><mo>=</mo><mfrac><mtext>&nbsp;total&nbsp;number&nbsp;of&nbsp;clicked&nbsp;events&nbsp;</mtext><mtext>&nbsp;total&nbsp;number&nbsp;of&nbsp;impressions&nbsp;</mtext></mfrac></mrow><annotation encoding="application/x-tex">C T R=\frac{\text { total number of clicked events }}{\text { total number of impressions }}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.00773em;">CTR</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 2.2519em; vertical-align: -0.8804em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3714em;"><span style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">&nbsp;total&nbsp;number&nbsp;of&nbsp;impressions&nbsp;</span></span></span></span><span style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">&nbsp;total&nbsp;number&nbsp;of&nbsp;clicked&nbsp;events&nbsp;</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>
+<p>A high CTR shows our system is good at recommending events that users click on. Having more clicks generally means more event registrations.</p>
+<p>However, relying only on CTR as the online metric may be insufficient. Some events are clickbait. Ideally, we would like to measure how relevant recommended events are for the user. This metric is called the conversion rate, which we discuss now.</p>
+<p><strong>Conversion rate.</strong> A ratio showing how often users who see recommended events go on to register for them. The formula is:</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>&nbsp;Conversion&nbsp;rate&nbsp;</mtext><mo>=</mo><mfrac><mtext>&nbsp;total&nbsp;number&nbsp;of&nbsp;event&nbsp;registrations&nbsp;</mtext><mtext>&nbsp;total&nbsp;number&nbsp;of&nbsp;impressions&nbsp;</mtext></mfrac></mrow><annotation encoding="application/x-tex">\text { Conversion rate }=\frac{\text { total number of event registrations }}{\text { total number of impressions }}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord text"><span class="mord">&nbsp;Conversion&nbsp;rate&nbsp;</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 2.2519em; vertical-align: -0.8804em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3714em;"><span style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">&nbsp;total&nbsp;number&nbsp;of&nbsp;impressions&nbsp;</span></span></span></span><span style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">&nbsp;total&nbsp;number&nbsp;of&nbsp;event&nbsp;registrations&nbsp;</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>
+<p>A high conversion rate indicates users register for recommended events more often. For example, a conversion rate of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.3</mn></mrow><annotation encoding="application/x-tex">0.3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.3</span></span></span></span> means that users, on average, register for 3 events out of every 10 recommended events.</p>
+<p><strong>Bookmark rate.</strong> A ratio showing how often users bookmark recommended events. This is based on the assumption that the platform allows users to save or bookmark an event.</p>
+<p><strong>Revenue lift.</strong> This is the increase in revenue as a result of event recommendations.</p>
+<h3 id="serving">Serving</h3>
+<p>In this section, we propose an ML system design that can be used to serve requests. As Figure 7.20 shows, there are two main pipelines in the design:</p>
+<ul>
+<li>
+<p>Online learning pipeline</p>
+</li>
+<li>
+<p>Prediction pipeline</p>
+</li>
+</ul>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a machine learning system design, divided into two main pipelines: an online learning pipeline and a prediction pipeline.  The online learning pipeline begins with a `Data source`, which feeds into `Dataset construction`, creating a `Training dataset`. This dataset is then input into a `Learner`, producing a `Trained ML model`.  The model is evaluated by an `Evaluator` and subsequently `Deploy`ed, finally being stored in a `Model repository`. The prediction pipeline starts with a `Query user` who interacts with the system.  Their query is processed by an `Event filtering` component, using data from an `Events data` source.  Filtered events are passed as `candidate events` to a `Ranking service`, which utilizes a `Trained ML model` (deployed from the online learning pipeline). The `Ranking service` relies on `Feature computation`, drawing data from a `Feature store` and `Raw data`. The final output is a list of `Top k events`, representing the ranked results based on the user's query.  The two pipelines are distinct but interconnected, with the online learning pipeline training and deploying the model used by the prediction pipeline for real-time ranking." loading="lazy" width="720" height="550" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(720px, 100vw), (max-width: 1200px) min(720px, 80vw), min(720px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-20-1-XPFZAVDQ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.20: ML system design</figcaption></div></figure></center>
+<h4 id="online-learning-pipeline">Online learning pipeline</h4>
+<p>As described earlier, event recommendations are intrinsically cold-start and suffer from a constant new-item problem. Consequently, the model must be continuously fine-tuned to adapt to new data. This pipeline is responsible for continuously training new models by incorporating new data, evaluating the trained models, and deploying them.</p>
+<h4 id="prediction-pipeline">Prediction pipeline</h4>
+<p>The prediction pipeline is responsible for predicting the top <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">k</mi></mrow><annotation encoding="application/x-tex">\mathrm{k}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathrm">k</span></span></span></span> most relevant events to a given user. Let's discuss some of the most important components of the prediction pipeline.</p>
+<h5 id="event-filtering">Event filtering</h5>
+<p>The event filtering component takes the query user as input and narrows down the events from 1 million to a small subset of events. This is based upon simple rules, such as event locations, or other types of user filters. For example, if a user adds a “concerts only” filter, the component quickly narrows down the list to a subset of candidate events. Since these types of filters are common in event recommendation systems, they can be used to significantly reduce our search space from potentially millions of events, to hundreds of candidate events.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system for retrieving events based on a user query.  A 'Query user,' depicted as a person icon, submits a query. This query is input into an 'Event filtering' module.  The 'Event filtering' module receives data from a database cylinder labeled 'Events data,' which presumably contains a large collection of event information. The filtering module processes the query and the event data to generate a set of 'candidate events.' These candidate events, represented as multiple instances of the word 'Event' within a dashed circle labeled 'Candidate events,' are then outputted as the system's response to the user's query.  The flow of information is unidirectional, proceeding from the user's query, through the filtering module, and finally to the candidate events." loading="lazy" width="506" height="232" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(506px, 100vw), (max-width: 1200px) min(506px, 80vw), min(506px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-21-1-MB2Q2AWC.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.21: Event filtering input-output</figcaption></div></figure></center>
+<h5 id="ranking-service">Ranking service</h5>
+<p>This service takes the user and candidate events produced by the filtering component as input, computes features for each <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟨</mo></mrow><annotation encoding="application/x-tex">\langle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">⟨</span></span></span></span> user, event <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\rangle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mclose">⟩</span></span></span></span> pair, sorts the events based on the probabilities predicted by the model, and outputs a ranked list of top <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span> most relevant events to the user.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a machine learning system for event ranking.  A query user initiates the process.  The system first identifies a set of 'Candidate events'. These events are then fed into a 'Ranking service'. The 'Ranking service' receives input from the 'Candidate events' and a 'Trained ML model' (stored in the cloud).  The 'Ranking service' also sends its output to a 'Top k events' component, which displays the top k ranked events.  The 'Ranking service' relies on a 'Feature computation' module, which in turn draws data from 'Raw data' (dynamic features) and a 'Feature store' (static features).  The arrows indicate the flow of information: from the user to the candidate events, from the candidate events and the trained model to the ranking service, from the ranking service to the top k events, and from the raw data and feature store to the feature computation module, finally to the ranking service." loading="lazy" width="510" height="438" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(510px, 100vw), (max-width: 1200px) min(510px, 80vw), min(510px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fevent-recommendation-system%2Fch7-22-1-6TNYHABY.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7.22: Ranking service workflow</figcaption></div></figure></center>
+<p>Ranking service interacts with the feature computation component responsible for computing features that the model expects. Static features are obtained from a feature store, while dynamic features are computed in real-time from the raw data.</p>
+<h3 id="other-talking-points">Other Talking Points</h3>
+<p>If there is extra time at the end of the interview, here are some additional talking points:</p>
+<ul>
+<li>What are the different types of bias we may observe in this system [21].</li>
+<li>How to utilize feature crossing to achieve more expressiveness [22].</li>
+<li>Some users like to see a diverse list of events. How to ensure the recommended events are diverse and fresh [23]?</li>
+<li>We utilize the user's attributes to train a model. We also rely on users' live locations. What are additional considerations related to privacy and security [24]?</li>
+<li>Event management platforms are usually two-sided marketplaces, where event hosts are the suppliers and users fulfill the demand side. How to ensure the system is not optimized for one side only? Additionally, how to keep the platform fair for different hosts? To learn more about unique challenges in two-sided marketplaces, refer to [25].</li>
+<li>How to avoid data leakage when constructing the dataset [26].</li>
+<li>How to determine the right frequency to update the models [27].</li>
+</ul>
+<h3 id="references">References</h3>
+<ol>
+<li>Learning to rank methods. <a href="https://livebook.manning.com/book/practical-recommender-systems/chapter-13/53" target="_blank" rel="noopener noreferrer">https://livebook.manning.com/book/practical-recommender-systems/chapter-13/53</a>.</li>
+<li>RankNet paper. <a href="https://icml.cc/2015/wp-content/uploads/2015/06/icml_ranking.pdf" target="_blank" rel="noopener noreferrer">https://icml.cc/2015/wp-content/uploads/2015/06/icml_ranking.pdf</a>.</li>
+<li>LambdaRank paper. <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/lambdarank.pdf" target="_blank" rel="noopener noreferrer">https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/lambdarank.pdf</a>.</li>
+<li>LambdaMART paper. <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/MSR-TR-2010-82.pdf" target="_blank" rel="noopener noreferrer">https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/MSR-TR-2010-82.pdf</a>.</li>
+<li>SoftRank paper. <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/SoftRankWsdm08Submitted.pdf" target="_blank" rel="noopener noreferrer">https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/SoftRankWsdm08Submitted.pdf</a>.</li>
+<li>ListNet paper. <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2007-40.pdf" target="_blank" rel="noopener noreferrer">https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-2007-40.pdf</a>.</li>
+<li>AdaRank paper. <a href="https://dl.acm.org/doi/10.1145/1277741.1277809" target="_blank" rel="noopener noreferrer">https://dl.acm.org/doi/10.1145/1277741.1277809</a>.</li>
+<li>Batch processing vs stream processing. <a href="https://www.confluent.io/learn/batch-vs-real-time-data-processing/#:~:text=Batch%20processing%20is%20when%20the,data%20flows%20through%20a%20system" target="_blank" rel="noopener noreferrer">https://www.confluent.io/learn/batch-vs-real-time-data-processing/#:~:text=Batch%20processing%20is%20when%20the,data%20flows%20through%20a%20system</a>.</li>
+<li>Leveraging location data in ML systems. <a href="https://towardsdatascience.com/leveraging-geolocation-data-for-machine-learning-essential-techniques-192ce3a969bc#:~:text=Location%20data%20is%20an%20important,based%20on%20your%20customer%20data" target="_blank" rel="noopener noreferrer">https://towardsdatascience.com/leveraging-geolocation-data-for-machine-learning-essential-techniques-192ce3a969bc#:~:text=Location%20data%20is%20an%20important,based%20on%20your%20customer%20data</a>.</li>
+<li>Logistic regression. <a href="https://www.youtube.com/watch?v=yIYKR4sgzI8" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=yIYKR4sgzI8</a>.</li>
+<li>Decision tree. <a href="https://careerfoundry.com/en/blog/data-analytics/what-is-a-decision-tree/" target="_blank" rel="noopener noreferrer">https://careerfoundry.com/en/blog/data-analytics/what-is-a-decision-tree/</a>.</li>
+<li>Random forests. <a href="https://en.wikipedia.org/wiki/Random_forest" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Random_forest</a>.</li>
+<li>Bias/variance trade-off. <a href="http://www.cs.cornell.edu/courses/cs578/2005fa/CS578.bagging.boosting.lecture.pdf" target="_blank" rel="noopener noreferrer">http://www.cs.cornell.edu/courses/cs578/2005fa/CS578.bagging.boosting.lecture.pdf</a>.</li>
+<li>AdaBoost. <a href="https://en.wikipedia.org/wiki/AdaBoost" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/AdaBoost</a>.</li>
+<li>XGBoost. <a href="https://xgboost.readthedocs.io/en/stable/" target="_blank" rel="noopener noreferrer">https://xgboost.readthedocs.io/en/stable/</a>.</li>
+<li>Gradient boosting. <a href="https://machinelearningmastery.com/gentle-introduction-gradient-boosting-algorithm-machine-learning/" target="_blank" rel="noopener noreferrer">https://machinelearningmastery.com/gentle-introduction-gradient-boosting-algorithm-machine-learning/</a>.</li>
+<li>XGBoost in Kaggle competitions. <a href="https://www.kaggle.com/getting-started/145362" target="_blank" rel="noopener noreferrer">https://www.kaggle.com/getting-started/145362</a>.</li>
+<li>GBDT. <a href="https://blog.paperspace.com/gradient-boosting-for-classification/" target="_blank" rel="noopener noreferrer">https://blog.paperspace.com/gradient-boosting-for-classification/</a>.</li>
+<li>An introduction to GBDT. <a href="https://www.machinelearningplus.com/machine-learning/an-introduction-to-gradient-boosting-decision-trees/" target="_blank" rel="noopener noreferrer">https://www.machinelearningplus.com/machine-learning/an-introduction-to-gradient-boosting-decision-trees/</a>.</li>
+<li>Introduction to neural networks. <a href="https://www.youtube.com/watch?v=i2fmaabIs5w" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=i2fmaabIs5w</a>.</li>
+<li>Bias issues and solutions in recommendation systems. <a href="https://www.youtube.com/watch?v=pPq9iyGIZZ8" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=pPq9iyGIZZ8</a>.</li>
+<li>Feature crossing to encode non-linearity. <a href="https://developers.google.com/machine-learning/crash-course/feature-crosses/encoding-nonlinearity" target="_blank" rel="noopener noreferrer">https://developers.google.com/machine-learning/crash-course/feature-crosses/encoding-nonlinearity</a>.</li>
+<li>Freshness and diversity in recommendation systems. <a href="https://developers.google.com/machine-learning/recommendation/dnn/re-ranking" target="_blank" rel="noopener noreferrer">https://developers.google.com/machine-learning/recommendation/dnn/re-ranking</a>.</li>
+<li>Privacy and security in ML. <a href="https://www.microsoft.com/en-us/research/blog/privacy-preserving-machine-learning-maintaining-confidentiality-and-preserving-trust/" target="_blank" rel="noopener noreferrer">https://www.microsoft.com/en-us/research/blog/privacy-preserving-machine-learning-maintaining-confidentiality-and-preserving-trust/</a>.</li>
+<li>Two-sides marketplace unique challenges. <a href="https://www.uber.com/blog/uber-eats-recommending-marketplace/" target="_blank" rel="noopener noreferrer">https://www.uber.com/blog/uber-eats-recommending-marketplace/</a>.</li>
+<li>Data leakage. <a href="https://machinelearningmastery.com/data-leakage-machine-learning/" target="_blank" rel="noopener noreferrer">https://machinelearningmastery.com/data-leakage-machine-learning/</a>.</li>
+<li>Online training frequency. <a href="https://huyenchip.com/2022/01/02/real-time-machine-learning-challenges-and-solutions.html#towards-continual-learning" target="_blank" rel="noopener noreferrer">https://huyenchip.com/2022/01/02/real-time-machine-learning-challenges-and-solutions.html#towards-continual-learning</a>.</li>
+</ol>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../machine-learning-system-design-interview.html">← Course Contents</a>
+        <a href="video-recommendation-system.html">← Previous</a>
+        <a href="ad-click-prediction-on-social-platforms.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

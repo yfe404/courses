@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Video Generation - Genai System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../genai-system-design-interview.html">Genai System Design Interview</a> /
+        Text-to-Video Generation
+    </div>
+
+    <div class="nav">
+        <a href="../genai-system-design-interview.html">← Course Contents</a>
+        <a href="personalized-headshot-generation.html">← Previous</a>
+        
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">11</span> Text-to-Video Generation
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/genai-system-design-interview/text-to-video-generation" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">11</strong><h1>Text-to-Video Generation</h1></header><h2 id="introduction">Introduction</h2>
+<p>Text-to-video generation is a key application of generative AI, enabling the generation of videos from textual descriptions. This chapter delves into the crucial components required to build a text-to-video model.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a video thumbnail showing a stylish woman walking down a rain-slicked Tokyo street at night.  The woman, wearing a black leather jacket and a long burgundy dress, is centrally positioned and carries a black handbag.  She is walking towards the viewer. The background features a bustling Tokyo street scene, filled with numerous brightly lit neon signs in Japanese script, reflecting in the wet pavement.  Buildings line both sides of the street, showcasing various advertisements and signage.  Other pedestrians are visible in the background, though somewhat blurred.  A play button icon is superimposed in the center of the video thumbnail, indicating that the image is a still from a video.  Above the thumbnail, the text 'Prompt: A stylish woman walks down a Tokyo street filled with warm glowing neon a...' provides a textual description of the video's content.  The bottom of the image contains partially obscured text, reading 'Text is not...nnot display,' suggesting a technical limitation in displaying the full text." loading="lazy" width="527" height="365" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-1-OL35RZCM.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: An example of a generated video by OpenAI’s Sora model [1]</figcaption></div></figure>
+<h2 id="clarifying-requirements">Clarifying Requirements</h2>
+<p>Here is a typical interaction between a candidate and an interviewer.</p>
+<p><strong>Candidate:</strong> What is the expected length of the generated videos?<br>
+<strong>Interviewer:</strong> Let’s aim for five-second-long videos.</p>
+<p><strong>Candidate:</strong> What video resolution are we targeting?<br>
+<strong>Interviewer:</strong> We should aim for high-definition quality to ensure the videos suit a wide range of modern platforms and devices. Let’s aim for 720p resolution.</p>
+<p><strong>Candidate:</strong> Is 24 frames per second (FPS) the desired rate for the generated video?<br>
+<strong>Interviewer:</strong> Yes.</p>
+<p><strong>Candidate:</strong> What is the expected latency for generating a video?<br>
+<strong>Interviewer:</strong> Video generation is computationally expensive. For the start, a few minutes of processing time will be acceptable. In future iterations, we will optimize for efficiency and speed.</p>
+<p><strong>Candidate:</strong> Should we focus on a specific video category?<br>
+<strong>Interviewer:</strong> No, the system should generate videos across various genres and subjects.</p>
+<p><strong>Candidate:</strong> Should the system support multiple languages for text input, or are we starting with English only?<br>
+<strong>Interviewer:</strong> Let's start with English.</p>
+<p><strong>Candidate:</strong> Should the generated videos include audio output?<br>
+<strong>Interviewer:</strong> Let's focus on silent videos for now. Audio could be considered for an enhancement for future iterations, but it’s not a priority at this stage.</p>
+<p><strong>Candidate:</strong> What is the approximate size of our training data?<br>
+<strong>Interviewer:</strong> We have a large video dataset, around 100 million diverse videos with captions. Some captions might be noisy or non-English.</p>
+<p><strong>Candidate:</strong> A common approach to building a text-to-video model is to extend a pretrained text-to-image model to handle videos. Do we have a pretrained text-to-image model?<br>
+<strong>Interviewer:</strong> Yes, that is a fair assumption.</p>
+<p><strong>Candidate:</strong> Considering the high computational demands of video generation, what is our compute budget?<br>
+<strong>Interviewer:</strong> Training a video generation system requires significant computational resources. We have over 6000 <em>H100 GPUs</em> [2] available for text-to-video training.</p>
+<p><strong>Candidate:</strong> Shall we ensure the system has safeguards to prevent generating offensive or harmful videos is crucial?<br>
+<strong>Interviewer:</strong> Great point. Yes, we need to ensure our proposed system is safe for users.</p>
+<h2 id="frame-the-problem-as-an-ml-task">Frame the Problem as an ML Task</h2>
+<p>This section frames the text-to-video generation problem as an ML task and highlights the necessary considerations beyond those used in Chapter 9 for text-to-image generation.</p>
+<h3 id="specifying-the-systems-input-and-output">Specifying the system’s input and output</h3>
+<p>The input is a descriptive text outlining a scene, action, or narrative. The output is a five-second 720p (1280 x720) video that visually and temporally aligns with the given text prompt.</p>
+<p>For example, given a text input like "A dog playing fetch in a park on a sunny day," the system should generate a video depicting this scene, capturing the dog's movement, the park's environment, and the ambiance of a sunny day.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple data flow diagram illustrating a text-to-video generation process.  On the left, a text prompt, labeled 'A dog playing fetch in...', is shown. This prompt serves as the input.  A black arrow points from the text prompt to a light orange, rounded-rectangle box labeled 'Text-to-Video...'. This box represents the core text-to-video generation model or system.  Another black arrow extends from the 'Text-to-Video...' box to a light blue rectangle labeled 'Generated video,' which contains a play button symbol (▷) indicating the output is a video.  The overall flow depicts the transformation of a textual description into a video using a text-to-video model." loading="lazy" width="452" height="87" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-2-KN6XSXE2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Input and output of a text-to-video system</figcaption></div></figure>
+<h3 id="choosing-a-suitable-ml-approach">Choosing a suitable ML approach</h3>
+<p>Text-to-video generation is similar in nature to text-to-image generation. Both generate visuals from textual descriptions. Techniques such as autoregressive modeling and diffusion models that are popular in text-to-image generation are also effective for text-to-video generation. As we saw previously, diffusion models have demonstrated strong performance in producing detailed and realistic visuals. Therefore, we choose a diffusion model to develop our text-to-video generation system.</p>
+<p>There is, however, a crucial difference between them. For video generation, the model must process and generate a sequence of frames rather than a single image. This significantly increases the computational load. For instance, generating a five-second video at 24 FPS means the model must produce 120 frames. A 512x512 image might take around 1 second to generate on a high-end GPU such as the NVIDIA’s H100, but scaling this to a five-second 720p video would require much more time, as each 720p frame has about 3.6 times more pixels. As a result, generating a five-second 720p video could take around seven minutes.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating two separate generative AI processes.  The top process shows a 'Text prompt' feeding into a 'Text-to-Image...' box, which in turn outputs a single light-blue rectangle representing a generated image.  The bottom process depicts a 'Text prompt' inputting into a light-orange 'Text-to-Video...' box. This box outputs a light-blue rectangle containing a play symbol (▷), representing a generated video. This video is then further broken down into a stack of twelve light-blue rectangles, labeled as '120 frames,' indicating the individual frames composing the generated video.  Arrows clearly show the unidirectional flow of information from input (text prompt) to processing (Text-to-Image or Text-to-Video) to output (image or video frames)." loading="lazy" width="616" height="220" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-3-ROWVYWUA.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: Text-to-video generating a sequence of frames</figcaption></div></figure>
+<p>To address the complexity and computational cost of video generation, we employ the popular latent diffusion model approach. This approach was first popularized by the Stable Diffusion paper [3] and later applied and used by most video generation models, such as OpenAI's <em>Sora</em> [1] and Meta’s <em>Movie Gen</em> [4]. Let’s explore this approach further.</p>
+<h4 id="latent-diffusion-model-ldm">Latent diffusion model (LDM)</h4>
+<p>The core idea behind LDM is to have a diffusion model operate in a lower-dimensional latent space rather than directly in the pixel space. The diffusion model learns to denoise these lower-dimensional latent representations rather than the original video pixels in the training dataset.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a video compression and prediction model.  On the left, a stack of light-blue rectangles labeled 'Original video' depicts a sequence of video frames. A thick arrow labeled 'Compression' points right, indicating a compression process transforming the original video frames into a stack of smaller, lavender-colored rectangles labeled 'Latent...'. These compressed frames then flow into a light-orange, rounded-rectangle box labeled 'Latent...', representing a latent space.  '+ noise' is added to this latent representation before it proceeds to the right via another arrow. The output on the far right is a stack of multicolored, noisy rectangles labeled 'Predicted...', representing the reconstructed video frames after passing through the latent space and adding noise. The entire process is described as occurring within a 'Latent space'." loading="lazy" width="612" height="172" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-4-2UZJ6FTC.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: Diffusion model operating in a lower-dimensional latent space</figcaption></div></figure>
+<p>LDM relies primarily on a compression network to compress video pixels into a latent representation. Let’s examine the compression network in more detail.</p>
+<h5 id="compression-network">Compression network</h5>
+<p>The compression network is a neural network that maps video pixels to a latent space. It takes raw video as input and outputs a compressed latent representation, reducing both its frame count (temporal dimension) and its resolution (spatial dimensions).</p>
+<p>The compression network is usually based on a Variational Autoencoder (VAE) [5] model that is trained separately from the diffusion model. The VAE's visual encoder transforms the input video into a latent representation, while its visual decoder reconstructs the original video frames from this latent space.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified model of a video compression and decompression system.  The process begins with an 'Original video' represented as a three-dimensional rectangular prism.  This video is fed into a 'Visual...' encoder (represented as a trapezoidal shape), which processes the video and outputs a compressed representation. This compressed data, labeled 'Latent...', is shown as a smaller cube.  The 'Latent...' data then passes through a 'Visual D...' decoder (another trapezoidal shape), which reconstructs the video. The final output is a 'Reconstructed video,' also depicted as a three-dimensional rectangular prism, similar in shape to the original but potentially with some loss of information due to compression.  Arrows indicate the unidirectional flow of data between each component." loading="lazy" width="592" height="117" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-5-Y27IPXQC.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Compression network consisting of visual encoder and decoder</figcaption></div></figure>
+<h5 id="how-does-ldm-address-computational-complexity">How does LDM address computational complexity?</h5>
+<p>LDMs require less computing power than standard diffusions because processing compressed representations is cheaper than handling high-dimensional pixels. To understand the impact of this compression, let's walk through an example.</p>
+<p>Imagine we need a video with 24 FPS, a duration of five seconds, and a resolution of 720p. This means 120 frames, each with 1280x720 pixels—a substantial amount of data to process. If we use a compression network similar to [4] that reduces both the temporal and spatial resolution by a factor of 8, the video’s spatial dimension becomes 160x90 pixels, and its temporal dimension shrinks to 15 frames.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline.  A large, light-grey, three-dimensional rectangular block representing input data with dimensions 120 x 1280 x 720 is shown. A curved arrow indicates data flow from this block to a rectangular box labeled '110,592,000...', suggesting a count or size of the input data.  The input block then sends data via a straight arrow to a trapezoidal, light-green block labeled 'Visual...', likely representing a visual processing or transformation stage.  This visual processing stage outputs data to another light-grey, three-dimensional rectangular block with dimensions 15 x 160 x 90. Finally, a curved arrow connects this output block to a rectangular box labeled '216,000...', indicating the size or count of the processed data.  The overall diagram illustrates the transformation of a large dataset through a visual processing step, resulting in a smaller dataset." loading="lazy" width="536" height="189" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-6-ALDVOYSS.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: Impact of compression on data volume</figcaption></div></figure>
+<p>This compressed representation is 512 times smaller than its pixel-space equivalent, making LDM training 512 times more efficient. This efficiency results in faster generation times and reduced resource consumption, which is especially valuable when handling high-resolution video data.</p>
+<h5 id="how-to-generate-a-video-using-a-trained-ldm">How to generate a video using a trained LDM</h5>
+<p>To generate a video using a trained LDM, we start with pure noise in the latent space. The LDM gradually refines it into a denoised latent representation. The visual decoder then converts this latent representation back into pixel space to produce the final video.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a video generation system pipeline.  It begins with a 'Random...' block, representing a source of random noise, which feeds into a sequence of three 'Latent...' blocks, each representing a latent space.  Each 'Latent...' block receives input from a corresponding 'Text Enc...' block below, labeled as 'Text Enc...', which presumably encodes text descriptions like 'a dog walking...'.  Arrows indicate the flow of information, showing that the output of each 'Latent...' block feeds into the next, suggesting a sequential or iterative process.  After the third 'Latent...' block, the output flows into a 'Denoised...' block, likely representing a denoising step. This is followed by a 'Visual De...' block (likely a visual decoder), which processes the denoised latent representation. Finally, the output of the 'Visual De...' block is a 'Generated video' block, representing the final generated video output.  The overall architecture suggests a text-to-video generation model using a latent space representation and a sequential refinement process." loading="lazy" width="641" height="160" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-7-GL7TXS5X.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7: Video generation using a trained LDM</figcaption></div></figure>
+<p>For this chapter, we choose an LDM approach to develop our text-to-video generation system because it's efficient and it reduces computational load. To learn more about LDM, refer to [6].</p>
+<h2 id="data-preparation">Data Preparation</h2>
+<p>The dataset for text-to-video generation includes 100 million pairs of textual descriptions and their corresponding videos. These pairs cover various subjects and actions, allowing the model to learn from diverse videos. In this section, we prepare the videos and captions for training our LDM.</p>
+<h3 id="video-preparation">Video preparation</h3>
+<p>We focus on three key steps in preparing videos for training:</p>
+<ol>
+<li>Filter inappropriate videos</li>
+<li>Standardize videos</li>
+<li>Precompute video representations in the latent space</li>
+</ol>
+<h5 id="filter-inappropriate-videos">Filter inappropriate videos</h5>
+<p>Large datasets often contain unwanted content. This step removes inappropriate videos to ensure the model learns only from high-quality ones. Common steps include:</p>
+<ul>
+<li><strong>Remove low-quality or short videos:</strong> We follow <em>Movie Gen</em> [4] and remove low-resolution, short, slow motion, or distorted videos with compression artifacts.</li>
+<li><strong>Remove duplicated videos (deduplication):</strong> We use a deduplication method such as [7] to eliminate identical videos. This ensures training data is diverse and the model will not be exposed to certain videos more than others.</li>
+<li><strong>Remove harmful videos:</strong> We use harm-detection models to identify and remove videos with explicit content. This step is vital to ensure our text-to-video model will not generate harmful videos.</li>
+</ul>
+<h5 id="standardize-videos">Standardize videos</h5>
+<ul>
+<li><strong>Adjust video length:</strong> We split longer videos into five-second clips to ensure training data consists only of videos of the same length.</li>
+<li><strong>Standardize frame rate:</strong> We re-encode the videos with higher frame rates to 24FPS to ensure all the videos have the same frame rates.</li>
+<li><strong>Adjust video dimensions:</strong> We resize and crop videos to a standard size, for example, 1280x720 pixels.</li>
+</ul>
+<h5 id="precompute-video-representations-in-the-latent-space">Precompute video representations in the latent space</h5>
+<p>As the LDM operates in the latent space, it needs only latent representations as input. Thus, each training iteration normally requires the following steps:</p>
+<ol>
+<li>Extract frames from a video in the training data.</li>
+<li>Pass these frames through a pretrained compression network to obtain latent representations.</li>
+<li>Use the latent representations to continue training the diffusion model.</li>
+</ol>
+<p>However, those steps are inefficient. Extracting frames and compressing them for millions of videos each time we train a new model slows diffusion training. Computing latent representations on the fly is resource-intensive and time-consuming.</p>
+<p>To optimize the process, we precompute the latent representations for all videos and cache them in storage. During training, the diffusion model directly accesses the precomputed latent representations without waiting for frame extraction or compression processes. This approach significantly speeds up the diffusion training process, while keeping the storage cost manageable. Let’s run a quick calculation to understand the storage need.</p>
+<p><strong>Back-of-the-envelope calculation:</strong> Assume that each video frame, when compressed into a latent representation, reduces in size by a factor of 512. So, if a video with 1,000 frames takes up about 1,000 MB, its latent representation would only take around 2 MB. If we cache latent representations for 100 million videos, the total storage required would be around 200 TB. Given modern storage capabilities, this is relatively manageable, especially compared to the significant time saved during training.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video data, likely in the context of training a machine learning model.  The pipeline begins with 'Original training video...' depicted as a collection of variously colored rectangular boxes, each containing a play button symbol (▷), representing individual video segments. These segments are then passed through a 'Filtering' stage, resulting in a smaller set of similarly symbolized rectangular boxes in a light blue rectangle.  This filtered data is then 'Standardized...', producing another set of video segments (represented by colored rectangles with play buttons) arranged vertically in a light blue rectangle.  Finally, the standardized data undergoes 'Precomputing...', transforming the data into a stack of smaller, colored cubic blocks, each also implying a video segment.  These precomputed blocks are then written to a 'Storage' database, represented by a large, pale yellow cylinder.  Arrows indicate the flow of data between each stage, showing the transformation and reduction of data as it progresses through the pipeline." loading="lazy" width="648" height="321" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-8-ZD5FEBI5.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8: Video data preparation</figcaption></div></figure>
+<h3 id="caption-preparation">Caption preparation</h3>
+<p>It's important to have high-quality, consistent captions. Some captions are likely to be missing or irrelevant. Common steps for preparing captions are:</p>
+<ul>
+<li><strong>Handle missing or non-English captions:</strong> For videos without captions or with captions in another language, we use models such as LLaMa3-Video [8] or LLaVA [9] to automatically generate descriptive captions.</li>
+<li><strong>Re-captioning</strong>: We improve existing captions using pretrained video captioning models such as LLaMa3-Video or LLaVA to generate longer, more detailed versions. The Sora team [1] has shown that this process is essential for enhancing quality and text alignment.</li>
+<li><strong>Precomputing caption embeddings:</strong> Diffusion model training requires caption embeddings for conditioning. We use the text encoder to precompute caption embeddings, speeding up LDM training.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a tabular structure illustrating a dataset for a video captioning model.  The table has three columns: 'ID', 'Video latents', and 'Caption embeddings'. The 'ID' column lists sequential identifiers for each data entry, ranging from 1 to N, where N represents an unspecified number of entries. The 'Video latents' column visually depicts each video's latent representation as a three-dimensional rectangular box, implying a compact, vectorized encoding of the video's visual content.  The 'Caption embeddings' column shows each video's corresponding caption represented as a set of vertical rectangular blocks, each block likely representing a word or a segment of the caption's embedding vector. The number of blocks varies across rows, suggesting captions of different lengths.  The ellipsis (...) indicates that the table continues beyond the shown rows, implying a larger dataset with more video-caption pairs.  There is no explicit connection shown between the 'Video latents' and 'Caption embeddings' columns, but the implicit relationship is that each video's latent representation (box) is paired with its corresponding caption embedding (set of blocks) sharing the same ID." loading="lazy" width="277" height="292" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-9-IQGMM2ZO.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9: Prepared video–caption training data for training</figcaption></div></figure>
+<h2 id="model-development">Model Development</h2>
+<h3 id="architecture">Architecture</h3>
+<p>When selecting the architecture for a text-to-video diffusion model, we have two main options: U-Net and DiT. We’ll examine each and determine the additional layers required to extend them to handle videos.</p>
+<h4 id="u-net-for-videos">U-Net for videos</h4>
+<p>Let's briefly review the U-Net architecture before extending it to process videos. As we explored in Chapter 9, the U-Net architecture consists of a series of downsampling blocks followed by a series of upsampling blocks. Each downsampling block includes 2D convolutions to process and update image features and a cross-attention layer to update features by attending to the text prompt.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a U-Net architecture for image processing.  The input is a 64x64 image represented as a gray 3D block. This image is fed into a series of downsampling blocks (labeled 'D', colored light red), each consisting of a Conv2D layer, Batch Normalization, ReLU activation, Max Pooling, and a Cross-Attention mechanism (as indicated by the top dashed box).  These 'D' blocks sequentially reduce the spatial dimensions of the input.  The output of the final downsampling block then flows into a series of upsampling blocks (labeled 'U', colored light green), each mirroring the structure of the downsampling blocks but using transposed convolutions instead of standard convolutions (as shown in the top right dashed box).  These 'U' blocks increase the spatial dimensions, eventually reconstructing the image to the original 64x64 size. The 'D' and 'U' blocks are connected, forming the characteristic U-shape of the U-Net. The entire process is labeled 'U-Net,' with 'Downsampling b...' and 'Upsampling blo...' describing the respective block sequences. The final output is a 64x64 'Predicted...' image, represented as a gray 3D block." loading="lazy" width="588" height="205" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-10-7SEARIJ2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10: U-Net architecture for image generation</figcaption></div></figure>
+<p>However, these layers mainly focus on capturing the relationships between pixels within a single image. This design presents a challenge for videos, where maintaining temporal consistency is crucial for smooth motion and continuity across frames. Current layers, however, operate spatially within individual frames rather than across frames.</p>
+<p>To address this shortcoming, we modify the U-Net architecture to understand relationships across frames. In particular, we inject two commonly used temporal layers:</p>
+<ul>
+<li>Temporal attention</li>
+<li>Temporal convolution</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating a downsampling and upsampling process within a likely neural network architecture.  The diagram is divided into two halves, representing these two processes.  The left half, labeled 'Downsampling...', shows a sequence of operations starting with a 'Temporal Conv' layer, whose output feeds into a horizontally arranged block containing a 'Conv2D', 'Batch Norm2D', 'ReLU', and 'MaxPool2D' layer.  A 'Temporal Attention' layer's output is also fed into this block, likely through concatenation or addition. The right half, labeled 'Upsampling...', mirrors this structure but in reverse. It begins with a 'Temporal Conv' layer feeding into a block containing 'ConvTranspose2D', 'Batch Norm2D', 'ReLU', and 'Cross-attention' layers.  A 'Temporal Attention' layer's output is also fed into this block.  The arrangement suggests a U-Net-like architecture where the downsampling path reduces spatial dimensions, followed by the upsampling path to reconstruct the original dimensions, with cross-attention mechanisms potentially enabling information flow between different levels of the network." loading="lazy" width="441" height="335" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-11-NFQ3QZAK.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11: Injecting temporal layers into the U-Net’s downsampling and upsampling blocks</figcaption></div></figure>
+<p>Let’s briefly review each layer.</p>
+<p><strong>Temporal attention:</strong> Temporal attention utilizes the attention mechanism across frames. Each feature is updated by attending to relevant features across other frames. Figure 12 shows how a certain feature in frame 2 is updated by attending to the features in the other frames.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence of four frames, labeled 'Frame 1,' 'Frame 2,' 'Frame 3,' and 'Frame 4,' enclosed within a dashed-line rectangle. Each frame is depicted as a light green square containing a smaller, empty black square.  Curved arrows originate from the inner black squares of Frame 1 and Frame 2, pointing towards the inner black squares of Frame 2, Frame 3, and Frame 4.  Specifically, the inner square in Frame 1 has one arrow pointing to the inner square in Frame 2. The inner square in Frame 2 has two arrows, one pointing to the inner square in Frame 3 and another to the inner square in Frame 4.  The arrows suggest a flow of information or a dependency between the frames, possibly indicating a sequential process or data transfer.  The dashed line surrounding all frames suggests a boundary or a system encompassing the entire sequence.  An ellipsis ('...') after Frame 4 indicates that the sequence continues beyond the displayed frames." loading="lazy" width="464" height="144" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-12-Y7SXBJV7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12: Temporal attention updating features by looking across frames</figcaption></div></figure>
+<ul>
+<li><strong>Temporal convolution:</strong> Temporal convolution refers to applying a convolution operator to a 3D segment of data, to capture the temporal dimension. Figure 13 illustrates 2D and 3D temporal convolutions.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of 3D and 2D convolutions.  The left side depicts a 3D convolution illustrated as a larger, light-grey rectangular prism representing the input volume.  Within this larger prism, a smaller, salmon-pink rectangular prism labeled '3D...' represents the 3D convolutional kernel or filter. The text '3D convolution' is positioned below this illustration.  The right side mirrors this structure but in 2D: a larger, light-grey square represents the input image, and a smaller, salmon-pink square labeled '2D...' represents the 2D convolutional kernel. The text '2D convolution' is placed below this 2D representation.  Both diagrams visually demonstrate how a smaller kernel (either 3D or 2D) slides across a larger input volume or image to perform the convolution operation. The ellipses (...) in the labels suggest that the kernel's dimensions are not explicitly specified but are implied by the visual representation of the kernel's size relative to the input." loading="lazy" width="296" height="164" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-13-7ZBY5ZVB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13: 2D convolution vs. 3D convolutions</figcaption></div></figure>
+<p>In summary, to extend a U-Net architecture to process videos, we can interleave temporal convolution and temporal attention layers in each downsampling and upsampling block. These layers allow the U-Net architecture to model the motion in input videos and generate a sequence of frames that are temporally consistent. To learn more about how these layers can be interleaved, refer to [10].</p>
+<h4 id="dit-for-videos">DiT for videos</h4>
+<p>Unlike U-Net, which is based mainly on convolutions, DiT relies primarily on the Transformer architecture. As shown in Figure 14, DiT consists of four main components:</p>
+<ul>
+<li>Patchify</li>
+<li>Positional encoding</li>
+<li>Transformer</li>
+<li>Unpatchify</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a denoising model architecture.  A 'Noisy image' box at the bottom feeds into a larger box containing four stacked processing layers: 'Patchify' (light green), 'Positional Encoding' (light red), 'Transformer' (light orange), and 'Unpatchify' (light green).  These layers sequentially process the noisy image.  The 'Patchify' layer likely divides the image into smaller patches for processing.  'Positional Encoding' adds positional information to the patches. The core processing happens within the 'Transformer' layer, a neural network architecture known for handling sequential data. Finally, 'Unpatchify' recombines the processed patches into a complete image.  An arrow indicates data flow from the 'Noisy image' through these layers.  A separate box labeled 'Conditions...' is connected to the input of the 'Transformer' layer, suggesting conditional information influences the denoising process.  The output of the entire process is 'Predicted noise,' represented by a box at the top, indicating the model's prediction of the noise present in the input image.  An upward arrow shows the flow of this predicted noise from the 'Unpatchify' layer." loading="lazy" width="305" height="467" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-14-EPSV5H3W.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14: DiT components</figcaption></div></figure>
+<p>Let’s examine each component and understand its purpose.</p>
+<h5 id="patchify">Patchify</h5>
+<p>This component converts the input to a sequence of embedding vectors. It first divides the input into smaller, fixed-size patches. Each patch is then flattened to form a sequence of vectors. The flattened patches are finally transformed into patch embeddings using a projection layer. This step is crucial to align the embedding size of each flattened patch with the Transformer's hidden size.</p>
+<p>The patchify process is similar for both image and video inputs. For images, it divides the input into fixed-size 2D patches. For videos, the video is divided into 3D patches.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of image and video processing pipelines, both employing a 'Patchify' operation.  On the left, an image is processed.  The image is first divided into 9 patches (represented as vertical rectangles labeled 'Patch em... c' and numbered '9'), each of which is then individually processed by a 'Patchify' module. This module consists of three sequential steps: 'Projection,' 'Flatten,' and 'Divide,' represented as stacked horizontal rectangles within a larger box labeled 'Patchify.'  The output of the Patchify module for each patch is a smaller set of square blocks. On the right, a similar process is shown for a video. The video is first divided into 18 patches (also represented as vertical rectangles labeled 'Patch em... C' and numbered '18').  Each patch is then processed by a 'Patchify' module (identical in structure to the image's module) resulting in a larger, three-dimensional array of cubic blocks.  Arrows indicate the flow of data between stages, showing how the initial image or video is broken into patches, then processed by the Patchify module, resulting in a transformed representation of the input." loading="lazy" width="640" height="356" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-15-CCDM4RWQ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15: Patchify for image vs. video</figcaption></div></figure>
+<h5 id="positional-encoding">Positional encoding</h5>
+<p>The positional encoding component produces an embedding for each position in the original sequence. These embeddings provide the Transformer with information about the location of each patch in the original input.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of data processing for image and video inputs within a system likely involving a transformer network.  The left side depicts image processing:  Nine rectangular blocks labeled '1' through '9' represent a 3x3 image. These blocks are grouped under a curved bracket labeled 'c' indicating channels, and the number '9' below signifies the total number of input features. An upward arrow connects this image representation to a light-red rectangular box labeled 'Positional E...', likely representing a positional encoding layer. The right side shows video processing:  A 3x3x2 cube (represented as a 3x3 grid of cubes, with the depth implied) labeled '1' through '6' (and implied further numbers) represents a video frame, with '18' below indicating the total number of input features.  Similarly, an upward arrow connects this video representation to a light-red rectangular box labeled 'Positional E...', indicating the same positional encoding layer is used for both image and video data.  The difference lies in the input dimensionality: a 2D array for images (9 features) and a 3D array for videos (18 features), both processed through the same positional encoding step." loading="lazy" width="492" height="431" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-16-UQXRWHTJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16: 1D positional encoding for image vs. video</figcaption></div></figure>
+<p>As we saw in Chapter 2, there are different ways to encode positions: Some methods use fixed positional encoding during training, while other methods make the positional encoding learnable. There are also different ways to assign positions to each patch. For example, we can give each patch a single number to show its place in a sequence or use 3D coordinates (2D for images) to show where each patch is in space and time.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of different positional encoding methods in a system, likely for a neural network.  The left side shows a 2D encoding where a 3x3 grid of data points, represented by numbers like '1,1', '1,2', etc., feeds into a positional encoding function denoted as  `$F(i, j)` (where `i` and `j` likely represent row and column indices). This function's output is shown as a rectangular box.  The right side shows a 1D encoding where a 3x3 grid is flattened into a 1D sequence (1, 2, 3, 4, 5, 6, 7, 8, 9) and fed into a positional encoding function `$F(i)` (where `i` is the index in the sequence).  The output is again represented by a rectangular box.  Below this, the same comparison is shown for 3D encoding, where a 3x3x3 cube of data points is first represented as a 3D structure and then flattened into a 1D sequence before being processed by `$F(i,j,k)` (for 3D) and `$F(i)` (for 1D) respectively, with outputs shown as rectangular boxes.  Arrows indicate the flow of information from the data representation to the positional encoding function.  The label 'Positional encoding...' indicates the overall theme of the diagram." loading="lazy" width="572" height="215" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-17-LVBAHEFB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17: 1D, 2D, and 3D positional encoding</figcaption></div></figure>
+<p>There is not one best way to do positional encoding. We often need to run experiments to find the approach that will be most effective for the data and task. In this chapter, we follow OpenSora [11] and use RoPE [12] positional encoding. To learn more about positional encoding in text-to-video models, refer to [4].</p>
+<h5 id="transformer">Transformer</h5>
+<p>The Transformer processes the sequence of embeddings and other conditioning signals, such as the text prompt, to predict noise for each patch.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence-to-sequence model architecture, likely used for denoising or generation tasks.  The model begins with an 'Input sequence...' represented as multiple vertical blocks, each block symbolizing a vector or embedding. These input vectors feed into a 'Transformer' block, which is depicted as a peach-colored rectangle containing stacked layers: 'Normalization,' 'Feed Forward,' 'Cross-Attention' (labeled with 'Nx' indicating a parameter likely related to the number of attention heads), another 'Normalization' layer, and finally 'Multi-head...' (implying multi-head self-attention).  The output of the Transformer is then used to predict 'Predicted noise,' also represented as multiple vertical blocks.  Separately, a 'Conditioning signal...' feeds into an 'Encoder' block, which then sends its output to the input of the Transformer, allowing the model to condition its generation on external information.  Arrows indicate the flow of information between components, showing how the input sequence, conditioned by the encoder's output, is processed by the Transformer to generate the predicted noise sequence." loading="lazy" width="403" height="511" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-18-BC4FATG6.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18: Transformer component</figcaption></div></figure>
+<h5 id="unpatchify">Unpatchify</h5>
+<p>Unpatchify converts the predicted noise vectors back to the original input dimensions. It includes a <em>LayerNorm</em> for normalization, a linear layer to adjust vector length, and a reshape operation to form the final output.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of two different architectures for a generative model, likely focused on noise prediction and image generation.  Both sides share a similar structure. At the bottom, labeled 'Noise vectors predicted...', are multiple vertical rectangular blocks representing input noise vectors; the ellipsis (...) indicates that more such vectors exist.  These vectors are fed upwards into a green block labeled 'Unpatchify,' which processes them. Above 'Unpatchify,' a stacked block contains three layers: 'Reshape,' 'Linear,' and 'LayerNorm,' sequentially processing the output of 'Unpatchify.' Finally, at the top, a shape labeled 'Predicted noi...' represents the predicted noise output; on the left, this is a square, while on the right, it's a three-dimensional rectangular prism, suggesting a difference in the dimensionality or representation of the predicted noise between the two architectures.  The arrows indicate the flow of information from the noise vectors through the processing layers to the final predicted noise output.  The difference between the left and right sides lies primarily in the shape of the final predicted noise output, implying a variation in the output's dimensionality or structure." loading="lazy" width="308" height="456" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-19-CGALPU3N.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19: Unpatchify component</figcaption></div></figure>
+<h4 id="u-net-vs-dit">U-Net vs. DiT</h4>
+<p>Both U-Net and DiT architectures are proven to be effective for text-to-video generation. The U-Net architecture has been around for longer and has been extensively tested. Popular U-Net-based text-to-video models include Stable Video Diffusion [13] by Stability AI and EMU video [14] by Meta.</p>
+<p>The DiT architecture is more recent and has shown great promise, with superior results. DiT performs better with increased data and computational power due to the scalable nature of Transformers. In addition, it has a flexible architecture, making it easier to adapt to videos and other input modalities. Meta’s <em>Movie Gen</em> and OpenAI’s <em>Sora</em> is a popular model based on the DiT architecture.</p>
+<p>In this chapter, we follow Sora and choose the DiT architecture.</p>
+<h3 id="training">Training</h3>
+<p>Training a video diffusion model is very similar to training an image diffusion model. During training, we add noise to the original video by simulating the forward process and train the model to predict the added noise. The three concrete steps involved in one iteration of training are:</p>
+<ol>
+<li><strong>Noise addition:</strong> A timestep is randomly sampled to determine the level of noise addition. The sampled timestep is used to add noise to the input video.</li>
+<li><strong>Noise prediction:</strong> The DiT model receives the noisy video as input and predicts the added noise based on conditioning signals such as text prompt and the sampled timestep.</li>
+<li><strong>Loss calculation:</strong> The loss is measured by comparing the predicted noise to the actual noise.</li>
+</ol>
+<p>To review diffusion training in more detail, refer to Chapter 9.</p>
+<h4 id="ml-objective-and-loss-function">ML objective and loss function</h4>
+<p>The primary loss function is the reconstruction loss, calculated using the mean squared error (MSE) formula. This loss measures the difference between the predicted noise and the actual noise, encouraging the model to accurately predict the added noise. The ML objective is to minimize the reconstruction loss, leading to accurate video reconstruction.</p>
+<p>Researchers have experimented with adding other loss functions to enhance text-to-video performance. To learn more, refer to [4].</p>
+<h4 id="challenges-in-training-video-diffusion-models">Challenges in training video diffusion models</h4>
+<p>Training a DiT model for text-to-video generation involves several challenges and design decisions. This section explores two important challenges:</p>
+<ul>
+<li>Lack of large-scale video–text data</li>
+<li>Computational cost of high-resolution video generation</li>
+</ul>
+<h5 id="lack-of-large-scale-videotext-training-data">Lack of large-scale video–text training data</h5>
+<p>Training large models requires lots of data. As opposed to training text-to-image models, where a huge amount of image–text paired data is available, paired video–text data is scarce. This scarcity presents a challenge in training effective video generation models.</p>
+<p>There are two common strategies for addressing the lack of large-scale data:</p>
+<ol>
+<li><strong>Train the DiT model on both image and video data:</strong> This strategy treats each image as a single-frame video, thus allowing the model to train on both image–text and video–text data.</li>
+<li><strong>Pretrain the DiT model on image data:</strong> This strategy first pretrains the DiT model on image–text pairs to leverage extensive image data and build a strong visual foundation. The pretrained model is then finetuned on video–text pairs for video generation.</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two strategies for training a video generation model.  Strategy 1 shows a 'Training' block receiving input from two cylindrical database representations labeled 'Image-text pairs' and 'Video-text pai...'.  The output of the 'Training' block is an arrow pointing to a light green cloud labeled 'Video...', representing the generated video. Strategy 2 depicts a 'Pretraining' block taking input from a cylindrical database labeled 'Image-text pairs,' outputting to a light orange cloud labeled 'Image...', which then feeds into a 'Finetuning' block.  The 'Finetuning' block receives input from a second cylindrical database labeled 'Video-text pai...' and outputs to a light green cloud labeled 'Video...', representing the generated video.  Both strategies ultimately generate videos ('Video...') but utilize different training approaches: Strategy 1 trains directly on both image-text and video-text pairs, while Strategy 2 uses a two-stage process, first pretraining on image-text pairs and then finetuning on video-text pairs." loading="lazy" width="622" height="278" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-20-4S7FDBMQ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20: Two strategies to utilize image–text training data</figcaption></div></figure>
+<p>Both strategies leverage hundreds of millions of image–text data in training, allowing the DiT model to learn from both images and videos. For simplicity, we choose the first strategy, as it requires only one stage of training. However, both strategies can be effective in practice.</p>
+<h5 id="computational-cost-of-high-resolution-video-generation">Computational cost of high-resolution video generation</h5>
+<p>As discussed earlier, processing and generating videos is more expensive than images. This is primarily because videos generally contain hundreds of frames, making the process slower and more costly. Generating high-resolution videos, such as 720p or 1080p, adds to the challenge.</p>
+<p>Here are a few common strategies to reduce the computational cost of training high-resolution video generation models:</p>
+<ul>
+<li><strong>Employ an LDM-based approach:</strong> Instead of training the DiT model directly in pixel space, we use a compression network to convert videos from pixel space into a lower-dimensional latent space. Training the diffusion model in this latent space reduces the computational load.</li>
+<li><strong>Precompute video representations:</strong> By precomputing video representations in the latent space before training, we avoid repetitive computations during training. Utilizing this cached data speeds up the training process.</li>
+<li><strong>Utilize a spatial super-resolution model:</strong> As proposed by Google’s “<em>Imagen video”</em> [15], we use a separately trained model to upscale the resolution of generated videos. The DiT model generates videos at a lower resolution that are then enhanced to the desired resolution by a spatial super-resolution model. For example, the DiT model can generate videos at 720p, and a spatial super-resolution model can then upscale them to 1080p or 4K.</li>
+<li><strong>Utilize a temporal super-resolution model:</strong> As proposed by [15], we employ a model to increase the temporal resolution by interpolating between frames. For instance, if a video should be five seconds at 24 FPS (i.e., 120 frames total), the DiT model can generate it at 12 FPS (60 frames), and a temporal super-resolution model can then interpolate to achieve 24 FPS.</li>
+<li><strong>Use more efficient architectures:</strong> We can adopt an efficient implementation of the attention mechanism [16] to reduce the computational load during training. Additionally, techniques like Mixture of Experts (MoE) [17] can be used to accelerate the training process.</li>
+<li><strong>Use distributed training:</strong> We use distributed training techniques, such as tensor parallelism, to parallelize training across multiple devices. By splitting the model, data, or both across different devices, we can significantly speed up training and handle larger video datasets more efficiently. This approach is particularly useful for high-resolution video generation, where memory and computational demands are substantial. For an overview of distributed training, refer to Chapter 1.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video generation.  It begins with a rectangular box labeled 'Latent...' (orange), representing input latent data, which flows (indicated by an arrow and numbered '1') into a trapezoidal box labeled 'Visual D...' (light green), representing a visual decoder.  The output of the visual decoder ('Generated video...', dimensions 40x23x8) is then processed in two parallel paths.  Path one involves a connection (numbered '2') to a rectangular box labeled 'Spatial...' (light purple), followed by an arrow and numbered '3' to another rectangular box labeled 'Temporal...' (light purple). Path two directly connects the visual decoder output to a large rectangular prism representing the 'Generated video...' (dimensions 320x180x60). The outputs of 'Spatial...' and 'Temporal...' are then combined (arrow and numbered '4') to create the final video, represented by a larger rectangular prism labeled 'Final video' with dimensions 1280x720x120.  The numbers within the boxes represent dimensions (likely height, width, and depth/frames) of the video data at each stage.  The arrows indicate the flow of data between processing stages." loading="lazy" width="641" height="407" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-21-HURBD34R.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21: Efficient text-to-video pipeline</figcaption></div></figure>
+<h3 id="sampling">Sampling</h3>
+<p>The sampling process in diffusion models starts with random noise, and the model iteratively denoises the sample until a fully denoised video representation in the latent space is obtained. For more details on sampling in diffusion models, refer to Chapter 9.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diffusion model architecture for generating images from text prompts.  The process begins with a 'Random...' block, representing a randomly initialized latent vector, which is fed into a series of three 'Latent...' blocks. Each 'Latent...' block represents a stage in the diffusion process, receiving input from the previous stage and a 'Text Enc...' block.  The 'Text Enc...' blocks, labeled with 'a dog walking...', encode the text prompt ('a dog walking...') into a vector that conditions the diffusion process at each stage.  Arrows indicate the flow of information: the output of each 'Latent...' block is passed to the next, and the output of each 'Text Enc...' block is fed into the corresponding 'Latent...' block.  After three stages, the final 'Latent...' block outputs a 'Denoised...' vector, representing the generated image's latent representation.  The ellipsis (...) after the second 'Latent...' block indicates that this section could be repeated multiple times depending on the model's design." loading="lazy" width="544" height="192" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-22-BWMD7NBF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 22: Sampling process from a trained LDM</figcaption></div></figure>
+<h2 id="evaluation">Evaluation</h2>
+<h3 id="offline-evaluation-metrics">Offline evaluation metrics</h3>
+<p>A consistent benchmark is crucial for evaluating video generation models. <em>VBench</em> [18] and <em>Movie Gen Bench</em> [19] offer this by providing a curated set of prompts designed to test various aspects of video generation such as motion coherence, temporal consistency, and scene complexity. We can use these benchmarks to measure how well the model creates realistic and smooth videos, focusing on video quality, motion accuracy, and scene transitions. Let’s explore both automated metrics and human evaluation, focusing on three key areas:</p>
+<ul>
+<li>Frame quality</li>
+<li>Temporal consistency</li>
+<li>Video–text alignment</li>
+</ul>
+<h4 id="frame-quality">Frame quality</h4>
+<p>Frame quality refers to measuring the quality of each frame independently. To measure this quality we employ FID [20] and Inception score (IS) [21], both of which are commonly used for images. The overall quality is calculated by averaging the FID and IS scores of all frames. Other metrics such as LPIPS [22] and KID [23] can also be used.</p>
+<p>While FID and IS measure the quality of individual frames, they don't account for the temporal consistency in generated videos. For instance, a video might have high-quality frames but lack smooth transitions, resulting in a high FID score without visual coherence. Let's explore temporal consistency and the common metrics used to measure it.</p>
+<h4 id="temporal-consistency">Temporal consistency</h4>
+<p>Temporal consistency refers to how smoothly visual content transitions from one frame to the next. Evaluating temporal consistency is important to ensure the generated video flows naturally. A common metric for measuring temporal consistency is the Fréchet Video Distance (FVD).</p>
+<h5 id="fvd">FVD</h5>
+<p>FVD [24], which is an extension of FID, evaluates both the visual quality and temporal consistency of videos. It compares the statistical distribution of generated videos to real videos in an embedded space.</p>
+<p>Here's a step-by-step guide to calculating the FVD score:</p>
+<ol>
+<li><strong>Generating videos:</strong> We start by generating a large set of videos using the model we want to evaluate. These videos will be compared against a set of real videos to evaluate their quality and consistency.</li>
+<li><strong>Extracting features:</strong> We pass each video (both generated and real) through a pretrained I3D model [25] and extract features from a specific layer. The I3D model extends the Inception v3 [26] architecture to sequential data by training it for action recognition.</li>
+<li><strong>Calculating mean and covariance:</strong> We calculate the mean and covariance of the extracted features separately for generated and real videos. These statistical measures summarize the distribution of features for both sets of videos.</li>
+<li><strong>Computing Fréchet distance:</strong> We calculate the FVD score as the Fréchet distance between the mean and covariance of generated and real videos. The Fréchet distance measures how close the two distributions are.</li>
+</ol>
+<p>A lower FVD score indicates greater similarity between the distributions, meaning the generated videos are more realistic and temporally consistent.</p>
+<h4 id="videotext-alignment">Video–text alignment</h4>
+<p>Video–text alignment refers to how accurately the generated video reflects the textual description on which it was conditioned.</p>
+<p>A commonly used metric to measure video–text alignment is the CLIP similarity score, calculated as follows:</p>
+<ol>
+<li><strong>Extracting frame-level features:</strong> We pass each video frame through a pretrained CLIP image encoder to get visual features. The text is encoded using the text encoder to obtain textual features.</li>
+<li><strong>Calculating similarities:</strong> For each frame, we compute the cosine similarity between its visual features and the textual features. This score indicates how well the frame content aligns with the text.</li>
+<li><strong>Aggregating per-frame similarities:</strong> We aggregate these similarity scores to get a single score representing the overall video–text alignment. Aggregation can be done by averaging, taking the maximum score, or using other statistical methods.</li>
+</ol>
+<p>A high CLIP similarity score indicates that generated videos are aligned with their corresponding text.</p>
+<h4 id="human-evaluation">Human evaluation</h4>
+<p>Alongside the described automated metrics, human evaluation is still vital for assessing generative models, as it provides a subjective assessment that complements automated measures.</p>
+<p>For human evaluation, we generate videos from test prompts using two different models. We then present pairs of videos, one from each model, to human annotators. They choose the better video based on assessing video–text alignment, video quality, and temporal consistency. This process allows us to compare two models to see which one performs better.</p>
+<h3 id="online-evaluation-metrics">Online evaluation metrics</h3>
+<p>Online evaluation metrics for text-to-video models are similar to those for text-to-image models. Important metrics include:</p>
+<ul>
+<li>Click-through rate</li>
+<li>Time spent on the page</li>
+<li>User feedback</li>
+<li>Conversion rate</li>
+</ul>
+<p>These metrics help gauge user engagement, satisfaction, and overall model performance in production.</p>
+<h2 id="overall-ml-system-design">Overall ML System Design</h2>
+<p>In this section, we dive into the holistic design of a text-to-video generation system. In particular, we examine the following pipelines:</p>
+<ul>
+<li>Data pipeline</li>
+<li>Training pipeline</li>
+<li>Inference pipeline</li>
+</ul>
+<h3 id="data-pipeline">Data pipeline</h3>
+<p>The data pipeline prepares training data by filtering unsuitable images and videos, standardizing them, and precomputing and storing latent representations. It ensures captions are relevant and detailed by re-captioning and using a pretrained text encoder to precompute and store caption embeddings.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline with three parallel processing paths.  The top path begins with a database cylinder labeled 'Raw...' representing raw image data. This data flows into a rectangular box labeled 'Inappropriate...', presumably for filtering inappropriate content.  The filtered images then move to a box labeled 'Image...', followed by a light green box labeled 'Image Latent...', which likely represents a latent space representation of the images. Finally, the processed data is stored in a database cylinder labeled 'Image...'. The middle path mirrors this structure, processing 'Raw Videos' through 'Inappropriate...', 'Video...', and 'Video Latent...' boxes, culminating in a 'Video...' database. The bottom path starts with another 'Raw...' database (likely containing text captions), which feeds into a 'Re-captioning' box. The output then goes to a light green 'Caption Embedding...' box, generating embeddings, and finally stores the result in a 'Caption...' database.  Arrows indicate the unidirectional flow of data between each processing stage." loading="lazy" width="595" height="290" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-23-34HXC2B4.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 23: Data pipeline</figcaption></div></figure>
+<h3 id="training-pipeline">Training pipeline</h3>
+<p>The training pipeline trains the model using the training data prepared by the data pipeline.</p>
+<h3 id="inference-pipeline">Inference pipeline</h3>
+<p>The inference pipeline processes real-time user requests to generate videos from text prompts. As shown in Figure 24, it has several crucial components that ensure system quality and safety.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart depicting the process of generating a video from a user prompt within a generative AI system.  The process begins with a user typing a prompt (1) and submitting it (2) to a 'Prompt Safety...' module (light blue) which checks for safety concerns. If deemed safe (3a), the prompt proceeds to a 'Prompt...' module (pale yellow), then to a 'Video...' module (light orange). The 'Video...' module receives input from both a 'Text...' module (grey cloud) and an 'LDM' module (grey cloud) (5a and 5b), likely representing text-based and latent diffusion model processing.  The output then goes through a 'Visual...' module (light green) and a 'Harm...' module (slate grey) for further safety checks. If safe (8a), it moves to a 'Temporal...' module (light red), which receives input from a 'Spatial...' module (light red) (9). Finally, the processed information is sent to a 'Generate...' module (white square with a play button) (10) to produce the video output. If at any point a safety check fails (3b or 8b), the process is rejected, resulting in a 'Reject r...' outcome.  The numbered circles (1-10) indicate the sequential steps in the process." loading="lazy" width="648" height="268" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/text-to-video-generation/figure-11-24-6ECXISWN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 24: Inference pipeline components</figcaption></div></figure>
+<p>Most of the components are similar to those explored in Chapter 9 for text-to-image generation. The unique components for text-to-video generation are:</p>
+<ul>
+<li>Visual decoder</li>
+<li>Temporal super-resolution</li>
+</ul>
+<h4 id="visual-decoder">Visual decoder</h4>
+<p>The LDM generates output in the latent space, not the pixel space. The visual decoder then uses the compression network to convert this latent representation back into the pixel space.</p>
+<h4 id="temporal-super-resolution">Temporal super-resolution</h4>
+<p>This component interpolates between the generated frames, leading to smoother motion in videos.</p>
+<h2 id="other-talking-points">Other Talking Points</h2>
+<p>In case there's extra time at the end of the interview, you might discuss these further topics:</p>
+<ul>
+<li>Ensuring sampling flexibility for variable durations, resolutions, and aspect ratios [1].</li>
+<li>Extending the text-to-video model to downstream applications such as inpainting, outputpainting, video-to-video stylization, frame interpolation, super-resolution, and animating images (image-to-video) [10].</li>
+<li>Support for controlling the generated videos such as the level of desired motion and the type of motion (camera vs. object motion) [27].</li>
+<li>Using progressive distillation techniques to reduce the computational demands of training [28].</li>
+<li>Details of spatial and temporal super-resolution models [15].</li>
+<li>Details of re-captioning model [9][8].</li>
+<li>Different noise schedulers. [29].</li>
+<li>Noise conditioning augmentation techniques [30].</li>
+<li>Personalizing a text-to-video model to a particular subject [31].</li>
+<li>ControlNet for text-to-video models [32].</li>
+<li>Details of Stable Cascade method [33].</li>
+<li>Details of visual compression network [13].</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mind map summarizing the design of a video generation AI system.  The central node is labeled 'Summary,' branching out into several major categories.  The 'Clarifying Requirements' branch details specifying input and output, and framing the problem as a machine learning (ML) approach, specifically using Latent Diffusion Models (LDM).  The 'Data Preprocessing' branch covers video standardization, pre-computation, and caption handling (including missing or non-English captions) and pre-computing caption embeddings.  The 'Model Development' branch focuses on architecture (using U-Net, temporal attention, and positional encoding within a Diffusion model), training, and challenges (computational cost and limitations of long video runs).  The 'Evaluation' branch distinguishes between offline (frame quality metrics like PSNR, LPIPS, and KID; temporal consistency; video-text alignment; and click-through rate) and online (time spent on the page, user feedback, and conversion rate) metrics.  Finally, the 'Overall System Components' branch details the data pipeline, training pipeline, and inference pipeline, which includes components like a prompt safety service, video generator, visual detector, and spatial and temporal super-resolution.  The 'Other Talking Points' branch suggests additional discussion areas.  All branches are color-coded for clarity, and the connections visually represent the hierarchical relationships between different aspects of the system design." loading="lazy" width="785" height="1075" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(785px, 100vw), (max-width: 1200px) min(785px, 80vw), min(785px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Ftext-to-video-generation%2Fimage-11-1-C732V243.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></figure>
+<h2 id="reference-material">Reference Material</h2>
+<p>[1] Video generation models as world simulators. <a href="https://openai.com/index/video-generation-models-as-world-simulators/" target="_blank" rel="noopener noreferrer">https://openai.com/index/video-generation-models-as-world-simulators/</a>.<br>
+[2] H100 Tensor Core GPU. <a href="https://www.nvidia.com/en-us/data-center/h100/" target="_blank" rel="noopener noreferrer">https://www.nvidia.com/en-us/data-center/h100/</a>.<br>
+[3] High-Resolution Image Synthesis with Latent Diffusion Models. <a href="https://arxiv.org/abs/2112.10752" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2112.10752</a>.<br>
+[4] Meta Movie Gen. <a href="https://ai.meta.com/research/movie-gen/" target="_blank" rel="noopener noreferrer">https://ai.meta.com/research/movie-gen/</a>.<br>
+[5] Auto-Encoding Variational Bayes. <a href="https://arxiv.org/abs/1312.6114" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1312.6114</a>.<br>
+[6] The Illustrated Stable Diffusion. <a href="https://jalammar.github.io/illustrated-stable-diffusion/" target="_blank" rel="noopener noreferrer">https://jalammar.github.io/illustrated-stable-diffusion/</a>.<br>
+[7] On the De-duplication of LAION-2B. <a href="https://arxiv.org/abs/2303.12733" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.12733</a>.<br>
+[8] The Llama 3 Herd of Models. <a href="https://arxiv.org/abs/2407.21783" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2407.21783</a>.<br>
+[9] LLaVA-NeXT: A Strong Zero-shot Video Understanding Model. <a href="https://llava-vl.github.io/blog/2024-04-30-llava-next-video/" target="_blank" rel="noopener noreferrer">https://llava-vl.github.io/blog/2024-04-30-llava-next-video/</a>.<br>
+[10] Lumiere: A Space-Time Diffusion Model for Video Generation. <a href="https://arxiv.org/abs/2401.12945" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2401.12945</a>.<br>
+[11] OpenSora Technical Report. <a href="https://github.com/hpcaitech/Open-Sora/blob/main/docs/report_02.md" target="_blank" rel="noopener noreferrer">https://github.com/hpcaitech/Open-Sora/blob/main/docs/report_02.md</a>.<br>
+[12] RoFormer: Enhanced Transformer with Rotary Position Embedding. <a href="https://arxiv.org/abs/2104.09864" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2104.09864</a>.<br>
+[13] Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets. <a href="https://arxiv.org/abs/2311.15127" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.15127</a>.<br>
+[14] Emu Video: Factorizing Text-to-Video Generation by Explicit Image Conditioning. <a href="https://arxiv.org/abs/2311.10709" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.10709</a>.<br>
+[15] Imagen Video: High Definition Video Generation with Diffusion Models. <a href="https://arxiv.org/abs/2210.02303" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.02303</a>.<br>
+[16] HyperAttention: Long-context Attention in Near-Linear Time. <a href="https://arxiv.org/abs/2310.05869" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.05869</a>.<br>
+[17] Mixture of Experts Explained. <a href="https://huggingface.co/blog/moe" target="_blank" rel="noopener noreferrer">https://huggingface.co/blog/moe</a>.<br>
+[18] VBench: Comprehensive Benchmark Suite for Video Generative Models. <a href="https://vchitect.github.io/VBench-project/" target="_blank" rel="noopener noreferrer">https://vchitect.github.io/VBench-project/</a>.<br>
+[19] Movie Gen Bench. <a href="https://github.com/facebookresearch/MovieGenBench" target="_blank" rel="noopener noreferrer">https://github.com/facebookresearch/MovieGenBench</a>.<br>
+[20] FID calculation. <a href="https://en.wikipedia.org/wiki/Fr%C3%A9chet_inception_distance" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Fr%C3%A9chet_inception_distance</a>.<br>
+[21] Inception score. <a href="https://en.wikipedia.org/wiki/Inception_score" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Inception_score</a>.<br>
+[22] The Unreasonable Effectiveness of Deep Features as a Perceptual Metric. <a href="https://arxiv.org/abs/1801.03924" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1801.03924</a>.<br>
+[23] Demystifying MMD GANs. <a href="https://arxiv.org/abs/1801.01401" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1801.01401</a>.<br>
+[24] Towards Accurate Generative Models of Video: A New Metric &amp; Challenges. <a href="https://arxiv.org/abs/1812.01717" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1812.01717</a>.<br>
+[25] Quo Vadis, Action Recognition? A New Model and the Kinetics Dataset. <a href="https://arxiv.org/abs/1705.07750" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1705.07750</a>.<br>
+[26] Rethinking the Inception Architecture for Computer Vision. <a href="https://arxiv.org/abs/1512.00567" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1512.00567</a>.<br>
+[27] Moonshot: Towards Controllable Video Generation and Editing with Multimodal Conditions. <a href="https://arxiv.org/abs/2401.01827" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2401.01827</a>.<br>
+[28] Progressive Distillation for Fast Sampling of Diffusion Models. <a href="https://arxiv.org/abs/2202.00512" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2202.00512</a>.<br>
+[29] Schedulers. <a href="https://huggingface.co/docs/diffusers/v0.9.0/en/api/schedulers" target="_blank" rel="noopener noreferrer">https://huggingface.co/docs/diffusers/v0.9.0/en/api/schedulers</a>.<br>
+[30] Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding. <a href="https://arxiv.org/abs/2205.11487" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2205.11487</a>.<br>
+[31] CustomVideo: Customizing Text-to-Video Generation with Multiple Subjects. <a href="https://arxiv.org/abs/2401.09962" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2401.09962</a>.<br>
+[32] Control-A-Video: Controllable Text-to-Video Generation with Diffusion Models. <a href="https://controlavideo.github.io/" target="_blank" rel="noopener noreferrer">https://controlavideo.github.io/</a>.<br>
+[33] Introducing Stable Cascade. <a href="https://stability.ai/news/introducing-stable-cascade" target="_blank" rel="noopener noreferrer">https://stability.ai/news/introducing-stable-cascade</a>.</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../genai-system-design-interview.html">← Course Contents</a>
+        <a href="personalized-headshot-generation.html">← Previous</a>
+        
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

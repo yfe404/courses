@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21 - Metrics Monitoring and Alerting System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="distributed-message-queue.html">← Previous</a>
+        <a href="ad-click-event-aggregation.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">21</span> Metrics Monitoring and Alerting System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/metrics-monitoring-and-alerting-system" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">21</strong><h1>Metrics Monitoring and Alerting System</h1></header><p>In this chapter, we explore the design of a scalable metrics monitoring and alerting system. A well-designed monitoring and alerting system plays a key role in providing clear visibility into the health of the infrastructure to ensure high availability and reliability.</p>
+<p>Figure 1 shows some of the most popular metrics monitoring and alerting services in the marketplace. In this chapter, we design a similar service that can be used internally by a large company.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a collection of logos for various monitoring and visualization tools, arranged in two rows.  The top row features Datadog (purple logo with a dog and graph), InfluxDB (blue logo with a cube), New Relic (teal circular logo), and Nagios (black text logo). The bottom row displays Prometheus (orange circular logo with a flame), Munin (black silhouette of a bird with a green graph line below), Grafana (orange sun-like logo with a spiral), and Graphite (blue stylized 'g' logo with the word 'graphite').  There are no visible connections or information flow depicted between the logos; the image simply presents a list of different tools, likely for comparison or as examples within the context of a system design interview focusing on monitoring and observability." width="500" height="185" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-1-popular-metrics-monitoring-and-alerting-services-TAZBQ5OC.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1 Popular metrics monitoring and alerting services</figcaption></div></figure>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the Problem and Establish Design Scope</h2>
+<p>A metrics monitoring and alerting system can mean many different things to different companies, so it is essential to nail down the exact requirements first with the interviewer. For example, you do not want to design a system that focuses on logs such as web server error or access logs if the interviewer has only infrastructure metrics in mind.</p>
+<p>Let’s first fully understand the problem and establish the scope of the design before diving into the details.</p>
+<p><strong>Candidate</strong>: Who are we building the system for? Are we building an in-house system for a large corporation like Facebook or Google, or are we designing a SaaS service like Datadog [1], Splunk [2], etc?<br>
+<strong>Interviewer</strong>: That’s a great question. We are building it for internal use only.</p>
+<p><strong>Candidate</strong>: Which metrics do we want to collect?<br>
+<strong>Interviewer</strong>: We want to collect operational system metrics. These can be low-level usage data of the operating system, such as CPU load, memory usage, and disk space consumption. They can also be high-level concepts such as requests per second of a service or the running server count of a web pool. Business metrics are not in the scope of this design.</p>
+<p><strong>Candidate</strong>: What is the scale of the infrastructure we are monitoring with this system?<br>
+<strong>Interviewer</strong>: 100 million daily active users, 1,000 server pools, and 100 machines per pool.</p>
+<p><strong>Candidate</strong>: How long should we keep the data?<br>
+<strong>Interviewer</strong>: Let’s assume we want 1-year retention.</p>
+<p><strong>Candidate</strong>: May we reduce the resolution of the metrics data for long-term storage?<br>
+<strong>Interviewer</strong>: That’s a great question. We would like to be able to keep newly received data for 7 days. After 7 days, you may roll them up to a 1-minute resolution for 30 days. After 30 days, you may further roll them up at a 1-hour resolution.</p>
+<p><strong>Candidate</strong>: What are the supported alert channels?<br>
+<strong>Interviewer</strong>: Email, phone, PagerDuty, or webhooks (HTTP endpoints).</p>
+
+<p><strong>Candidate</strong>: Do we need to collect logs, such as error log or access log?<br>
+<strong>Interviewer</strong>: No.</p>
+<p><strong>Candidate</strong>: Do we need to support distributed system tracing?<br>
+<strong>Interviewer</strong>: No.</p>
+<h3 id="high-level-requirements-and-assumptions">High-level requirements and assumptions</h3>
+<p>Now you have finished gathering requirements from the interviewer and have a clear scope of the design. The requirements are:</p>
+<ul>
+<li>
+<p>The infrastructure being monitored is large-scale.</p>
+<ul>
+<li>
+<p>100 million daily active users</p>
+</li>
+<li>
+<p>Assume we have 1,000 server pools, 100 machines per pool, 100 metrics per machine =&gt; ~10 million metrics</p>
+</li>
+<li>
+<p>1-year data retention</p>
+</li>
+<li>
+<p>Data retention policy: raw form for 7 days, 1-minute resolution for 30 days, 1-hour resolution for 1 year.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>A variety of metrics can be monitored, for example:</p>
+<ul>
+<li>
+<p>CPU usage</p>
+</li>
+<li>
+<p>Request count</p>
+</li>
+<li>
+<p>Memory usage</p>
+</li>
+<li>
+<p>Message count in message queues</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="non-functional-requirements">Non-functional requirements</h3>
+<ul>
+<li>
+<p>Scalability. The system should be scalable to accommodate growing metrics and alert volume.</p>
+</li>
+<li>
+<p>Low latency. The system needs to have low query latency for dashboards and alerts.</p>
+</li>
+<li>
+<p>Reliability. The system should be highly reliable to avoid missing critical alerts.</p>
+</li>
+<li>
+<p>Flexibility. Technology keeps changing, so the pipeline should be flexible enough to easily integrate new technologies in the future.</p>
+</li>
+</ul>
+<p>Which requirements are out of scope?</p>
+<ul>
+<li>
+<p>Log monitoring. The Elasticsearch, Logstash, Kibana (ELK) stack is very popular for collecting and monitoring logs [3].</p>
+</li>
+<li>
+<p>Distributed system tracing [4] [5]. Distributed tracing refers to a tracing solution that tracks service requests as they flow through distributed systems. It collects data as requests go from one service to another.</p>
+</li>
+</ul>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose High-Level Design and Get Buy-In</h2>
+<p>In this section, we discuss some fundamentals of building the system, the data model, and the high-level design.</p>
+<h3 id="fundamentals">Fundamentals</h3>
+<p>A metrics monitoring and alerting system generally contains five components, as illustrated in Figure 2.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a high-level diagram of a metrics monitoring and alerting system.  The central component is a rounded rectangle labeled 'Metrics monitoring and alerting system.' Five curved lines emanate from this central component, each labeled with a numbered function: 1. Data collection, 2. Data transmission, 3. Data storage, 4. Alerting, and 5. Visualization.  These lines indicate the flow of information from the core system to these five distinct functionalities.  The diagram illustrates that the central system is responsible for orchestrating these five key processes involved in collecting, transmitting, storing, alerting on, and visualizing metrics data.  There are no URLs or parameters explicitly shown in the diagram." loading="lazy" width="400" height="240" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(400px, 100vw), (max-width: 1200px) min(400px, 80vw), min(400px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-2-five-components-of-the-system-4UF4TGR7.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2 Five components of the system</figcaption></div></figure>
+<ul>
+<li>
+<p>Data collection: collect metric data from different sources.</p>
+</li>
+<li>
+<p>Data transmission: transfer data from sources to the metrics monitoring system.</p>
+</li>
+<li>
+<p>Data storage: organize and store incoming data.</p>
+</li>
+<li>
+<p>Alerting: analyze incoming data, detect anomalies, and generate alerts. The system must be able to send alerts to different communication channels.</p>
+</li>
+<li>
+<p>Visualization: present data in graphs, charts, etc. Engineers are better at identifying patterns, trends, or problems when data is presented visually, so we need visualization functionality.</p>
+</li>
+</ul>
+<h3 id="data-model">Data model</h3>
+<p>Metrics data is usually recorded as a time series that contains a set of values with their associated timestamps. The series itself can be uniquely identified by its name, and optionally by a set of labels.</p>
+<p>Let’s take a look at two examples.</p>
+<p>Example 1: What is the CPU load on production server instance i631 at 20:00?</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a line graph displaying CPU load over time.  The y-axis is labeled 'Percent' and shows values ranging from 0 to 0.626, with a marked increment at 0.313. The x-axis represents time, showing intervals from 18:00 to 00:30, presumably hours and minutes. A blue line plots the CPU load percentage over this time period, exhibiting fluctuations.  A light-blue rectangular box in the upper right corner displays 'avg of cpu.load.i631,' indicating the data source and metric. Another light-blue rectangular box, connected to a point on the graph via a dark-blue line, shows the value '0.29,' highlighting a specific CPU load percentage at a particular time point (approximately 20:00). The overall graph shows a generally low CPU load with a significant spike near 00:00." loading="lazy" width="750" height="210" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-3-cpu-load-7S6NAAND.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3 CPU load</figcaption></div></figure>
+<p>The data point highlighted in Figure 3 can be represented by Table 1.</p>
+<table><thead><tr><th><strong>metric_name</strong></th><th>cpu.load</th></tr></thead><tbody><tr><td><strong>labels</strong></td><td>host:i631,env:prod</td></tr><tr><td><strong>timestamp</strong></td><td>1613707265</td></tr><tr><td><strong>value</strong></td><td>0.29</td></tr></tbody></table>
+<p class="tableCaption">Table 1 The data point represented by a table</p>
+<p>In this example, the time series is represented by the metric name, the labels (host:i631,env:prod), and a single point value at a specific time.</p>
+<p>Example 2: What is the average CPU load across all web servers in the us-west region for the last 10 minutes? Conceptually, we would pull up something like this from storage where the metric name is “CPU.load” and the region label is “us-west”:</p>
+<p>CPU.load host=webserver01,region=us-west 1613707265 50</p>
+<p>CPU.load host=webserver01,region=us-west 1613707265 62</p>
+<p>CPU.load host=webserver02,region=us-west 1613707265 43</p>
+<p>CPU.load host=webserver02,region=us-west 1613707265 53</p>
+<p>...</p>
+<p>CPU.load host=webserver01,region=us-west 1613707265 76</p>
+<p>CPU.load host=webserver01,region=us-west 1613707265 83</p>
+<p>The average CPU load could be computed by averaging the values at the end of each line. The format of the lines in the above example is called the line protocol. It is a common input format for many monitoring software in the market. Prometheus [6] and OpenTSDB [7] are two examples.</p>
+<p>Every time series consists of the following [8]:</p>
+<table><thead><tr><th>Name</th><th>Type</th></tr></thead><tbody><tr><td>A metric name</td><td>String</td></tr><tr><td>A set of tags/labels</td><td>List of &lt;key:value&gt; pairs</td></tr><tr><td>An array of values and their timestamps</td><td>An array of &lt;value, timestamp&gt; pairs</td></tr></tbody></table>
+<p class="tableCaption">Table 2 Time series</p>
+<h4 id="data-access-pattern">Data access pattern</h4>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a time-series graph visualizing error counts.  The horizontal axis represents time, labeled 'Time' and marked with intervals 't1' through 't9'. The vertical axis represents different time series, labeled 'Time series Names/Labels', showing various error counts.  Scattered dark-blue dots represent individual error events, each dot's position indicating the time and specific time series it belongs to. A rectangular, light-brown area highlights a subset of these error events, indicating a specific time range (approximately t4 to t7) where a higher concentration of errors occurred. Two arrows point from the left towards the graph, originating from labels 'http_error_count{“servicepool':'s1',...}', indicating these labels represent the queries or data sources used to populate the graph's error data. The caption 'Query to get errors onservicepo...' suggests the graph displays error data related to a service pool named 'servicepool'." loading="lazy" width="700" height="418" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-4-data-access-pattern-6W53MWUY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4 Data access pattern</figcaption></div></figure>
+<p>In Figure 4, each label on the y-axis represents a time series (uniquely identified by the names and labels) while the x-axis represents time.</p>
+<p>The write load is heavy. As you can see, there can be many time-series data points written at any moment. As we mentioned in the “High-level requirements” section, about 10 million operational metrics are written per day, and many metrics are collected at high frequency, so the traffic is undoubtedly write-heavy.</p>
+<p>At the same time, the read load is spiky. Both visualization and alerting services send queries to the database, and depending on the access patterns of the graphs and alerts, the read volume could be bursty.</p>
+<p>In other words, the system is under constant heavy write load, while the read load is spiky.</p>
+<h4 id="data-storage-system">Data storage system</h4>
+<p>The data storage system is the heart of the design. It’s not recommended to build your own storage system or use a general-purpose storage system (for example, MySQL) for this job.</p>
+<p>A general-purpose database, in theory, could support time-series data, but it would require expert-level tuning to make it work at our scale. Specifically, a relational database is not optimized for operations you would commonly perform against time-series data. For example, computing the moving average in a rolling time window requires complicated SQL that is difficult to read (there is an example of this in the deep dive section). Besides, to support tagging/labeling data, we need to add an index for each tag. Moreover, a general-purpose relational database does not perform well under constant heavy write load. At our scale, we would need to expend significant effort in tuning the database, and even then, it might not perform well.</p>
+<p>How about NoSQL? In theory, a few NoSQL databases on the market could handle time-series data effectively. For example, Cassandra and Bigtable [9] can both be used for time series data. However, this would require deep knowledge of the internal workings of each NoSQL to devise a scalable schema for effectively storing and querying time-series data. With industrial-scale time-series databases readily available, using a general-purpose NoSQL database is not appealing.</p>
+<p>There are many storage systems available that are optimized for time-series data. The optimization lets us use far fewer servers to handle the same volume of data. Many of these databases also have custom query interfaces specially designed for the analysis of time-series data that are much easier to use than SQL. Some even provide features to manage data retention and data aggregation. Here are a few examples of time-series databases.</p>
+<p>OpenTSDB is a distributed time-series database, but since it is based on Hadoop and HBase, running a Hadoop/HBase cluster adds complexity. Twitter uses MetricsDB [10], and Amazon offers Timestream as a time-series database [11]. According to DB-engines [12], the two most popular time-series databases are InfluxDB [13] and Prometheus, which are designed to store large volumes of time-series data and quickly perform real-time analysis on that data. Both of them primarily rely on an in-memory cache and on-disk storage. And they both handle durability and performance quite well. As shown in Figure 5, an InfluxDB with 8 cores and 32GB RAM can handle over 250,000 writes per second.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table outlining different resource tiers for a service, likely a database or similar.  The table has six columns: 'vCPU or CPU', 'RAM', 'IOPS', 'Writes per second', 'Queries* per second', and 'Unique series'. Each row represents a different tier, with increasing resource allocation from top to bottom.  The first column specifies the number of virtual or physical CPU cores (2-4, 4-6, and 8+ cores). The second column indicates RAM in GB (2-4 GB, 8-32 GB, and 32+ GB). The third column shows Input/Output Operations Per Second (IOPS) with values 500, 500-1000, and 1000+. The fourth and fifth columns detail the maximum write and query throughput per second, respectively, using ranges (&lt;5,000, &lt;250,000, &gt;250,000 and &lt;5, &lt;25, &gt;25). The final column shows the maximum number of unique series supported (&lt;100,000, &lt;1,000,000, &gt;1,000,000).  The table visually demonstrates a scaling relationship, where higher tiers offer more CPU cores, RAM, IOPS, and significantly increased write and query throughput capabilities, along with support for a larger number of unique series." loading="lazy" width="750" height="224" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-5-influxdb-benchmarking-THBHSESS.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5 InfluxDb benchmarking</figcaption></div></figure>
+<p>Since a time-series database is a specialized database, you are not expected to understand the internals in an interview unless you explicitly mentioned it in your resume. For the purpose of an interview, it’s important to understand the metrics data are time-series in nature and we can select time-series databases such as InfluxDB for storage to store them.</p>
+<p>Another feature of a strong time-series database is efficient aggregation and analysis of a large amount of time-series data by labels, also known as tags in some databases. For example, InfluxDB builds indexes on labels to facilitate the fast lookup of time-series by labels [13]. It provides clear best-practice guidelines on how to use labels, without overloading the database. The key is to make sure each label is of low cardinality (having a small set of possible values). This feature is critical for visualization, and it would take a lot of effort to build this with a general-purpose database.</p>
+<h3 id="high-level-design">High-level design</h3>
+<p>The high-level design diagram is shown in Figure 6.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a metrics monitoring and alerting system.  The system begins with a `Metrics Source`, which feeds data into a `Metrics Collector`. The collector then sends this data to a `Time series DB` (database).  A `Query Service` retrieves data from the `Time series DB`, receiving queries from both an `Alerting System` and a `Visualization System`. The `Alerting System` processes the query results and sends alerts through multiple channels: `Email`, `Text Message`, `PageDuty`, and `HTTPS Endpoints`.  The `Visualization System` also sends queries to the `Query Service` to retrieve data for visualization purposes.  The arrows indicate the direction of data flow between components." loading="lazy" width="750" height="342" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-6-high-level-design-NO6K42P6.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6 High-level design</figcaption></div></figure>
+<ul>
+<li>
+<p><strong>Metrics source.</strong> This can be application servers, SQL databases, message queues, etc.</p>
+</li>
+<li>
+<p><strong>Metrics collector.</strong> It gathers metrics data and writes data into the time-series database.</p>
+</li>
+<li>
+<p><strong>Time-series database.</strong> This stores metrics data as time series. It usually provides a custom query interface for analyzing and summarizing a large amount of time-series data. It maintains indexes on labels to facilitate the fast lookup of time-series data by labels.</p>
+</li>
+<li>
+<p><strong>Query service.</strong> The query service makes it easy to query and retrieve data from the time-series database. This should be a very thin wrapper if we choose a good time-series database. It could also be entirely replaced by the time-series database’s own query interface.</p>
+</li>
+<li>
+<p><strong>Alerting system.</strong> This sends alert notifications to various alerting destinations.</p>
+</li>
+<li>
+<p><strong>Visualization system.</strong> This shows metrics in the form of various graphs/charts.</p>
+</li>
+</ul>
+<h2 id="step-3---design-deep-dive">Step 3 - Design Deep Dive</h2>
+<p>In a system design interview, candidates are expected to dive deep into a few key components or flows. In this section, we investigate the following topics in detail:</p>
+<ul>
+<li>
+<p>Metrics collection</p>
+</li>
+<li>
+<p>Scaling the metrics transmission pipeline</p>
+</li>
+<li>
+<p>Query service</p>
+</li>
+<li>
+<p>Storage layer</p>
+</li>
+<li>
+<p>Alerting system</p>
+</li>
+<li>
+<p>Visualization system</p>
+</li>
+</ul>
+<h3 id="metrics-collection">Metrics collection</h3>
+<p>For metrics collection like counters or CPU usage, occasional data loss is not the end of the world. It’s acceptable for clients to fire and forget. Now let’s take a look at the metrics collection flow. This part of the system is inside the dashed box (Figure 7).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a metrics monitoring and alerting system.  The diagram shows a 'Metrics Source' feeding data into a 'Metrics Collector,' which in turn stores the data in a 'Time series DB' (database).  A 'Query Service' retrieves data from the time series DB; this service receives 'Send Queries' requests from both an 'Alerting System' and a 'Visualization System.' The Alerting System, upon receiving data from the Query Service, sends alerts via multiple channels: 'Email,' 'Text Message,' 'PageDuty,' and 'HTTPS Endpoints.'  The Visualization System also receives data from the Query Service to display metrics.  The 'Metrics Source,' 'Metrics Collector,' and 'Time series DB' are grouped within a dashed box, indicating a data ingestion and storage module.  Arrows indicate the direction of data flow between components." loading="lazy" width="750" height="344" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-7-metrics-collection-flow-AERNBFZG.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7 Metrics collection flow</figcaption></div></figure>
+<h4 id="pull-vs-push-models">Pull vs push models</h4>
+<p>There are two ways metrics data can be collected, pull or push. It is a routine debate as to which one is better and there is no clear answer. Let’s take a close look.</p>
+<h5 id="pull-model">Pull model</h5>
+<p>Figure 8 shows data collection with a pull model over HTTP. We have dedicated metric collectors which pull metrics values from the running applications periodically.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture for collecting metrics.  A dashed-line box labeled 'Metrics Source' contains four rectangular boxes representing different service clusters: 'Web Servers,' 'DB Clusters,' 'Queue Clusters,' and 'Cache Clusters.'  Each of these clusters sends metrics to a central 'Metrics Collector' using a 'Pull metrics' mechanism, indicated by arrows pointing from each cluster to the collector.  The 'Metrics Collector' receives metrics from all four source clusters. Separately, a rectangular box labeled 'Service Discovery' contains two smaller boxes, 'etcd' and 'Zookeeper,' suggesting these are used for service registration and discovery. An arrow points upwards from the 'Metrics Collector' to the 'Service Discovery' box, indicating that the collector likely uses these services to locate the various metric sources." loading="lazy" width="600" height="318" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-8-pull-model-JCYTADKY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8 Pull model</figcaption></div></figure>
+<p>In this approach, the metrics collector needs to know the complete list of service endpoints to pull data from. One naive approach is to use a file to hold DNS/IP information for every service endpoint on the “metric collector” servers. While the idea is simple, this approach is hard to maintain in a large-scale environment where servers are added or removed frequently, and we want to ensure that metric collectors don’t miss out on collecting metrics from any new servers. The good news is that we have a reliable, scalable, and maintainable solution available through Service Discovery, provided by etcd [14], Zookeeper [15], etc., wherein services register their availability and the metrics collector can be notified by the Service Discovery component whenever the list of service endpoints changes.</p>
+<p>Service discovery contains configuration rules about when and where to collect metrics as shown in Figure 9.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a service discovery system using etcd and Zookeeper.  A rectangular box labeled 'Service Discovery' contains two smaller rectangular boxes representing the service discovery tools: 'etcd' and 'Zookeeper'. To the right, three stacked rectangular notes represent service instances registered with the discovery system. Each note contains metadata about a service instance:  'region:' specifying the geographical location (us-west, us-south, us-east), 'type:' indicating the service type (mysql in the bottom note), and 'host:' providing the IP address (10.10.11.1 in the bottom note).  The arrangement implies that etcd and Zookeeper work together to maintain and provide access to this service registry, allowing applications to locate and connect to the registered services based on their metadata.  There are no explicit arrows showing data flow, but it's implied that applications query etcd and/or Zookeeper to retrieve the service instance information shown in the notes." loading="lazy" width="500" height="135" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-9-service-discovery-DXWPRSYP.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9 Service discovery</figcaption></div></figure>
+<p>Figure 10 explains the pull model in detail.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating a metrics collection process.  The diagram shows three main components:  'Web Servers', 'Metrics Collector', and 'Service Discovery'. The 'Web Servers' component, labeled with '/metrics endpoint', sends HTTP requests (labeled '②HTTP Requests') to the 'Metrics Collector'. The 'Metrics Collector' in turn uses a 'Service Discovery' mechanism, which utilizes both 'etcd' and 'Zookeeper' to discover the target web servers (labeled '①Discover Targets').  The arrow from the 'Metrics Collector' to the 'Service Discovery' indicates that the collector queries the service discovery system to locate the web servers before sending the HTTP requests.  The 'Service Discovery' component acts as a central registry, allowing the 'Metrics Collector' to dynamically find and connect to the available 'Web Servers' without needing hardcoded addresses.  The overall flow is that the web servers expose metrics at a specific endpoint, the collector discovers these servers via the service discovery, and then fetches the metrics via HTTP requests." loading="lazy" width="591" height="218" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-10-pull-model-in-detail-DLFOSFKN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10 Pull model in detail</figcaption></div></figure>
+<ol>
+<li>
+<p>The metrics collector fetches configuration metadata of service endpoints from Service Discovery. Metadata include pulling interval, IP addresses, timeout and retry parameters, etc.</p>
+</li>
+<li>
+<p>The metrics collector pulls metrics data via a pre-defined HTTP endpoint (for example, /metrics). To expose the endpoint, a client library usually needs to be added to the service. In Figure 10, the service is Web Servers.</p>
+</li>
+<li>
+<p>Optionally, the metrics collector registers a change event notification with Service Discovery to receive an update whenever the service endpoints change. Alternatively, the metrics collector can poll for endpoint changes periodically.</p>
+</li>
+</ol>
+<p>At our scale, a single metrics collector will not be able to handle thousands of servers. We must use a pool of metrics collectors to handle the demand. One common problem when there are multiple collectors is that multiple instances might try to pull data from the same resource and produce duplicate data. There must exist some coordination scheme among the instances to avoid this.</p>
+<p>One potential approach is to designate each collector to a range in a consistent hash ring, and then map every single server being monitored by its unique name in the hash ring. This ensures one metrics source server is handled by one collector only. Let’s take a look at an example.</p>
+<p>As shown in Figure 11, there are four collectors and six metrics source servers. Each collector is responsible for collecting metrics from a distinct set of servers. Collector 2 is responsible for collecting metrics from server 1 and server 5.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram showing six services (S1-S6) interconnected in a specific pattern.  Three large, white circles representing major services are positioned at the vertices of an inverted triangle.  These are connected at the top by a curved, shaded gray band, with smaller circles labeled 'S1' and 'S5' placed on this band.  Two additional smaller circles, labeled 'S2' and 'S4', are positioned below and to the right and left of the inverted triangle's base, respectively. A final smaller circle, labeled 'S6', is located to the left and slightly below the leftmost large circle.  A separate vertical column on the right displays the six services (S1-S6) in a numbered list, suggesting a possible ordering or dependency, although no explicit connections are shown between this list and the main diagram.  No information flow is explicitly depicted; the diagram only shows the arrangement and potential relationships between the services." loading="lazy" width="750" height="480" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-11-consistent-hashing-ZNCJBMK3.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11 Consistent hashing</figcaption></div></figure>
+<h5 id="push-model">Push model</h5>
+<p>As shown in Figure 12, in a push model various metrics sources, such as web servers, database servers, etc., directly send metrics to the metrics collector.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for collecting metrics from various sources.  A dashed-line box labeled 'Metrics Source' contains four rectangular boxes representing different components: 'Web Servers,' 'DB Clusters,' 'Queue Clusters,' and 'Cache Clusters.'  Each of these components is connected via a directed arrow to a single rectangular box labeled 'Metrics Collector.'  Each arrow is labeled 'Push metrics,' indicating that each source component actively sends its metrics data to the Metrics Collector.  The overall diagram illustrates a push-based metric collection architecture where multiple system components proactively transmit their performance data to a central collector for aggregation and analysis." loading="lazy" width="500" height="287" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-12-push-model-BT4OPMTB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12 Push model</figcaption></div></figure>
+<p>In a push model, a collection agent is commonly installed on every server being monitored. A collection agent is a piece of long-running software that collects metrics from the services running on the server and pushes those metrics periodically to the metrics collector. The collection agent may also aggregate metrics (especially a simple counter) locally, before sending them to metric collectors.</p>
+<p>Aggregation is an effective way to reduce the volume of data sent to the metrics collector. If the push traffic is high and the metrics collector rejects the push with an error, the agent could keep a small buffer of data locally (possibly by storing them locally on disk), and resend them later. However, if the servers are in an auto-scaling group where they are rotated out frequently, then holding data locally (even temporarily) might result in data loss when the metrics collector falls behind.</p>
+<p>To prevent the metrics collector from falling behind in a push model, the metrics collector should be in an auto-scaling cluster with a load balancer in front of it (Figure 13). The cluster should scale up and down based on the CPU load of the metric collector servers.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for collecting and distributing metrics.  The system begins with a 'Metrics Source,' specifically labeled 'Web Servers,' which sends data to a 'Collection Agent.' This agent collects three types of metrics, labeled 'Metrics 1,' 'Metrics 2,' and 'Metrics 3.'  The collected metrics are then sent as 'Push Messages' to a 'Load Balancer.' The load balancer distributes these messages to multiple 'Metrics Collectors,' represented as stacked boxes indicating a cluster of collectors.  The overall flow is unidirectional, starting from the web servers and ending at the metrics collectors, with the collection agent and load balancer acting as intermediary components in the data pipeline." loading="lazy" width="750" height="243" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-13-load-balancer-PRCVTUJJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13 Load balancer</figcaption></div></figure>
+<h5 id="pull-or-push">Pull or push?</h5>
+<p>So, which one is the better choice for us? Just like many things in life, there is no clear answer. Both sides have widely adopted real-world use cases.</p>
+<ul>
+<li>
+<p>Examples of pull architectures include Prometheus.</p>
+</li>
+<li>
+<p>Examples of push architectures include Amazon CloudWatch [16] and Graphite [17].</p>
+</li>
+</ul>
+<p>Knowing the advantages and disadvantages of each approach is more important than picking a winner during an interview. Table 3 compares the pros and cons of push and pull architectures [18] [19] [20] [21].</p>
+<div class="table-wrap" style="--table-min-width: 720px;"><table><thead><tr><td></td><td><strong>Pull</strong></td><td><strong>Push</strong></td></tr></thead><tbody><tr><td>Easy debugging</td><td><p>The /metrics endpoint on application servers used for pulling metrics
+can be used to view metrics at any time. You can even do this on your
+laptop. <strong>Pull wins</strong>.</p></td><td><p>If the metrics collector doesn’t receive metrics, the problem might be
+caused by network issues.</p></td></tr><tr><td>Health check</td><td><p>If an application server doesn’t respond to the pull, you can quickly
+figure out if an application server is down. <strong>Pull wins</strong>.</p></td><td><p>If the metrics collector doesn’t receive metrics, the problem might be
+caused by network issues.</p></td></tr><tr><td>Short-lived jobs</td><td></td><td><p>Some of the batch jobs might be short-lived and don’t last long enough
+to be pulled. <strong>Push wins</strong>. This can be fixed by introducing push
+gateways for the pull model [22].</p></td></tr><tr><td>Firewall or complicated network setups</td><td><p>Having servers pulling metrics requires all metric endpoints to be
+reachable. This is potentially problematic in multiple data center
+setups. It might require a more elaborate network infrastructure.</p></td><td><p>If the metrics collector is set up with a load balancer and an
+auto-scaling group, it is possible to receive data from anywhere.
+<strong>Push wins.</strong></p></td></tr><tr><td>Performance</td><td>Pull methods typically use TCP.</td><td><p>Push methods typically use UDP. This means the push method provides
+lower-latency transports of metrics. The counterargument here is that
+the effort of establishing a TCP connection is small compared to
+sending the metrics payload.</p></td></tr><tr><td>Data authenticity</td><td><p>Application servers to collect metrics from are defined in config
+files in advance. Metrics gathered from those servers are guaranteed
+to be authentic.</p></td><td><p>Any kind of client can push metrics to the metrics collector. This can
+be fixed by whitelisting servers from which to accept metrics, or by
+requiring authentication.</p></td></tr></tbody></table></div>
+<p class="tableCaption">Table 3 Pull vs push</p>
+<p>As mentioned above, pull vs push is a routine debate topic and there is no clear answer. A large organization probably needs to support both, especially with the popularity of serverless [23] these days. There might not be a way to install an agent from which to push data in the first place.</p>
+<h3 id="scale-the-metrics-transmission-pipeline">Scale the metrics transmission pipeline</h3>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a metrics monitoring and alerting system.  The system begins with a `Metrics Source`, which feeds data into a `Metrics Collector`. The collector then stores this data in a `Time series DB` (database). This entire data ingestion pipeline is enclosed within a dashed-line box.  A `Query Service` retrieves data from the `Time series DB`, receiving queries from both an `Alerting System` and a `Visualization System`. The `Alerting System` processes the query results and sends alerts through multiple channels: `Email`, `Text Message`, `PageDuty`, and `HTTPS Endpoints`.  The `Visualization System` also sends queries to the `Query Service` to retrieve data for visualization purposes.  Arrows indicate the direction of data flow between components, with labels like 'Send Queries' clarifying the nature of the interaction." loading="lazy" width="700" height="318" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-14-metrics-transmission-pipeline-UCGFUXRF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14 Metrics transmission pipeline</figcaption></div></figure>
+<p>Let’s zoom in on the metrics collector and time-series databases. Whether you use the push or pull model, the metrics collector is a cluster of servers, and the cluster receives enormous amounts of data. For either push or pull, the metrics collector cluster is set up for auto-scaling, to ensure that there are an adequate number of collector instances to handle the demand.</p>
+<p>However, there is a risk of data loss if the time-series database is unavailable. To mitigate this problem, we introduce a queueing component as shown in Figure 15.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a metrics collection and alerting system.  The left side shows a data pipeline: a `Metrics Source` feeds data to a `Metrics Collector`, which then sends the data to a `Kafka` message queue.  `Consumers` read data from Kafka and write it to a `Time series DB`. This entire pipeline is enclosed in a dashed box. The right side depicts an alerting system: the `Query Service` retrieves data from the `Time series DB` and sends queries to an `Alerting System`.  The `Alerting System` then distributes alerts via multiple channels: `Email`, `Text Message`, `PageDuty`, and `HTTPS Endpoints`.  Finally, a `Visualization System` also sends queries to the `Query Service` to retrieve data for visualization purposes.  Arrows indicate the direction of data flow between components." loading="lazy" width="700" height="263" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-15-add-queues-X32N6UM5.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15 Add queues</figcaption></div></figure>
+<p>In this design, the metrics collector sends metrics data to queuing systems like Kafka. Then consumers or streaming processing services such as Apache Storm, Flink, and Spark, process and push data to the time-series database. This approach has several advantages:</p>
+<ul>
+<li>
+<p>Kafka is used as a highly reliable and scalable distributed messaging platform.</p>
+</li>
+<li>
+<p>It decouples the data collection and data processing services from each other.</p>
+</li>
+<li>
+<p>It can easily prevent data loss when the database is unavailable, by retaining the data in Kafka.</p>
+</li>
+</ul>
+<h4 id="scale-through-kafka">Scale through Kafka</h4>
+<p>There are a couple of ways that we can leverage Kafka’s built-in partition mechanism to scale our system.</p>
+<ul>
+<li>
+<p>Configure the number of partitions based on throughput requirements.</p>
+</li>
+<li>
+<p>Partition metrics data by metric names, so consumers can aggregate data by metrics names.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture diagram showing a Metrics Collector sending data to a Kafka message broker.  A rectangular box labeled 'Metrics Collector' is depicted on the left, representing the source of the metrics data. A single arrow originates from this box and points to a dashed-line box labeled 'Kafka' on the right. Inside the Kafka box are several rectangular boxes representing individual partitions.  These partitions are labeled 'Partition 0 (metric 1)', 'Partition 1 (metric 2)', and 'Partition 2 (metric 3)', indicating that each partition stores a specific type of metric.  Below these three partitions, an ellipsis ('...') is repeated twice, signifying that there are more partitions within the Kafka instance than are explicitly shown. The arrow indicates that the Metrics Collector is sending data to the Kafka partitions, implying that the data is being distributed across the partitions.  The parentheses around 'metric 1', 'metric 2', and 'metric 3' suggest that these are labels or identifiers for the different types of metrics being collected and stored." loading="lazy" width="500" height="397" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-16-kafka-partition-YTQUBKKN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16 Kafka partition</figcaption></div></figure>
+<ul>
+<li>
+<p>Further partition metrics data with tags/labels.</p>
+</li>
+<li>
+<p>Categorize and prioritize metrics so that important metrics can be processed first.</p>
+</li>
+</ul>
+<h4 id="alternative-to-kafka">Alternative to Kafka</h4>
+<p>Maintaining a production-scale Kafka system is no small undertaking. You might get pushback from the interviewer about this. There are large-scale monitoring ingestion systems in use without using an intermediate queue. Facebook’s Gorilla [24] in-memory time-series database is a prime example; it is designed to remain highly available for writes, even when there is a partial network failure. It could be argued that such a design is as reliable as having an intermediate queue like Kafka.</p>
+<h3 id="where-aggregations-can-happen">Where aggregations can happen</h3>
+<p>Metrics can be aggregated in different places; in the collection agent (on the client-side), the ingestion pipeline (before writing to storage), and the query side (after writing to storage). Let’s take a closer look at each of them.</p>
+<p><strong>Collection agent</strong>. The collection agent installed on the client-side only supports simple aggregation logic. For example, aggregate a counter every minute before it is sent to the metrics collector.</p>
+<p><strong>Ingestion pipeline</strong>. To aggregate data before writing to the storage, we usually need stream processing engines such as Flink. The write volume will be significantly reduced since only the calculated result is written to the database. However, handling late-arriving events could be a challenge and another downside is that we lose data precision and some flexibility because we no longer store the raw data.</p>
+<p><strong>Query side</strong>. Raw data can be aggregated over a given time period at query time. There is no data loss with this approach, but the query speed might be slower because the query result is computed at query time and is run against the whole dataset.</p>
+<h3 id="query-service">Query service</h3>
+<p>The query service comprises a cluster of query servers, which access the time-series databases and handle requests from the visualization or alerting systems. Having a dedicated set of query servers decouples time-series databases from the clients (visualization and alerting systems). And this gives us the flexibility to change the time-series database or the visualization and alerting systems, whenever needed.</p>
+<h4 id="cache-layer">Cache layer</h4>
+<p>To reduce the load of the time-series database and make query service more performant, cache servers are added to store query results, as shown in Figure 17.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a metrics monitoring and alerting system.  The left side shows the data pipeline:  'Metrics Source' feeds data to 'Metrics Collector', which then sends it to 'Kafka', a message queue.  'Consumers' read data from Kafka and write it to a 'Time series DB'.  The right side depicts the alerting and visualization components.  The 'Alerting System' receives data from the 'Query Service' (which in turn queries the 'Time series DB' and uses a 'Cache' for faster access) and sends alerts via 'Email', 'Text Message', 'PageDuty', and 'HTTPS Endpoints'.  Separately, the 'Visualization System' also receives queries from the 'Query Service' to display data.  The dashed box encloses the 'Query Service' and 'Cache', indicating a logical grouping.  Arrows indicate the flow of data or queries between components." loading="lazy" width="750" height="335" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-17-cache-layer-QNXQFTQK.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17 Cache layer</figcaption></div></figure>
+<h4 id="the-case-against-query-service">The case against query service</h4>
+<p>There might not be a pressing need to introduce our own abstraction (a query service) because most industrial-scale visual and alerting systems have powerful plugins to interface with well-known time-series databases on the market. And with a well-chosen time-series database, there is no need to add our own caching, either.</p>
+<h4 id="time-series-database-query-language">Time-series database query language</h4>
+<p>Most popular metrics monitoring systems like Prometheus and InfluxDB don’t use SQL and have their own query languages. One major reason for this is that it is hard to build SQL queries to query time-series data. For example, as mentioned here [25], computing an exponential moving average might look like this in SQL:</p>
+<pre><code>select id,
+       temp,
+       avg(temp) over (partition by group_nr order by time_read) as rolling_avg
+from (
+  select id,
+         temp,
+         time_read,
+         interval_group,
+         id - row_number() over (partition by interval_group order by time_read) as group_nr
+  from (
+    select id,
+    time_read,
+    "epoch"::timestamp + "900 seconds"::interval * (extract(epoch from time_read)::int4 / 900) as interval_group,
+    temp
+    from readings
+  ) t1
+) t2
+order by time_read;
+</code></pre>
+<p>While in Flux, a language that’s optimized for time-series analysis (used in InfluxDB), it looks like this. As you can see, it’s much easier to understand.</p>
+<pre><code>from(db:"telegraf")
+  |&gt; range(start:-1h)
+  |&gt; filter(fn: (r) =&gt; r._measurement == "foo")
+  |&gt; exponentialMovingAverage(size:-10s)
+</code></pre>
+<h3 id="storage-layer">Storage layer</h3>
+<p>Now let’s dive into the storage layer.</p>
+<h4 id="choose-a-time-series-database-carefully">Choose a time-series database carefully</h4>
+<p>According to a research paper published by Facebook [24], at least 85% of all queries to the operational data store were for data collected in the past 26 hours. If we use a time-series database that harnesses this property, it could have a significant impact on overall system performance. If you are interested in the design of the storage engine, please refer to the design document of the Influx DB storage engine [26].</p>
+<h4 id="space-optimization">Space optimization</h4>
+<p>As explained in high-level requirements, the amount of metric data to store is enormous. Here are a few strategies for tackling this.</p>
+<h5 id="data-encoding-and-compression">Data encoding and compression</h5>
+<p>Data encoding and compression can significantly reduce the size of data. Those features are usually built into a good time-series database. Here is a simple example.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating the concept of Double-delta Encoding.  A horizontal timeline is shown, marked at five points labeled 'T0' representing timestamps.  Below each timestamp is a numerical value, representing a data point (1610087371, 1610087381, 1610087391, 1610087400, and 1610087411).  Each of these data points is connected via downward-pointing arrows to a circle containing a triangle, symbolizing an encoded value. These encoded values (10, 10, 9, 11) are placed below their respective circles. The arrows indicate the flow of information from the original data points to their double-delta encoded representations. The title 'Double-delta Encoding' clarifies the encoding method depicted.  The diagram visually demonstrates how the original data points are transformed into a compressed representation using the double-delta technique, where the difference between consecutive data points is calculated and then the difference between those differences is calculated." loading="lazy" width="743" height="240" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-18-data-encoding-B45QOSIH.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18 Data encoding</figcaption></div></figure>
+<p>As you can see in the image above, 1610087371 and 1610087381 differ by only 10 seconds, which takes only 4 bits to represent, instead of the full timestamp of 32 bits. So, rather than storing absolute values, the delta of the values can be stored along with one base value like: <em>1610087371, 10, 10, 9, 11</em></p>
+<h5 id="downsampling">Downsampling</h5>
+<p>Downsampling is the process of converting high-resolution data to low-resolution to reduce overall disk usage. Since our data retention is 1 year, we can downsample old data. For example, we can let engineers and data scientists define rules for different metrics. Here is an example:</p>
+<ul>
+<li>
+<p>Retention: 7 days, no sampling</p>
+</li>
+<li>
+<p>Retention: 30 days, downsample to 1-minute resolution</p>
+</li>
+<li>
+<p>Retention: 1 year, downsample to 1-hour resolution</p>
+</li>
+</ul>
+<p>Let’s take a look at another concrete example. It aggregates 10-second resolution data to 30-second resolution data.</p>
+<div class="table-wrap"><table><thead><tr><td><strong>metric</strong></td><td><strong>timestamp</strong></td><td><strong>hostname</strong></td><td><strong>Metric_value</strong></td></tr></thead><tbody><tr><td>cpu</td><td>2021-10-24T19:00:00Z</td><td>host-a</td><td>10</td></tr><tr><td>cpu</td><td>2021-10-24T19:00:10Z</td><td>host-a</td><td>16</td></tr><tr><td>cpu</td><td>2021-10-24T19:00:20Z</td><td>host-a</td><td>20</td></tr><tr><td>cpu</td><td>2021-10-24T19:00:30Z</td><td>host-a</td><td>30</td></tr><tr><td>cpu</td><td>2021-10-24T19:00:40Z</td><td>host-a</td><td>20</td></tr><tr><td>cpu</td><td>2021-10-24T19:00:50Z</td><td>host-a</td><td>30</td></tr></tbody></table></div>
+<p class="tableCaption">Table 4 10-second resolution data</p>
+<p>Rollup from 10-second resolution data to 30-second resolution data.</p>
+<div class="table-wrap"><table><thead><tr><td><strong>metric</strong></td><td><strong>timestamp</strong></td><td><strong>hostname</strong></td><td><strong>Metric_value (avg)</strong></td></tr></thead><tbody><tr><td>cpu</td><td>2021-10-24T19:00:00Z</td><td>host-a</td><td>19</td></tr><tr><td>cpu</td><td>2021-10-24T19:00:30Z</td><td>host-a</td><td>25</td></tr></tbody></table></div>
+<p class="tableCaption">Table 5 30-second resolution data</p>
+<h5 id="cold-storage">Cold storage</h5>
+<p>Cold storage is the storage of inactive data that is rarely used. The financial cost for cold storage is much lower.</p>
+<p>In a nutshell, we should probably use third-party visualization and alerting systems, instead of building our own.</p>
+<h3 id="alerting-system">Alerting system</h3>
+<p>For the purpose of the interview, let’s look at the alerting system, shown in Figure 19 below.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for an alert management system.  The system begins with 'Rule config files' (a document icon) which feed into a 'Cache' (a rectangle) via connection (1).  An 'Alert store' (a database icon) connects to an 'Alert Manager' (a rectangle) via connection (4). The 'Alert Manager' receives configuration data from the 'Cache' via connection (2) and sends data to a 'Query Service' (a rectangle) via connection (3). The 'Alert Manager' then sends alerts to 'Kafka' (a cylinder) via connection (5).  'Kafka' acts as a message broker, forwarding the alerts to an 'Alert Consumer' (a rectangle) via connection (6). Finally, the 'Alert Consumer' distributes alerts via connection (7) to multiple notification channels: 'Email,' 'Text Message,' 'PageDuty,' and 'HTTPS Endpoints' (all rectangles).  The numbered connections (1-7) visually represent the flow of information between the components." loading="lazy" width="750" height="263" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-19-alerting-system-HCBLCMMP.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19 Alerting system</figcaption></div></figure>
+<p>The alert flow works as follows:</p>
+<p>1. Load config files to cache servers. Rules are defined as config files on the disk. YAML [27] is a commonly used format to define rules. Here is an example of alert rules:</p>
+<pre><code>- name: instance_down
+  rules:
+
+  # Alert for any instance that is unreachable for &gt;5 minutes.
+  - alert: instance_down
+    expr: up == 0
+    for: 5m
+    labels:
+      severity: page
+</code></pre>
+<p>2. The alert manager fetches alert configs from the cache.</p>
+<p>3. Based on config rules, the alert manager calls the query service at a predefined interval. If the value violates the threshold, an alert event is created. The alert manager is responsible for the following:</p>
+<ul>
+<li>Filter, merge, and dedupe alerts. Here is an example of merging alerts that are triggered within one instance within a short amount of time (instance1) (Figure 20).</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system monitoring three events related to Instance 1's disk usage.  Three rectangular boxes, vertically stacked, represent individual events (Event 1, Event 2, Event 3). Each box contains the event label, specifies 'Instance 1' as the source, and indicates a disk usage exceeding 90% ('disk_usage &gt; 90%').  Lines connect the output of each event box to a central 'Merge' point.  From this merge point, a single arrow points to a final rectangular box labeled '1 alert on Instance 1,' signifying that the merging of the three events triggers a single alert for Instance 1.  The diagram illustrates a system that consolidates multiple similar events into a single alert." loading="lazy" width="500" height="272" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-20-merge-alerts-NZGFQ4S3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20 Merge alerts</figcaption></div></figure>
+<ul>
+<li>
+<p>Access control. To avoid human error and keep the system secure, it is essential to restrict access to certain alert management operations to authorized individuals only.</p>
+</li>
+<li>
+<p>Retry. The alert manager checks alert states and ensures a notification is sent at least once.</p>
+</li>
+</ul>
+<p>4. The alert store is a key-value database, such as Cassandra, that keeps the state (inactive, pending, firing, resolved) of all alerts. It ensures a notification is sent at least once.</p>
+<p>5. Eligible alerts are inserted into Kafka.</p>
+<p>6. Alert consumers pull alert events from Kafka.</p>
+<p>7. Alert consumers process alert events from Kafka and send notifications over to different channels such as email, text message, PagerDuty, or HTTP endpoints.</p>
+<h4 id="alerting-system---build-vs-buy">Alerting system - build vs buy</h4>
+<p>There are many industrial-scale alerting systems available off-the-shelf, and most provide tight integration with the popular time-series databases. Many of these alerting systems integrate well with existing notification channels, such as email and PagerDuty. In the real world, it is a tough call to justify building your own alerting system. In interview settings, especially for a senior position, be ready to justify your decision.</p>
+<h3 id="visualization-system">Visualization system</h3>
+<p>Visualization is built on top of the data layer. Metrics can be shown on the metrics dashboard over various time scales and alerts can be shown on the alerts dashboard. Figure 21 shows a dashboard that displays some of the metrics like the current server requests, memory/CPU utilization, page load time, traffic, and login information [28].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a Grafana dashboard displaying real-time system metrics over the last hour.  The dashboard is titled 'Grafana Play Home' and contains several panels showing various data visualizations.  The top-left panel displays 'server requests' as time-series line graphs for four web servers (web_server_01 through web_server_04), showing request counts over time.  Adjacent to it, a panel labeled 'Memory/CPU' shows line graphs for memory usage (in gigabytes) and CPU utilization (as a percentage) over the same time period.  Below the server requests panel, a bar chart titled 'client side full page load' shows the distribution of full page load times, broken down into percentiles (upper_25, upper_50, upper_75, upper_90, upper_95), with corresponding average values displayed in milliseconds or seconds.  The bottom-left panel displays 'Traffic In/Out' as stacked area graphs, showing network traffic in and out over time.  Finally, the bottom-right panel shows 'logins' as a line graph, comparing current logins with logins from the previous hour.  All panels share a common x-axis representing time from 20:30 to 21:20, and each panel provides a legend identifying the data represented by different lines or colors within the graph.  The average and current values for various metrics are displayed numerically in the bottom-right panel alongside the graphs." loading="lazy" width="750" height="587" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Ffigure-21-grafana-ui-NWP2X5V6.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21 Grafana UI</figcaption></div></figure>
+<p>A high-quality visualization system is hard to build. The argument for using an off-the-shelf system is very strong. For example, Grafana can be a very good system for this purpose. It integrates well with many popular time-series databases which you can buy.</p>
+<h2 id="step-4---wrap-up">Step 4 - Wrap Up</h2>
+<p>In this chapter, we presented the design for a metrics monitoring and alerting system. At a high level, we talked about data collection, time-series database, alerts, and visualization. Then we went in-depth into some of the most important techniques/components:</p>
+<ul>
+<li>
+<p>Pull vs push model for collecting metrics data.</p>
+</li>
+<li>
+<p>Utilize Kafka to scale the system.</p>
+</li>
+<li>
+<p>Choose the right time-series database.</p>
+</li>
+<li>
+<p>Use downsampling to reduce data size.</p>
+</li>
+<li>
+<p>Build vs buy options for alerting and visualization systems.</p>
+</li>
+</ul>
+<p>We went through a few iterations to refine the design, and our final design looks like this:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a metrics monitoring and alerting system.  The process begins with a `Metrics Source` feeding data into a `Metrics Collector`. This data is then streamed into a `Kafka` message queue, which is consumed by `Consumers` that write the data into a `Time series DB`.  A `Query Service` retrieves data from the `Time series DB` and optionally from a `Cache` to respond to queries.  These queries can originate from a `Visualization System` which sends them to the `Query Service`. The `Query Service` also receives queries directly from the `Alerting System`. The `Alerting System` then sends alerts via various channels including `Email`, `Text Message`, `PageDuty`, and `HTTPS Endpoints`.  The arrows indicate the direction of data flow between components." loading="lazy" width="750" height="323" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/metrics-monitoring-and-alerting-system/figure-22-final-design-777Y6AAM.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 22 Final design</figcaption></div></figure>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="chapter-summary">Chapter Summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mind map outlining the design process for a Metric Monitoring system.  The central node is 'Metric Monitoring,' branching into four main steps. Step 1 focuses on requirements, splitting into 'functional req' (collect metrics, alert, visualization) and 'non-functional req' (large-scale system, reliability, flexibility). Step 2 details the system's five components (data collection, transmission, storage, alert, visualization). Step 3 delves into the system's design, including the data model (access pattern: write-heavy/read-bursty, storage system: time-series database), high-level design (metrics collection: pull vs. push, transmission pipeline with Kafka options), query service (cache layer, time-series database query), and storage layer (time-series database, space optimization).  Finally, step 4 concludes with a 'wrap up,' encompassing the alerting system and visualization.  Connections between nodes represent hierarchical relationships and design choices, showing the flow of information and decision-making throughout the design process.  Specific technologies like Kafka and time-series databases are explicitly mentioned as design considerations." loading="lazy" width="650" height="871" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(650px, 100vw), (max-width: 1200px) min(650px, 80vw), min(650px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fmetrics-monitoring-and-alerting-system%2Fchapter-summary-W7L5LHM3.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></figure>
+<h2 id="reference-materials">Reference Materials</h2>
+<p>[1] Datadog: <a href="https://www.datadoghq.com/" target="_blank" rel="noopener noreferrer"><u>https://www.datadoghq.com/</u></a></p>
+<p>[2] Splunk: <a href="https://www.splunk.com/" target="_blank" rel="noopener noreferrer"><u>https://www.splunk.com/</u></a></p>
+<p>[3] Elastic stack: <a href="https://www.elastic.co/elastic-stack" target="_blank" rel="noopener noreferrer"><u>https://www.elastic.co/elastic-stack</u></a></p>
+<p>[4] Dapper, a Large-Scale Distributed Systems Tracing Infrastructure:<br>
+<a href="https://research.google/pubs/pub36356/" target="_blank" rel="noopener noreferrer"><u>https://research.google/pubs/pub36356/</u></a></p>
+<p>[5] Distributed Systems Tracing with Zipkin:<br>
+<a href="https://blog.twitter.com/engineering/en_us/a/2012/distributed-systems-tracing-with-zipkin.html" target="_blank" rel="noopener noreferrer"><u>https://blog.twitter.com/engineering/en_us/a/2012/distributed-systems-tracing-with-zipkin.html</u></a></p>
+<p>[6] Prometheus: <a href="https://prometheus.io/docs/introduction/overview/" target="_blank" rel="noopener noreferrer"><u>https://prometheus.io/docs/introduction/overview/</u></a></p>
+<p>[7] OpenTSDB - A Distributed, Scalable Monitoring System: <a href="http://opentsdb.net/" target="_blank" rel="noopener noreferrer"><u>http://opentsdb.net/</u></a></p>
+<p>[8] Data model: : <a href="https://prometheus.io/docs/concepts/data_model/" target="_blank" rel="noopener noreferrer"><u>https://prometheus.io/docs/concepts/data_model/</u></a></p>
+<p>[9] Schema design for time-series data | Cloud Bigtable Documentation<br>
+<a href="https://cloud.google.com/bigtable/docs/schema-design-time-series" target="_blank" rel="noopener noreferrer"><u>https://cloud.google.com/bigtable/docs/schema-design-time-series</u></a></p>
+<p>[10] MetricsDB: TimeSeries Database for storing metrics at Twitter:<br>
+<a href="https://blog.twitter.com/engineering/en_us/topics/infrastructure/2019/metricsdb.html" target="_blank" rel="noopener noreferrer"><u>https://blog.twitter.com/engineering/en_us/topics/infrastructure/2019/metricsdb.html</u></a></p>
+<p>[11] Amazon Timestream: <a href="https://aws.amazon.com/timestream/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/timestream/</u></a></p>
+<p>[12] DB-Engines Ranking of time-series DBMS: <a href="https://db-engines.com/en/ranking/time+series+dbms" target="_blank" rel="noopener noreferrer"><u>https://db-engines.com/en/ranking/time+series+dbms</u></a></p>
+<p>[13] InfluxDB: <a href="https://www.influxdata.com/" target="_blank" rel="noopener noreferrer"><u>https://www.influxdata.com/</u></a></p>
+<p>[14] etcd: <a href="https://etcd.io" target="_blank" rel="noopener noreferrer">https://etcd.io</a></p>
+<p>[15] Service Discovery with Zookeeper<br>
+<a href="https://cloud.spring.io/spring-cloud-zookeeper/1.2.x/multi/multi_spring-cloud-zookeeper-discovery.html" target="_blank" rel="noopener noreferrer"><u>https://cloud.spring.io/spring-cloud-zookeeper/1.2.x/multi/multi_spring-cloud-zookeeper-discovery.html</u></a></p>
+<p>[16] Amazon CloudWatch: <a href="https://aws.amazon.com/cloudwatch/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/cloudwatch/</u></a></p>
+<p>[17] Graphite: <a href="https://graphiteapp.org/" target="_blank" rel="noopener noreferrer"><u>https://graphiteapp.org/</u></a></p>
+<p>[18] Push vs Pull: <a href="http://bit.ly/3aJEPxE" target="_blank" rel="noopener noreferrer"><u>http://bit.ly/3aJEPxE</u></a></p>
+<p>[19] Pull doesn’t scale - or does it?:<br>
+<a href="https://prometheus.io/blog/2016/07/23/pull-does-not-scale-or-does-it/" target="_blank" rel="noopener noreferrer"><u>https://prometheus.io/blog/2016/07/23/pull-does-not-scale-or-does-it/</u></a></p>
+<p>[20] Monitoring Architecture:<br>
+<a href="https://developer.lightbend.com/guides/monitoring-at-scale/monitoring-architecture/architecture.html" target="_blank" rel="noopener noreferrer"><u>https://developer.lightbend.com/guides/monitoring-at-scale/monitoring-architecture/architecture.html</u></a></p>
+<p>[21] Push vs Pull in Monitoring Systems:<br>
+<a href="https://giedrius.blog/2019/05/11/push-vs-pull-in-monitoring-systems/" target="_blank" rel="noopener noreferrer"><u>https://giedrius.blog/2019/05/11/push-vs-pull-in-monitoring-systems/</u></a></p>
+<p>[22] Pushgateway: <a href="https://github.com/prometheus/pushgateway" target="_blank" rel="noopener noreferrer"><u>https://github.com/prometheus/pushgateway</u></a></p>
+<p>[23] Building Applications with Serverless Architectures<br>
+<a href="https://aws.amazon.com/lambda/serverless-architectures-learn-more/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/lambda/serverless-architectures-learn-more/</u></a></p>
+<p>[24] Gorilla: A Fast, Scalable, In-Memory Time Series Database:<br>
+<a href="http://www.vldb.org/pvldb/vol8/p1816-teller.pdf" target="_blank" rel="noopener noreferrer"><u>http://www.vldb.org/pvldb/vol8/p1816-teller.pdf</u></a></p>
+<p>[25] Why We’re Building Flux, a New Data Scripting and Query Language:<br>
+<a href="https://www.influxdata.com/blog/why-were-building-flux-a-new-data-scripting-and-query-language/" target="_blank" rel="noopener noreferrer"><u>https://www.influxdata.com/blog/why-were-building-flux-a-new-data-scripting-and-query-language/</u></a></p>
+<p>[26] InfluxDB storage engine: <a href="https://docs.influxdata.com/influxdb/v2.0/reference/internals/storage-engine/" target="_blank" rel="noopener noreferrer"><u>https://docs.influxdata.com/influxdb/v2.0/reference/internals/storage-engine/</u></a></p>
+<p>[27] YAML: <a href="https://en.wikipedia.org/wiki/YAML" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/YAML</u></a></p>
+<p>[28] Grafana Demo: <a href="https://play.grafana.org/" target="_blank" rel="noopener noreferrer"><u>https://play.grafana.org/</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="distributed-message-queue.html">← Previous</a>
+        <a href="ad-click-event-aggregation.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17 - Proximity Service</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="design-google-drive.html">← Previous</a>
+        <a href="nearby-friends.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">17</span> Proximity Service
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/proximity-service" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">17</strong><h1>Proximity Service</h1></header><p>In this chapter, we design a proximity service. A proximity service is used to discover nearby places such as restaurants, hotels, theaters, museums, etc., and is a core component that powers features like finding the best restaurants nearby on Yelp or finding k-nearest gas stations on Google Maps. Figure 1 shows the user interface via which you can search for nearby restaurants on Yelp [1]. Note the map tiles used in this chapter are from Stamen Design [2] and data are from OpenStreetMap [3].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a search result page, likely from a location-based service like Google Maps or Yelp.  The top displays a search bar containing the query 'tacos, cheap dinner, Max's' and the location '1355 Market St, San Francisco, CA'. Below, a horizontal navigation bar offers options for 'Restaurants,' 'Home Services,' 'Auto Services,' and 'More.'  The left side presents a filter for distance, with radio buttons for 'Bird's-eye View,' 'Driving (5 mi.),' 'Biking (2 mi.),' 'Walking (1 mi.),' and 'Within 4 blocks.' The central area shows three restaurant listings (Manila Bowl, WingSlut, Matko), each with a picture, star rating, cuisine type, price range, neighborhood (SoMa), distance (0.01 miles), and a snippet of a user review with a 'more' link for full review.  Each restaurant listing also has a small map icon indicating its location.  The right side shows a map of the San Francisco area centered around 1355 Market St, with numbered markers corresponding to locations, likely the restaurants listed, and street names clearly visible.  The map includes visual cues like traffic lights and public transportation symbols.  The overall arrangement is a typical search results layout, combining textual information with visual aids (images and a map) to present relevant information to the user." width="750" height="401" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-1-neary-search-on-yelp-PIX55ZBV.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1 Nearby search on Yelp (Source: [1])</figcaption></div></figure>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the Problem and Establish Design Scope</h2>
+<p>Yelp supports many features and it is not feasible to design all of them in an interview session, so it’s important to narrow down the scope by asking questions. The interactions between the interviewer and the candidate could look like this:</p>
+<p><strong>Candidate</strong>: Can a user specify the search radius? If there are not enough businesses within the search radius, does the system expand the search?<br>
+<strong>Interviewer</strong>: That’s a great question. Let’s assume we only care about businesses within a specified radius. If time allows, we can then discuss how to expand the search if there are not enough businesses within the radius.</p>
+<p><strong>Candidate</strong>: What’s the maximal radius allowed? Can I assume it’s 20 km (12.5 miles)?<br>
+<strong>Interviewer</strong>: That’s a reasonable assumption.</p>
+<p><strong>Candidate</strong>: Can a user change the search radius on the UI?<br>
+<strong>Interviewer</strong>: Yes, we have the following options: 0.5km (0.31 mile), 1km (0.62 mile), 2km (1.24 mile), 5km (3.1 mile), and 20km (12.42 mile).</p>
+
+<p><strong>Candidate</strong>: How does business information get added, deleted, or updated? Do we need to reflect these operations in real-time?<br>
+<strong>Interviewer</strong>: Business owners can add, delete or update a business. Assume we have a business agreement upfront that newly added/updated businesses will be effective the next day.</p>
+<p><strong>Candidate</strong>: A user might be moving while using the app/website, so the search results could be slightly different after a while. Do we need to refresh the page to keep the results up to date?<br>
+<strong>Interviewer</strong>: Let’s assume a user’s moving speed is slow and we don’t need to constantly refresh the page.</p>
+<h3 id="functional-requirements">Functional requirements</h3>
+<p>Based on this conversation, we focus on 3 key features:</p>
+<ul>
+<li>
+<p>Return all businesses based on a user’s location (latitude and longitude pair) and radius.</p>
+</li>
+<li>
+<p>Business owners can add, delete or update a business, but this information doesn’t need to be reflected in real-time.</p>
+</li>
+<li>
+<p>Customers can view detailed information about a business.</p>
+</li>
+</ul>
+<h3 id="non-functional-requirements">Non-functional requirements</h3>
+<p>From the business requirements, we can infer a list of non-functional requirements. You should also check these with the interviewer.</p>
+<ul>
+<li>
+<p>Low latency. Users should be able to see nearby businesses quickly.</p>
+</li>
+<li>
+<p>Data privacy. Location info is sensitive data. When we design a location-based service (LBS), we should always take user privacy into consideration. We need to comply with data privacy laws like General Data Protection Regulation (GDPR) [4] and California Consumer Privacy Act (CCPA) [5], etc.</p>
+</li>
+<li>
+<p>High availability and scalability requirements. We should ensure our system can handle the spike in traffic during peak hours in densely populated areas.</p>
+</li>
+</ul>
+<h3 id="back-of-the-envelope-estimation">Back-of-the-envelope estimation</h3>
+<p>Let’s take a look at some back-of-the-envelope calculations to determine the potential scale and challenges our solution will need to address. Assume we have 100 million daily active users and 200 million businesses.</p>
+<table><thead><tr><center><th>Calculate QPS</th></center></tr></thead><tbody><tr><td><ul><li><blockquote><p><p>Seconds in a day = 24 * 60 * 60 = 86,400. We can round it up to
+10^5 for easier calculation. 
+<strong>10^5 is used throughout this book</strong> to represent
+seconds in a day.</p></p></blockquote></li><li><blockquote><p>Assume a user makes 5 search queries per day.</p></blockquote></li><li><blockquote><p>Search QPS = 100 million * 5 / 10^5 = 5,000</p></blockquote></li></ul></td></tr></tbody></table>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose High-Level Design and Get Buy-In</h2>
+<p>In this section, we discuss the following:</p>
+<ul>
+<li>
+<p>API design</p>
+</li>
+<li>
+<p>High-level design</p>
+</li>
+<li>
+<p>Algorithms to find nearby businesses</p>
+</li>
+<li>
+<p>Data model</p>
+</li>
+</ul>
+<h3 id="api-design">API Design</h3>
+<p>We use the RESTful API convention to design a simplified version of the APIs.</p>
+<p><strong>GET /v1/search/nearby</strong></p>
+<p>This endpoint returns businesses based on certain search criteria. In real-life applications, search results are usually paginated. Pagination [6] is not the focus of this chapter but is worth mentioning during an interview.</p>
+<p>Request Parameters:</p>
+<table><thead><tr><th><strong>Field</strong></th><th><strong>Description</strong></th><th><strong>Type</strong></th></tr></thead><tbody><tr><td>latitude</td><td>Latitude of a given location</td><td>decimal</td></tr><tr><td>longitude</td><td>Longitude of a given location</td><td>decimal</td></tr><tr><td>radius</td><td>Optional. Default is 5000 meters (about 3 miles)</td><td>int</td></tr></tbody></table>
+<p class="tableCaption">Table 1 Request parameters</p>
+<p>Response Body</p>
+<pre><code>{
+  "total": 10,
+  "businesses":[{business object}]
+}
+</code></pre>
+<p>The business object contains everything needed to render the search result page, but we may still need additional attributes such as pictures, reviews, star rating, etc., to render the business detail page. Therefore, when a user clicks on the business detail page, a new endpoint call to fetch the detailed information of a business is usually required.</p>
+<p><strong>APIs for a business</strong></p>
+<p>The APIs related to a business object are shown in the table below.</p>
+<table><thead><tr><th><strong>API</strong></th><th><strong>Detail</strong></th></tr></thead><tbody><tr><td>GET /v1/businesses/{:id}</td><td>Return detailed information about a business</td></tr><tr><td>POST /v1/businesses</td><td>Add a business</td></tr><tr><td>PUT /v1/businesses/{:id}</td><td>Update details of a business</td></tr><tr><td>DELETE /v1/businesses/{:id}</td><td>Delete a business</td></tr></tbody></table>
+<p class="tableCaption">Table 2 APIs for a business</p>
+<p>If you are interested in real-world APIs for place/business search, two examples are Google Places API [7] and Yelp Reservation API [8].</p>
+<h3 id="data-model">Data model</h3>
+<p>In this section, we discuss the read/write ratio and the schema design. The scalability of the database is covered in deep dive.</p>
+<h4 id="readwrite-ratio">Read/write ratio</h4>
+<p>Read volume is high because the following two features are very commonly used:</p>
+<ul>
+<li>
+<p>Search for nearby businesses.</p>
+</li>
+<li>
+<p>View the detailed information of a business.</p>
+</li>
+</ul>
+<p>On the other hand, the write volume is low because adding, removing, and editing business info are infrequent operations.</p>
+<p>For a read-heavy system, a relational database such as MySQL can be a good fit. Let’s take a closer look at the schema design.</p>
+<h4 id="data-schema">Data schema</h4>
+<p>The key database tables are the business table and the geospatial (geo) index table.</p>
+<p><strong>Business table</strong></p>
+<p>The business table contains detailed information about a business. It is shown in Table 3 and the primary key is <em>business_id.</em></p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a relational database table schema named 'business'.  The table is depicted as a rectangular grid with a gray header row labeled 'business'.  The first column lists the attribute names: `business_id`, `address`, `city`, `state`, `country`, `latitude`, and `longitude`. The second column, for the `business_id` attribute, contains 'PK', indicating that `business_id` is the primary key of the table, uniquely identifying each business record.  The remaining columns are empty, representing fields where data for each respective attribute would be stored.  No connections to other tables are shown; the diagram solely illustrates the structure of the 'business' table itself." loading="lazy" width="300" height="358" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(300px, 100vw), (max-width: 1200px) min(300px, 80vw), min(300px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-3-business-table-72LHQZZP.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Table 3 Business table</figcaption></div></figure>
+<p><strong>Geo index table</strong></p>
+<p>A geo index table is used for the efficient processing of spatial operations. Since this table requires some knowledge about geohash, we will discuss it in the “Scale the database” section in deep dive.</p>
+<h3 id="high-level-design">High-level design</h3>
+<p>The high-level design diagram is shown in Figure 2. The system comprises two parts: location-based service (LBS) and business-related service. Let’s take a look at each component of the system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a business service.  A user initiates requests through a load balancer, which routes requests to either a Location Based Service (LBS) using the `/search/nearby` endpoint or a Business Service using the `/businesses/{:id}` endpoint.  The LBS handles read-only requests, distributing them across three replica database nodes labeled 'Replica.'  These replicas receive data through replication from a primary database node, highlighted in pink and labeled 'Primary.' The Business Service handles write operations, directing them exclusively to the primary database node.  The primary database then replicates the written data to the three replica nodes, ensuring data consistency across the database cluster.  The arrows indicate the direction of data flow, with labels like 'Read,' 'Write,' and 'Replicate' specifying the type of operation." loading="lazy" width="500" height="500" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/proximity-service/figure-2-high-level-design-OLWE4F2G.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2 High-level design</figcaption></div></figure>
+<p><strong>Load balancer</strong></p>
+<p>The load balancer automatically distributes incoming traffic across multiple services. Normally, a company provides a single DNS entry point and internally routes the API calls to the appropriate services based on the URL paths.</p>
+<p><strong>Location-based service (LBS)</strong></p>
+<p>The LBS service is the core part of the system which finds nearby businesses for a given radius and location. The LBS has the following characteristics:</p>
+<ul>
+<li>
+<p>It is a read-heavy service with no write requests.</p>
+</li>
+<li>
+<p>QPS is high, especially during peak hours in dense areas.</p>
+</li>
+<li>
+<p>This service is stateless so it’s easy to scale horizontally.</p>
+</li>
+</ul>
+<p><strong>Business service</strong></p>
+<p>Business service mainly deals with two types of requests:</p>
+<ul>
+<li>
+<p>Business owners create, update, or delete businesses. Those requests are mainly write operations, and the QPS is not high.</p>
+</li>
+<li>
+<p>Customers view detailed information about a business. QPS is high during peak hours.</p>
+</li>
+</ul>
+<p><strong>Database cluster</strong></p>
+<p>The database cluster can use the primary-secondary setup. In this setup, the primary database handles all the write operations, and multiple replicas are used for read operations. Data is saved to the primary database first and then replicated to replicas. Due to the replication delay, there might be some discrepancy between data read by the LBS and the data written to the primary database. This inconsistency is usually not an issue because business information doesn’t need to be updated in real-time.</p>
+<p><strong>Scalability of business service and LBS</strong></p>
+<p>Both the business service and LBS are stateless services, so it’s easy to automatically add more servers to accommodate peak traffic (e.g. mealtime) and remove servers during off-peak hours (e.g. sleep time). If the system operates on the cloud, we can set up different regions and availability zones to further improve availability [9]. We discuss this more in the deep dive.</p>
+<h3 id="algorithms-to-fetch-nearby-businesses">Algorithms to fetch nearby businesses</h3>
+<p>In real life, companies might use existing geospatial databases such as Geohash in Redis [10] or Postgres with PostGIS extension [11]. You are not expected to know the internals of those geospatial databases during an interview. It’s better to demonstrate your problem-solving skills and technical knowledge by explaining how the geospatial index works, rather than to simply throw out database names.</p>
+<p>The next step is to explore different options for fetching nearby businesses. We will list a few options, go over the thought process, and discuss trade-offs.</p>
+<h4 id="option-1-two-dimensional-search">Option 1: Two-dimensional search</h4>
+<p>The most intuitive but naive way to get nearby businesses is to draw a circle with the predefined radius and find all the businesses within the circle as shown in Figure 3.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a map section centered on a point labeled 'me,' showing a portion of a city grid with streets and buildings.  The map is oriented with north approximately towards the top.  Street names are visible, including 'East 57th Street,' 'East 58th Street,' 'Madison Avenue,' and 'Park Avenue.'  Buildings are depicted as light-grey rectangles. A dashed-line circle surrounds the 'me' point, indicating a radius of approximately one block. Within this circle, and slightly offset from the center, are icons representing a coffee cup and two locations marked with a fork and knife symbol, suggesting nearby cafes and restaurants. The map's bottom includes an attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors.'  The overall impression is a visual representation of a person's location ('me') and nearby points of interest within a walking distance." loading="lazy" width="600" height="600" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-3-two-dimensional-search-UCK2KWKU.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3 Two dimensional search</figcaption></div></figure>
+<p>This process can be translated into the following pseudo SQL query:</p>
+<pre><code>SELECT business_id, latitude, longitude,
+FROM business
+WHERE (latitude BETWEEN {:my_lat} - radius AND {:my_lat} + radius) AND
+      (longitude BETWEEN {:my_long} - radius AND {:my_long} + radius)
+</code></pre>
+<p>This query is not efficient because we need to scan the whole table. What if we build indexes on longitude and latitude columns? Would this improve the efficiency? The answer is not by much. The problem is that we have two-dimensional data and the dataset returned from each dimension could still be huge. For example, as shown in Figure 4, we can quickly retrieve dataset 1 and dataset 2, thanks to indexes on longitude and latitude columns. But to fetch businesses within the radius, we need to perform an intersect operation on those two datasets. This is not efficient because each dataset contains lots of data.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a world map displaying two datasets overlaid on a geographical basemap.  The basemap shows continents (North America, South America, Europe, Asia, Africa, Australia, and Antarctica) with varying terrain colors, indicating elevation.  A light-blue horizontal band spans across the map at approximately 30-40 degrees North latitude, labeled 'dataset 1' to its right, indicating the geographical area covered by this dataset.  A sea-green vertical band stretches from the North Pole to the South Pole, approximately centered at -90 degrees longitude, labeled 'dataset 2' at its top, showing the longitudinal extent of this dataset.  The map uses a latitude-longitude grid, with labels indicating degrees for both latitude (vertical axis, ranging from -90 to 90) and longitude (horizontal axis, ranging from -180 to 180).  The map's attribution in the bottom-left corner reads: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors.'" loading="lazy" width="700" height="680" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-4-intersect-two-datasets-XGXW3FF3.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4 Intersect two datasets</figcaption></div></figure>
+<p>The problem with the previous approach is that the database index can only improve search speed in one dimension. So naturally, the follow-up question is, can we map two-dimensional data to one dimension? The answer is yes.</p>
+<p>Before we dive into the answers, let’s take a look at different types of indexing methods. In a broad sense, there are two types of geospatial indexing approaches, as shown in Figure 5. The highlighted ones are the algorithms we discuss in detail because they are commonly used in the industry.</p>
+<ul>
+<li>
+<p>Hash: even grid, geohash, cartesian tiers [12], etc.</p>
+</li>
+<li>
+<p>Tree: quadtree, Google S2, RTree [13], etc.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical tree structure illustrating different indexing techniques for spatial data.  The root node is labeled 'Index,' branching into two main categories: 'Hash' and 'Tree.'  The 'Hash' node further branches into three leaf nodes representing specific hash-based indexing methods: 'Even Grid,' 'Geohash,' and 'Cartesian Tiers,' all depicted with light pink rectangular boxes.  Similarly, the 'Tree' node branches into three leaf nodes representing tree-based indexing methods: 'Quadtree,' 'Google S2' (also in light pink), and 'Rtree' (in a white rectangular box).  The lines connecting the nodes represent the hierarchical relationship, showing how each indexing method falls under a broader category. No data flow is explicitly shown; the diagram solely depicts the organizational structure of various spatial indexing techniques." loading="lazy" width="700" height="249" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/proximity-service/figure-5-different-types-of-geospatial-indexes-FFADHPSV.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5 Different types of geospatial indexes</figcaption></div></figure>
+<p>Even though the underlying implementations of those approaches are different, the high-level idea is the same, that is, <strong>to</strong> <strong>divide the map into smaller areas and build indexes for fast search</strong>. Among those, geohash, quadtree, and Google S2 are most widely used in real-world applications. Let’s take a look at them one by one.</p>
+<table><thead><tr><th>Reminder</th></tr></thead><tbody><tr><td>In a real interview, you usually don’t need to explain the implementation details of indexing options. However, it is important to have some basic understanding of the need for geospatial indexing, how it works at a high level and also its limitations.</td></tr></tbody></table>
+<h4 id=""></h4>
+<h4 id="option-2-evenly-divided-grid">Option 2: Evenly divided grid</h4>
+<p>One simple approach is to evenly divide the world into small grids (Figure 6). This way, one grid could have multiple businesses, and each business on the map belongs to one grid.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a global map using a Geographic Coordinate System based on the WGS84 Datum.  The map is displayed in a rectangular grid, with latitude (in degrees) marked on the vertical axis ranging from -75 to 75, and longitude (in degrees) marked on the horizontal axis ranging from -150 to 150.  The continents are depicted in a light gray color, while the oceans are left white.  A dashed grid overlays the map, providing visual reference points for latitude and longitude coordinates. The title clearly states 'Global Map - Geographic Coordinate System - WGS84 Datum' and specifies that the units are 'Degrees - Latitude / Longitude'.  No URLs or parameters are present." loading="lazy" width="500" height="294" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-6-global-map-NWAMEPOX.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6 Global map (source: [14])</figcaption></div></figure>
+<p>This approach works to some extent, but it has one major issue: the distribution of businesses is not even. There could be lots of businesses in downtown New York, while other grids in deserts or oceans have no business at all. By dividing the world into even grids, we produce a very uneven data distribution. Ideally, we want to use more granular grids for dense areas and large grids in sparse areas. Another potential challenge is to find neighboring grids of a fixed grid.</p>
+<h4 id="option-3-geohash">Option 3: Geohash</h4>
+<p>Geohash is better than the evenly divided grid option. It works by reducing the two-dimensional longitude and latitude data into a one-dimensional string of letters and digits. Geohash algorithms work by recursively dividing the world into smaller and smaller grids with each additional bit. Let’s go over how geohash works at a high level.</p>
+<p>First, divide the planet into four quadrants along with the prime meridian and equator.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a world map divided into four quadrants by two perpendicular lines intersecting at the center.  Each quadrant is labeled with a two-digit number: 01 (top-left), 11 (top-right), 00 (bottom-left), and 10 (bottom-right).  The top-left quadrant (01) displays Europe, Asia, and Africa; the top-right quadrant (11) shows North and parts of South America; the bottom-left quadrant (00) depicts Antarctica and a portion of the southern Indian Ocean; and the bottom-right quadrant (10) shows the remaining parts of South America and a significant portion of the Southern Ocean, including Antarctica.  The continents are rendered in a realistic topographic style with varying shades of green and brown representing land elevation, while oceans are depicted in light blue.  No URLs or parameters are present. The numbers appear to be binary representations of the quadrants' locations, possibly for indexing or data organization purposes." loading="lazy" width="600" height="497" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-7-geohash-XY4L6XHV.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7 Geohash</figcaption></div></figure>
+<ul>
+<li>
+<p>Latitude range [-90, 0] is represented by 0</p>
+</li>
+<li>
+<p>Latitude range [0, 90] is represented by 1</p>
+</li>
+<li>
+<p>Longitude range [-180, 0] is represented by 0</p>
+</li>
+<li>
+<p>Longitude range [0, 180] is represented by 1</p>
+</li>
+</ul>
+<p>Second, divide each grid into four smaller grids. Each grid can be represented by alternating between longitude bit and latitude bit.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical quadtree-like structure visualizing a world map partitioned recursively.  The top level shows a 2x2 grid of world map sections, each labeled with a two-bit binary code (01, 11, 00, 10).  These codes seemingly represent a geographic partitioning, with 01 possibly indicating Eurasia, 11 North America, 00 Antarctica/Southern Africa, and 10 South America.  A diagonal line separates the top-left and bottom-right quadrants. The lower section expands each of these top-level quadrants into another 2x2 grid, resulting in a total of 16 smaller map sections. Each of these smaller sections is also labeled with a four-bit binary code (e.g., 0101, 0111, etc.), representing a further refinement of the geographic division.  The continents (Europe, Africa, Asia, Australia, North America, South America, and Antarctica) are partially visible on some map sections, providing context to the binary codes.  The overall structure suggests a system for geographically indexing or addressing locations using a binary code based on recursive spatial partitioning." loading="lazy" width="400" height="646" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(400px, 100vw), (max-width: 1200px) min(400px, 80vw), min(400px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-8-divide-grid-Z5AJ3TFS.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8 Divide grid</figcaption></div></figure>
+<p>Repeat this subdivision until the grid size is within the precision desired. Geohash usually uses base32 representation [15]. Let’s take a look at two examples.</p>
+<ul>
+<li>
+<p>Geohash of the Google headquarter (length = 6):</p>
+<pre><code>1001 10110 01001 10000 11011 11010 (base32 in binary) → 9q9hvu (base32)
+</code></pre>
+</li>
+<li>
+<p>Geohash of the Facebook headquarter (length = 6):</p>
+<pre><code>1001 10110 01001 10001 10000 10111 (base32 in binary) → 9q9jhr (base32)
+</code></pre>
+</li>
+</ul>
+<p>Geohash has 12 precisions (also called levels) as shown in Table 4. The precision factor determines the size of the grid. We are only interested in geohashes with lengths between 4 and 6. This is because when it’s longer than 6, the grid size is too small, while if it is smaller than 4, the grid size is too large (see Table 4).</p>
+<table><thead><tr><th><strong>Geohash length</strong></th><th><strong>Grid width x height</strong></th></tr></thead><tbody><tr><td>1</td><td>5,009.4km x 4,992.6km (the size of the planet)</td></tr><tr><td>2</td><td>1,252.3km x 624.1km</td></tr><tr><td>3</td><td>156.5km x 156km</td></tr><tr><td><strong>4</strong></td><td><strong>39.1km x 19.5km</strong></td></tr><tr><td><strong>5</strong></td><td><strong>4.9km x 4.9km</strong></td></tr><tr><td><strong>6</strong></td><td><strong>1.2km x 609.4m</strong></td></tr><tr><td>7</td><td>152.9m x 152.4m</td></tr><tr><td>8</td><td>38.2m x 19m</td></tr><tr><td>9</td><td>4.8m x 4.8m</td></tr><tr><td>10</td><td>1.2m x 59.5cm</td></tr><tr><td>11</td><td>14.9cm x 14.9cm</td></tr><tr><td>12</td><td>3.7cm x 1.9cm</td></tr></tbody></table>
+<p class="tableCaption"><p>Table 4 Geohash length to grid size mapping (source: [16])</p></p>
+<p>How do we choose the right precision? We want to find the minimal geohash length that covers the whole circle drawn by the user-defined radius. The corresponding relationship between the radius and the length of geohash is shown in the table below.</p>
+<table><thead><tr><th>Radius (Kilometers）</th><th>Geohash length</th></tr></thead><tbody><tr><td>0.5 km (0.31 mile)</td><td>6</td></tr><tr><td>1 km (0.62 mile)</td><td>5</td></tr><tr><td>2 km (1.24 mile)</td><td>5</td></tr><tr><td>5 km (3.1 mile)</td><td>4</td></tr><tr><td>20 km (12.42 mile)</td><td>4</td></tr></tbody></table>
+<p class="tableCaption">Table 5 Radius to geohash mapping</p>
+<p>This approach works great most of the time, but there are some edge cases with how the geohash boundary is handled that we should discuss with the interviewer.</p>
+<p><strong>Boundary issues</strong></p>
+<p>Geohashing guarantees that the longer a shared prefix is between two geohashes, the closer they are. As shown in Figure 9, all the grids have a shared prefix: 9q8zn.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a geographical area, likely a section of a city, overlaid with a grid system.  The base map shows streets, avenues (34th, 35th, 32nd, 33rd Avenues), and street names (Judah, Kirkham, Lawton, Moraga Street), indicating a real-world location. This base map is divided into nine equal rectangular sections by dark-blue grid lines. Each section is shaded light-green and labeled with a unique alphanumeric identifier, starting with '9q8zn' followed by a number (2, 3, 6, 8, 9) or a letter (b, c, d, f).  The identifiers are displayed in dark-blue text within their respective grid sections.  There is no explicit information flow depicted; the image simply shows the spatial arrangement of these labeled grid sections over the underlying street map. The bottom of the image includes an attribution: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors.'" loading="lazy" width="500" height="301" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-9-shared-prefix-K37LAGTS.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9 Shared prefix</figcaption></div></figure>
+<p><strong>Boundary issue 1</strong></p>
+<p>However, the reverse is not true: two locations can be very close but have no shared prefix at all. This is because two close locations on either side of the equator or prime meridian belong to different 'halves' of the world. For example, in France, La Roche-Chalais (geohash: u000) is just 30km from Pomerol (geohash: ezzz) but their geohashes have no shared prefix at all [17].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a geographical map showing two locations, La Roche-Chalais (labeled A) and Pomerol (labeled B), in France.  La Roche-Chalais is annotated with its geohash 'u000' and location details ('he-Chalais, Aquitaine, France'). Similarly, Pomerol is annotated with its geohash 'ezzz' and location ('Pomerol, Nouvelle-A'). A bright yellow arrow connects the two locations, indicating a distance of approximately 30km, as stated in a yellow box.  A light blue line represents a possible route between the two points, meandering along a river. Despite their proximity, a yellow box highlights that the two locations do not share a common geohash prefix, illustrating a concept relevant to geospatial indexing and data structures.  The map background provides a visual context of the surrounding terrain." loading="lazy" width="500" height="528" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-10-no-shared-prefix-MFLTKKDZ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10 No shared prefix</figcaption></div></figure>
+<p>Because of this boundary issue, a simple prefix SQL query below would fail to fetch all nearby businesses.</p>
+<pre><code>SELECT * FROM geohash_index WHERE geohash LIKE `9q8zn%`
+</code></pre>
+<p><strong>Boundary issue 2</strong></p>
+<p>Another boundary issue is that two positions can have a long shared prefix, but they belong to different geohashes as shown in Figure 11.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a map section overlaid with a grid, highlighting specific zones.  The base map shows a city block layout with streets labeled 'Judah Street,' 'Kirkham Street,' 'Lawton Street,' '34th Avenue,' '29th Avenue,' '27th,' '26th,' '25th,' '24,' and '33rd,' '35th'.  A light-green shaded area covers a larger rectangular region encompassing multiple city blocks. This area is further subdivided into a 3x3 grid using dark-blue lines. Each of the nine resulting sub-regions is labeled with a unique alphanumeric identifier, starting with '9q8zn' followed by a number or letter (e.g., '9q8zn6,' '9q8zn2,' '9q8znc'). Two colored circles are superimposed on the grid: a dark-brown circle in the upper-right quadrant of the central 3x3 grid and a green circle slightly below and to the left of the brown circle. The bottom of the image contains an attribution statement: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors.'" loading="lazy" width="500" height="301" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-11-boundary-issue-XJWRE2EX.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11 Boundary issue</figcaption></div></figure>
+<p>A common solution is to fetch all businesses not only within the current grid but also from its neighbors. The geohashes of neighbors can be calculated in constant time and more details about this can be found here [17].</p>
+<p><strong>Not enough businesses</strong></p>
+<p>Now let’s tackle the bonus question. What should we do if there are not enough businesses returned from the current grid and all the neighbors combined?</p>
+<p>Option 1: only return businesses within the radius. This option is easy to implement, but the drawback is obvious. It doesn’t return enough results to satisfy a user’s needs.</p>
+<p>Option 2: increase the search radius. We can remove the last digit of the geohash and use the new geohash to fetch nearby businesses. If there are not enough businesses, we continue to expand the scope by removing another digit. This way, the grid size is gradually expanded until the result is greater than the desired number of results. Figure 12 shows the conceptual diagram of the expanding search process.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequential process demonstrating the expansion of a search area.  The image is composed of three identical-sized grids, each composed of numerous smaller, equally-sized squares arranged in rows and columns.  The first grid shows a single, small, green square located near its center. A black arrow labeled 'increase search area' points from this grid to the second grid. The second grid shows the green square enlarged, occupying a larger area of the grid, but still centered. Another identical black arrow labeled 'increase search area' points from the second grid to the third grid. The third grid shows the green square further expanded, now occupying a significantly larger area of the grid.  The overall effect illustrates a progressive increase in the search area, starting from a small, localized search and expanding outwards in each step." loading="lazy" width="750" height="201" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-12-expand-the-search-process-ZN5TJYNX.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12 Expand the search process</figcaption></div></figure>
+<h4 id="option-4-quadtree">Option 4: Quadtree</h4>
+<p>Another popular solution is quadtree. A quadtree [18] is a data structure that is commonly used to partition a two-dimensional space by recursively subdividing it into four quadrants (grids) until the contents of the grids meet certain criteria. For example, the criterion can be to keep subdividing until the number of businesses in the grid is not more than 100. This number is arbitrary as the actual number can be determined by business needs. With a quadtree, we build an in-memory tree structure to answer queries. Note that <strong>quadtree is an in-memory data structure and it is not a database solution</strong>. It runs on each LBS server, and the data structure is built at server start-up time.</p>
+<p>The following figure visualizes the conceptual process of subdividing the world into a quadtree. Let’s assume the world contains 200m (million) businesses.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system illustrating data flow through different stages.  The diagram consists of three rectangular boxes arranged horizontally. The leftmost box is a single, large square labeled '200m,' representing a source of data or a large data set.  A double-headed arrow connects this box to the center box. The center box is divided into four smaller squares, each labeled with a cardinal direction (NW, NE, SW, SE) and a numerical value in meters (40m, 30m, 70m, 60m respectively), likely representing the size or capacity of each section.  Another double-headed arrow connects the center box to the rightmost box. The rightmost box is further subdivided into four smaller rectangles, with two on the top row labeled '10m' and '11m,' and two on the bottom row labeled '4m' and '5m,' possibly representing further processing or filtering stages with different capacities. The arrows indicate the flow of data from the source (200m) through processing stages (NW, NE, SW, SE) and finally to the output or final stage (10m, 11m, 4m, 5m).  The overall structure suggests a data pipeline or a system with multiple processing steps, where the data is initially large and then broken down or processed into smaller units." loading="lazy" width="750" height="200" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-13-quadtree-MWKA5XCK.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13 Quadtree</figcaption></div></figure>
+<p>Figure 14 explains the quadtree building process in more detail. The root node represents the whole world map. The root node is recursively broken down into 4 quadrants until no nodes are left with more than 100 businesses.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a tree-like structure, likely a quadtree, illustrating a hierarchical data partitioning scheme.  The root node, labeled '200m,' branches into four child nodes (40m, 30m, 70m, 60m) labeled with directional indicators (nw, ne, sw, se) representing northwest, northeast, southwest, and southeast respectively.  This pattern of directional labeling and four-way branching continues down the tree.  Circles represent internal nodes, while squares represent leaf nodes. Dashed lines indicate that multiple layers are omitted for brevity.  Numerical values associated with nodes likely represent data associated with that region or partition.  The leaf nodes (squares) contain numerical values (50, 90, 60, 140, 60, 80), suggesting final data points or aggregated values at the lowest level of the hierarchy.  A legend clarifies the circle and square shapes as representing internal and leaf nodes, respectively, and the dashed lines indicate the omission of multiple layers in the visualization." loading="lazy" width="700" height="460" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/proximity-service/figure-14-build-quadtree-ZV3JS35E.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14 Build quadtree</figcaption></div></figure>
+<p>The pseudocode for building quadtree is shown below:</p>
+<pre><code>public void buildQuadtree(TreeNode node) {
+    if (countNumberOfBusinessesInCurrentGrid(node) &gt; 100) {
+        node.subdivide();
+        for (TreeNode child : node.getChildren()) {
+            buildQuadtree(child);
+        }
+    }
+}
+</code></pre>
+<p>To answer this question, we need to know what kind of data is stored.</p>
+<p><strong>Data on a leaf node</strong></p>
+<table><thead><tr><th><strong>Name</strong></th><th><strong>Size</strong></th></tr></thead><tbody><tr><td>Top left coordinates and bottom-right coordinates to identify the grid</td><td>32 bytes (8 bytes * 4)</td></tr><tr><td>List of business IDs in the grid</td><td>8 bytes per ID * 100 (maximal number of businesses allowed in one grid)</td></tr><tr><td>Total</td><td>832 bytes</td></tr></tbody></table>
+<p class="tableCaption">Table 6 Leaf node</p>
+<p><strong>Data on internal node</strong></p>
+<table><thead><tr><th><strong>Name</strong></th><th><strong>Size</strong></th></tr></thead><tbody><tr><td>Top left coordinates and bottom-right coordinates to identify the grid</td><td>32 bytes (8 bytes * 4)</td></tr><tr><td>Pointers to 4 children</td><td>32 bytes (8 bytes * 4)</td></tr><tr><td>Total</td><td>64 bytes</td></tr></tbody></table>
+<p class="tableCaption">Table 7 Internal node</p>
+<p>Even though the tree-building process depends on the number of businesses within a grid, this number does not need to be stored in the quadtree node because it can be inferred from records in the database.</p>
+<p>Now that we know the data structure for each node, let’s take a look at the memory usage.</p>
+<ul>
+<li>
+<p>Each grid can store a maximal of 100 businesses</p>
+</li>
+<li>
+<p>Number of leaf nodes = ~200 million / 100 = ~2 million</p>
+</li>
+<li>
+<p>Number of internal nodes = 2 million * 1/3 = ~0.67 million. If you do not know why the number of internal nodes is one-third of the leaf nodes, please read the reference material [19].</p>
+</li>
+<li>
+<p>Total memory requirement = 2 million * 832 bytes + 0.67 million * 64 bytes = ~1.71 GB. Even if we add some overhead to build the tree, the memory requirement to build the tree is quite small.</p>
+</li>
+</ul>
+<p>In a real interview, we shouldn’t need such detailed calculations. The key takeaway here is that the quadtree index doesn’t take too much memory and can easily fit in one server. Does it mean we should use only one server to store the quadtree index? The answer is no. Depending on the read volume, a single quadtree server might not have enough CPU or network bandwidth to serve all read requests. If that is the case, it will be necessary to spread the read load among multiple quadtree servers.</p>
+<p><strong>How long does it take to build the whole quadtree?</strong></p>
+<p>Each leaf node contains approximately 100 business IDs. The time complexity to build the tree is <em>(N/100) lg(N/100)</em>, where <em>N</em> is the total number of businesses. It might take a few minutes to build the whole quadtree with 200 million businesses.</p>
+<p><strong>How to get nearby businesses with quadtree?</strong></p>
+<ol>
+<li>
+<p>Build the quadtree in memory.</p>
+</li>
+<li>
+<p>After the quadtree is built, start searching from the root and traverse the tree, until we find the leaf node where the search origin is. If that leaf node has 100 businesses, return the node. Otherwise, add businesses from its neighbors until enough businesses are returned.</p>
+</li>
+</ol>
+<p><strong>Operational considerations for quadtree</strong></p>
+<p>As mentioned above, it may take a few minutes to build a quadtree with 200 million businesses at the server start-up time. It is important to consider the operational implications of such a long server start-up time. While the quadtree is being built, the server cannot serve traffic. Therefore, we should roll out a new release of the server incrementally to a small subset of servers at a time. This avoids taking a large swath of the server cluster offline and causes service brownout. Blue/green deployment [20] can also be used, but an entire cluster of new servers fetching 200 million businesses at the same time from the database service can put a lot of strain on the system. This can be done, but it may complicate the design and you should mention that in the interview.</p>
+<p>Another operational consideration is how to update the quadtree as businesses are added and removed over time. The easiest approach would be to incrementally rebuild the quadtree, a small subset of servers at a time, across the entire cluster. But this would mean some servers would return stale data for a short period of time. However, this is generally an acceptable compromise based on the requirements. This can be further mitigated by setting up a business agreement that newly added/updated businesses will only be effective the next day. This means we can update the cache using a nightly job. One potential problem with this approach is that tons of keys will be invalidated at the same time, causing heavy load on cache servers.</p>
+<p>It’s also possible to update the quadtree on the fly as businesses are added and removed. This certainly complicates the design, especially if the quadtree data structure could be accessed by multiple threads. This will require some locking mechanism which could dramatically complicate the quadtree implementation.</p>
+<p><strong>Real-world quadtree example</strong></p>
+<p>Yext provided an image (Figure 15) that shows a constructed quadtree near Denver. We want smaller, more granular grids for dense areas and larger grids for sparse areas.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a geographical map, likely of the Denver, Colorado area, overlaid with a grid of large, bright green rectangular cells.  The cells form a coarse-grained partition of the map, covering a wide region encompassing cities such as Boulder, Arvada, Denver, Aurora, Centennial, Parker, Watkins, Strasburg, and Byers.  Major highways (indicated by numbers like 70, 25, 270, etc.) and smaller roads are visible within the cells, along with bodies of water depicted in light blue.  City names are labeled, providing geographical context. The grid's purpose appears to be a spatial partitioning scheme, possibly for data sharding, load balancing, or geographic data organization in a system design context.  The size and arrangement of the cells suggest a deliberate, possibly hierarchical, division of the area, with a finer-grained grid apparent in the Denver/Aurora area, indicating potentially higher data density or processing needs in that region." loading="lazy" width="500" height="323" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-15-real-world-example-of-a-quadtree-WENVCDJ2.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15 Real-world example of a quadtree</figcaption></div></figure>
+<h4 id="option-5-google-s2">Option 5: Google S2</h4>
+<p>Google S2 geometry library [22] is another big player in this field. Similar to Quadtree, it is an in-memory solution. It maps a sphere to a 1D index based on the Hilbert curve (a space-filling curve) [23]. The Hilbert curve has a very important property: two points that are close to each other on the Hilbert curve are close in 1D space (Figure 16). Search on 1D space is much more efficient than on 2D. Interested readers can play with an online tool [24] for the Hilbert curve.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visualization likely depicting a concept related to pathfinding or network routing within a constrained environment.  The background shows a grid overlaid with a repeating pattern of L-shaped pathways, suggesting a maze-like structure.  Two distinct sets of nodes and connecting lines are present. On the left, three reddish-pink nodes are connected to a single, larger node at the bottom-left corner (approximately coordinates 0.18, 0) via straight lines, representing potential paths.  On the right, four bluish-gray nodes are similarly connected to a single, larger node at the bottom-right corner (approximately coordinates 0.875, 0). The x-axis appears to represent a normalized distance or some other continuous variable, ranging from 0 to 1, with marked intervals. The y-axis is not explicitly labeled but implicitly represents the vertical position within the grid. The overall arrangement suggests a comparison of different paths or routes from two distinct starting points to a common destination, possibly illustrating efficiency or optimality within the given constraints of the maze-like grid." loading="lazy" width="500" height="548" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-16-hilbert-curve-A42ZBOV2.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16 Hilbert curve (source: [24])</figcaption></div></figure>
+<p>S2 is a complicated library and you are not expected to explain its internals during an interview. But because it’s widely used in companies such as Google, Tinder, etc., we will briefly cover its advantages.</p>
+<ul>
+<li>
+<p>S2 is great for geofencing because it can cover arbitrary areas with varying levels (Figure 17). According to Wikipedia, “A geofence is a virtual perimeter for a real-world geographic area. A geo-fence could be dynamically generated—as in a radius around a point location, or a geo-fence can be a predefined set of boundaries (such as school zones or neighborhood boundaries)” [25].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a map depicting a geofence overlaid on a street map.  The base map shows a section of a city with streets labeled 'Judah Street,' 'Kirkham Street,' 'Lawton Street,' and parts of 'Juda' and 'Law' streets visible.  Buildings are represented as light gray rectangles arranged in city blocks.  A light teal polygon, labeled 'Geofence,' is superimposed on the map, irregularly shaped and encompassing several city blocks.  The geofence's boundary does not precisely follow street lines but rather cuts across blocks, indicating a custom-defined area.  The bottom of the image includes an attribution statement: 'Map tiles by Stamen Design, under CC BY 3.0. Data © OpenStreetMap contributors,' indicating the source of the map data.  The number '29' is partially visible near the bottom of the geofence, possibly indicating a street number or other location identifier within the geofenced area." loading="lazy" width="500" height="337" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-17-geofence-PIWNFXYE.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17 Geofence</figcaption></div></figure>
+<p>Geofencing allows us to define perimeters that surround the areas of interest and to send notifications to users who are out of the areas. This can provide richer functionalities than just returning nearby businesses.</p>
+</li>
+<li>
+<p>Another advantage of S2 is its Region Cover algorithm [26]. Instead of having a fixed level (precision) as in geohash, we can specify min level, max level, and max cells in S2. The result returned by S2 is more granular because the cell sizes are flexible. If you want to learn more, take a look at the S2 tool [26].</p>
+</li>
+</ul>
+<h4 id="recommendation">Recommendation</h4>
+<p>To find nearby businesses efficiently, we have discussed a few options: geohash, quadtree and S2. As you can see from Table 8, different companies or technologies adopt different options.</p>
+<table><thead><tr><th><strong>Geo Index</strong></th><th><strong>Companies</strong></th></tr></thead><tbody><tr><td>Geohash</td><td>Bing map [27], Redis [10], MongoDB [28], Lyft [29]</td></tr><tr><td>Quadtree</td><td>Yext [21]</td></tr><tr><td>Both Geohash and Quadtree</td><td>Elasticsearch [30]</td></tr><tr><td>S2</td><td>Google Maps, Tinder [31]</td></tr></tbody></table>
+<p class="tableCaption">Table 8 Different types of geo indexes</p>
+<p>During an interview, we suggest choosing <strong>geohash or quadtree</strong> because S2 is more complicated to explain clearly in an interview.</p>
+<h4 id="geohash-vs-quadtree">Geohash vs quadtree</h4>
+<p>Before we conclude this section, let’s do a quick comparison between geohash and quadtree.</p>
+<p><strong>Geohash</strong></p>
+<ul>
+<li>
+<p>Easy to use and implement. No need to build a tree.</p>
+</li>
+<li>
+<p>Supports returning businesses within a specified radius.</p>
+</li>
+<li>
+<p>When the precision (level) of geohash is fixed, the size of the grid is fixed as well. It cannot dynamically adjust the grid size, based on population density. More complex logic is needed to support this.</p>
+</li>
+<li>
+<p>Updating the index is easy. For example, to remove a business from the index, we just need to remove it from the corresponding row with the same <em>geohash</em> and <em>business_id</em>. See Figure 18 for a concrete example.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple table with two columns: 'geohash' and 'business_id'.  The 'geohash' column contains three entries, all identical: '9q8zn'. The 'business_id' column contains corresponding numerical IDs: 3, 8, and 4. A red horizontal line highlights the second row of the table, drawing attention to the '9q8zn' geohash and its associated 'business_id' of 8.  The table likely represents a simplified data structure where geohashes (representing geographical locations) are linked to business identifiers.  The highlighted row suggests a specific focus on the business with ID 8 located in the area represented by the geohash '9q8zn'." loading="lazy" width="300" height="169" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(300px, 100vw), (max-width: 1200px) min(300px, 80vw), min(300px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-18-remove-a-business-ELAJOMXR.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18 Remove a business</figcaption></div></figure>
+</li>
+</ul>
+<p><strong>Quadtree</strong></p>
+<ul>
+<li>
+<p>Slightly harder to implement because it needs to build the tree.</p>
+</li>
+<li>
+<p>Supports fetching k-nearest businesses. Sometimes we just want to return k-nearest businesses and don’t care if businesses are within a specified radius. For example, when you are traveling and your car is low on gas, you just want to find the nearest k gas stations. These gas stations may not be near you, but the app needs to return the nearest k results. For this type of query, a quadtree is a good fit because its subdividing process is based on the number k and it can automatically adjust the query range until it returns k results.</p>
+</li>
+<li>
+<p>It can dynamically adjust the grid size based on population density (see the Denver example in Figure 15).</p>
+</li>
+<li>
+<p>Updating the index is more complicated than geohash. A quadtree is a tree structure. If a business is removed, we need to traverse from the root to the leaf node, to remove the business. For example, if we want to remove the business with ID = 2, we have to travel from the root all the way down to the leaf node, as shown in Figure 19. Updating the index takes <em>O(logn)</em>, but the implementation is complicated if the data structure is accessed by a multi-threaded program, as locking is required. Also, rebalancing the tree can be complicated. Rebalancing is necessary if, for example, a leaf node has no room for a new addition. A possible fix is to over-allocate the ranges.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a tree-like structure, likely a quadtree or similar spatial partitioning data structure.  The root node, labeled '200m,' is a light pink circle representing an internal node.  It branches into four child nodes (40m, 30m, 70m, 60m), also internal nodes, labeled with their respective values and connected with lines labeled 'nw,' 'ne,' 'sw,' and 'se,' indicating compass directions. This pattern repeats recursively down to a depth of four levels.  Internal nodes are light pink circles, while leaf nodes are represented by squares.  Dashed lines indicate the omission of multiple layers for brevity.  The leaf nodes contain numerical values (50, 90, 60, etc.). The final leaf node is light pink and labeled '80' with the additional text 'business_ids: [2, 6, 7],' suggesting it holds associated data. A legend clarifies the circle and square shapes represent internal and leaf nodes respectively, with dashed lines indicating multiple omitted layers.  The numbers associated with nodes likely represent some quantitative measure, possibly size or data volume. The overall structure suggests a hierarchical organization of data, potentially for spatial indexing or similar applications." loading="lazy" width="650" height="450" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/proximity-service/figure-19-update-quadtree-OCBKLCXE.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19 Update quadtree</figcaption></div></figure>
+<h2 id="step-3---design-deep-dive">Step 3 - Design Deep Dive</h2>
+<p>By now you should have a good picture of what the overall system looks like. Now let’s dive deeper into a few areas.</p>
+<ul>
+<li>
+<p>Scale the database</p>
+</li>
+<li>
+<p>Caching</p>
+</li>
+<li>
+<p>Region and availability zones</p>
+</li>
+<li>
+<p>Filter results by time or business type</p>
+</li>
+<li>
+<p>Final architecture diagram</p>
+</li>
+</ul>
+<h3 id="scale-the-database">Scale the database</h3>
+<p>We will discuss how to scale two of the most important tables: the business table and the geospatial index table.</p>
+<h4 id="business-table">Business table</h4>
+<p>The data for the business table may not all fit in one server, so it is a good candidate for sharding. The easiest approach is to shard everything by business ID. This sharding scheme ensures that load is evenly distributed among all the shards, and operationally it is easy to maintain.</p>
+<h4 id="geospatial-index-table">Geospatial index table</h4>
+<p>Both geohash and quadtree are widely used. Due to geohash’s simplicity, we use it as an example. There are two ways to structure the table.</p>
+<p>Option 1: For each geohash key, there is a JSON array of business IDs in a single row. This means all business IDs within a geohash are stored in one row.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table depicting a geospatial index. The table is bordered with a gray shadow effect.  The top row, shaded light gray, contains the header 'geospatial_index' in bold, black font. Below this header are two rows. The first row contains the label 'geohash' in plain, black font. This represents a geohash value, a spatial index technique that encodes geographic coordinates into a short string. The second row contains the label 'list_of_business_ids' in plain, black font. This indicates a list of identifiers corresponding to businesses located within the geographic area represented by the geohash in the row above.  The table structure implies a one-to-many relationship: a single geohash can correspond to multiple business IDs.  No information flows visually between the table's components; the table simply stores the data." loading="lazy" width="300" height="152" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(300px, 100vw), (max-width: 1200px) min(300px, 80vw), min(300px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-9-list_of_business_ids-is-a-json-array-HUAEOYZJ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Table 9 list_of_business_ids is a JSON array</figcaption></div></figure>
+<p>Option 2: If there are multiple businesses in the same geohash, there will be multiple rows, one for each business. This means different business IDs within a geohash are stored in different rows.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table structure labeled 'geospatial_index'.  This table has two columns. The top row acts as a header, indicating the table's name. The first column, below the header, is labeled 'geohash,' which likely stores geohash values representing geographical locations. The second column is labeled 'business_id,' which presumably stores unique identifiers for businesses.  The table's purpose is to create a geospatial index, allowing for efficient retrieval of businesses based on their geographical location using the geohash as a spatial key.  No information flow is explicitly depicted; the diagram only shows the table's schema." loading="lazy" width="300" height="152" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(300px, 100vw), (max-width: 1200px) min(300px, 80vw), min(300px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ftable-10-business_id-is-a-single-id-3ZNAELVH.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Table 10 business_id is a single ID</figcaption></div></figure>
+<p>Here are some sample rows for option 2.</p>
+<table><thead><tr><th><strong>geohash</strong></th><th><strong>business_id</strong></th></tr></thead><tbody><tr><td>32feac</td><td>343</td></tr><tr><td>32feac</td><td>347</td></tr><tr><td>f3lcad</td><td>112</td></tr><tr><td>f3lcad</td><td>113</td></tr></tbody></table>
+<p class="tableCaption"><p>Table 11 Sample rows of the geospatial index table</p></p>
+<p><strong>Recommendation</strong>: we recommend option 2 because of the following reasons:</p>
+<p>For option 1, to update a business, we need to fetch the array of <em>business_ids</em> and scan the whole array to find the business to update. When inserting a new business, we have to scan the entire array to make sure there is no duplicate. We also need to lock the row to prevent concurrent updates. There are a lot of edge cases to handle.</p>
+<p>For option 2, if we have two columns with a compound key of (<em>geohash, business_id</em>), the addition and removal of a business are very simple. There would be no need to lock anything.</p>
+<p><strong>Scale the geospatial index</strong></p>
+<p>One common mistake about scaling the geospatial index is to quickly jump to a sharding scheme without considering the actual data size of the table. In our case, the full dataset for the geospatial index table is not large (quadtree index only takes 1.71G memory and storage requirement for geohash index is similar). The whole geospatial index can easily fit in the working set of a modern database server. However, depending on the read volume, a single database server might not have enough CPU or network bandwidth to handle all read requests. If that is the case, it is necessary to spread the read load among multiple database servers.</p>
+<p>There are two general approaches for spreading the load of a relational database server. We can add read replicas, or shard the database.</p>
+<p>Many engineers like to talk about sharding during interviews. However, it might not be a good fit for the geohash table as sharding is complicated. For instance, the sharding logic has to be added to the application layer. Sometimes, sharding is the only option. In this case, though, everything can fit in the working set of a database server, so there is no strong technical reason to shard the data among multiple servers.</p>
+<p>A better approach, in this case, is to have a series of read replicas to help with the read load. This method is much simpler to develop and maintain. For this reason, scaling the geospatial index table through replicas is recommended.</p>
+<h3 id="caching">Caching</h3>
+<p>Before introducing a cache layer we have to ask ourselves, do we really need a cache layer?</p>
+<p>It is not immediately obvious that caching is a solid win:</p>
+<ul>
+<li>
+<p>The workload is read-heavy, and the dataset is relatively small. The data could fit in the working set of any modern database server. Therefore, the queries are not I/O bound and they should run almost as fast as an in-memory cache.</p>
+</li>
+<li>
+<p>If read performance is a bottleneck, we can add database read replicas to improve the read throughput.</p>
+</li>
+</ul>
+<p>Be mindful when discussing caching with the interviewer, as it will require careful benchmarking and cost analysis. If you find out that caching does fit the business requirements, then you can proceed with discussions about caching strategy.</p>
+<h4 id="cache-key">Cache key</h4>
+<p>The most straightforward cache key choice is the location coordinates (latitude and longitude) of the user. However, this choice has a few issues:</p>
+<ul>
+<li>
+<p>Location coordinates returned from mobile phones are not accurate as they are just the best estimation [32]. Even if you don’t move, the results might be slightly different each time you fetch coordinates on your phone.</p>
+</li>
+<li>
+<p>A user can move from one location to another, causing location coordinates to change slightly. For most applications, this change is not meaningful.</p>
+</li>
+</ul>
+<p>Therefore, location coordinates are not a good cache key. Ideally, small changes in location should still map to the same cache key. The geohash/quadtree solution mentioned earlier handles this problem well because all businesses within a grid map to the same geohash.</p>
+<h4 id="types-of-data-to-cache">Types of data to cache</h4>
+<p>As shown in Table 12, there are two types of data that can be cached to improve the overall performance of the system:</p>
+<table><thead><tr><th><strong>Key</strong></th><th><strong>Value</strong></th></tr></thead><tbody><tr><td>geohash</td><td>List of business IDs in the grid</td></tr><tr><td>business_id</td><td>Business object</td></tr></tbody></table>
+<p class="tableCaption">Table 12 Key-value pairs in cache</p>
+<p><strong>List of business IDs in a grid</strong></p>
+<p>Since business data is relatively stable, we precompute the list of business IDs for a given geohash and store it in a key-value store such as Redis. Let’s take a look at a concrete example of getting nearby businesses with caching enabled.</p>
+<ol>
+<li>
+<p>Get the list of business IDs for a given geohash.</p>
+<pre><code>SELECT business_id FROM geohash_index WHERE geohash LIKE `{:geohash}%`
+</code></pre>
+</li>
+<li>
+<p>Store the result in the Redis cache if cache misses.</p>
+<pre><code>public List&lt;String&gt; getNearbyBusinessIds(String geohash) {
+    String cacheKey = hash(geohash);
+    List&lt;string&gt; listOfBusinessIds = Redis.get(cacheKey);
+    if (listOfBusinessIDs  == null) {
+        listOfBusinessIds = Run the select SQL query above;
+        Cache.set(cacheKey, listOfBusinessIds, "1d");
+    }
+    return listOfBusinessIds;
+}
+</code></pre>
+</li>
+</ol>
+<p>When a new business is added, edited, or deleted, the database is updated and the cache invalidated. Since the volume of those operations is relatively small and no locking mechanism is needed for the geohash approach, update operations are easy to deal with.</p>
+<p>According to the requirements, a user can choose the following 4 radii on the client: 500m, 1km, 2km, and 5km. Those radii are mapped to geohash lengths of 4, 5, 5, and 6, respectively. To quickly fetch nearby businesses for different radii, we cache data in Redis on all three precisions (geohash_4, geohash_5, and geohash_6).</p>
+<p>As mentioned earlier, we have 200 million businesses and each business belongs to 1 grid in a given precision. Therefore the total memory required is:</p>
+<ul>
+<li>
+<p>Storage for Redis values: 8 bytes * 200 million * 3 precisions = ~5 GB</p>
+</li>
+<li>
+<p>Storage for Redis keys: negligible</p>
+</li>
+<li>
+<p>Total memory required: ~5 GB</p>
+</li>
+</ul>
+<p>We can get away with one modern Redis server from the memory usage perspective, but to ensure high availability and reduce cross continent latency, we deploy the Redis cluster across the globe. Given the estimated data size, we can have the same copy of cache data deployed globally. We call this Redis cache “Geohash”' in our final architecture diagram (Figure 21).</p>
+<p><strong>Business data needed to render pages on the client</strong></p>
+<p>This type of data is quite straightforward to cache. The key is the business_id and the value is the business object which contains the business name, address, image URLs, etc. We call this Redis cache "Business info" in our final architecture diagram (Figure 21).</p>
+<h3 id="region-and-availability-zones">Region and availability zones</h3>
+<p>We deploy a location-based service to multiple regions and availability zones as shown in Figure 21. This has a few advantages:</p>
+<ul>
+<li>
+<p>Makes users physically “closer” to the system. Users from the US West are connected to the data centers in that region, and users from Europe are connected with data centers in Europe.</p>
+</li>
+<li>
+<p>Gives us the flexibility to spread the traffic evenly across the population. Some regions such as Japan and Korea have high population densities. It might be wise to put them in separate regions, or even deploy location-based services in multiple availability zones to spread the load.</p>
+</li>
+<li>
+<p>Privacy laws. Some countries may require user data to be used and stored locally. In this case, we could set up a region in that country and employ DNS routing to restrict all requests from the country to only that region.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a world map depicting the geographical distribution of server regions and user locations, illustrating network latency.  Multiple blue circles, labeled 'Regions,' are scattered across the continents, representing data center locations.  Two stick figures represent user groups: one labeled 'Users from US west' and another labeled 'Users from Europe.'  A dashed line connects the 'Users from US west' figure to a region in the western US, with '10ms' indicating the latency. Another dashed line extends from the US west region to a region in Europe, showing a latency of '140ms.' A solid line connects the 'Users from Europe' figure to a European region, indicating a latency of '15ms.'  The map visually demonstrates how user proximity to server regions impacts network response time, highlighting the importance of geographically distributed servers for minimizing latency." loading="lazy" width="700" height="399" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-20-deploy-lbs-closer-to-the-user-OVZHVKZ6.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20 Deploy LBS closer to the user</figcaption></div></figure>
+</li>
+</ul>
+<h3 id="follow-up-question-filter-results-by-time-or-business-type">Follow-up question: filter results by time or business type</h3>
+<p>The interviewer might ask a follow-up question: how to return businesses that are open now, or only return businesses that are restaurants?</p>
+<p><strong>Candidate</strong>: When the world is divided into small grids with geohash or quadtree, the number of businesses returned from the search result is relatively small. Therefore, it is acceptable to return business IDs first, hydrate business objects, and filter them based on opening time or business type. This solution assumes opening time and business type are stored in the business table.</p>
+<h3 id="final-design-diagram">Final design diagram</h3>
+<p>Putting everything together, we come up with the following design diagram.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a business search service.  At the top, a Load Balancer (1) distributes incoming requests.  Two request types are shown: `/search/nearby` (2), routed to an LBS (Load Balancing Service) (3, 4), and `/businesses/{id}`, routed to a Business Service. The LBS (3, 4) reads (5, 6) data from a Redis Cluster consisting of two nodes: Business Info and Geohash. The Business Service reads from a Database Cluster, which is a three-node replica set with one primary (pink) database and two replicas (white).  The primary database receives write operations from the Business Service, and data is replicated synchronously (indicated by arrows labeled 'Replicate') to the two replica databases.  The 'Sync' label indicates synchronization between the Redis Cluster and the database." loading="lazy" width="700" height="496" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Ffigure-21-design-diagram-ORKTOGMW.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21 Design diagram</figcaption></div></figure>
+<h4 id="get-nearby-businesses">Get nearby businesses</h4>
+<ol>
+<li>
+<p>You try to find restaurants within 500 meters on Yelp. The client sends the user location (latitude = 37.776720, longitude = -122.416730) and radius (500m) to the load balancer.</p>
+</li>
+<li>
+<p>The load balancer forwards the request to the LBS.</p>
+</li>
+<li>
+<p>Based on the user location and radius info, the LBS finds the geohash length that matches the search. By checking Table 5, 500m map to geohash length = 6.</p>
+</li>
+<li>
+<p>LBS calculates neighboring geohashes and adds them to the list. The result looks like this: list_of_geohashes = [my_geohash, neighbor1_geohash, neighbor2_geohash, …, neighbor8_geohash].</p>
+</li>
+<li>
+<p>For each geohash in <em>list_of_geohashes</em>, LBS calls the “Geohash” Redis server to fetch corresponding business IDs. Calls to fetch business IDs for each geohash can be made in parallel to reduce latency.</p>
+</li>
+<li>
+<p>Based on the list of business IDs returned, LBS fetches fully hydrated business information from the “Business info” Redis server, then calculates distances between a user and businesses, ranks them, and returns the result to the client.</p>
+</li>
+</ol>
+<h4 id="view-update-add-or-delete-a-business">View, update, add or delete a business</h4>
+<p>All business-related APIs are separated from the LBS. To view the detailed information about a business, the business service first checks if the data is stored in the “Business info” Redis cache. If it is, cached data will be returned to the client. If not, data is fetched from the database cluster and then stored in the Redis cache, allowing subsequent requests to get results from the cache directly.</p>
+<p>Since we have an upfront business agreement that newly added/updated businesses will be effective the next day, cached business data is updated by a nightly job.</p>
+<h2 id="step-4---wrap-up">Step 4 - Wrap Up</h2>
+<p>In this chapter, we have presented the design for proximity service. The system is a typical LBS that leverages geospatial indexing. We discussed several indexing options:</p>
+<ul>
+<li>
+<p>Two-dimensional search</p>
+</li>
+<li>
+<p>Evenly divided grid</p>
+</li>
+<li>
+<p>Geohash</p>
+</li>
+<li>
+<p>Quadtree</p>
+</li>
+<li>
+<p>Google S2</p>
+</li>
+</ul>
+<p>Geohash, quadtree, and S2 are widely used by different tech companies. We choose geohash as an example to show how a geospatial index works.</p>
+<p>In the deep dive, we discussed why caching is effective in reducing the latency, what should be cached and how to use cache to retrieve nearby businesses fast. We also discussed how to scale the database with replication and sharding.</p>
+<p>We then looked at deploying LBS in different regions and availability zones to improve availability, to make users physically closer to the servers, and to comply better with local privacy laws.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="chapter-summary">Chapter Summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mind map outlining the design process for a Proximity Service.  The central node is 'Proximity Service,' branching into four main steps (Step 1-4). Step 1 details the requirements, splitting into 'functional req' (return nearby businesses, add/delete/update a business, view a business) and 'non-functional req' (low latency, data privacy, 5,000 search qps). Step 2 focuses on design, branching into 'api design' (api for search, apis for businesses, pagination), 'data model' (read/write ratio, data schema), and 'high-level design diagram.'  Step 3 addresses implementation, including 'algorithms' (evenly divided grid, geohash, quadtree, google S2, geohash vs quadtree), 'scale the database' (business table, geospatial index table), and 'caching' (cache key, types of data). Finally, Step 4 involves 'region and availability zone,' 'filter results,' 'final design diagram,' and 'wrap up.'  The entire diagram illustrates a hierarchical breakdown of the design process, from initial requirements to final implementation and wrap-up." loading="lazy" width="700" height="1152" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fproximity-service%2Fchapter-summary-CNKPFTKZ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></figure>
+<h2 id="reference-materials">Reference Materials</h2>
+<p>[1] Yelp: <a href="https://www.yelp.com/" target="_blank" rel="noopener noreferrer"><u>https://www.yelp.com/</u></a></p>
+<p>[2] Map tiles by Stamen Design:<br>
+<a href="http://maps.stamen.com/" target="_blank" rel="noopener noreferrer"><u>http://maps.stamen.com/</u></a></p>
+<p>[3] OpenStreetMap: <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer"><u>https://www.openstreetmap.org</u></a></p>
+<p>[4] GDPR: <a href="https://en.wikipedia.org/wiki/General_Data_Protection_Regulation" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/General_Data_Protection_Regulation</u></a></p>
+<p>[5] CCPA: <a href="https://en.wikipedia.org/wiki/California_Consumer_Privacy_Act" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/California_Consumer_Privacy_Act</u></a></p>
+<p>[6] Pagination in the REST API:<br>
+<a href="https://developer.atlassian.com/server/confluence/pagination-in-the-rest-api/" target="_blank" rel="noopener noreferrer"><u>https://developer.atlassian.com/server/confluence/pagination-in-the-rest-api/</u></a></p>
+<p>[7] Google places API: <a href="https://developers.google.com/maps/documentation/places/web-service/search" target="_blank" rel="noopener noreferrer"><u>https://developers.google.com/maps/documentation/places/web-service/search</u></a></p>
+<p>[8] Yelp reservation API:<br>
+<a href="https://docs.developer.yelp.com/docs/reservation" target="_blank" rel="noopener noreferrer"><u>https://docs.developer.yelp.com/docs/reservation</u></a></p>
+<p>[9] Regions and Zones:<br>
+<a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html" target="_blank" rel="noopener noreferrer"><u>https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html</u></a></p>
+<p>[10] Redis GEOHASH: <a href="https://redis.io/commands/GEOHASH" target="_blank" rel="noopener noreferrer"><u>https://redis.io/commands/GEOHASH</u></a></p>
+<p>[11] POSTGIS: <a href="https://postgis.net/" target="_blank" rel="noopener noreferrer"><u>https://postgis.net/</u></a></p>
+<p>[12] Cartesian tiers: <a href="http://www.nsshutdown.com/projects/lucene/whitepaper/locallucene_v2.html" target="_blank" rel="noopener noreferrer"><u>http://www.nsshutdown.com/projects/lucene/whitepaper/locallucene_v2.html</u></a></p>
+<p>[13] R-tree: <a href="https://en.wikipedia.org/wiki/R-tree" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/R-tree</u></a></p>
+<p>[14] Global map in a Geographic Coordinate Reference System:<br>
+<a href="https://bit.ly/3DsjAwg" target="_blank" rel="noopener noreferrer"><u>https://bit.ly/3DsjAwg</u></a></p>
+<p>[15] Base32: <a href="https://en.wikipedia.org/wiki/Base32" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Base32</u></a></p>
+<p>[16] Geohash grid aggregation: <a href="https://bit.ly/3kKl4e6" target="_blank" rel="noopener noreferrer"><u>https://bit.ly/3kKl4e6</u></a></p>
+<p>[17] Geohash: <a href="https://www.movable-type.co.uk/scripts/geohash.html" target="_blank" rel="noopener noreferrer"><u>https://www.movable-type.co.uk/scripts/geohash.html</u></a></p>
+<p>[18] Quadtree: <a href="https://en.wikipedia.org/wiki/Quadtree" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Quadtree</u></a></p>
+<p>[19] How many leaves has a quadtree:<br>
+<a href="https://stackoverflow.com/questions/35976444/how-many-leaves-has-a-quadtree" target="_blank" rel="noopener noreferrer"><u>https://stackoverflow.com/questions/35976444/how-many-leaves-has-a-quadtree</u></a></p>
+<p>[20] Blue green deployment: <a href="https://martinfowler.com/bliki/BlueGreenDeployment.html" target="_blank" rel="noopener noreferrer"><u>https://martinfowler.com/bliki/BlueGreenDeployment.html</u></a></p>
+<p>[21] Yext: Maps and Location Support:<br>
+<a href="https://www.yext.com/platform/features/maps-and-location-support" target="_blank" rel="noopener noreferrer"><u>https://www.yext.com/platform/features/maps-and-location-support</u></a></p>
+<p>[22] S2: <a href="http://s2geometry.io/" target="_blank" rel="noopener noreferrer"><u>http://s2geometry.io/</u></a></p>
+<p>[23] Hilbert curve: <a href="https://en.wikipedia.org/wiki/Hilbert_curve" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Hilbert_curve</u></a></p>
+<p>[24] Hilbert mapping: <a href="http://bit-player.org/extras/hilbert/hilbert-mapping.html" target="_blank" rel="noopener noreferrer"><u>http://bit-player.org/extras/hilbert/hilbert-mapping.html</u></a></p>
+<p>[25] Geo-fence: <a href="https://en.wikipedia.org/wiki/Geo-fence" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Geo-fence</u></a></p>
+<p>[26] Region cover: <a href="http://s2geometry.io/devguide/s2cell_hierarchy" target="_blank" rel="noopener noreferrer"><u>http://s2geometry.io/devguide/s2cell_hierarchy</u></a></p>
+<p>[27] Bing map: <a href="https://bit.ly/30ytSfG" target="_blank" rel="noopener noreferrer"><u>https://bit.ly/30ytSfG</u></a></p>
+<p>[28] MongoDB: <a href="https://docs.mongodb.com/manual/tutorial/build-a-2d-index/" target="_blank" rel="noopener noreferrer"><u>https://docs.mongodb.com/manual/tutorial/build-a-2d-index/</u></a></p>
+<p>[29] Geospatial Indexing: The 10 Million QPS Redis Architecture Powering Lyft:<br>
+<a href="https://www.youtube.com/watch?v=cSFWlF96Sds&amp;t=2155s" target="_blank" rel="noopener noreferrer"><u>https://www.youtube.com/watch?v=cSFWlF96Sds&amp;t=2155s</u></a></p>
+<p>[30] Geo Shape Type:<br>
+<a href="https://www.elastic.co/guide/en/elasticsearch/reference/1.6/mapping-geo-shape-type.html" target="_blank" rel="noopener noreferrer"><u>https://www.elastic.co/guide/en/elasticsearch/reference/1.6/mapping-geo-shape-type.html</u></a></p>
+<p>[31] Geosharded Recommendations Part 1: Sharding Approach:<br>
+<a href="https://medium.com/tinder-engineering/geosharded-recommendations-part-1-sharding-approach-d5d54e0ec77a" target="_blank" rel="noopener noreferrer"><u>https://medium.com/tinder-engineering/geosharded-recommendations-part-1-sharding-approach-d5d54e0ec77a</u></a></p>
+<p>[32] Get the last known location:<br>
+<a href="https://developer.android.com/training/location/retrieve-current#Challenges" target="_blank" rel="noopener noreferrer"><u>https://developer.android.com/training/location/retrieve-current#Challenges</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="design-google-drive.html">← Previous</a>
+        <a href="nearby-friends.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

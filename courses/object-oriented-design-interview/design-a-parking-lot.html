@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a Parking Lot - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design a Parking Lot
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="oop-fundamentals.html">← Previous</a>
+        <a href="design-a-movie-ticket-booking-system.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">04</span> Design a Parking Lot
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/design-a-parking-lot" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">04</strong><h1>Design a Parking Lot</h1></header><p>In this chapter, we explore the object-oriented design of a Parking Lot system, one of the most popular questions in technical interviews. This parking lot application aims to provide a comprehensive solution for efficiently managing a parking lot. It automates various processes, including vehicle entry, exit, and spot allocation, while also providing accurate information about parking lot occupancy and generating parking tickets.</p>
+<p>To build this system, we first need to clarify its requirements.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified isometric view of a parking lot.  The lot is depicted as a series of rectangular parking spaces outlined in black, each marked with a capital 'P'. Four grayscale cars are parked in these spaces; two cars are positioned on the left side of the image, and two are on the right.  The cars are uniformly sized and shaped, represented in a simple, cartoonish style. A sign labeled 'PARKING LOT' is positioned in the upper right corner, indicating the overall location.  There are no explicit connections or information flow depicted between the cars or the parking spaces beyond their spatial arrangement within the parking lot's defined boundaries. The image focuses solely on the visual representation of cars parked in a parking lot." loading="lazy" width="624" height="389" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-1-WRPHNOTN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Parking Lot</figcaption></div></figure>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>The first step in designing the parking lot system is to clarify the requirements and define the scope. Here’s an example of a typical prompt an interviewer might present:</p>
+<p>“Imagine you’re arriving at a busy parking lot, eager to park your car. At the entrance, you’re issued a ticket. You then drive in, find a spot suited to your vehicle’s size, and park. Later, when you prepare to leave, you present your ticket at the exit, the system calculates your fee, and the spot is freed up for the next vehicle. Behind the scenes, the parking lot is assigning spots based on vehicle size, recording entry and exit times, and updating availability for new arrivals. Now, let’s design a parking lot system that handles all this.”</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>In this step, we ask clarifying questions to narrow down the list of requirements, understand the constraints, and define the problem that can be solved in 30-45 minutes.</p>
+<p>Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate:</strong> What types of vehicles are supported by the parking lot?<br>
+<strong>Interviewer:</strong> Three types of vehicles should be supported: <em>motorcycles</em>, <em>cars</em>, and <em>trucks</em>.</p>
+<p><strong>Candidate:</strong> What parking spot types are available in the parking lot?<br>
+<strong>Interviewer:</strong> The parking lot supports three types of parking spots: compact, regular spots, and oversized.</p>
+<p><strong>Candidate:</strong> How does the system determine which spot a vehicle should park in?<br>
+<strong>Interviewer:</strong> The system assigns spots based on the size of the vehicle, ensuring an appropriate fit.</p>
+<p><strong>Candidate:</strong> Are parking tickets issued to vehicles upon entry and charged at the exit?<br>
+<strong>Interviewer:</strong> Yes, a ticket is issued with vehicle details and entry time when a vehicle enters. On exit, the system calculates the fee based on duration and vehicle size, then marks the spot as vacant.</p>
+<p><strong>Candidate:</strong> How are parking fees calculated?<br>
+<strong>Interviewer:</strong> Fees are based on parking duration and vehicle size, with rates varying depending on the time of day.</p>
+<h3 id="requirements">Requirements</h3>
+<p>As we ask clarifying questions, we should note down the key requirements for this problem. Putting the key requirements in writing will help us avoid ambiguity and contradictions, as there is nothing worse than realizing you are solving the wrong problem.</p>
+<p>Here are the key functional requirements we’ve identified:</p>
+<ul>
+<li>The parking lot has multiple parking spots, including compact, regular, and oversized spots.</li>
+<li>The parking lot supports parking for motorcycles, cars, and trucks.</li>
+<li>Customers can park their vehicles in spots assigned based on vehicle size.</li>
+<li>Customers receive a parking ticket with vehicle details and entry time at the entry point and pay a fee based on duration, vehicle size, and time of day at the exit point.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>The system must scale to support large parking lots with many spots and vehicles.</li>
+<li>The system must reliably track spot assignments and ticket details to ensure accurate operations.</li>
+</ul>
+<p>With these requirements set, we now identify the core objects.</p>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>Before diving into the design, it’s important to enumerate the core objects.</p>
+<ul>
+<li><strong>Vehicle</strong>: This object represents a vehicle that needs a spot. It encapsulates details like the license plate and size (small for motorcycles, medium for cars, large for trucks), serving as the foundation for spot assignment and fee calculation.</li>
+<li><strong>ParkingSpot</strong>: This object models an individual parking spot in the parking lot. It’s the physical space where a Vehicle parks, ensuring only appropriately sized vehicles can park based on its capacity.</li>
+<li><strong>Ticket</strong>: This object represents a parking ticket issued when a Vehicle enters the parking lot. It stores critical details, including the ticket ID, the associated Vehicle, the assigned ParkingSpot, and entry time, which are later used to calculate fees and free up spots upon exit.</li>
+<li><strong>ParkingManager</strong>: This object oversees the parking lot’s spot allocation, managing the assignment, lookup, and release of ParkingSpot instances. It ensures a Vehicle gets the right spot by checking availability based on size, and updates the system when vehicles leave, keeping parking operations smooth and efficient.</li>
+<li><strong>ParkingLot</strong>: This acts as a facade, providing a central interface to manage the system’s key functionalities: vehicle entry, spot assignment, ticketing, and fee calculation. It keeps its logic lightweight by delegating tasks such as spot allocation to the ParkingManager, fee computation to a FareCalculator class, and coordinating the flow of vehicles in and out without handling the details.</li>
+</ul>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We chose these five objects to separate concerns. Vehicle and
+ParkingSpot define the core physical entities, Ticket tracks sessions, ParkingManager
+handles allocation, and ParkingLot coordinates as a facade.</p></div>
+<p><em>Note</em>: To learn more about the Facade Pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-parking-lot#further-reading-strategy-and-facade-design-patterns">Further Reading</a></strong> section at the end of this chapter.</p>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>Now that we’ve identified the core objects and their responsibilities, the next step is to design the classes and methods that bring the parking lot system to life.</p>
+<h3 id="vehicle">Vehicle</h3>
+<p>We have modeled the Vehicle as an interface to set a standard for all vehicle types. It defines two key methods:</p>
+<ul>
+<li>getLicensePlate(): Returns the vehicle’s license plate number.</li>
+<li>getSize(): Returns a VehicleSize enum (SMALL, MEDIUM, LARGE), indicating the space it occupies.</li>
+</ul>
+<p>Concrete classes like Motorcycle, Car, and Truck implement the Vehicle interface, each defining its size:</p>
+<ul>
+<li>Motorcycle: Small-sized.</li>
+<li>Car: Medium-sized.</li>
+<li>Truck: Large-sized.</li>
+</ul>
+<p>Below is the representation of the Vehicle interface and its concrete classes.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating an object-oriented design.  The central component is an interface named 'Vehicle' which declares two methods:  `getLicensePlate()` returning a String, and `getSize()` returning a type 'VehicleSize'.  Three classes, 'Motorcycle,' 'Car,' and 'Truck,' implement the 'Vehicle' interface, indicated by dashed-line arrows. Each of these classes has a private member variable `licensePlate` of type String. Separately, an enumeration 'VehicleSize' is defined, listing the possible vehicle sizes as SMALL, MEDIUM, and LARGE.  The diagram shows a relationship where the 'Vehicle' interface defines the common behavior for all vehicle types, and the classes implement this behavior, while the 'VehicleSize' enum provides a type for representing the size of a vehicle." loading="lazy" width="624" height="264" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-2-DQX3FS46.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Vehicle and its concrete classes</figcaption></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> You might wonder: why use a getSize() method instead of a getType()
+method in the Vehicle class? Using getType() would tie us to specific vehicle names
+like "Motorcycle" or "Car", forcing updates to the system’s logic every time a
+new type (say, "Scooter") comes along. For example, fee calculations or spot assignments
+would need new cases for each type. With getSize(), we abstract that away. The
+parking lot cares more about the size of a vehicle, such as small, medium, or large,
+than its exact type. A truck and a van might both be large, so they’re treated
+the same for parking purposes. Adding an electric scooter? Just mark its size as
+small, and it fits in like a motorcycle. This keeps the system lean and adaptable,
+focusing on space over semantics.</p></div>
+<h3 id="parkingspot">ParkingSpot</h3>
+<p>The ParkingSpot interface represents a parking spot in the parking lot system. It captures spot-specific details, such as whether it’s occupied and its size. Concrete parking spot types (CompactSpot, RegularSpot, and OversizedSpot) are implemented as classes that adhere to the ParkingSpot interface. These classes bring the interface to life, defining spots for small, medium, and large vehicles, respectively.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating an inheritance hierarchy in object-oriented programming.  At the top is an interface named `ParkingSpot` which defines five methods: `isAvailable()`, returning a boolean; `occupy(Vehicle vehicle)`, a void method taking a `Vehicle` object as a parameter; `vacate()`, another void method; `getSpotNumber()`, returning an integer; and `getSize()`, returning a `VehicleSize` object.  Three classes, `CompactSpot`, `RegularSpot`, and `OversizedSpot`, are shown below, each implementing the `ParkingSpot` interface via dashed-line inheritance arrows. Each of these classes has two private member variables: an integer `spotNumber` and a `Vehicle` object named `vehicle`.  The diagram shows that the three classes inherit the methods defined in the `ParkingSpot` interface, suggesting a common functionality for managing parking spots of different sizes." loading="lazy" width="580" height="334" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-3-XNPOCZYD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Parking Spot and its concrete classes</figcaption></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The ParkingSpot class is intentionally designed to be simple,
+only encompassing its state (e.g., availability and size). The ParkingManager class
+is responsible for more complex operations, such as locating available parking
+spots and monitoring parked vehicles. This design choice promotes adding new spot
+types without introducing unnecessary complexity.</p></div>
+<h3 id="parkingmanager">ParkingManager</h3>
+<p>The ParkingManager is responsible for managing the allocation and tracking of parking spots within the parking lot system. Its primary functions include identifying available parking spaces, assigning the most suitable spot for each vehicle, and maintaining a record of parked vehicles and their locations. These tasks are accomplished through two key methods.</p>
+<ul>
+<li>parkVehicle(Vehicle vehicle): Assigns a spot that matches the vehicle’s size when it arrives.</li>
+<li>unparkVehicle(Vehicle vehicle): Frees up the spot when the vehicle leaves, ensuring the system stays up-to-date.</li>
+</ul>
+<p>Here is the representation of the ParkingManager class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `ParkingManager` class.  The diagram shows the `ParkingManager` class, denoted by a 'C' in a circle, containing two private member variables: `availableSpots`, a map where keys are `VehicleSize` and values are lists of `ParkingSpot` objects, representing available parking spots for each vehicle size; and `vehicleToSpotMap`, a map where keys are `Vehicle` objects and values are `ParkingSpot` objects, tracking which vehicle is parked in which spot.  The class also includes three public methods: `findSpotForVehicle`, which takes a `Vehicle` object as input and returns a `ParkingSpot` object; `parkVehicle`, which takes a `Vehicle` object and returns a `ParkingSpot` object (presumably the spot the vehicle was parked in); and `unparkVehicle`, a void method that takes a `Vehicle` object as input and presumably removes the vehicle from the parking lot.  There are no explicit connections shown to other classes beyond the data types used within the `ParkingManager` class itself (Vehicle, VehicleSize, ParkingSpot, List, Map)." loading="lazy" width="520" height="181" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-4-ATCFGLAV.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The ParkingManager class is designed to encapsulate the logic
+for parking spot allocation, deallocation, and tracking within the parking lot
+system. This centralization ensures that the ParkingLot class operates as a lightweight
+facade, focusing solely on orchestrating high-level operations such as vehicle
+entry, ticketing, and exit processing. By delegating spot management to ParkingManager,
+the system maintains a clear separation of concerns, enhancing modularity and scalability.</p></div>
+<h3 id="ticket">Ticket</h3>
+<p>The Ticket class represents a parking ticket generated when a vehicle enters the parking lot. It keeps track of when a vehicle arrives and leaves, using these times to calculate duration, and links the vehicle to its assigned spot.</p>
+<p>Below is the representation of the Ticket class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Ticket` class within an object-oriented design context.  The diagram is a rectangular box with the label 'C Ticket' at the top, indicating a class named 'Ticket'. Inside the box, five private attributes are listed, each prefixed with a square indicating private access: `String ticketId`, `Vehicle vehicle`, `ParkingSpot parkingSpot`, `LocalDateTime entryTime`, and `LocalDateTime exitTime`. These attributes store the ticket ID (a string), the vehicle associated with the ticket (a `Vehicle` object), the parking spot assigned (a `ParkingSpot` object), and the entry and exit times (both `LocalDateTime` objects). Finally, a public method is shown, indicated by a circle: `BigDecimal calculateParkingDuration()`. This method, which takes no parameters, calculates and returns the parking duration as a `BigDecimal` value.  There are no connections or information flows depicted beyond the internal structure of the `Ticket` class itself." loading="lazy" width="435" height="227" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-5-ETXOHT27.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The Ticket class is designed as a concise, immutable record
+of a parking event, capturing essential details such as the ticket ID, associated
+Vehicle, assigned ParkingSpot, entry time, and exit time. Its primary role is to
+serve as a data container, ensuring simplicity and focus by delegating complex
+logic, such as parking fee calculation, to the FareCalculator class.</p></div>
+<h3 id="farestrategy-and-farecalculator">FareStrategy and FareCalculator</h3>
+<p>We design the FareStrategy interface to establish a standard method for modifying the parking fee, allowing various pricing rules to fit into the system. Its concrete classes handle specific pricing rules:</p>
+<ul>
+<li>BaseFareStrategy establishes the base fee using the ticket’s duration and vehicle size.</li>
+<li>PeakHoursFareStrategy modifies it based on the time of day.</li>
+</ul>
+<p>Since a parking session often involves multiple pricing rules, like duration, size, and time, we design a FareCalculator class to coordinate these changes and calculate the final fee. It is designed to determine the cost for each ticket by combining the effects of all applicable strategies (BaseFareStrategy, PeakHoursFareStrategy), ensuring the system applies the right fee based on how long the vehicle stays, its size, and when it is parked.</p>
+<p>This association between FareStrategy and FareCalculator maintains a structured pricing process, with FareStrategy defining the rules and FareCalculator pulling them together.</p>
+<p>The pricing logic relies on the <strong>Strategy Pattern</strong>, which enables the system to dynamically select and swap between different rules for calculating parking fees.</p>
+<p><em>Note</em>: To learn more about the Strategy Pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-parking-lot#further-reading-strategy-and-facade-design-patterns">Further Reading</a></strong> section at the end of this chapter.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the Strategy design pattern.  The diagram shows a `FareCalculator` class containing a list of `FareStrategy` objects. The `FareCalculator` class has a method `calculateFare(Ticket ticket)` which takes a `Ticket` object as input.  This method likely iterates through the `fareStrategies` list, using each strategy to calculate a fare.  The `FareStrategy` interface defines a method `calculateFare(Ticket ticket, BigDecimal inputFare)`, which takes a `Ticket` and a `BigDecimal` representing an initial fare as input and returns a `BigDecimal` representing the calculated fare. Two concrete classes implement this interface: `BaseFareStrategy`, which likely contains constants like `SMALL_VEHICLE_RATE`, `MEDIUM_VEHICLE_RATE`, and `LARGE_VEHICLE_RATE` for calculating base fares, and `PeakHoursFareStrategy`, which likely uses a `PEAK_HOURS_MULTIPLIER` constant to adjust fares during peak hours.  A solid line connects `FareCalculator` to `FareStrategy`, indicating a one-to-many relationship, while dashed lines connect `FareStrategy` to `BaseFareStrategy` and `PeakHoursFareStrategy`, indicating implementation relationships." loading="lazy" width="624" height="393" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-6-NH35NXHI.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">FareStrategy interface and FareCalculator class</figcaption></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The FareStrategy interface encapsulates pricing logic for the
+parking lot system, enabling modular and interchangeable rules for calculating
+parking fees. By defining a standard contract for pricing strategies (e.g., BaseFareStrategy,
+PeakHoursFareStrategy), it ensures that the ParkingLot facade remains lightweight,
+delegating fee calculations to the FareCalculator class, which orchestrates these
+strategies. This design, rooted in the Strategy Pattern, promotes flexibility,
+maintainability, and extensibility while keeping the system’s core logic clean
+and focused.</p></div>
+<h3 id="parkinglot">ParkingLot</h3>
+<p>We design the ParkingLot class as the core component of the system to act as a facade, providing a simple interface for managing the parking lot’s key operations. It manages vehicle entry and exit by generating tickets for arrivals, assigning spots through the ParkingManager, and calculating fares with the FareCalculator when vehicles leave, tying the system’s main functions together.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a `ParkingLot` class.  The diagram shows the `ParkingLot` class as a rectangle with a large 'C' in a circle at the top-left corner, indicating it's a class. Inside the rectangle, two private member variables are listed: `ParkingManager parkingManager` and `FareCalculator fareCalculator`, suggesting the `ParkingLot` class contains instances of these two other classes. Below these variables, two public methods are defined: `Ticket enterVehicle(Vehicle vehicle)`, which takes a `Vehicle` object as input and returns a `Ticket` object, and `void leaveVehicle(Ticket ticket)`, which takes a `Ticket` object as input and returns nothing (void).  The arrangement shows the internal structure of the `ParkingLot` class, illustrating its composition of other classes and its interaction with vehicles and tickets through its methods.  No external connections or data flows are depicted beyond the internal components of the `ParkingLot` class itself." loading="lazy" width="410" height="183" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-7-437J73W3.svg" style="color: transparent;"></div></figure>
+<p>Next, we’ll connect these objects in a class diagram to visualize their relationships.</p>
+<h3 id="complete-class-diagram">Complete Class Diagram</h3>
+<p>Take a moment to review the complete class structure and the relationships between them. This diagram demonstrates how a seemingly complex system can be constructed using simple, well-designed components working together cohesively.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the object-oriented design of a parking lot system.  The diagram shows classes `ParkingLot`, `ParkingManager`, `FareCalculator`, `Ticket`, `ParkingSpot`, and `Vehicle`, along with interfaces `ParkingSpot` and `Vehicle`, and abstract class `FareStrategy` with concrete subclasses `PeakHoursFareStrategy` and `BaseFareStrategy`.  `ParkingLot` contains a `ParkingManager` and a `FareCalculator`. `ParkingManager` manages `availableSpots` (a map of `VehicleSize` to a list of `ParkingSpot` objects) and `vehicleToSpotMap` (a map of `Vehicle` to `ParkingSpot`).  `ParkingManager` uses `ParkingSpot` objects (which can be `CompactSpot`, `OversizedSpot`, or `RegularSpot`) to park and unpark vehicles.  `Vehicle` is an interface implemented by `Car`, `Motorcycle`, and `Truck`.  `Ticket` stores information about a vehicle's parking session, including its `vehicle`, `parkingSpot`, entry and exit times, and uses `calculateParkingDuration()` to determine the parking duration. `FareCalculator` uses a list of `FareStrategy` objects to calculate the fare using the `calculateFare()` method.  `FareStrategy` is an interface implemented by `PeakHoursFareStrategy` and `BaseFareStrategy`, representing different fare calculation strategies.  Solid lines represent associations, dashed lines represent interface implementations, and filled diamonds represent composition.  The `VehicleSize` enumeration defines the sizes of vehicles.  Data flows from `Ticket` to `FareCalculator` for fare calculation, and `ParkingSpot` interacts with `Vehicle` for parking and unparking operations." loading="lazy" width="624" height="667" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-8-W2RYH6F2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Class Diagram of Parking Lot</figcaption></div></figure>
+<p>With this design in place, we move to implementation.</p>
+<h2 id="code---parking-lot">Code - Parking Lot</h2>
+<p>In this section, we’ll implement the core functionalities of the parking lot system, focusing on key areas such as managing vehicle entry and exit, assigning parking spots efficiently, and calculating parking fees accurately.</p>
+<h3 id="vehicle-1">Vehicle</h3>
+<p>We define the Vehicle interface, along with its supporting VehicleSize enum and concrete classes Motorcycle, Car, and Truck, to set up how vehicles are identified and sized in the parking lot system.</p>
+<p>Here is the implementation of this interface and its concrete classes.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Vehicle</span> {
+    String <span class="hljs-title function_">getLicensePlate</span><span class="hljs-params">()</span>;
+
+    VehicleSize <span class="hljs-title function_">getSize</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Car</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Vehicle</span> {
+    <span class="hljs-keyword">private</span> String licensePlate;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Car</span><span class="hljs-params">(String licensePlate)</span> {
+        <span class="hljs-built_in">this</span>.licensePlate = licensePlate;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getLicensePlate</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.licensePlate;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> VehicleSize <span class="hljs-title function_">getSize</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> VehicleSize.MEDIUM;
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">VehicleSize</span> {
+    SMALL,
+    MEDIUM,
+    LARGE
+}
+</code></pre>
+<p>This interface ensures every vehicle provides two key attributes: a license plate for tracking and a size for managing parking spaces. This design ensures that every vehicle provides consistent, type-safe attributes critical for tracking, parking spot allocation, and fee calculation</p>
+<p>For the sake of brevity, we have not shown the code for the Motorcycle and Truck classes.</p>
+<p><strong>Implementation choice:</strong> The VehicleSize enum (SMALL, MEDIUM, LARGE) standardizes vehicle and parking spot sizes, ensuring type-safe, error-free size comparisons for efficient spot allocation and fee calculation.</p>
+<p><strong>Alternatives and trade-offs:</strong></p>
+<ul>
+<li><strong>Strings:</strong> Prone to typos and slower comparisons (O(n)), requiring validation. Rejected for fragility and performance issues.</li>
+<li><strong>Integers:</strong> Ambiguous and error-prone, lacking type safety. Rejected for reduced clarity and reliability.</li>
+</ul>
+<h3 id="parkingspot-1">ParkingSpot</h3>
+<p>We define the ParkingSpot interface to represent individual parking spots in the parking lot system, along with its concrete classes CompactSpot, RegularSpot, and OversizedSpot.</p>
+<p>Here’s the code for the ParkingSpot interface:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">ParkingSpot</span> {
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAvailable</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">occupy</span><span class="hljs-params">(Vehicle vehicle)</span>;
+
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">vacate</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-type">int</span> <span class="hljs-title function_">getSpotNumber</span><span class="hljs-params">()</span>;
+
+    VehicleSize <span class="hljs-title function_">getSize</span><span class="hljs-params">()</span>;
+}
+</code></pre>
+<p><strong>isAvailable()</strong>: Checks if the spot is free. Helps ParkingManager decide if the spot can be assigned.</p>
+<p><strong>occupy(Vehicle vehicle)</strong>: Assigns a vehicle to the spot if it’s available, setting vehicle to the provided instance.</p>
+<p><strong>vacate()</strong>: Clears the spot by setting the vehicle to null, making the spot free for reuse. Allows ParkingManager to reassign it to another vehicle.</p>
+<p><strong>getSize()</strong>: Returns the spot’s fixed VehicleSize (e.g., SMALL for CompactSpot). Guides ParkingManager in matching vehicle sizes to parking spot capacities.</p>
+<p>The concrete class CompactSpot implements this interface:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CompactSpot</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ParkingSpot</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> spotNumber;
+    <span class="hljs-keyword">private</span> Vehicle vehicle; <span class="hljs-comment">// The vehicle currently occupying this spot</span>
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">CompactSpot</span><span class="hljs-params">(<span class="hljs-type">int</span> spotNumber)</span> {
+        <span class="hljs-built_in">this</span>.spotNumber = spotNumber;
+        <span class="hljs-built_in">this</span>.vehicle = <span class="hljs-literal">null</span>; <span class="hljs-comment">// No vehicle occupying initially</span>
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getSpotNumber</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> spotNumber;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAvailable</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> vehicle == <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">occupy</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-keyword">if</span> (isAvailable()) {
+            <span class="hljs-built_in">this</span>.vehicle = vehicle;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-comment">// Spot is already occupied.</span>
+        }
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">vacate</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.vehicle = <span class="hljs-literal">null</span>; <span class="hljs-comment">// Make the spot available</span>
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> VehicleSize <span class="hljs-title function_">getSize</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> VehicleSize.SMALL; <span class="hljs-comment">// Compact spots fit small vehicles</span>
+    }
+}
+
+</code></pre>
+<p>For brevity, we omit the full code of RegularSpot and OversizedSpot, but they follow a similar structure:</p>
+<ul>
+<li>RegularSpot: Returns VehicleSize.MEDIUM, suitable for medium-sized vehicles like cars.</li>
+<li>OversizedSpot: Returns VehicleSize.LARGE, designed for large vehicles like trucks.</li>
+</ul>
+<p>This implementation keeps ParkingSpot lean and focused, managing its state while delegating allocation logic to ParkingManager.</p>
+<h3 id="parkingmanager-1">ParkingManager</h3>
+<p>The ParkingManager class manages the allocation and tracking of parking spots in the parking lot system. It searches and assigns spots to vehicles, freeing them when vehicles leave and keeping an accurate record of which vehicles occupy which parking spots.</p>
+<p>Here’s the implementation of this class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ParkingManager</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;VehicleSize, List&lt;ParkingSpot&gt;&gt; availableSpots;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;Vehicle, ParkingSpot&gt; vehicleToSpotMap;
+
+    <span class="hljs-comment">// Create Parking Manager based on a given map of available spots</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ParkingManager</span><span class="hljs-params">(Map&lt;VehicleSize, List&lt;ParkingSpot&gt;&gt; availableSpots)</span> {
+        <span class="hljs-built_in">this</span>.availableSpots = availableSpots;
+        <span class="hljs-built_in">this</span>.vehicleToSpotMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    }
+
+    <span class="hljs-keyword">public</span> ParkingSpot <span class="hljs-title function_">findSpotForVehicle</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-type">VehicleSize</span> <span class="hljs-variable">vehicleSize</span> <span class="hljs-operator">=</span> vehicle.getSize();
+
+        <span class="hljs-comment">// Start looking for the smallest spot that can fit the vehicle</span>
+        <span class="hljs-keyword">for</span> (VehicleSize size : VehicleSize.values()) {
+            <span class="hljs-keyword">if</span> (size.ordinal() &gt;= vehicleSize.ordinal()) {
+                List&lt;ParkingSpot&gt; spots = availableSpots.get(size);
+                <span class="hljs-keyword">for</span> (ParkingSpot spot : spots) {
+                    <span class="hljs-keyword">if</span> (spot.isAvailable()) {
+                        <span class="hljs-keyword">return</span> spot; <span class="hljs-comment">// Return the first available spot</span>
+                    }
+                }
+            }
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; <span class="hljs-comment">// No suitable spot found</span>
+    }
+
+    <span class="hljs-keyword">public</span> ParkingSpot <span class="hljs-title function_">parkVehicle</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-type">ParkingSpot</span> <span class="hljs-variable">spot</span> <span class="hljs-operator">=</span> findSpotForVehicle(vehicle);
+        <span class="hljs-keyword">if</span> (spot != <span class="hljs-literal">null</span>) {
+            spot.occupy(vehicle); <span class="hljs-comment">// Record the parking spot for the vehicle</span>
+            vehicleToSpotMap.put(vehicle, spot); <span class="hljs-comment">// Remove the spot from the available list</span>
+            availableSpots.get(spot.getSize()).remove(spot);
+            <span class="hljs-keyword">return</span> spot; <span class="hljs-comment">// Parking successful</span>
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; <span class="hljs-comment">// No spot found for this vehicle</span>
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">unparkVehicle</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-type">ParkingSpot</span> <span class="hljs-variable">spot</span> <span class="hljs-operator">=</span> vehicleToSpotMap.remove(vehicle);
+        <span class="hljs-keyword">if</span> (spot != <span class="hljs-literal">null</span>) {
+            spot.vacate();
+            availableSpots.get(spot.getSize()).add(spot);
+        }
+    }
+}
+
+</code></pre>
+<p><strong>findSpotForVehicle(Vehicle vehicle)</strong>:</p>
+<ul>
+<li>Searches for an available parking spot that fits the vehicle’s size.</li>
+</ul>
+<p><strong>parkVehicle(Vehicle vehicle)</strong>:</p>
+<ul>
+<li>Assigns a parking spot to the vehicle by calling findSpotForVehicle() and then marks it as occupied via occupy().</li>
+<li>Records the vehicle-spot pair and removes the spot from the available pool, ensuring accurate tracking and availability updates.</li>
+</ul>
+<p><strong>unparkVehicle(Vehicle vehicle)</strong>:</p>
+<ul>
+<li>Retrieves the parking spot for the given vehicle, frees the spot via vacate(), and adds it back to the available pool.</li>
+<li>Removes the vehicle-spot mapping, keeping the system’s state current for future allocations.</li>
+</ul>
+<p><strong>Implementation choice:</strong></p>
+<p>As shown in the code above, we used two HashMaps. Let’s understand their purpose.</p>
+<ul>
+<li>The availableSpots map maintains a list of parking spots ready for use, organized by VehicleSize. It ensures that vehicles land in the best-fit parking spot. For instance, motorcycles fit into small spots like CompactSpot, while cars use medium spots like RegularSpot. This organization allows ParkingManager to quickly find the smallest, most suitable size available.</li>
+<li>The vehicleToSpotMap records which parking spot each vehicle occupies. It allows ParkingManager to locate and free up a parking spot when a vehicle leaves, keeping the system’s state up to date.</li>
+</ul>
+<p>Here’s why these choices matter:</p>
+<ul>
+<li><strong>Performance</strong>: Using HashMaps provides O(1) time complexity for accessing parking spots by size or finding a vehicle’s parking spot. However, checking availability within a specific size requires additional steps.</li>
+<li><strong>Best Fit</strong>: Organizing parking spots by VehicleSize ensures vehicles park in the smallest spot that fits them, optimizing space usage.</li>
+</ul>
+<h3 id="ticket-1">Ticket</h3>
+<p>The Ticket class acts as a record of a parking event, linking a vehicle to its parking spot and tracking the time spent in the parking lot.</p>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Ticket</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String ticketId; <span class="hljs-comment">// Unique ticket identifier</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Vehicle vehicle; <span class="hljs-comment">// The vehicle associated with the ticket</span>
+    <span class="hljs-comment">// The parking spot where the vehicle is parked     private final ParkingSpot parkingSpot;</span>
+    <span class="hljs-comment">// // The time the vehicle entered the parking lot</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> LocalDateTime entryTime; <span class="hljs-comment">// The time the vehicle exited the parking lot</span>
+    <span class="hljs-keyword">private</span> LocalDateTime exitTime;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Ticket</span><span class="hljs-params">(
+            String ticketId, Vehicle vehicle, ParkingSpot parkingSpot, LocalDateTime entryTime)</span> {
+        <span class="hljs-built_in">this</span>.ticketId = ticketId;
+        <span class="hljs-built_in">this</span>.vehicle = vehicle;
+        <span class="hljs-built_in">this</span>.parkingSpot = parkingSpot;
+        <span class="hljs-built_in">this</span>.entryTime = entryTime;
+        <span class="hljs-comment">// Initially, exitTime is null because the vehicle is still parked         this.exitTime =</span>
+        <span class="hljs-comment">// null;</span>
+    }
+
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateParkingDuration</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(
+                Duration.between(
+                                entryTime,
+                                Objects.requireNonNullElseGet(exitTime, LocalDateTime::now))
+                        .toMinutes());
+    } <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<h3 id="farestrategy-and-farecalculator-1">FareStrategy and FareCalculator</h3>
+<p>We implement the FareStrategy interface and its concrete classes, BaseFareStrategy and PeakHoursFareStrategy, along with the FareCalculator class. These components manage the parking fee calculation process in the parking lot system. Together, they determine the cost of each parking session.</p>
+<p>Here’s the code for the FareStrategy interface:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">FareStrategy</span> {
+    BigDecimal <span class="hljs-title function_">calculateFare</span><span class="hljs-params">(Ticket ticket, BigDecimal inputFare)</span>;
+}
+</code></pre>
+<p><strong>Implementation choice:</strong> We define FareStrategy as an interface to support a flexible and extensible approach to pricing rules, allowing new strategies (e.g., a WeekendDiscountStrategy) to integrate without altering existing code.</p>
+<p>The concrete class BaseFareStrategy implements this interface:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BaseFareStrategy</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">FareStrategy</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">SMALL_VEHICLE_RATE</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"1.0"</span>);
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">MEDIUM_VEHICLE_RATE</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"2.0"</span>);
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">LARGE_VEHICLE_RATE</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"3.0"</span>);
+
+    <span class="hljs-comment">// Calculate fare based on the duration and add it to the input fare to return a new total</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateFare</span><span class="hljs-params">(Ticket ticket, BigDecimal inputFare)</span> {
+        <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">fare</span> <span class="hljs-operator">=</span> inputFare;
+        BigDecimal rate;
+        <span class="hljs-keyword">switch</span> (ticket.getVehicle().getSize()) {
+            <span class="hljs-keyword">case</span> MEDIUM:
+                rate = MEDIUM_VEHICLE_RATE;
+                <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">case</span> LARGE:
+                rate = LARGE_VEHICLE_RATE;
+                <span class="hljs-keyword">break</span>;
+            <span class="hljs-keyword">default</span>:
+                rate = SMALL_VEHICLE_RATE;
+        }
+        fare = fare.add(rate.multiply(ticket.calculateParkingDuration()));
+        <span class="hljs-keyword">return</span> fare;
+    }
+}
+
+</code></pre>
+<p><strong>calculateFare(Ticket ticket, BigDecimal inputFare)</strong>: Provides the foundational cost for the parking session, reflecting size-based pricing.</p>
+<p>The concrete class PeakHoursFareStrategy implements this interface:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PeakHoursFareStrategy</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">FareStrategy</span> {
+    <span class="hljs-comment">// 50% higher during peak hours     private static final BigDecimal PEAK_HOURS_MULTIPLIER = new</span>
+    <span class="hljs-comment">// BigDecimal("1.5");</span>
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">PeakHoursFareStrategy</span><span class="hljs-params">()</span> {}
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateFare</span><span class="hljs-params">(Ticket ticket, BigDecimal inputFare)</span> {
+        <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">fare</span> <span class="hljs-operator">=</span> inputFare;
+        <span class="hljs-keyword">if</span> (isPeakHours(ticket.getEntryTime())) {
+            fare = fare.multiply(PEAK_HOURS_MULTIPLIER);
+        }
+        <span class="hljs-keyword">return</span> fare;
+    }
+
+    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isPeakHours</span><span class="hljs-params">(LocalDateTime time)</span> {
+        <span class="hljs-type">int</span> <span class="hljs-variable">hour</span> <span class="hljs-operator">=</span> time.getHour();
+        <span class="hljs-keyword">return</span> (hour &gt;= <span class="hljs-number">7</span> &amp;&amp; hour &lt;= <span class="hljs-number">10</span>) || (hour &gt;= <span class="hljs-number">16</span> &amp;&amp; hour &lt;= <span class="hljs-number">19</span>);
+    }
+}
+
+</code></pre>
+<p><strong>calculateFare(Ticket ticket, BigDecimal inputFare)</strong>:</p>
+<ul>
+<li>Multiplies the input fare by 1.5 if the entry time falls within peak hours. Otherwise, it leaves it unchanged.</li>
+<li>Adjusts the fare for high-demand periods, increasing costs during busy times.</li>
+</ul>
+<p><strong>isPeakHours(LocalDateTime time)</strong>: Checks if the given time’s hour is within peak ranges.</p>
+<p>The FareCalculator class uses these strategies:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FareCalculator</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;FareStrategy&gt; fareStrategies;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">FareCalculator</span><span class="hljs-params">(List&lt;FareStrategy&gt; fareStrategies)</span> {
+        <span class="hljs-built_in">this</span>.fareStrategies = fareStrategies;
+    }
+
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateFare</span><span class="hljs-params">(Ticket ticket)</span> {
+        <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">fare</span> <span class="hljs-operator">=</span> BigDecimal.ZERO;
+        <span class="hljs-keyword">for</span> (FareStrategy strategy : fareStrategies) {
+            fare = strategy.calculateFare(ticket, fare);
+        }
+        <span class="hljs-keyword">return</span> fare;
+    }
+}
+
+</code></pre>
+<p><strong>FareCalculator(List&lt;FareStrategy&gt; fareStrategies)</strong>: Initializes with a list of strategies, setting up the rules to apply during fare calculation.</p>
+<p><strong>calculateFare(Ticket ticket)</strong>: Starts with a zero fare, iterates through each strategy in the list, and applies their rules in sequence to build the final fare.</p>
+<p><strong>Implementation choice:</strong> We implement FareCalculator using a List&lt;FareStrategy&gt; to hold strategies, enabling the sequential application of multiple rules (e.g., base fare followed by peak adjustment). We choose List over an array or Set because it preserves order. Strategies like BaseFareStrategy must be applied before PeakHoursFareStrategy for correct fare calculation. A Set can prevent duplicates but loses order, while an array maintains a fixed size, limiting flexibility.</p>
+<h3 id="parkinglot-code">ParkingLot Code</h3>
+<p>The ParkingLot class acts as a facade, providing a simple interface for clients to interact with the parking lot system while delegating complex tasks to ParkingManager and FareCalculator. It relies on ParkingManager for spot allocation and FareCalculator for pricing, managing the flow of vehicles through entry and exit operations.</p>
+<p>Here’s the implementation of the ParkingLot class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ParkingLot</span> {
+    <span class="hljs-comment">// Manages parking spots and vehicle assignments     private final ParkingManager</span>
+    <span class="hljs-comment">// parkingManager;</span>
+    <span class="hljs-comment">// Calculates fare for parking sessions     private final FareCalculator fareCalculator;</span>
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ParkingLot</span><span class="hljs-params">(ParkingManager parkingManager, FareCalculator fareCalculator)</span> {
+        <span class="hljs-built_in">this</span>.parkingManager = parkingManager;
+        <span class="hljs-built_in">this</span>.fareCalculator = fareCalculator;
+    }
+
+    <span class="hljs-comment">// Method to handle vehicle entry into the parking lot</span>
+    <span class="hljs-keyword">public</span> Ticket <span class="hljs-title function_">enterVehicle</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-comment">// Delegate parking logic to ParkingManager</span>
+        <span class="hljs-type">ParkingSpot</span> <span class="hljs-variable">spot</span> <span class="hljs-operator">=</span> parkingManager.parkVehicle(vehicle);
+
+        <span class="hljs-keyword">if</span> (spot != <span class="hljs-literal">null</span>) {
+            <span class="hljs-comment">// Create ticket with entry time</span>
+            <span class="hljs-type">Ticket</span> <span class="hljs-variable">ticket</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Ticket</span>(generateTicketId(), vehicle, spot, LocalDateTime.now());
+            <span class="hljs-keyword">return</span> ticket;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; <span class="hljs-comment">// No spot available</span>
+        }
+    }
+
+    <span class="hljs-comment">// Method to handle vehicle exit from the parking lot</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">leaveVehicle</span><span class="hljs-params">(Ticket ticket)</span> {
+        <span class="hljs-comment">// Ensure the ticket is valid and the vehicle hasn't already left</span>
+        <span class="hljs-keyword">if</span> (ticket != <span class="hljs-literal">null</span> &amp;&amp; ticket.getExitTime() == <span class="hljs-literal">null</span>) {
+            <span class="hljs-comment">// Set exit time</span>
+            ticket.setExitTime(LocalDateTime.now());
+
+            <span class="hljs-comment">// Delegate unparking logic to ParkingManager</span>
+            parkingManager.unparkVehicle(ticket.getVehicle());
+
+            <span class="hljs-comment">// Calculate the fare</span>
+            <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">fare</span> <span class="hljs-operator">=</span> fareCalculator.calculateFare(ticket);
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-comment">// Invalid ticket or vehicle already exited.</span>
+        }
+    }
+}
+
+</code></pre>
+<p><strong>enterVehicle(Vehicle vehicle)</strong>: Coordinates vehicle entry by requesting a parking spot from ParkingManager. It then generates a Ticket with a unique ID, vehicle, parking spot, and current entry time.</p>
+<p><strong>leaveVehicle(Ticket ticket)</strong>: Manages vehicle exit by setting the exit time, frees the parking spot via ParkingManager, and calculates the fare with FareCalculator.</p>
+<h2 id="deep-dive-topics">Deep Dive Topics</h2>
+<p>In this section, we’ll cover common follow-up questions interviewers may ask about the parking lot system. These are important topics that interviewers might expect you to explore in detail.</p>
+<h3 id="adding-a-new-parking-spot-type">Adding a New Parking Spot Type</h3>
+<p>The parking lot system is designed to support multiple parking spot types (e.g., CompactSpot, RegularSpot, OversizedSpot). However, there may be a need to introduce a new type, such as a handicapped parking spot, to accommodate specific requirements like accessibility. The challenge is to extend the system efficiently without modifying existing classes, adhering to the Open-Closed Principle (open for extension, closed for modification).</p>
+<p>To achieve this, we can introduce a new HandicappedSpot class that implements the existing ParkingSpot interface. This approach ensures smooth integration with the system’s spot allocation and management logic, as ParkingManager already relies on the ParkingSpot interface for handling spots.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating an inheritance hierarchy in object-oriented design.  At the top is an interface named `ParkingSpot` defining the methods `isAvailable()`, `occupy(Vehicle vehicle)`, `vacate()`, `getSpotNumber()`, and `getSize()`.  The return types are boolean, void, void, int, and `VehicleSize` respectively.  Four classes, `CompactSpot`, `RegularSpot`, `OversizedSpot`, and `HandicappedSpot`, are shown inheriting from the `ParkingSpot` interface via dashed lines indicating implementation. Each of these classes has private attributes `int spotNumber` and `Vehicle vehicle`.  The diagram shows that each concrete class implements the methods defined in the `ParkingSpot` interface, thereby providing specific implementations for different types of parking spots." loading="lazy" width="624" height="259" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-9-PWJLUZOZ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">ParkingSpot with HandicappedSpot class</figcaption></div></figure>
+<p>Below is the implementation of the HandicappedSpot class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HandicappedSpot</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ParkingSpot</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> spotNumber;
+    <span class="hljs-keyword">private</span> Vehicle vehicle;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">HandicappedSpot</span><span class="hljs-params">(<span class="hljs-type">int</span> spotNumber)</span> {
+        <span class="hljs-built_in">this</span>.spotNumber = spotNumber;
+        <span class="hljs-built_in">this</span>.vehicle = <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getSpotNumber</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> spotNumber;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAvailable</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> vehicle == <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">occupy</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-keyword">if</span> (isAvailable()) {
+            <span class="hljs-built_in">this</span>.vehicle = vehicle;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-comment">// Spot is already occupied.</span>
+        }
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">vacate</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.vehicle = <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> VehicleSize <span class="hljs-title function_">getSize</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> VehicleSize.MEDIUM;
+    }
+}
+
+</code></pre>
+<h3 id="faster-parking-spot-management">Faster Parking Spot Management</h3>
+<p>The mapping we currently have is one-way: from Vehicle to ParkingSpot. This allows us to quickly find the parking spot assigned to a specific vehicle. But what if we want to find which vehicle is parked in a specific spot? Without a reverse mapping, we would need to search through all parking spots, which isn’t efficient. Can we do better?</p>
+<p>We can enhance this by introducing another HashMap, called spotToVehicleMap, to track the reverse mapping from ParkingSpot to Vehicle.</p>
+<p>With this approach, we use two HashMaps:</p>
+<ul>
+<li>vehicleToSpotMap: Tracks the parking spot for each vehicle.</li>
+<li>spotToVehicleMap: Tracks the vehicle parked in each spot.</li>
+</ul>
+<p>Below is the updated ParkingManager class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ParkingManager</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;VehicleSize, List&lt;ParkingSpot&gt;&gt; availableSpots;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;Vehicle, ParkingSpot&gt; vehicleToSpotMap;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;ParkingSpot, Vehicle&gt; spotToVehicleMap;
+
+    <span class="hljs-comment">// Create Parking Manager based on a given map of available spots</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ParkingManager</span><span class="hljs-params">(Map&lt;VehicleSize, List&lt;ParkingSpot&gt;&gt; availableSpots)</span> {
+        <span class="hljs-built_in">this</span>.availableSpots = availableSpots;
+        <span class="hljs-built_in">this</span>.vehicleToSpotMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+        <span class="hljs-built_in">this</span>.spotToVehicleMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    }
+
+    <span class="hljs-keyword">public</span> ParkingSpot <span class="hljs-title function_">findSpotForVehicle</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-comment">// No change in the method</span>
+    }
+
+    <span class="hljs-keyword">public</span> ParkingSpot <span class="hljs-title function_">parkVehicle</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-type">ParkingSpot</span> <span class="hljs-variable">spot</span> <span class="hljs-operator">=</span> findSpotForVehicle(vehicle);
+        <span class="hljs-keyword">if</span> (spot != <span class="hljs-literal">null</span>) {
+            spot.occupy(vehicle);
+            <span class="hljs-comment">// Record bidirectional mapping</span>
+            vehicleToSpotMap.put(vehicle, spot);
+            spotToVehicleMap.put(spot, vehicle);
+            <span class="hljs-comment">// Remove the spot from the available list</span>
+            availableSpots.get(spot.getSize()).remove(spot);
+            <span class="hljs-keyword">return</span> spot; <span class="hljs-comment">// Parking successful</span>
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; <span class="hljs-comment">// No spot found for this vehicle</span>
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">unparkVehicle</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-type">ParkingSpot</span> <span class="hljs-variable">spot</span> <span class="hljs-operator">=</span> vehicleToSpotMap.remove(vehicle);
+        <span class="hljs-keyword">if</span> (spot != <span class="hljs-literal">null</span>) {
+            spotToVehicleMap.remove(spot);
+            spot.vacate();
+            availableSpots.get(spot.getSize()).add(spot);
+        }
+    }
+
+    <span class="hljs-comment">// Find vehicle's parking spot</span>
+    <span class="hljs-keyword">public</span> ParkingSpot <span class="hljs-title function_">findVehicleBySpot</span><span class="hljs-params">(Vehicle vehicle)</span> {
+        <span class="hljs-keyword">return</span> vehicleToSpotMap.get(vehicle);
+    }
+
+    <span class="hljs-comment">// Find which vehicle is parked in a spot</span>
+    <span class="hljs-keyword">public</span> Vehicle <span class="hljs-title function_">findSpotByVehicle</span><span class="hljs-params">(ParkingSpot spot)</span> {
+        <span class="hljs-keyword">return</span> spotToVehicleMap.get(spot);
+    }
+}
+
+</code></pre>
+<p><strong>Implementation Benefits:</strong> The bidirectional mapping in ParkingManager enhances performance by adding a spotToVehicleMap alongside the vehicleToSpotMap, enabling O(1) lookups from a vehicle to a parking spot and vice versa. This eliminates the need to iterate through all parked vehicles to identify the one in a given parking spot. It’s especially efficient in large parking lots, where such iterations can be expensive.</p>
+<p>With this enhancement explored, let’s summarize the key takeaways.</p>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>In this chapter, we gathered requirements for the Parking Lot system through detailed questions and answers. We identified the core objects involved, designed the class structure, and implemented the system's key components.</p>
+<p>A key takeaway from this design is the value of modularity and clear separation of concerns. Each component, such as Vehicle, ParkingSpot, ParkingManager, and FareCalculator, handles a distinct responsibility, keeping the system maintainable and open to future enhancements.</p>
+<p>Our design choices, like using ParkingLot as a facade to coordinate operations or employing the FareStrategy interface for flexible pricing, emphasize simplicity and adaptability. An alternative approach, such as embedding spot allocation and fare logic directly in ParkingLot, might reduce the number of classes but could complicate scalability by overloading a single class with multiple responsibilities. In an interview, reflecting on these decisions and articulating their benefits showcases your ability to balance trade-offs in object-oriented design.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="further-reading-strategy-and-facade-design-patterns">Further Reading: Strategy and Facade Design Patterns</h2>
+<p>This section gives a quick overview of the design patterns used in this chapter. It’s helpful if you’re new to these patterns or need a refresher to understand the design choices better.</p>
+<h3 id="strategy-design-pattern">Strategy design pattern</h3>
+<p>The Strategy pattern is a behavioral design pattern that defines a family of algorithms, encapsulates each one in a separate class, and allows their objects to be interchangeable.</p>
+<p>In the parking lot design, we have used the Strategy pattern to encapsulate pricing rules in the FareStrategy interface (e.g., BaseFareStrategy, PeakHoursFareStrategy), allowing FareCalculator to switch between rules dynamically without altering its core logic.</p>
+<p>To illustrate the Strategy pattern in another domain, the following example uses an e-commerce payment system.</p>
+<p><strong>Problem</strong></p>
+<p>Imagine you're developing an e-commerce application that offers various payment methods, such as credit cards, PayPal, and bank transfers. Initially, you might implement each payment method directly within the checkout process. However, as the application grows, this approach can lead to a monolithic design where the payment processing logic becomes tightly coupled with the checkout system. This tight coupling makes it challenging to add new payment methods or modify existing ones without changing the core checkout code, which increases the risk of introducing bugs and makes the system harder to maintain.</p>
+<p><strong>Solution</strong></p>
+<p>To address this issue, the Strategy design pattern can be employed. This pattern suggests encapsulating each payment algorithm in a separate class, known as a strategy, and making them interchangeable. The main application, referred to as the context, maintains a reference to a strategy object and delegates the payment processing to this object. This design allows the application to switch between different payment methods, without modifying the core checkout logic.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the Strategy design pattern.  The diagram shows a `PaymentContext` class containing a private `PaymentStrategy` member variable `paymentstrategy` and public methods `setPaymentStrategy` (taking a `PaymentStrategy` object as a parameter) and `performPayment` (taking a `BigDecimal` amount as a parameter).  A downward arrow indicates that `PaymentContext` uses `PaymentStrategy`.  `PaymentStrategy` is an interface defining a single public method `pay` that takes a `BigDecimal` amount.  Two concrete classes, `CreditCardPayment` and `PayPalPayment`, implement the `PaymentStrategy` interface, each possessing a private member variable (`cardNumber` and `email`, respectively) and implementing the `pay` method.  Dashed arrows indicate that `CreditCardPayment` and `PayPalPayment` implement the `PaymentStrategy` interface.  The overall structure demonstrates how `PaymentContext` can dynamically switch between different payment methods (strategies) at runtime by setting the appropriate `PaymentStrategy` object." loading="lazy" width="603" height="436" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-10-H77REQ43.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Strategy design pattern class diagram</figcaption></div></figure>
+<p><strong>When to use</strong></p>
+<p>The Strategy design pattern is particularly useful in scenarios:</p>
+<ul>
+<li>When an application needs to select different algorithms or behaviors at runtime based on specific conditions, the Strategy pattern is a great fit.</li>
+<li>When a class is cluttered with conditional statements to choose between different algorithm variations, the Strategy pattern simplifies things. It moves each algorithm into its own class, with all classes implementing the same interface. This lets the original object delegate the task to the right class without complex conditionals.</li>
+<li>Use the Strategy pattern to keep your class's business logic separate from the implementation details of the tasks.</li>
+</ul>
+<h3 id="facade-design-pattern">Facade design pattern</h3>
+<p>The Facade pattern is a structural design pattern that provides a simple interface to a complex subsystem, such as a library, framework, or set of classes. It simplifies how clients interact with the system by hiding its underlying complexity.</p>
+<p>In the parking lot design, the Facade pattern is used in the ParkingLot class, which streamlines client interactions by managing tasks like vehicle entry, spot assignment, and fee calculation, delegating to subsystems such as ParkingManager and FareCalculator.</p>
+<p>To illustrate the Facade pattern in another domain, the following example uses a home theater system.</p>
+<p><strong>Problem</strong></p>
+<p>Imagine you’re setting up a home theater system with multiple components, such as a DVD player, projector, sound system, and lights. To watch a movie, you must turn on each component, adjust settings, and synchronize them. This process is complex, requiring users to understand each component’s working. As the system grows, adding new devices (e.g., a streaming device) increases complexity, making it harder to use the system efficiently.</p>
+<p><strong>Solution</strong></p>
+<p>The Facade pattern addresses this by introducing a single interface, the facade, that encapsulates the subsystem’s complexity. For the home theater, a HomeTheaterFacade class could provide methods like watchMovie(), which internally manages all components (e.g., turning on the projector, setting the sound system). Clients interact only with the facade, which delegates tasks to the subsystem, simplifying usage.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the Facade design pattern.  A `Client` class uses a `HomeTheaterFacade` class, which in turn interacts with four other classes: `DVDPlayer`, `Projector`, `SoundSystem`, and `Lights`.  The `HomeTheaterFacade` simplifies the interaction with the underlying subsystems by providing high-level methods `watchMovie()` and `endMovie()`.  These methods internally manage the individual actions of the subsystems.  For example, `watchMovie()` likely calls `turnOn()` on the `Projector`, `SoundSystem`, and `Lights`, and `play()` on the `DVDPlayer`, while `endMovie()` would perform the reverse actions.  The arrows indicate the dependencies, showing that the `HomeTheaterFacade` depends on and interacts with each of the four subsystem classes (`DVDPlayer`, `Projector`, `SoundSystem`, and `Lights`), which each have their own methods for controlling their respective functionalities (e.g., `play()` and `stop()` for `DVDPlayer`, `turnOn()` and `turnOff()` for `Projector`, `setVolume(int)` and `turnOn()` for `SoundSystem`, and `dim(int)` and `turnOn()` for `Lights`)." loading="lazy" width="603" height="405" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-parking-lot/image-4-11-7VLA4QXG.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Facade design pattern class diagram</figcaption></div></figure>
+<p><strong>When to use</strong></p>
+<p>The Facade design pattern is particularly useful in scenarios:</p>
+<ul>
+<li>When a subsystem is complex, with multiple components or interactions, and you want to provide a simpler interface for clients.</li>
+<li>When you want to layer a system into subsystems, but still offer a unified entry point for common operations.</li>
+</ul>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="oop-fundamentals.html">← Previous</a>
+        <a href="design-a-movie-ticket-booking-system.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

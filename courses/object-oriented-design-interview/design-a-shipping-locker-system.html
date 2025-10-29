@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a Shipping Locker System - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design a Shipping Locker System
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-blackjack-game.html">← Previous</a>
+        <a href="design-an-atm-system.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">12</span> Design a Shipping Locker System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/design-a-shipping-locker" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">12</strong><h1>Design a Shipping Locker System</h1></header><p>In this chapter, we will design a Shipping Locker system similar to UPS, FedEx, or Amazon Locker. It offers customers a convenient and secure way to pick up their online orders. The system manages locker availability, assigns incoming packages to appropriate lockers, and ensures a smooth package retrieval process for customers.</p>
+<p>To realize this vision of a convenient and secure locker system, let’s explore what it needs to do.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified illustration of a self-service locker system.  A cartoon girl stands to the left, interacting with a bank of lockers depicted as a gray rectangular unit with a shelf-like top and bottom. The locker unit contains twelve individual compartments arranged in a four-by-three grid. One compartment is partially open, revealing a darker gray interior, suggesting an item is being retrieved. The girl is shown holding a similar-sized square object, implying she is either placing an item in or retrieving one from a locker. On the rightmost side of the locker unit is a small control panel labeled 'PICKUP,' featuring a gray display screen and three buttons below it, suggesting a user interface for selecting and accessing lockers. The overall style is simplistic and cartoonish, focusing on the interaction between the user and the locker system." loading="lazy" width="624" height="389" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-1-PZZFRJTF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Shipping Locker System</figcaption></div></figure>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>The first step in designing a shipping locker system is to clarify the requirements and narrow down the scope. Here is an example of a typical prompt an interviewer might give:</p>
+<p>“Imagine you’ve just received a notification that your online order has been delivered to a shipping locker near you. You head to the locker, enter a secure access code, and instantly, the door pops open, revealing your package. Behind the scenes, the system has already managed locker availability, assigned an appropriately sized compartment, and ensured a seamless pickup experience. Now, let’s design a shipping locker system that can do all of this.”</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate:</strong> Does the system support multiple locker sizes?<br>
+<strong>Interviewer:</strong> Yes, the system has lockers of different sizes. The design should ensure packages are assigned to the smallest available locker that fits, optimizing space use.</p>
+<p><strong>Candidate:</strong> So, what happens when a package gets to the locker, and how does the customer end up picking it up?<br>
+<strong>Interviewer:</strong> When a package arrives, the system finds an open locker that’s the right size and assigns it there. Once the package is tucked inside, the customer gets a notification with the locker’s location and a unique access code. They just punch in the code to pop the locker open, grab their package, and that frees up the locker for the next delivery.</p>
+<p><strong>Candidate:</strong> Is there a time limit or any fees for using the locker?<br>
+<strong>Interviewer:</strong> Good question. That’s actually a big part of how the system works. We’ve got a locker policy that gives customers a ‘Free Period’, a set number of days during which they can use the locker for free. Once that’s up, we start charging a daily fee based on the locker’s size. And if the package sits there past a ‘Maximum Period,’ which is also predefined, one of our staff members steps in, pulls it out, and clears the locker for someone else.</p>
+<p><strong>Candidate:</strong> Since the system tracks locker usage costs through the locker policy, does it handle payments too?<br>
+<strong>Interviewer:</strong> For simplicity’s sake, we let an external service take care of the actual payment processing. That’s not something the system itself has to worry about.</p>
+<h3 id="requirements">Requirements</h3>
+<p>Here are the key functional requirements we’ve identified.</p>
+<ul>
+<li>The system should keep track of all lockers and support different locker sizes.</li>
+<li>The system should smartly assign lockers by matching package size to the smallest available option that fits, keeping things efficient.</li>
+<li>Customers should be able to pop open their assigned locker with a unique access code.</li>
+<li>The system should monitor storage costs based on the customer’s locker policy, factoring in the daily rate tied to that specific locker size.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>The system should handle a high volume of locker operations per site without performance degradation, accommodating busy locations.</li>
+<li>The system must maintain high availability, ensuring lockers are accessible to customers and staff at all times.</li>
+</ul>
+<p>Now that we’ve outlined the system’s needs, let’s pinpoint the building blocks to fulfill them.</p>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>Before diving into the design, it’s important to identify the core objects.</p>
+<ul>
+<li><strong>Locker:</strong> This class represents an individual locker.</li>
+<li><strong>Site:</strong> This class represents a locker facility that consists of multiple lockers of various sizes. It is responsible for managing the collection of lockers and organizing them by size.</li>
+<li><strong>ShippingPackage:</strong> An interface defining the standard for packages, with BasicShippingPackage as its concrete implementation, tracking details like order ID, dimensions, and status.</li>
+<li><strong>Account:</strong> This class represents customers and their associated accounts. Customers own packages stored in lockers, and their accounts store policy information for free and maximum storage periods, along with their current balance.</li>
+</ul>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>Now that we know the core objects and their roles, the next step is to create classes and methods that turn the requirements into an easy-to-maintain system. Let’s take a closer look.</p>
+<h3 id="locker">Locker</h3>
+<p>The Locker class represents a physical storage unit for holding packages. It includes the following attributes:</p>
+<ul>
+<li><strong>LockerSize size:</strong> Represents the size of the locker.</li>
+<li><strong>ShippingPackage currentPackage:</strong> Stores the package currently assigned to the locker.</li>
+<li><strong>Date assignmentDate:</strong> Tracks the date when the package was placed in the locker.</li>
+<li><strong>String accessCode:</strong> A unique security code required for package retrieval.</li>
+</ul>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram for a `Locker` class.  The diagram is divided into two sections. The top section lists the class's attributes:  `LockerSize size` (a `LockerSize` object), `ShippingPackage currentPackage` (a `ShippingPackage` object), `Date assignmentDate` (a `Date` object), and `String accessCode` (a string).  These are all private attributes, indicated by the minus sign preceding each. The bottom section details the class's methods: a constructor `Locker(LockerSize size)`, a method `assignPackage(ShippingPackage pkg, Date date)` to assign a package to the locker, a method `releaseLocker()` to release the locker, a method `calculateStorageCharges()` returning a `BigDecimal` value representing storage charges, a method `isAvailable()` returning a boolean indicating locker availability, and a method `checkAccessCode(String code)` returning a boolean based on access code verification. All methods are public, indicated by the plus sign.  The class name, `Locker`, is prominently displayed at the top, along with the standard UML class notation 'C'.  There are no connections or information flows depicted beyond the internal structure of the `Locker` class itself." loading="lazy" width="436" height="237" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-2-DQ627D3I.svg" style="color: transparent;"></div></figure>
+<p>It provides functionalities such as assigning a package to the locker, releasing
+the locker upon package retrieval, calculating storage charges based on usage duration,
+determining locker availability, and ensuring secure access through code verification.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The Locker class is designed as a standalone entity to encapsulate
+the state and behavior of an individual locker, ensuring modularity and ease of
+maintenance.</p></div>
+<h3 id="lockersize">LockerSize</h3>
+<p>The LockerSize enum represents the predefined sizes of lockers available in the system. Each size is associated with specific attributes that define its dimensions and daily usage charge.</p>
+<ul>
+<li><strong>String sizeName</strong>: A label identifying the locker size (e.g., 'Small,' 'Medium,' 'Large').</li>
+<li><strong>BigDecimal dailyCharge</strong>: The cost per day for using a locker of a specific size (“Small,” “Medium,” or “Large”).</li>
+<li><strong>BigDecimal width, height, depth</strong>: The physical dimensions of the locker, determining its capacity to accommodate different package sizes.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram depicting an entity named `LockerSize`.  The entity is denoted by the letter 'E' enclosed in a circle at the top left.  The main label `LockerSize` is positioned to the right of the 'E'. Below this, the entity's attributes are listed. These attributes include `sizeName` of type `String`, and `dailyCharge`, `width`, `height`, and `depth`, all of type `BigDecimal`.  Each attribute is prefixed with a minus sign and a square, indicating that they are private instance variables within the `LockerSize` entity.  No methods or relationships to other entities are shown in this diagram; it solely focuses on the internal structure and data types of the `LockerSize` entity." loading="lazy" width="272" height="189" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-3-VQZBDRKE.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We use an enum here because locker sizes, such as Small, Medium,
+and Large, are a fixed set of options that don’t change during runtime, ensuring
+type safety and simplicity.</p></div>
+<h3 id="site">Site</h3>
+<p>The Site class models a physical location containing a collection of lockers, organized by their size.</p>
+<p>Key functionalities include:</p>
+<ul>
+<li><strong>Locker findAvailableLocker(LockerSize size):</strong> This method searches for an empty locker that matches the exact size you need, like "small," "medium," or "large."</li>
+<li><strong>Locker placePackage(ShippingPackage pkg, Date date):</strong> This method takes a package, finds it a locker that fits, and locks it inside. It also keeps track of when the package was placed there and updates the package’s status.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram showing a class named 'Site'.  The class 'Site' contains a private member variable named 'lockers' which is a map.  The keys of this map are of type 'LockerSize', and the values are sets of 'Locker' objects.  This indicates that the Site manages lockers categorized by their size, with multiple lockers potentially sharing the same size.  The class also has two public methods:  `findAvailableLocker(LockerSize size)`, which takes a LockerSize as input and presumably returns an available locker of that size; and `placePackage(ShippingPackage pkg, Date date)`, which takes a ShippingPackage and a Date as input and presumably places the package into a locker.  No connections to other classes are shown in this diagram, focusing solely on the internal structure and functionality of the 'Site' class." loading="lazy" width="530" height="143" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-4-LNP4FTRV.svg" style="color: transparent;"></div></figure>
+<p>The lockers at each site are managed using a map-based structure, where the key is
+a LockerSize and the value is a set of lockers for that size. This structure allows
+quick access to available lockers based on their size.</p>
+<h3 id="shippingpackage">ShippingPackage</h3>
+<p>We have modeled ShippingPackage as an interface to establish a standard for all package types within the locker system. It defines key methods that any package type must implement to ensure compatibility with locker storage and retrieval processes. The BasicShippingPackage class is a concrete implementation of the ShippingPackage interface. It represents a standard package intended for storage in a locker.</p>
+<p>The ShippingStatus enum defines a fixed set of valid states for a package’s lifecycle in the locker system, such as PENDING, STORED, and RETRIEVED. This enum ensures that package status updates are consistent and restricted to predefined values, enhancing type safety.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram illustrating the design of a `ShippingPackage`.  The diagram features an interface `ShippingPackage` defining eight methods: `getOrderId()` (returning a String), `getUser()` (returning an Account object), `getWidth()`, `getHeight()`, and `getDepth()` (all returning BigDecimal values representing package dimensions), `getStatus()` (returning a `ShippingStatus` enum), `updateShippingStatus()` (taking a `ShippingStatus` as a parameter and returning void), and `getLockerSize()` (returning a `LockerSize` object, not further defined).  A class `BasicShippingPackage` is shown implementing the `ShippingPackage` interface, indicated by a dashed line with a hollow triangle pointing towards `BasicShippingPackage`. Separately, an enumeration `ShippingStatus` is defined, listing possible shipping statuses: CREATED, PENDING, IN_LOCKER, RETRIEVED, and EXPIRED.  No data flows are explicitly shown; the diagram focuses on the structure and relationships between the interface, class, and enumeration." loading="lazy" width="623" height="329" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-5-VTJ4QG6B.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">ShippingPackage interface and ShippingStatus enum</figcaption></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> Modeling ShippingPackage as an interface allows for extensibility,
+enabling the system to support diverse package types (e.g., fragile or perishable)
+without modifying core logic.</p></div>
+<h3 id="account">Account</h3>
+<p>The Account class represents a customer using the locker system. It maintains the customer’s balance for locker-related charges and is associated with an AccountLockerPolicy, which defines terms for free usage limits and maximum storage duration. This ensures that charges are applied in accordance with the policy.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for an `Account` class in an object-oriented system.  The diagram is a rectangular box with the class name 'Account' and a 'C' symbol in a circle in the upper right corner, indicating it's a class. Inside the box, four private attributes are listed: `accountId` (String), `ownerName` (String), `lockerPolicy` (of type `AccountLockerPolicy`), and `usageCharges` (BigDecimal).  These attributes represent data stored within each `Account` object. Below the attributes, a public method `addUsageCharge` is defined, taking a `BigDecimal` amount as a parameter and returning a boolean value, presumably indicating success or failure of adding the charge.  There are no connections or interactions with other classes depicted in this specific diagram; it solely focuses on the internal structure and behavior of the `Account` class itself." loading="lazy" width="468" height="185" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-6-VRFTLZAD.svg" style="color: transparent;"></div></figure>
+<p>The class provides functionality to add funds to the account.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> By associating an AccountLockerPolicy, it supports flexible
+billing rules based on customer policies. This separation of customer and policy
+data enhances maintainability and allows for personalized locker usage terms.</p></div>
+<h3 id="accountlockerpolicy">AccountLockerPolicy</h3>
+<p>This class defines the rules and policies for locker usage associated with an account. It includes the number of days during which locker usage is free (freePeriodDays) and the maximum number of days a package can remain in the locker before it must be cleared (maximumPeriodDays). Here is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a class named `AccountLockerPolicy`.  The class is represented by a rectangular box with a large 'C' in a circle at the top-left corner, indicating it's a class in the Unified Modeling Language (UML). The class name, `AccountLockerPolicy`, is written to the right of the 'C'. Below the class name, the diagram shows two private instance variables: `int freePeriodDays` and `int maximumPeriodDays`.  Both variables are declared as integers (`int`) and prefixed with a minus sign (`-`), indicating their private access modifier, meaning they can only be accessed from within the `AccountLockerPolicy` class itself.  There are no methods or relationships shown in this diagram; it solely focuses on the class's internal data members." loading="lazy" width="280" height="128" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-7-OWBWFOZC.svg" style="color: transparent;"></div></figure>
+<h3 id="notificationinterface">NotificationInterface</h3>
+<p>Defines the contract for sending notifications. It includes a single method, sendNotification, which takes a message and an account as parameters.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML diagram depicting a single interface named `NotificationInterface`.  The diagram is rectangular, divided into two sections by a horizontal line. The top section displays a large, grey circle containing the letter 'I' – indicating an interface – followed by the interface's name, `NotificationInterface`. The bottom section shows a single method declaration within the interface: `void sendNotification(String message, Account user)`. This method signature indicates that the `sendNotification` method takes a `String` representing the message and an `Account` object representing the user as input parameters, and it returns nothing (`void`).  There are no connections or arrows shown, indicating this is a simple definition of the interface and not a depiction of its interaction with other classes." loading="lazy" width="537" height="107" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-8-D5POYGY7.svg" style="color: transparent;"></div></figure>
+<p>Implementations of this interface manage user notifications, such as alerts for package
+pickup availability and locker usage fees.</p>
+<div class="info-box"><img alt="Best Practices" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/best-practices-JGJTZRTW.svg" style="color: transparent;"><p><strong>Best practices:</strong> In OOD interviews, external systems like notifications are
+often represented as interfaces to keep the design flexible and scalable while
+avoiding unnecessary complexity.</p></div>
+<h3 id="lockermanager">LockerManager</h3>
+<p>The LockerManager class is responsible for managing package storage and retrieval at a specific site, ensuring that packages are assigned to suitable lockers based on size availability. It works with the following components:</p>
+<ul>
+<li><strong>Site site:</strong> Represents the physical location of the lockers.</li>
+<li><strong>NotificationInterface notificationService:</strong> Sends notifications to customers when their packages are assigned to a locker or ready for pick-up.</li>
+<li><strong>Map&lt;String, Account&gt; accounts</strong>: Maintains a mapping of account IDs to user accounts for managing locker usage and charges.</li>
+<li><strong>Map&lt;String, Locker&gt; accessCodeMap:</strong> Maintains a mapping of access codes to lockers, allowing for quick retrieval during package pick-up.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a low-resolution, grayscale icon depicting a black, five-pointed star centered within a larger, light-gray circular background.  The star is solid black, and its points extend nearly to the edge of the circle. The circle acts as a border or frame for the star, creating a visually distinct symbol. There is no text, URLs, or other parameters visible within the image; the image solely consists of the star and circular background, with no discernible connections or information flow to or from it. The overall impression is a simple, possibly symbolic representation of quality, achievement, or rating, given the common use of stars in such contexts." loading="lazy" width="506" height="189" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-9-4ASCPQYP.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The LockerManager class is designed as a facade to simplify
+interactions between core objects, providing a single point of control for package
+assignment and retrieval.</p></div>
+<h3 id="complete-class-diagram">Complete Class Diagram</h3>
+<p>Below is the complete class diagram of the shipping locker service:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the object-oriented design for a locker management system.  The diagram shows several classes and an interface, connected by various relationships.  `LockerManager` is the central class, containing a `Site` object, a `NotificationInterface` for sending notifications, and maps for managing accounts (`accounts`) and locker access codes (`accessCodeMap`).  `LockerManager` uses the `Site` to `assignPackage` and `pickUpPackage`. The `Site` class manages a map of `LockerSize` to sets of `Locker` objects, providing methods to find available lockers (`findAvailableLocker`) and place packages (`placePackage`).  `Locker` objects have attributes for size (`LockerSize`), current package (`ShippingPackage`), assignment date, and access code.  They offer methods for package assignment, release, storage charge calculation, availability check, and access code verification.  `ShippingPackage` is an interface implemented by `BasicShippingPackage`, which includes attributes for order ID, user (`Account`), dimensions, and status (`ShippingStatus`).  `ShippingPackage` provides methods to access these attributes and update the shipping status.  `Account` class stores account details, including a `AccountLockerPolicy` object which defines free and maximum usage periods, and manages usage charges.  `LockerSize` is an enumeration defining different locker sizes with associated daily charges and dimensions.  `ShippingStatus` is an enumeration representing the different states of a package.  Finally, `NotificationInterface` defines a method to send notifications to users.  The relationships between classes are shown through arrows indicating dependencies and aggregations." loading="lazy" width="624" height="821" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-10-OTJ33EW2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Class Diagram of Locker Service</figcaption></div></figure>
+<p>With the class diagram as our guide, let’s bring the system to life through code.</p>
+<h2 id="code---shipping-locker-service">Code - Shipping Locker Service</h2>
+<p>After completing the class diagram, the interviewer might ask you to implement key components of the shipping locker system. In this section, we’ll implement essential classes that handle locker operations, package assignments, and notifications.</p>
+<h3 id="locker-and-lockersize">Locker and LockerSize</h3>
+<p>The Locker class represents an individual locker unit. Each locker has a fixed size (an instance of LockerSize) and maintains details about the currently stored package, including the assignment date and a randomly generated access code for secure retrieval.</p>
+<p>This class provides functionalities for:</p>
+<ul>
+<li>Assigning a package to a locker, recording the assignment date, and generating a secure access code.</li>
+<li>Calculating storage charges based on the number of days the package has been stored and the locker’s daily rate, according to its size.</li>
+<li>Once the package is picked up, make the locker available for future use.</li>
+</ul>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Locker</span> {
+    <span class="hljs-comment">// Size of the locker</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> LockerSize size;
+    <span class="hljs-comment">// Currently stored package</span>
+    <span class="hljs-keyword">private</span> ShippingPackage currentPackage;
+    <span class="hljs-comment">// Date when the current package was assigned</span>
+    <span class="hljs-keyword">private</span> Date assignmentDate;
+    <span class="hljs-comment">// Access code for retrieving the package</span>
+    <span class="hljs-keyword">private</span> String accessCode;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Locker</span><span class="hljs-params">(LockerSize size)</span> {
+        <span class="hljs-built_in">this</span>.size = size;
+    }
+
+    <span class="hljs-comment">// Assigns a package to this locker and generates an access code</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">assignPackage</span><span class="hljs-params">(ShippingPackage pkg, Date date)</span> {
+        <span class="hljs-built_in">this</span>.currentPackage = pkg;
+        <span class="hljs-built_in">this</span>.assignmentDate = date;
+        <span class="hljs-built_in">this</span>.accessCode = generateAccessCode();
+    }
+
+    <span class="hljs-comment">// Releases the locker by removing the current package and its details</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">releaseLocker</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.currentPackage = <span class="hljs-literal">null</span>;
+        <span class="hljs-built_in">this</span>.assignmentDate = <span class="hljs-literal">null</span>;
+        <span class="hljs-built_in">this</span>.accessCode = <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-comment">// Calculates storage charges based on usage duration and policy</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateStorageCharges</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (currentPackage == <span class="hljs-literal">null</span> || assignmentDate == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">return</span> BigDecimal.ZERO;
+        }
+
+        <span class="hljs-type">AccountLockerPolicy</span> <span class="hljs-variable">policy</span> <span class="hljs-operator">=</span> currentPackage.getUser().getLockerPolicy();
+        <span class="hljs-type">long</span> <span class="hljs-variable">totalDaysUsed</span> <span class="hljs-operator">=</span>
+                (<span class="hljs-keyword">new</span> <span class="hljs-title class_">Date</span>().getTime() - assignmentDate.getTime()) / (<span class="hljs-number">1000</span> * <span class="hljs-number">60</span> * <span class="hljs-number">60</span> * <span class="hljs-number">24</span>);
+
+        <span class="hljs-comment">// Check if exceeds maximum period</span>
+        <span class="hljs-keyword">if</span> (totalDaysUsed &gt; policy.getMaximumPeriodDays()) {
+            currentPackage.updateShippingStatus(ShippingStatus.EXPIRED);
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MaximumStoragePeriodExceededException</span>(
+                    <span class="hljs-string">"Package has exceeded maximum allowed storage period of "</span>
+                            + policy.getMaximumPeriodDays()
+                            + <span class="hljs-string">" days"</span>);
+        }
+
+        <span class="hljs-comment">// Calculate chargeable days (excluding free period)</span>
+        <span class="hljs-type">long</span> <span class="hljs-variable">chargeableDays</span> <span class="hljs-operator">=</span> Math.max(<span class="hljs-number">0</span>, totalDaysUsed - policy.getFreePeriodDays());
+        <span class="hljs-keyword">return</span> size.dailyCharge.multiply(<span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(chargeableDays));
+    }
+
+    <span class="hljs-comment">// Checks if the locker is available for new packages</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isAvailable</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> currentPackage == <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-comment">// Verifies if the provided access code matches the locker's code</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">checkAccessCode</span><span class="hljs-params">(String code)</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.accessCode != <span class="hljs-literal">null</span> &amp;&amp; accessCode.equals(code);
+    }
+
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p>The LockerSize enum defines different locker sizes, each with an associated daily charge rate and physical dimensions (width, height, and depth). These predefined sizes allow the system to categorize lockers and ensure packages are placed in appropriately sized compartments.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">LockerSize</span> {
+    <span class="hljs-comment">// Small locker with 10x10x10 dimensions and $5 daily charge</span>
+    SMALL(
+            <span class="hljs-string">"Small"</span>,
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"5.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"10.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"10.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"10.00"</span>)),
+    <span class="hljs-comment">// Medium locker with 20x20x20 dimensions and $10 daily charge</span>
+    MEDIUM(
+            <span class="hljs-string">"Medium"</span>,
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"10.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"20.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"20.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"20.00"</span>)),
+    <span class="hljs-comment">// Large locker with 30x30x30 dimensions and $15 daily charge</span>
+    LARGE(
+            <span class="hljs-string">"Large"</span>,
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"15.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"30.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"30.00"</span>),
+            <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"30.00"</span>));
+
+    <span class="hljs-comment">// Name of the locker size</span>
+    <span class="hljs-keyword">final</span> String sizeName;
+    <span class="hljs-comment">// Daily charge for using this size locker</span>
+    <span class="hljs-keyword">final</span> BigDecimal dailyCharge;
+    <span class="hljs-comment">// Width of the locker in inches</span>
+    <span class="hljs-keyword">final</span> BigDecimal width;
+    <span class="hljs-comment">// Height of the locker in inches</span>
+    <span class="hljs-keyword">final</span> BigDecimal height;
+    <span class="hljs-comment">// Depth of the locker in inches</span>
+    <span class="hljs-keyword">final</span> BigDecimal depth;
+
+    <span class="hljs-comment">// Creates a new locker size with specified dimensions and charges</span>
+    LockerSize(
+            String sizeName,
+            BigDecimal dailyCharge,
+            BigDecimal width,
+            BigDecimal height,
+            BigDecimal depth) {
+        <span class="hljs-built_in">this</span>.sizeName = sizeName;
+        <span class="hljs-built_in">this</span>.dailyCharge = dailyCharge;
+        <span class="hljs-built_in">this</span>.width = width;
+        <span class="hljs-built_in">this</span>.height = height;
+        <span class="hljs-built_in">this</span>.depth = depth;
+    }
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+</code></pre>
+<p><strong>Implementation choice:</strong> You might have noticed that we have used BigDecimal for dailyCharge and dimensions in the LockerSize enum to ensure precision in financial calculations, unlike float or double, which could introduce rounding errors.</p>
+<h3 id="site-1">Site</h3>
+<p>The Site class represents a physical location containing multiple lockers, organized by size for efficient storage management. It maintains a collection of lockers grouped by size, treating lockers of the same size as interchangeable. This means any available locker of a given size can store a package, simplifying locker assignment.</p>
+<p>To efficiently manage lockers, the class uses a map-based structure, where:</p>
+<ul>
+<li>Each key is a LockerSize, representing a specific locker category ("Small," "Medium," "Large").</li>
+<li>Each value is a Set&lt;Locker&gt;, containing all lockers of that size.</li>
+</ul>
+<p>This design allows the system to quickly find an available locker and assign packages accordingly.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Site</span> {
+    <span class="hljs-comment">// Map of locker sizes to sets of lockers of that size</span>
+    <span class="hljs-keyword">final</span> Map&lt;LockerSize, Set&lt;Locker&gt;&gt; lockers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-comment">// Creates a new site with specified number of lockers for each size</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Site</span><span class="hljs-params">(Map&lt;LockerSize, Integer&gt; lockers)</span> {
+        <span class="hljs-keyword">for</span> (Map.Entry&lt;LockerSize, Integer&gt; entry : lockers.entrySet()) {
+            Set&lt;Locker&gt; lockerSet = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashSet</span>&lt;&gt;();
+            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; entry.getValue(); i++) {
+                lockerSet.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Locker</span>(entry.getKey()));
+            }
+            <span class="hljs-built_in">this</span>.lockers.put(entry.getKey(), lockerSet);
+        }
+    }
+
+    <span class="hljs-comment">// Finds an available locker of the specified size</span>
+    <span class="hljs-keyword">public</span> Locker <span class="hljs-title function_">findAvailableLocker</span><span class="hljs-params">(LockerSize size)</span> {
+        <span class="hljs-keyword">for</span> (Locker locker : lockers.get(size)) {
+            <span class="hljs-keyword">if</span> (locker.isAvailable()) {
+                <span class="hljs-keyword">return</span> locker;
+            }
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-comment">// Places a package in an available locker of appropriate size</span>
+    <span class="hljs-keyword">public</span> Locker <span class="hljs-title function_">placePackage</span><span class="hljs-params">(ShippingPackage pkg, Date date)</span> {
+        <span class="hljs-comment">// Determine the smallest locker size that can fit this package</span>
+        <span class="hljs-type">LockerSize</span> <span class="hljs-variable">size</span> <span class="hljs-operator">=</span> pkg.getLockerSize();
+        <span class="hljs-type">Locker</span> <span class="hljs-variable">locker</span> <span class="hljs-operator">=</span> findAvailableLocker(size);
+        <span class="hljs-keyword">if</span> (locker != <span class="hljs-literal">null</span>) {
+            locker.assignPackage(pkg, date);
+            pkg.updateShippingStatus(ShippingStatus.IN_LOCKER);
+            <span class="hljs-keyword">return</span> locker;
+        }
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">NoLockerAvailableException</span>(
+                <span class="hljs-string">"No locker of size "</span> + size + <span class="hljs-string">" is currently available"</span>);
+    }
+}
+
+</code></pre>
+<ul>
+<li>findAvailableLocker(LockerSize size): Locates and returns an available locker of the specified size.</li>
+<li>placePackage(ShippingPackage pkg, Date date): A convenience method that finds an available locker and assigns the package in one step. If no locker is available, it returns <code>null</code>.</li>
+</ul>
+<p><strong>Implementation choice:</strong> While the same result could be achieved by separately calling findAvailableLocker() and then manually assigning a package, providing helper methods such as placePackage() is beneficial. It provides atomic transaction-like behavior by encapsulating the find-and-assign operations in a single method call, ensuring thread safety and preventing inconsistent states that could occur if these operations were performed separately.</p>
+<h3 id="basicshippingpackage">BasicShippingPackage</h3>
+<p>The BasicShippingPackage class represents a standard package within the locker system, implementing the ShippingPackage interface. It encapsulates essential package details such as order ID, user account, dimensions (width, height, depth), and shipping status. These attributes allow the system to determine where the package can be stored.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BasicShippingPackage</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ShippingPackage</span> {
+    <span class="hljs-comment">// Unique identifier for the order</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String orderId;
+    <span class="hljs-comment">// User account associated with this package</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Account user;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal width;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal height;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal depth;
+    <span class="hljs-comment">// Current status of the package</span>
+    <span class="hljs-keyword">private</span> ShippingStatus status;
+
+    <span class="hljs-comment">// Creates a new shipping package with specified dimensions</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">BasicShippingPackage</span><span class="hljs-params">(
+            String orderId, Account user, BigDecimal width, BigDecimal height, BigDecimal depth)</span> {
+        <span class="hljs-built_in">this</span>.orderId = orderId;
+        <span class="hljs-built_in">this</span>.user = user;
+        <span class="hljs-built_in">this</span>.width = width;
+        <span class="hljs-built_in">this</span>.height = height;
+        <span class="hljs-built_in">this</span>.depth = depth;
+        <span class="hljs-built_in">this</span>.status = ShippingStatus.CREATED;
+    }
+
+    <span class="hljs-comment">// Returns the current package status</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> ShippingStatus <span class="hljs-title function_">getStatus</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> status;
+    }
+
+    <span class="hljs-comment">// Updates the package status</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateShippingStatus</span><span class="hljs-params">(ShippingStatus status)</span> {
+        <span class="hljs-built_in">this</span>.status = status;
+    }
+
+    <span class="hljs-comment">// Determines the smallest locker size that can fit this package</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> LockerSize <span class="hljs-title function_">getLockerSize</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">for</span> (LockerSize size : LockerSize.values()) {
+            <span class="hljs-keyword">if</span> (size.getWidth().compareTo(width) &gt;= <span class="hljs-number">0</span>
+                    &amp;&amp; size.getHeight().compareTo(height) &gt;= <span class="hljs-number">0</span>
+                    &amp;&amp; size.getDepth().compareTo(depth) &gt;= <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">return</span> size;
+            }
+        }
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">PackageIncompatibleException</span>(<span class="hljs-string">"No locker size available for the package"</span>);
+    } <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p>A key functionality of this class is determining the appropriate locker size for a package. The getLockerSize() method evaluates all available locker sizes ("Small," "Medium," "Large") and returns the smallest suitable locker based on the package’s dimensions.</p>
+<p>Additionally, the updateShippingStatus() method allows the locker system to communicate status updates (e.g., when a package is stored or retrieved) to the user.</p>
+<h3 id="account-and-accountlockerpolicy">Account and AccountLockerPolicy</h3>
+<p>The Account class represents a user’s account within the locker system. It stores basic account details, including the accountId, ownerName, the current usage charges, and the user’s lockerPolicy (an instance of AccountLockerPolicy), which defines the user-specific rules for locker usage.</p>
+<p>The account usageCharges is used to track locker usage fees, and funds can be added dynamically using the addUsageCharge(BigDecimal amount) method.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Account</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String accountId;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String ownerName;
+    <span class="hljs-comment">// Policy defining locker usage rules for this account</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> AccountLockerPolicy lockerPolicy;
+    <span class="hljs-comment">// Total charges accumulated for locker usage</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">usageCharges</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BigDecimal</span>(<span class="hljs-string">"0.00"</span>);
+
+    <span class="hljs-comment">// Creates a new account with specified details and policy</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Account</span><span class="hljs-params">(String accountId, String ownerName, AccountLockerPolicy lockerPolicy)</span> {
+        <span class="hljs-built_in">this</span>.accountId = accountId;
+        <span class="hljs-built_in">this</span>.ownerName = ownerName;
+        <span class="hljs-built_in">this</span>.lockerPolicy = lockerPolicy;
+    }
+
+    <span class="hljs-comment">// Adds a charge to the account's total usage charges</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addUsageCharge</span><span class="hljs-params">(BigDecimal amount)</span> {
+        usageCharges = usageCharges.add(amount);
+    }
+
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p>The AccountLockerPolicy class encapsulates the rules for locker usage. It specifies:</p>
+<ul>
+<li>freePeriodDays: The number of days a user can store a package without incurring charges.</li>
+<li>maximumPeriodDays: The maximum number of days a package can remain in a locker before further action is required (e.g., additional charges or forced retrieval).</li>
+</ul>
+<p>This policy allows customized locker usage limits, ensuring that different users can have varying storage privileges based on their account settings.</p>
+<p>Check out the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AccountLockerPolicy</span> {
+    <span class="hljs-comment">// Number of days of free storage</span>
+    <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> freePeriodDays;
+    <span class="hljs-comment">// Maximum number of days a package can be stored</span>
+    <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> maximumPeriodDays;
+
+    <span class="hljs-comment">// Creates a new locker policy with specified free and maximum periods</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">AccountLockerPolicy</span><span class="hljs-params">(<span class="hljs-type">int</span> freePeriodDays, <span class="hljs-type">int</span> maximumPeriodDays)</span> {
+        <span class="hljs-built_in">this</span>.freePeriodDays = freePeriodDays;
+        <span class="hljs-built_in">this</span>.maximumPeriodDays = maximumPeriodDays;
+    }
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<h3 id="lockermanager-1">LockerManager</h3>
+<p>The LockerManager class acts as a facade for the overall locker system. It serves as the central coordinator for the locker system, coordinating package assignments to lockers, package pick-ups, and locker releases. It interacts with Site, which oversees the locker inventory and handles the actual placement of packages in available lockers. The NotificationInterface is responsible for sending user notifications regarding package assignments and pickups.</p>
+<p>Additionally, it maintains a Map&lt;String, Account&gt; to store customer accounts, which are used to track locker usage charges. To ensure secure and efficient package retrieval, it uses a Map&lt;String, Locker&gt; to map access codes to their corresponding lockers.</p>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LockerManager</span> {
+    <span class="hljs-comment">// The site being managed</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Site site;
+    <span class="hljs-comment">// Service for sending notifications</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> NotificationInterface notificationService;
+    <span class="hljs-comment">// Map of account IDs to account objects</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Account&gt; accounts;
+    <span class="hljs-comment">// Map of access codes to lockers</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Locker&gt; accessCodeMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-comment">// Creates a new locker manager for a site</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">LockerManager</span><span class="hljs-params">(
+            Site site, Map&lt;String, Account&gt; accounts, NotificationInterface notificationService)</span> {
+        <span class="hljs-built_in">this</span>.site = site;
+        <span class="hljs-built_in">this</span>.accounts = accounts;
+        <span class="hljs-built_in">this</span>.notificationService = notificationService;
+    }
+
+    <span class="hljs-comment">// Assigns a package to an available locker</span>
+    <span class="hljs-keyword">public</span> Locker <span class="hljs-title function_">assignPackage</span><span class="hljs-params">(ShippingPackage pkg, Date date)</span> {
+        <span class="hljs-type">Locker</span> <span class="hljs-variable">locker</span> <span class="hljs-operator">=</span> site.placePackage(pkg, date);
+        <span class="hljs-keyword">if</span> (locker != <span class="hljs-literal">null</span>) {
+            accessCodeMap.put(locker.getAccessCode(), locker);
+            notificationService.sendNotification(
+                    <span class="hljs-string">"Package assigned to locker"</span> + locker.getAccessCode(), pkg.getUser());
+        }
+        <span class="hljs-keyword">return</span> locker;
+    }
+
+    <span class="hljs-comment">// Processes package pickup using an access code</span>
+    <span class="hljs-keyword">public</span> Locker <span class="hljs-title function_">pickUpPackage</span><span class="hljs-params">(String accessCode)</span> {
+        <span class="hljs-type">Locker</span> <span class="hljs-variable">locker</span> <span class="hljs-operator">=</span> accessCodeMap.get(accessCode);
+        <span class="hljs-keyword">if</span> (locker != <span class="hljs-literal">null</span> &amp;&amp; locker.checkAccessCode(accessCode)) {
+            <span class="hljs-keyword">try</span> {
+                <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">charge</span> <span class="hljs-operator">=</span> locker.calculateStorageCharges();
+                <span class="hljs-type">ShippingPackage</span> <span class="hljs-variable">pkg</span> <span class="hljs-operator">=</span> locker.getPackage();
+                locker.releaseLocker();
+                pkg.getUser().addUsageCharge(charge);
+                pkg.updateShippingStatus(ShippingStatus.RETRIEVED);
+                <span class="hljs-keyword">return</span> locker;
+            } <span class="hljs-keyword">catch</span> (MaximumStoragePeriodExceededException e) {
+                locker.releaseLocker();
+                <span class="hljs-keyword">return</span> locker;
+            }
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    }
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<ul>
+<li>assignPackage(ShippingPackage pkg, Date date): Assigns a package to an available locker via site.placePackage().</li>
+<li>pickUpPackage(String accessCode): Retrieves the package if the provided access code matches the stored locker. It then:
+<ul>
+<li>Calculates charges based on locker usage duration.</li>
+<li>Updates the user’s usage charges.</li>
+<li>Releases the locker and marks the package as retrieved.</li>
+</ul>
+</li>
+</ul>
+<div class="info-box"><img alt="Best Practices" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/best-practices-JGJTZRTW.svg" style="color: transparent;"><p><strong>Best practices:</strong> In complex systems, a manager class like LockerManager is commonly
+used to centralize operations such as package assignment, retrieval, and notifications.
+However, to maintain a thin manager class, it is essential to delegate low-level
+operations, such as finding available lockers, storing packages, and enforcing
+locker policies, to specialized classes like Site and Locker.</p></div>
+<h2 id="deep-dive-topic">Deep Dive Topic</h2>
+<p>Now that the basic design is complete, the interviewer might ask you some deep dive questions. Let’s check out some of these.</p>
+<h3 id="designing-an-extensible-locker-creation-system">Designing an extensible locker creation system</h3>
+<p>Currently, lockers are created directly based on predefined sizes, which makes the system rigid and difficult to extend. For example, if we need to introduce a new locker size (e.g., XLARGE) or a specialized locker type (e.g., temperature-controlled lockers), we would have to modify multiple parts of the codebase where lockers are instantiated manually. This increases maintenance overhead and reduces flexibility.</p>
+<p>To address this, we can use the Factory design pattern to centralize the creation logic for different types of lockers, making the system more modular and extensible.</p>
+<p><em>Note</em>: To learn more about the Factory Pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-shipping-locker#further-reading-factory-design-pattern">Further Reading</a></strong> section at the end of this chapter.</p>
+<p>Here is the code for the LockerFactory class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">LockerFactory</span> {
+    <span class="hljs-comment">// Creates a new locker of the specified size</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Locker <span class="hljs-title function_">createLocker</span><span class="hljs-params">(LockerSize size)</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">switch</span> (size) {
+            <span class="hljs-keyword">case</span> SMALL -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">Locker</span>(LockerSize.SMALL);
+            <span class="hljs-keyword">case</span> MEDIUM -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">Locker</span>(LockerSize.MEDIUM);
+            <span class="hljs-keyword">case</span> LARGE -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">Locker</span>(LockerSize.LARGE);
+            <span class="hljs-keyword">case</span> XLARGE -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">Locker</span>(LockerSize.XLARGE);
+        };
+    }
+}
+
+</code></pre>
+<p>Here’s how a LockerFactory class enhances the locker system:</p>
+<ul>
+<li><strong>Centralized object creation:</strong> The LockerFactory encapsulates the locker instantiation process, so any changes to locker creation (e.g., adding new sizes or types) are localized to this class.</li>
+<li><strong>Extensibility:</strong> If we need to add new locker sizes or types in the future, the factory class can be easily updated, without modifying core business logic in other parts of the system.</li>
+<li><strong>Improved readability and maintainability:</strong> Using a factory method to create lockers allows us to separate locker creation from locker usage logic, aligning with the Single Responsibility Principle.</li>
+</ul>
+<h3 id="decoupling-event-handling-with-an-event-driven-approach">Decoupling event handling with an event-driven approach</h3>
+<p>Currently, the LockerManager directly invokes NotificationInterface.sendNotification() to notify customers when key events occur, such as package assignment or locker expiration. While this approach works, it tightly couples LockerManager with the notification system, meaning any changes to how notifications are sent require modifying LockerManager itself.</p>
+<p>How can we improve the system design to make event handling more flexible and scalable?</p>
+<p>To decouple event handling from LockerManager, we can use an event-driven approach where multiple components can subscribe to and respond to system events dynamically. Instead of directly calling sendNotification(), LockerManager will broadcast events to registered observers, ensuring a more modular and extensible system.</p>
+<p>By implementing the Observer pattern, we can send notifications to customers or administrative staff when certain events occur, such as when a package is delivered or a locker exceeds its maximum usage period.</p>
+<p><em>Note</em>: To learn more about the Observer Pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-an-elevator-system">Elevator System</a></strong> chapter.</p>
+<p>Instead of hardcoding the notification logic in the LockerManager, the locker system can maintain a list of observers. These observers can be various notification services (e.g., email, SMS) or other systems (e.g., analytics, metrics). When a key event occurs, the LockerManager can notify all registered observers, allowing the system to be easily extended without modifying the core logic.</p>
+<p>Below is the implementation of the relevant interface and classes for the observer pattern.</p>
+<ul>
+<li><strong>Subject</strong>: LockerManagerChange, which maintains a list of observers and notifies them of state changes, such as package assignments.</li>
+</ul>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">LockerManagerChange</span> {
+    <span class="hljs-comment">// List of observers that will be notified of locker events</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;LockerEventObserver&gt; observers = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addObserver</span><span class="hljs-params">(LockerEventObserver observer)</span> {
+        observers.add(observer);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeObserver</span><span class="hljs-params">(LockerEventObserver observer)</span> {
+        observers.remove(observer);
+    }
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">notifyObservers</span><span class="hljs-params">(String message, Account account)</span> {
+        <span class="hljs-keyword">for</span> (LockerEventObserver observer : observers) {
+            observer.update(message, account);
+        }
+    }
+
+    <span class="hljs-comment">// Assigns a package to an available locker and notifies observers.</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">assignPackage</span><span class="hljs-params">(ShippingPackage pkg)</span> {
+        <span class="hljs-type">Locker</span> <span class="hljs-variable">locker</span> <span class="hljs-operator">=</span> assignLockerToPackage(pkg);
+        <span class="hljs-keyword">if</span> (locker != <span class="hljs-literal">null</span>) {
+            notifyObservers(<span class="hljs-string">"Package assigned to locker"</span>, pkg.getUser());
+        }
+    }
+
+    <span class="hljs-keyword">private</span> Locker <span class="hljs-title function_">assignLockerToPackage</span><span class="hljs-params">(ShippingPackage pkg)</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    }
+}
+
+</code></pre>
+<ul>
+<li><strong>Observer</strong>: The LockerEventObserver interface, which defines the update() method that observers must implement to handle notifications.</li>
+</ul>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Interface for objects that need to be notified of locker events</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">LockerEventObserver</span> {
+    <span class="hljs-comment">// Updates the observer with a message and the affected account</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">update</span><span class="hljs-params">(String message, Account account)</span>;
+}
+</code></pre>
+<ul>
+<li><strong>Concrete Observers</strong>: Classes like EmailNotification, which implement LockerEventObserver to send email alerts for specific events, enabling flexible and extensible event handling.</li>
+</ul>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Implementation of LockerEventObserver that sends email notifications</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">EmailNotification</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">LockerEventObserver</span> {
+    <span class="hljs-comment">// Updates the observer with a message and sends it to the account owner</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">update</span><span class="hljs-params">(String message, Account account)</span> {
+        <span class="hljs-comment">// send email to account owner</span>
+    }
+}
+</code></pre>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>In this chapter, we designed a Shipping Locker System. We began by clarifying requirements through a structured Q&amp;A discussion, similar to an interviewer-candidate exchange. From there, we identified core objects and developed a class diagram to represent the system's structure. We implemented the key components of the locker service, bringing the design to life.</p>
+<p>In the deep dive section, we explored advanced topics, including how the Factory Pattern simplifies locker instantiation for future scalability and how the Observer Pattern decouples event handling, enabling flexible notifications.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="further-reading-factory-design-pattern">Further Reading: Factory Design Pattern</h2>
+<p>This section gives a quick overview of the design patterns used in this chapter. It’s helpful if you’re new to these patterns or need a refresher to better understand the design choices.</p>
+<h3 id="factory-design-pattern">Factory design pattern</h3>
+<p>The Factory Method Pattern is a creational design pattern that provides an interface for creating instances of a class but allows subclasses to alter the type of objects that will be created.</p>
+<p>In the shipping locker system, we use the Factory pattern through the LockerFactory class to centralize locker creation, enabling easy addition of new locker sizes (e.g., XLARGE) without modifying existing code. To illustrate the Factory pattern in another domain, the following example uses an e-commerce payment system.</p>
+<p><strong>Problem</strong></p>
+<p>Imagine building an e-commerce payment system that initially supports only credit card payments, with logic tied to a CreditCardPayment class. As demand grows for new payment options like digital wallets or cryptocurrency, adding them requires altering multiple parts of the tightly coupled codebase, increasing maintenance effort, and reducing flexibility.</p>
+<p><strong>Solution</strong></p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating a factory pattern implementation for payment processing.  At the top is a class named `PaymentFactory` containing a single public method `createPayment(type: String): Payment`. This method takes a string as input, presumably representing the payment type, and returns an object of type `Payment`. An arrow labeled 'Creates' points downwards from `PaymentFactory` to an interface named `Payment`.  The `Payment` interface defines a single method `processPayment(amount: double)`, which takes a double representing the payment amount as input.  Two classes, `CreditCardPayment` and `PayPalPayment`, implement the `Payment` interface, each providing its own implementation of the `processPayment` method.  Dashed arrows indicate that `CreditCardPayment` and `PayPalPayment` are implementations of the `Payment` interface.  The overall structure shows how `PaymentFactory` creates concrete payment objects based on the input type, which then utilize the `processPayment` method defined in the `Payment` interface." loading="lazy" width="622" height="371" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-shipping-locker/image-12-11-CZH3TT3T.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Factory design pattern</figcaption></div></figure>
+<p>The Factory Method pattern addresses this by replacing direct object creation (using the new operator) with a factory method that encapsulates instantiation. This allows new payment types to be added via subclasses without changing existing code, decoupling payment processing from the main system for better scalability and maintainability.</p>
+<p><strong>When to use</strong></p>
+<p>The factory design pattern is particularly useful in the following scenarios:</p>
+<ul>
+<li>Use the Factory Method when the specific types and dependencies of objects required by your code are unknown in advance.</li>
+<li>Use the Factory Method to allow users of your library or framework to extend its internal components without modifying existing code.</li>
+<li>Use the Factory Method to optimize resource utilization by reusing existing objects rather than creating new instances each time.</li>
+</ul>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-blackjack-game.html">← Previous</a>
+        <a href="design-an-atm-system.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

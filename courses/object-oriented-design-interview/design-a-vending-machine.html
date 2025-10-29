@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a Vending Machine - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design a Vending Machine
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-unix-file-search-system.html">← Previous</a>
+        <a href="design-an-elevator-system.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">07</span> Design a Vending Machine
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/design-a-vending-machine" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">07</strong><h1>Design a Vending Machine</h1></header><p>In this chapter, we will explore the design of a vending machine system that allows users to select and purchase products, dispense items, manage inventory, and process payments. Although real-world vending machines involve hardware components, like coin dispensers, card readers, and touchscreens, we’ll focus on modeling the system’s states, data, and core functionality.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified line drawing of a vending machine against a light gray wall. The vending machine is rectangular with a gray shaded dispensing area at the bottom.  Above the dispensing area are three shelves, each stocked with various items represented by simple icons: the top shelf shows three bottles or cartons of what appear to be milk or juice; the middle shelf contains two bags of snacks and two bottles of what seem to be liquor or wine, along with a container of popcorn; and the bottom shelf displays three more bottles or cartons similar to those on the top shelf. To the right of the shelves is a control panel featuring a small, blank rectangular display screen above a numerical keypad and a long, thin, horizontal slot, likely for inserting money or a card. The entire vending machine rests on a small base, and the scene is completed by a simple floor line separating the machine from the wall.  No specific URLs, text beyond the implied function of the icons, or parameters are visible." loading="lazy" width="542" height="338" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-1-5MV5KAFN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Vending Machine</figcaption></div></figure>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>Here is an example of a typical prompt an interviewer might give:</p>
+<p>“Imagine you’re at a vending machine, craving a snack. You insert some cash, select your favorite item, and within seconds, it drops into the tray. The machine also gives you the right change if needed. Behind the scenes, the system is working smoothly to track inventory, handle payments, and make sure everything runs efficiently. Now, let’s design a vending machine that does all this.”</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate:</strong> Does the vending machine support different types of products?<br>
+<strong>Interviewer:</strong> Yes, the vending machine supports a variety of products, such as snacks, beverages, and other items.</p>
+<p><strong>Candidate:</strong> How are products organized within the vending machine? Are they placed in specific racks or arranged differently? Also, I assume each product needs a unique identifier, like a product code, along with attributes such as its price.<br>
+<strong>Interviewer:</strong> Yes, products are placed in specific racks, with each rack holding only one type of product at a time. Each product also has a unique product code and a price tag.</p>
+<p><strong>Candidate:</strong> How will payments be processed in the vending machine?<br>
+<strong>Interviewer:</strong> The vending machine should only accept cash payments and calculate change if needed.</p>
+<p><strong>Candidate:</strong> How does the vending machine handle cases where a user selects a product that is out of stock or unavailable?<br>
+<strong>Interviewer:</strong> In such cases, the system should be able to check if a product is available. If not, it should display an error message to the user.</p>
+<p><strong>Candidate:</strong> If a user inserts money less than the product’s full price, can they add more incrementally?<br>
+<strong>Interviewer:</strong> For this design, let’s assume users insert the full amount in one step. If the inserted amount is insufficient, the vending machine should return the money and display an error.</p>
+<p><strong>Candidate:</strong> Are there any restrictions on who can access the vending machine?<br>
+<strong>Interviewer:</strong> Access to the vending machine is available to users and admins, with different privileges. Users should be able to select and purchase products by specifying the product code. Admins, however, are responsible for adding or removing products from the machine.</p>
+<p><strong>Candidate:</strong> Are there any security or inventory tracking requirements for the vending machine?<br>
+<strong>Interviewer:</strong> Yes. The vending machine should track inventory, and only the admin can add or remove products.</p>
+<h3 id="requirements">Requirements</h3>
+<p>Here are the functional requirements based on the conversation:</p>
+<ul>
+<li><strong>Product selection:</strong> Users should be able to select from a set of products. Each product has a unique product code, description, and price tag. While description is not talked about, it is a common-sense attribute to make the product model more realistic.</li>
+<li><strong>Inventory management:</strong> Products are stored in specific racks within the vending machine. The system keeps track of the inventory level for each product in its respective rack.</li>
+<li><strong>Payment processing:</strong> The system only accepts cash payments and can calculate change when needed.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>The user interface must be intuitive, allowing users to complete a purchase (insert money, select product, receive product, and change) with minimal instructions, and error messages should be clear and concise to guide users effectively.</li>
+<li>The system must protect against unauthorized access to the vending machine, ensuring only admins can add, remove, or update products, and securely handle cash transactions to prevent tampering or fraud.</li>
+</ul>
+<h2 id="use-case-diagram">Use Case Diagram</h2>
+<p>A use case diagram illustrates how actors (users or the system) interact with the vending machine system to achieve specific goals. This diagram helps clarify key actions, such as inserting money, selecting a product, dispensing items, and managing inventory.</p>
+<p>Below is the use case diagram of the vending machine system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a use case diagram for a Vending Machine System.  The diagram shows three actors: 'Admin,' 'User,' and 'System.'  A large rectangle encloses the system's use cases. The 'Admin' actor interacts with three use cases within the system: 'Add Product,' 'Remove Product,' and 'Update Inventory.' The 'User' actor interacts with 'Select Product' and 'Insert Money.'  'Select Product' leads to 'Check Inventory,' which, along with 'Process Payment' (initiated by 'Insert Money'), feeds into 'Dispense Product' and 'Receive Change.'  Finally, 'Dispense Product' leads to 'Receive Product,' and the 'System' actor is connected to 'Check Inventory,' 'Dispense Product,' and 'Receive Product,' indicating system-level interactions with these processes.  All interactions are represented by arrows pointing from the actor or use case to the next step in the process." loading="lazy" width="624" height="479" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-2-GYGEWBUJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Use Case Diagram of a Vending Machine</figcaption></div></figure>
+<p>The use cases for the <strong>User</strong> actor are as follows:</p>
+<ul>
+<li>Insert Money: The user inserts cash to initiate a purchase.</li>
+<li>Select Product: The user chooses a product by entering its unique product code.</li>
+<li>Receive Product: The user collects the dispensed product from the vending machine.</li>
+<li>Receive Change: The user receives any change if the inserted amount exceeds the product’s price.</li>
+</ul>
+<p>The use cases for the <strong>Admin</strong> actor are as follows:</p>
+<ul>
+<li>Add Product: The admin adds new products to the vending machine’s inventory.</li>
+<li>Remove Product: The admin removes products from the vending machine’s inventory.</li>
+<li>Update Inventory: The admin updates the stock levels of existing products in the racks.</li>
+</ul>
+<p>The use cases for the <strong>System</strong> actor are as follows.</p>
+<ul>
+<li>Process Payment: The system validates the inserted cash and calculates change if necessary.</li>
+<li>Dispense Product: The system releases the selected product from the appropriate rack.</li>
+<li>Check Inventory: The system verifies the availability of a product before dispensing.</li>
+<li>Display Message: The system shows messages or errors to guide the user (e.g., “Insert money to proceed,” “Product out of stock,” or “Insufficient funds”).</li>
+</ul>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>Before diving into the design, it’s important to enumerate the core objects and give them appropriate names. These objects will form the foundation of the vending machine’s structure and functionality.</p>
+<ul>
+<li><strong>VendingMachine:</strong> This is the central entity that coordinates the vending machine’s operations and serves as the main entry point for user interactions. We will ensure this entity does not become a god object (antipattern) by appropriately delegating responsibilities to other components. The Facade design pattern is very helpful in this case, as it allows a single class to orchestrate end-to-end functionality.</li>
+<li><strong>Product:</strong> Represents the items stored in the vending machine. Each product has attributes like an identifier, a price, and a description. Products are also linked to the racks where they are stored.</li>
+<li><strong>Rack:</strong> Represents a designated slot in the vending machine that holds a single product type and stores multiple units of that product. It also includes the dispenser hardware to release one unit of a product at a time upon selection.</li>
+</ul>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> Products are linked to racks because racks represent the physical
+storage locations, and products are associated with racks since they are static
+entities that don’t manage their storage. This aligns with the single responsibility
+principle. Alternatively, racks could be linked to products, but this would violate
+the single responsibility principle, as racks need to manage product details.</p></div>
+<ul>
+<li><strong>InventoryManager:</strong> Keeps track of the inventory level within the vending machine.</li>
+<li><strong>PaymentProcessor:</strong> Interacts with coin dispensers to process payment. It also keeps track of the vending machine balance and calculates change when needed.</li>
+</ul>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>Now that we know the core objects and their roles, the next step is to create classes and methods to build the vending machine system.</p>
+<h3 id="product">Product</h3>
+<p>The first component in our class diagram is the Product class, which represents a basic product within the vending machine. It includes attributes such as product code, description, and the price of the product.</p>
+<p>While additional attributes could be added for completeness, we skip them for this exercise. During the interview, it’s a good idea to acknowledge these other attributes but focus on the essential attributes to save time and stay aligned with requirements.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a 'Product' class.  The diagram is a rectangular box. In the top-right corner inside the box, the text 'Product' labels the class. To its left, a gray circle containing the letter 'C' indicates that this is a class. Below this label, the class's attributes are listed. Each attribute is represented by a small square checkbox followed by its data type and name:  'String productCode', 'String description', and 'BigDecimal unitPrice'.  These attributes describe the characteristics of a Product object, specifying a product code (String), a description (String), and a unit price (BigDecimal), suggesting a focus on precision for monetary values. There are no methods or relationships shown in this particular diagram; it solely focuses on the attributes of the Product class." loading="lazy" width="278" height="170" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-3-THTHWJUQ.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> One thing to note is that we have not modeled the inventory
+quantity within the product class. The product class encapsulates innate properties
+like its code, description, and price. The stock level of our vending machine racks
+is constantly changing. Recognizing this distinction supports cleaner object decomposition
+and adherence to the single responsibility principle. We introduce a separate InventoryManager
+class to manage stock levels.</p></div>
+<h3 id="rack">Rack</h3>
+<p>Next, we will look at the Rack class, which models a single rack space within the vending machine. Each rack is associated with a single product and can hold multiple units of that product.</p>
+<p>We will put multiple racks together via the <em>composition</em> technique to represent the inventory spaces within the vending machine.</p>
+<p>Here is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Rack` class in an object-oriented programming context.  The diagram is a rectangular box with the class name 'Rack' and a 'C' symbol indicating it's a class, positioned at the top.  Below the class name, the diagram lists three private member variables: `String rackCode`, `Product product`, and `int count`. These variables represent the rack's code (likely a unique identifier), the product stored on the rack (presumably an object of a separate `Product` class), and the quantity of that product, respectively.  The diagram then shows two public member functions: `Product getProduct()`, which returns a `Product` object, and `int getProductCount()`, which returns an integer representing the number of products on the rack.  The `getProduct()` function likely provides access to the `product` member variable, while `getProductCount()` provides access to the `count` member variable.  The arrangement clearly separates the data (member variables) from the methods (member functions) that operate on that data." loading="lazy" width="292" height="221" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-4-CVZ25Q77.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We chose not to have the Rack class include methods like dispenseProductFromRack.
+Instead, we kept the Rack class focused on managing inventory count and product
+information, delegating actions like dispensing to a higher-level class, such as
+InventoryManager, which aligns with the single responsibility principle.</p></div>
+<h3 id="inventorymanager">InventoryManager</h3>
+<p>Building on the Rack class, the InventoryManager class handles the tracking and storage of products in the vending machine. It supports operations such as adding, removing, and dispensing products during user interactions. It will interface with hardware mechanisms that dispense items from the rack.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting the `InventoryManager` class.  The diagram shows the class name, `InventoryManager`,  preceded by a 'C' symbol indicating it's a class.  Inside the class definition, a private member variable `racks` is declared as a `Map&lt;String, Rack&gt;`, suggesting it stores inventory information using rack codes (Strings) as keys and `Rack` objects as values.  Below the member variable, three public methods are defined: `updateRack`, which takes a `Map&lt;String, Rack&gt;` as input, presumably to update the inventory; `getProductInRack`, which takes a `String` (rackCode) as input and returns a `Product` object, indicating retrieval of a product from a specific rack; and `dispenseProductFromRack`, which takes a `Rack` object as input and returns `void`, suggesting it handles the dispensing of a product from a given rack.  The diagram illustrates the internal structure and functionality of the `InventoryManager` class, showing how it manages inventory through a map and provides methods for updating, retrieving, and dispensing products." loading="lazy" width="459" height="173" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-5-66N4MZUB.svg" style="color: transparent;"></div></figure>
+<p><strong>Key method:</strong> The dispenseProductFromRack method executes the action of dispensing
+product from the rack and decrements the inventory level. Pay attention to the naming
+of dispenseProductFromRack and getProductInRack. To avoid ambiguity, we should follow
+conventions and reserve the “get” prefix for getters that return attributes.</p>
+<p>The updateRack method allows for editing product offerings or inventory levels. This allows an admin to edit the state of the rack.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> When managing collections like racks in InventoryManager, we
+must decide whether to expose the collection directly, a copy, or specific methods.
+The choice should balance flexibility and control. Here, we use updateRack(Map
+racks) to allow administrative components to replace the entire rack structure
+in one operation, suitable for bulk updates. For most cases, we prefer granular
+methods like addRack(Rack rack) and removeRack(Rack rack) to limit modifications
+to individual racks, reducing the risk of unintended changes. These methods are
+used for read access, aligning with the vending machine’s needs. To enhance safety,
+consider immutable collections or defensive copying to prevent unintended modifications
+and ensure thread safety in multi-threaded environments.</p></div>
+<h3 id="paymentprocessor">PaymentProcessor</h3>
+<p>With inventory management addressed, we now turn to the PaymentProcessor class. This class manages payment acceptance, including tracking the current balance and returning change. This will interface with a coin receptacle or a credit card processing unit if supported.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram depicting a `PaymentProcessor` class.  The class is denoted by the letter 'C' enclosed in a circle, followed by the class name 'PaymentProcessor'.  Inside the class definition, a private member variable `currentBalance` of type `BigDecimal` is declared, indicated by the minus sign preceding it.  Three public methods are defined: `addBalance`, which takes a `BigDecimal` amount as input; `charge`, which also takes a `BigDecimal` amount as input; and `returnChange`, which returns a `BigDecimal` value representing the change.  The plus sign preceding these indicates their public accessibility.  No relationships or connections to other classes are shown in this diagram; it solely focuses on the internal structure and methods of the `PaymentProcessor` class." loading="lazy" width="346" height="166" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-6-NV3ECVYC.svg" style="color: transparent;"></div></figure>
+<h3 id="transaction">Transaction</h3>
+<p>In a vending machine system, purchases involve multiple steps, including product selection, payment processing, and confirmation. While components like PaymentProcessor handle payments and InventoryManager manage stock, the Transaction class acts as a data structure that tracks the current state of a purchase.</p>
+<p>This design provides several benefits.</p>
+<ul>
+<li>It encapsulates key details such as the selected product, the rack it belongs to, and the total cost required for the purchase.</li>
+<li>By maintaining a structured record, the vending machine can track an in-progress transaction before finalizing or canceling it.</li>
+<li>The Transaction class improves coordination between different components. While PaymentProcessor is responsible for deducting the required amount, and InventoryManager ensures the selected product is available and dispenses it, the Transaction object ensures that the vending machine keeps all necessary purchase details in one place so that the system can reference them throughout the transaction process.</li>
+</ul>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a `Transaction` class.  The diagram is a rectangular box with the class name 'Transaction' in the upper right corner, preceded by a large 'C' symbol indicating it's a class. Inside the box, three private member variables are listed: `Rack rack`, `Product product`, and `BigDecimal totalAmount`.  These represent attributes of the `Transaction` class, storing information about the rack, the product involved, and the total transaction amount using the `BigDecimal` data type for precise monetary calculations. Below the attributes, two public methods are shown: `setProduct(Product product)` and `setRack(Rack rack)`. These methods allow external code to set the `product` and `rack` attributes of a `Transaction` object.  There are no connections or information flows depicted beyond the internal structure of the `Transaction` class itself." loading="lazy" width="307" height="187" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-7-SMDS7IDA.svg" style="color: transparent;"></div></figure>
+<h3 id="vendingmachine">VendingMachine</h3>
+<p>This class serves as the core component of the system. Here is the representation of the class:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram for a `VendingMachine` class.  The diagram shows the class `VendingMachine` with a large rectangular box divided into two sections. The top section lists private member variables: `inventoryManager` (of type `InventoryManager`), `currentTransaction` (of type `Transaction`), `paymentProcessor` (of type `PaymentProcessor`), and `transactionHistory` (a list of `Transaction` objects). The bottom section lists public member functions: `setRack` (takes a map of strings to `Rack` objects as input), `insertMoney` (takes a `BigDecimal` amount as input), `chooseProduct` (no input), `confirmTransaction` (no input), `cancelTransaction` (no input), and `getTransactionHistory` (returns a list of `Transaction` objects).  The class name `VendingMachine` is prominently displayed at the top, preceded by the class symbol 'C'.  No connections or information flow to other classes is depicted; the diagram focuses solely on the internal structure and methods of the `VendingMachine` class itself." loading="lazy" width="427" height="284" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-8-YWMJOC5D.svg" style="color: transparent;"></div></figure>
+<p>The VendingMachine class models a vending machine's behavior, processes payments,
+and manages inventory. </p>
+<p><strong>Design pattern:</strong> The Vending Machine uses the <em>Facade</em> pattern to provide a single interface to the clients of the Vending Machine. The term client refers to the software or hardware interfaces of the vending machine rather than any individual users.</p>
+<p><em>Note</em>: To learn more about the Facade pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-parking-lot">Parking Lot</a></strong> chapter of this chapter.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> To prevent the VendingMachine class from becoming a “<em>god object”</em>
+(a class with too many responsibilities), facades should remain lightweight and
+delegate tasks to other classes that adhere to the single responsibility principle.
+For example, the vending machine delegates product management to the InventoryManager
+and payment handling to the PaymentProcessor.</p></div>
+<h3 id="complete-class-diagram">Complete Class Diagram</h3>
+<p>Below is the complete class diagram of our vending machine system:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the object-oriented design of a vending machine system.  The central class, `VendingMachine`, has private member variables for an `InventoryManager`, a `Transaction`, and a `PaymentProcessor`, along with a list of past `Transaction`s.  `VendingMachine` exposes public methods to manage racks (`setRack`), insert money, choose products, confirm or cancel transactions, and retrieve transaction history.  The `InventoryManager` manages a map of racks (key: String rack code, value: `Rack` object), providing methods to update the rack inventory and dispense products.  The `Transaction` class holds information about the current transaction, including the `Rack` and `Product` involved and the total amount.  The `PaymentProcessor` manages the current balance, offering methods to add balance, charge the customer, and return change.  The `Rack` class contains a `Product`, a rack code, and a count of products. Finally, the `Product` class stores the product code, description, and unit price.  Arrows indicate the relationships between classes, showing that `VendingMachine` uses the other classes, `InventoryManager` uses `Rack`, `Transaction` uses `Rack` and `Product`, and the `VendingMachine` uses `PaymentProcessor`." loading="lazy" width="624" height="629" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-9-ZODLQZJM.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Class Diagram of Vending Machine</figcaption></div></figure>
+<h2 id="code---vending-machine">Code - Vending Machine</h2>
+<p>In this section, we’ll implement the core functionalities of the vending machine system, focusing on key areas such as managing product inventory, processing cash payments, and handling product selection and dispensing.</p>
+<h3 id="product-1">Product</h3>
+<p>We will start by implementing the Product class, which represents a basic unit of a product in the context of a vending machine. The definition of the Product class is given below:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> {
+    <span class="hljs-keyword">final</span> String productCode;
+    <span class="hljs-keyword">final</span> String description;
+    <span class="hljs-keyword">final</span> BigDecimal unitPrice;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Product</span><span class="hljs-params">(String productCode, String description, BigDecimal unitPrice)</span> {
+        <span class="hljs-built_in">this</span>.productCode = productCode;
+        <span class="hljs-built_in">this</span>.description = description;
+        <span class="hljs-built_in">this</span>.unitPrice = unitPrice;
+    }
+}
+
+</code></pre>
+<p><strong>Implementation choice:</strong> For monetary values like the unitPrice attribute, we recommend using BigDecimal for its precision and rounding control. For an interview, it is also acceptable to use an integer to represent the smallest unit of currency (e.g., cents for US dollars) to save time. Avoid using float or double for currency, as they introduce precision/rounding errors. For identifiers like productCode, we recommend using a string rather than a numeric type in your code, even if the values are digits, you will most likely not be performing calculations, but string operations.</p>
+<h3 id="inventorymanager-and-rack">InventoryManager and Rack</h3>
+<p>Next, we implement the InventoryManager and Rack classes, which work together to manage the vending machine’s inventory. By using the Composite design pattern, we create a hierarchical structure for handling inventory at multiple levels. The InventoryManager class manages the overall inventory, while the Rack class handles individual storage units.</p>
+<p>We use a HashMap&lt;String, Rack&gt; to store racks because it allows for efficient lookups by rack code. Since each rack has a unique identifier, a hash map provides constant-time (O(1)) access when retrieving or updating a rack. This makes it well-suited for managing inventory in a vending machine, where quick access to product storage is important.</p>
+<p>Below is the representation of the two classes:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">InventoryManager</span> {
+    <span class="hljs-comment">// Maps rack codes to their corresponding rack objects</span>
+    <span class="hljs-keyword">private</span> Map&lt;String, Rack&gt; racks;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">InventoryManager</span><span class="hljs-params">()</span> {
+        racks = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    }
+
+    <span class="hljs-comment">// Retrieves the product from a specific rack using its code</span>
+    <span class="hljs-keyword">public</span> Product <span class="hljs-title function_">getProductInRack</span><span class="hljs-params">(String rackCode)</span> {
+        <span class="hljs-keyword">return</span> racks.get(rackCode).getProduct();
+    }
+
+    <span class="hljs-comment">// Dispenses a product from the specified rack and decrements its count</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dispenseProductFromRack</span><span class="hljs-params">(Rack rack)</span> {
+        <span class="hljs-keyword">if</span> (rack.getProductCount() &gt; <span class="hljs-number">0</span>) {
+            rack.setCount(rack.getProductCount() - <span class="hljs-number">1</span>);
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"Cannot dispense product. Rack is empty."</span>);
+        }
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateRack</span><span class="hljs-params">(Map&lt;String, Rack&gt; racks)</span> {
+        <span class="hljs-built_in">this</span>.racks = racks;
+    }
+
+    <span class="hljs-keyword">public</span> Rack <span class="hljs-title function_">getRack</span><span class="hljs-params">(String name)</span> {
+        <span class="hljs-keyword">return</span> racks.get(name);
+    }
+}
+
+</code></pre>
+<p><strong>Rack class</strong></p>
+<p>The Rack class represents individual storage units in the vending machine, each associated with a single product type.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Rack</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String rackCode;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Product product;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> count;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Rack</span><span class="hljs-params">(<span class="hljs-keyword">final</span> String rackCode, <span class="hljs-keyword">final</span> Product product, <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> count)</span> {
+        <span class="hljs-built_in">this</span>.rackCode = rackCode;
+        <span class="hljs-built_in">this</span>.product = product;
+        <span class="hljs-built_in">this</span>.count = count;
+    }
+
+    <span class="hljs-keyword">public</span> Product <span class="hljs-title function_">getProduct</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> product;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getProductCount</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> count;
+    }
+}
+
+</code></pre>
+<h3 id="paymentprocessor-1">PaymentProcessor</h3>
+<p>The PaymentProcessor class handles payment-related operations, such as adding funds, charging for purchases, and returning change. This ensures the vending machine’s financial logic is encapsulated and easily maintainable.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PaymentProcessor</span> {
+    <span class="hljs-comment">// Tracks the current balance in the payment processor</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">currentBalance</span> <span class="hljs-operator">=</span> BigDecimal.ZERO;
+
+    <span class="hljs-comment">// Adds the specified amount to the current balance</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addBalance</span><span class="hljs-params">(BigDecimal amount)</span> {
+        currentBalance = currentBalance.add(amount);
+    }
+
+    <span class="hljs-comment">// Deducts the specified amount from the current balance</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">charge</span><span class="hljs-params">(BigDecimal amount)</span> {
+        currentBalance = currentBalance.subtract(amount);
+    }
+
+    <span class="hljs-comment">// Returns the current balance as change and resets the balance to zero</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">returnChange</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">change</span> <span class="hljs-operator">=</span> currentBalance;
+        currentBalance = BigDecimal.ZERO;
+        <span class="hljs-keyword">return</span> change;
+    }
+
+    <span class="hljs-comment">// Returns the current balance</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">getCurrentBalance</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> currentBalance;
+    }
+}
+
+</code></pre>
+<h3 id="vendingmachine-1">VendingMachine</h3>
+<p>Finally, we implement the VendingMachine class, a central component in the vending machine that is responsible for modeling the vending machine’s behavior and handling user interactions.</p>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">VendingMachine</span> {
+    <span class="hljs-comment">// Stores the history of all completed transactions</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;Transaction&gt; transactionHistory;
+    <span class="hljs-comment">// Manages the inventory of products in the vending machine</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> InventoryManager inventoryManager;
+    <span class="hljs-comment">// Handles all payment-related operations</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> PaymentProcessor paymentProcessor;
+
+    <span class="hljs-comment">// Tracks the current ongoing transaction</span>
+    <span class="hljs-keyword">private</span> Transaction currentTransaction;
+    <span class="hljs-comment">// Represents the current state of the vending machine</span>
+    <span class="hljs-keyword">private</span> VendingMachineState currentState;
+    <span class="hljs-comment">// Tracks the current balance in the machine</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> balance;
+    <span class="hljs-comment">// Stores the currently selected product code</span>
+    <span class="hljs-keyword">private</span> String selectedProduct;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">VendingMachine</span><span class="hljs-params">()</span> {
+        transactionHistory = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+        currentTransaction = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transaction</span>();
+        inventoryManager = <span class="hljs-keyword">new</span> <span class="hljs-title class_">InventoryManager</span>();
+        paymentProcessor = <span class="hljs-keyword">new</span> <span class="hljs-title class_">PaymentProcessor</span>();
+        <span class="hljs-built_in">this</span>.currentState = <span class="hljs-keyword">new</span> <span class="hljs-title class_">NoMoneyInsertedState</span>();
+        <span class="hljs-built_in">this</span>.balance = <span class="hljs-number">0.0</span>;
+        <span class="hljs-built_in">this</span>.selectedProduct = <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-comment">// Updates the rack configuration with new product racks</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">setRack</span><span class="hljs-params">(Map&lt;String, Rack&gt; rack)</span> {
+        inventoryManager.updateRack(rack);
+    }
+
+    <span class="hljs-comment">// Adds money to the payment processor</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">insertMoney</span><span class="hljs-params">(<span class="hljs-keyword">final</span> BigDecimal amount)</span> {
+        paymentProcessor.addBalance(amount);
+    }
+
+    <span class="hljs-comment">// Selects a product from a specific rack</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">chooseProduct</span><span class="hljs-params">(String rackId)</span> {
+        <span class="hljs-keyword">final</span> <span class="hljs-type">Product</span> <span class="hljs-variable">product</span> <span class="hljs-operator">=</span> inventoryManager.getProductInRack(rackId);
+        currentTransaction.setRack(inventoryManager.getRack(rackId));
+        currentTransaction.setProduct(product);
+    }
+
+    <span class="hljs-comment">// Processes and completes the current transaction</span>
+    Transaction <span class="hljs-title function_">confirmTransaction</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InvalidTransactionException {
+        <span class="hljs-comment">// Step 1: Validate the transaction before processing</span>
+        validateTransaction();
+
+        <span class="hljs-comment">// Step 2: Charge the customer for the product</span>
+        paymentProcessor.charge(currentTransaction.getProduct().getUnitPrice());
+
+        <span class="hljs-comment">// Step 3: Dispense the product from the rack</span>
+        inventoryManager.dispenseProductFromRack(currentTransaction.getRack());
+
+        <span class="hljs-comment">// Step 4: Return the change to the customer</span>
+        currentTransaction.setTotalAmount(paymentProcessor.returnChange());
+
+        <span class="hljs-comment">// Step 5: Add the completed transaction to the history</span>
+        transactionHistory.add(currentTransaction);
+        <span class="hljs-type">Transaction</span> <span class="hljs-variable">completedTransaction</span> <span class="hljs-operator">=</span> currentTransaction;
+
+        <span class="hljs-comment">// Reset the current transaction for the next purchase.</span>
+        currentTransaction = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transaction</span>();
+        <span class="hljs-keyword">return</span> completedTransaction;
+    }
+
+    <span class="hljs-comment">// Validates the current transaction for product availability and sufficient funds</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">validateTransaction</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> InvalidTransactionException {
+        <span class="hljs-keyword">if</span> (currentTransaction.getProduct() == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvalidTransactionException</span>(<span class="hljs-string">"Invalid product selection"</span>);
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (currentTransaction.getRack().getProductCount() == <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvalidTransactionException</span>(<span class="hljs-string">"Insufficient inventory for product."</span>);
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (paymentProcessor
+                        .getCurrentBalance()
+                        .compareTo(currentTransaction.getProduct().getUnitPrice())
+                &lt; <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvalidTransactionException</span>(<span class="hljs-string">"Insufficient fund"</span>);
+        }
+    }
+
+    <span class="hljs-comment">// Returns an unmodifiable list of all completed transactions</span>
+    <span class="hljs-keyword">public</span> List&lt;Transaction&gt; <span class="hljs-title function_">getTransactionHistory</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Collections.unmodifiableList(transactionHistory);
+    }
+
+    <span class="hljs-comment">// Cancels the current transaction and returns any inserted money</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">cancelTransaction</span><span class="hljs-params">()</span> {
+        paymentProcessor.returnChange();
+        currentTransaction =
+                <span class="hljs-keyword">new</span> <span class="hljs-title class_">Transaction</span>(); <span class="hljs-comment">// Reset the current transaction for the next purchase.</span>
+    }
+
+    <span class="hljs-comment">// Returns the inventory manager instance</span>
+    <span class="hljs-keyword">public</span> InventoryManager <span class="hljs-title function_">getInventoryManager</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> inventoryManager;
+    }
+}
+
+</code></pre>
+<p>Let’s walk through the purchase process and highlight the methods' roles.</p>
+<ul>
+<li>insertMoney(BigDecimal amount): Adds the specified amount to the machine’s balance via the <code>PaymentProcessor</code> class.</li>
+<li>chooseProduct(): Retrieves the product and its corresponding rack from the InventoryManager and associates them with the current transaction.</li>
+<li>confirmTransaction(): Validates the transaction (e.g., checks for sufficient funds and product availability), processes payment, dispenses the product, and updates the machine’s inventory and transaction history.</li>
+</ul>
+<h2 id="deep-dive-topics">Deep Dive Topics</h2>
+<p>Now that the basic design is complete, the interviewer might ask you to enhance the vending machine’s functionality or accommodate more complex use cases.</p>
+<h3 id="enforcing-task-sequences">Enforcing task sequences</h3>
+<p>What if the interviewer asks: “How would you ensure that users insert money before selecting a product?” This is a common requirement in vending machines to prevent invalid actions, such as selecting a product without committing to payment.</p>
+<p>To address this, we need to enforce a strict sequence of actions:</p>
+<ol>
+<li>Users must insert money first.</li>
+<li>The system checks if the inserted amount is enough for a purchase.</li>
+<li>If the amount is sufficient, the user can select a product.</li>
+<li>Finally, the machine dispenses the product.</li>
+</ol>
+<p>Additionally, the vending machine should provide feedback at each stage to guide the user. For instance, it might display messages like “Insert money to proceed,” “Select a product,” or “Please collect your change.” How would you go about implementing this?</p>
+<p>To handle these requirements, we can introduce the State Pattern. This pattern allows us to model the vending machine’s behavior as a set of well-defined states. Let’s break it down.</p>
+<p><em>Note</em>: To learn more about the State Pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-vending-machine#further-reading-state-design-pattern">Further Reading</a></strong> section at the end of this chapter.</p>
+<h4 id="design-changes">Design changes</h4>
+<p>To enforce task sequences and display state-dependent messages, we will define three distinct states:</p>
+<p><strong>NoMoneyInsertedState</strong>:</p>
+<ul>
+<li>Represents the initial state where no money has been inserted.</li>
+<li>Displays prompts like <em>“Insert money to proceed.”</em></li>
+<li>Users are only allowed to insert money. If a user attempts to select a product without inserting money, it raises an exception.</li>
+<li>Transitions to MoneyInsertedState upon successful money insertion.</li>
+</ul>
+<p><strong>MoneyInsertedState</strong>:</p>
+<ul>
+<li>Represents the state where money has been inserted.</li>
+<li>Displays prompts like <em>“Select a product.”</em></li>
+<li>Enables product selection while preventing additional money insertion to avoid overpayment.</li>
+<li>Validates if the selected product is available and the inserted amount covers the product's cost.</li>
+<li>Transitions to DispenseState upon successful product selection.</li>
+</ul>
+<p><strong>DispenseState</strong>:</p>
+<ul>
+<li>Represents the state where the vending machine is prepared to dispense the selected product.</li>
+<li>Displays prompts like <em>“Dispensing product…”</em> or <em>“Please collect your change.”</em></li>
+<li>Handles product dispensing and resets the machine to the initial state after completion.</li>
+<li>Prevents further actions (e.g., inserting money or selecting another product) until the process is complete.</li>
+</ul>
+<p><strong>Why does this work?</strong></p>
+<p>The State Pattern explicitly defines the transitions between states, ensuring that actions follow the required order. Here’s how it works:</p>
+<ul>
+<li>In NoMoneyInsertedState, users can only insert money. If they try to select a product, the system raises an error.</li>
+<li>In MoneyInsertedState, users must select a product before the system dispenses anything.</li>
+<li>In DispenseState, the vending machine completes the transaction and prevents further actions until it resets.</li>
+</ul>
+<p>This approach guarantees the sequence: <strong>Insert Money → Select Product → Dispense Product</strong>.</p>
+<p>Each state provides user feedback based on its context:</p>
+<ul>
+<li>NoMoneyInsertedState: “Insert money to proceed.”</li>
+<li>MoneyInsertedState: “Select a product.”</li>
+<li>DispenseState: “Dispensing product…” or “Please collect your change.”</li>
+</ul>
+<p>We now define a VendingMachineState interface that serves as a blueprint for the three states (NoMoneyInsertedState, MoneyInsertedState, and DispenseState).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the state pattern in the context of a vending machine.  The diagram shows an interface `VendingMachineState` with four methods: `insertMoney(VM, amount)`, `selectProductByCode(VM, productCode)`, `dispenseProduct(VM)`, and `getStateDescription()`.  This interface is implemented by three concrete classes: `NoMoneyInsertedState`, `MoneyInsertedState`, and `DispenseState`.  Dashed lines with a hollow triangle indicate that these three classes implement the `VendingMachineState` interface.  `NoMoneyInsertedState` only implements the `insertMoney` method, `MoneyInsertedState` implements `selectProductByCode`, and `DispenseState` implements `dispenseProduct`.  The `getStateDescription()` method is presumably implemented in each concrete class to return a string describing the current state of the vending machine.  The `VM` parameter likely represents the vending machine object itself, allowing methods to access and modify its internal state." loading="lazy" width="624" height="279" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-10-KINQ2NSU.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">VendingMachineState interface</figcaption></div></figure>
+<h4 id="code-changes">Code changes</h4>
+<p>The VendingMachineState interface sets the rules for all states of the vending machine. It includes the behaviors that different states of the vending machine should implement, such as inserting money, selecting products, dispensing products, and describing the current state.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">VendingMachineState</span> {
+    <span class="hljs-comment">// Handles money insertion in the current state</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">insertMoney</span><span class="hljs-params">(VendingMachine VM, <span class="hljs-type">double</span> amount)</span>;
+
+    <span class="hljs-comment">// Handles product selection in the current state</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">selectProductByCode</span><span class="hljs-params">(VendingMachine VM, String productCode)</span>
+            <span class="hljs-keyword">throws</span> InvalidStateException;
+
+    <span class="hljs-comment">// Handles product dispensing in the current state</span>
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">dispenseProduct</span><span class="hljs-params">(VendingMachine VM)</span> <span class="hljs-keyword">throws</span> InvalidStateException;
+
+    <span class="hljs-comment">// Returns a description of the current state</span>
+    String <span class="hljs-title function_">getStateDescription</span><span class="hljs-params">()</span>;
+}
+</code></pre>
+<p>Here is the code for the NoMoneyInsertedState class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">NoMoneyInsertedState</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">VendingMachineState</span> {
+    <span class="hljs-comment">// Adds money to the machine and transitions to MoneyInsertedState</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">insertMoney</span><span class="hljs-params">(VendingMachine VM, <span class="hljs-type">double</span> amount)</span> {
+        VM.addBalance(amount);
+        VM.setState(<span class="hljs-keyword">new</span> <span class="hljs-title class_">MoneyInsertedState</span>());
+    }
+
+    <span class="hljs-comment">// Throws exception as product selection is not allowed without money</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">selectProductByCode</span><span class="hljs-params">(VendingMachine VM, String productCode)</span>
+            <span class="hljs-keyword">throws</span> InvalidStateException {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvalidStateException</span>(<span class="hljs-string">"Cannot select a product without inserting money."</span>);
+    }
+
+    <span class="hljs-comment">// Throws exception as product dispensing is not allowed without money</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dispenseProduct</span><span class="hljs-params">(VendingMachine VM)</span> <span class="hljs-keyword">throws</span> InvalidStateException {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InvalidStateException</span>(<span class="hljs-string">"Cannot dispense product without inserting money."</span>);
+    }
+
+    <span class="hljs-comment">// Returns a description of the current state</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getStateDescription</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-string">"No Money Inserted State - Please insert money to proceed"</span>;
+    }
+}
+
+</code></pre>
+<p>For brevity, the implementation of the MoneyInsertedState and DispenseState classes is omitted, but they follow the same structure.</p>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>In this chapter, we have designed and implemented a Vending Machine system. The most important takeaway from this chapter is how we divided responsibilities across classes, such as Product, Rack, InventoryManager, and PaymentProcessor, while unifying them under a facade for a clear and simple-to-access API. This approach not only simplified the system’s external interface but also adhered to the Single Responsibility Principle, ensuring each component focused on a specific responsibility. For instance, the InventoryManager managed stock levels, while the PaymentProcessor handled cash payments and calculated change.</p>
+<p>In the deep dive section, we explored state-based control using the State Pattern to enforce a strict sequence of actions and prevent invalid behaviors like dispensing without payment.</p>
+<p>In interviews, remember to emphasize validation and error handling after implementing core functionality, especially for systems where improper behavior could cause damage or financial loss.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="further-reading-state-design-pattern">Further Reading: State Design Pattern</h2>
+<p>This section gives a quick overview of the design patterns used in this chapter. It’s helpful if you’re new to these patterns or need a refresher to better understand the design choices.</p>
+<h3 id="state-design-pattern">State design pattern</h3>
+<p>The State pattern is a behavioral pattern that allows an object to alter its behavior when its internal state changes, making it appear as though the object is behaving like a different class.</p>
+<p>In the vending machine design, we use the State pattern to manage states like NoMoneyInsertedState, MoneyInsertedState, and DispenseState, enabling the VendingMachine to switch behaviors dynamically without modifying its core logic.</p>
+<p>To illustrate the State pattern in another domain, the following example uses the traffic light system.</p>
+<p><strong>Problem</strong></p>
+<p>Imagine we have a TrafficLight class. The traffic light can be in one of three states: Red, Yellow, or Green. The behavior of the traffic light changes depending on its current state:</p>
+<ul>
+<li>In the Red state, the light stays red for a set duration.</li>
+<li>In the Yellow state, the light blinks yellow, signaling cars to slow down and prepare to stop.</li>
+<li>In the Green state, the light stays green to allow traffic to pass.</li>
+</ul>
+<p>If we were to implement this logic using conditionals, we would need to check the current state of the traffic light every time an action occurs.</p>
+<p>While the solution works initially, several issues arise as the system becomes more complex:</p>
+<p><strong>Scalability:</strong> As the number of states increases, the conditionals grow larger. For example, adding a new state (like a flashing state for emergency vehicles) would require adding more checks to the existing logic, making the code increasingly hard to manage and prone to errors.</p>
+<p><strong>Maintainability</strong>: The duplication of code and the need to update the same conditional logic in multiple places make the system difficult to maintain over time. This is a crucial problem because it impacts long-term code quality and increases the chance of introducing bugs when modifying the logic.</p>
+<p><strong>Solution</strong></p>
+<p>Instead of relying on conditionals to manage state transitions, we can use the State pattern, which encapsulates the behavior associated with each state into separate classes.</p>
+<p>Rather than handling all behaviors on its own, the original object, known as the context, holds a reference to one of the state objects that represents its current state, delegating the state-related tasks to that object.</p>
+<p>For example, a TrafficLight context can delegate its behavior to a state object, like RedLightState, GreenLightState, or YellowLightState. Each of these states knows how to handle the actions specific to that state, such as changing the light or transitioning to the next state.</p>
+<p>To transition to a new state, the context simply replaces the current state object with another one that represents the new state. For instance, when the light is Green, the system transitions to Yellow, and then to Red, without needing complex conditionals.</p>
+<p>Here is the representation of the state pattern.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the State design pattern.  The diagram shows three classes, `RedLightState`, `GreenLightState`, and `YellowLightState`, each representing a different state of a traffic light and containing a `void changeLight()` method.  These three classes are connected via dashed lines with open arrowheads to an interface, `TrafficLightState`, which also declares a `void changeLight()` method. This indicates that the three state classes implement the `TrafficLightState` interface. A class `TrafficLight` contains a private member variable `TrafficLightState state` and methods `void setState(TrafficLightState state)` and `void changeLight()`. A solid arrow points from `TrafficLight` to `TrafficLightState`, labeled 'delegates to,' showing that `TrafficLight` delegates the `changeLight()` functionality to the currently active state object.  The overall structure demonstrates how the `TrafficLight` class changes its behavior based on its current state, managed by the `TrafficLightState` interface and its implementing classes." loading="lazy" width="624" height="287" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-vending-machine/image-7-11-ORMKEUMY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">State design pattern</figcaption></div></figure>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-unix-file-search-system.html">← Previous</a>
+        <a href="design-an-elevator-system.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

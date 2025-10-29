@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07 - Design A Key-value Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="design-consistent-hashing.html">← Previous</a>
+        <a href="design-a-unique-id-generator-in-distributed-systems.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">07</span> Design A Key-value Store
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/design-a-key-value-store" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">07</strong><h1>Design A Key-value Store</h1></header><p>A key-value store, also referred to as a key-value database, is a non-relational database. Each unique identifier is stored as a key with its associated value. This data pairing is known as a “key-value” pair.</p>
+<p>In a key-value pair, the key must be unique, and the value associated with the key can be accessed through the key. Keys can be plain text or hashed values. For performance reasons, a short key works better. What do keys look like? Here are a few examples:</p>
+<ul>
+<li>
+<p>Plain text key: “last_logged_in_at”</p>
+</li>
+<li>
+<p>Hashed key: 253DDEC4</p>
+</li>
+</ul>
+<p>The value in a key-value pair can be strings, lists, objects, etc. The value is usually treated as an opaque object in key-value stores, such as Amazon dynamo [1], Memcached [2], Redis [3], etc.</p>
+<p>Here is a data snippet in a key-value store:</p>
+<table><thead><tr><th><strong>key</strong></th><th><strong>value</strong></th></tr></thead><tbody><tr><td>145</td><td>john</td></tr><tr><td>147</td><td>bob</td></tr><tr><td>160</td><td>julia</td></tr></tbody></table>
+<p class="tableCaption">Table 1</p>
+<p>In this chapter, you are asked to design a key-value store that supports the following operations:</p>
+<p>- put(key, value) // insert “value” associated with “key”</p>
+<p>- get(key) // get “value” associated with “key”</p>
+<h2 id="understand-the-problem-and-establish-design-scope">Understand the problem and establish design scope</h2>
+<p>There is no perfect design. Each design achieves a specific balance regarding the tradeoffs of the read, write, and memory usage. Another tradeoff has to be made was between consistency and availability. In this chapter, we design a key-value store that comprises of the following characteristics:</p>
+<ul>
+<li>
+<p>The size of a key-value pair is small: less than 10 KB.</p>
+</li>
+<li>
+<p>Ability to store big data.</p>
+</li>
+<li>
+<p>High availability: The system responds quickly, even during failures.</p>
+</li>
+</ul>
+
+<ul>
+<li>
+<p>High scalability: The system can be scaled to support large data set.</p>
+</li>
+<li>
+<p>Automatic scaling: The addition/deletion of servers should be automatic based on traffic.</p>
+</li>
+<li>
+<p>Tunable consistency.</p>
+</li>
+<li>
+<p>Low latency.</p>
+</li>
+</ul>
+<h2 id="single-server-key-value-store">Single server key-value store</h2>
+<p>Developing a key-value store that resides in a single server is easy. An intuitive approach is to store key-value pairs in a hash table, which keeps everything in memory. Even though memory access is fast, fitting everything in memory may be impossible due to the space constraint. Two optimizations can be done to fit more data in a single server:</p>
+<ul>
+<li>
+<p>Data compression</p>
+</li>
+<li>
+<p>Store only frequently used data in memory and the rest on disk</p>
+</li>
+</ul>
+<p>Even with these optimizations, a single server can reach its capacity very quickly. A distributed key-value store is required to support big data.</p>
+<h2 id="distributed-key-value-store">Distributed key-value store</h2>
+<p>A distributed key-value store is also called a distributed hash table, which distributes key-value pairs across many servers. When designing a distributed system, it is important to understand CAP (<strong>C</strong>onsistency, <strong>A</strong>vailability, <strong>P</strong>artition Tolerance) theorem.</p>
+<h3 id="cap-theorem">CAP theorem</h3>
+<p>CAP theorem states it is impossible for a distributed system to simultaneously provide more than two of these three guarantees: consistency, availability, and partition tolerance. Let us establish a few definitions.</p>
+<p><strong>Consistency</strong>: consistency means all clients see the same data at the same time no matter which node they connect to.</p>
+<p><strong>Availability:</strong> availability means any client which requests data gets a response even if some of the nodes are down.</p>
+<p><strong>Partition Tolerance:</strong> a partition indicates a communication break between two nodes. Partition tolerance means the system continues to operate despite network partitions.</p>
+<p>CAP theorem states that one of the three properties must be sacrificed to support 2 of the 3 properties as shown in Figure 1.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents the CAP theorem, visualized using three overlapping circles.  Each circle represents one of the three core guarantees in distributed data stores: Consistency, Availability, and Partition Tolerance.  The largest circle, teal in color, is labeled 'Consistency,' signifying that all nodes see the same data at the same time. The green circle, labeled 'Availability,' indicates that every request receives a response, even if it's not the most up-to-date data. The yellow circle, labeled 'Partition Tolerance,' represents the system's ability to continue operating even when network partitions occur. The overlapping regions show the possible combinations achievable:  The intersection of Consistency and Partition Tolerance is labeled 'CP,' indicating systems prioritizing these two guarantees (at the cost of Availability). The intersection of Availability and Partition Tolerance is labeled 'AP,' showing systems prioritizing these two (at the cost of Consistency). The small intersection of all three circles is labeled 'CA,' which is not practically achievable according to the CAP theorem.  Finally, a small text at the bottom reads 'Viewer does not support full SVG 1.1,' indicating a limitation of the image rendering software." loading="lazy" width="392" height="370" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-1-D3AZLP5W.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1</figcaption></div></figure>
+<p>Nowadays, key-value stores are classified based on the two CAP characteristics they support:</p>
+<p><strong>CP (consistency and partition tolerance) systems</strong>: a CP key-value store supports consistency and partition tolerance while sacrificing availability.</p>
+<p><strong>AP (availability and partition tolerance) systems</strong>: an AP key-value store supports availability and partition tolerance while sacrificing consistency.</p>
+<p><strong>CA (consistency and availability) systems</strong>: a CA key-value store supports consistency and availability while sacrificing partition tolerance. Since network failure is unavoidable, a distributed system must tolerate network partition. Thus, a CA system cannot exist in real-world applications.</p>
+<p>What you read above is mostly the definition part. To make it easier to understand, let us take a look at some concrete examples. In distributed systems, data is usually replicated multiple times. Assume data are replicated on three replica nodes, <em>n1</em>, <em>n2</em> and <em>n3</em> as shown in Figure 2.</p>
+<p><strong>Ideal situation</strong></p>
+<p>In the ideal world, network partition never occurs. Data written to <em>n1</em> is automatically replicated to <em>n2</em> and <em>n3</em>. Both consistency and availability are achieved.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple network topology diagram showing three nodes, labeled n1, n2, and n3, depicted as cylindrical database-like icons.  Each node is connected to the other two nodes via lines representing communication links, forming a complete graph or triangle.  Node n1 is connected to both n2 and n3, and n2 and n3 are directly connected to each other.  No specific data flow direction or type is indicated on the connecting lines; the diagram only illustrates the existence of connections between the nodes.  The text 'Viewer does not support full SVG 1.1' is present below the diagram, indicating a potential rendering issue with the image viewer used.  No URLs or parameters are visible within the diagram itself." loading="lazy" width="311" height="259" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-2-KZYRLJFF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2</figcaption></div></figure>
+<p><strong>Real-world distributed systems</strong></p>
+<p>In a distributed system, partitions cannot be avoided, and when a partition occurs, we must choose between consistency and availability. In Figure 3, <em>n3</em> goes down and cannot communicate with <em>n1</em> and <em>n2</em>. If clients write data to <em>n1</em> or <em>n2</em>, data cannot be propagated to n3. If data is written to <em>n3</em> but not propagated to <em>n1</em> and <em>n2</em> yet, <em>n1</em> and <em>n2</em> would have stale data.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple network topology diagram showing three nodes, labeled n1, n2, and n3, depicted as cylindrical database-like icons.  Each node is connected to the other two nodes via lines representing communication links, forming a complete graph or triangle.  Node n1 is connected to both n2 and n3, and n2 and n3 are directly connected to each other.  No specific data flow direction or type is indicated on the connecting lines; the diagram only illustrates the existence of connections between the nodes.  The text 'Viewer does not support full SVG 1.1' at the bottom is a browser-related message unrelated to the network topology itself." loading="lazy" width="311" height="259" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-3-3AXO446L.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3</figcaption></div></figure>
+<p>If we choose consistency over availability (CP system), we must block all write operations to <em>n1</em> and <em>n2</em> to avoid data inconsistency among these three servers, which makes the system unavailable. Bank systems usually have extremely high consistent requirements. For example, it is crucial for a bank system to display the most up-to-date balance info. If inconsistency occurs due to a network partition, the bank system returns an error before the inconsistency is resolved.</p>
+<p>However, if we choose availability over consistency (AP system), the system keeps accepting reads, even though it might return stale data. For writes, <em>n1</em> and <em>n2</em> will keep accepting writes, and data will be synced to <em>n3</em> when the network partition is resolved.</p>
+<p>Choosing the right CAP guarantees that fit your use case is an important step in building a distributed key-value store. You can discuss this with your interviewer and design the system accordingly.</p>
+<h3 id="system-components">System components</h3>
+<p>In this section, we will discuss the following core components and techniques used to build a key-value store:</p>
+<ul>
+<li>
+<p>Data partition</p>
+</li>
+<li>
+<p>Data replication</p>
+</li>
+<li>
+<p>Consistency</p>
+</li>
+<li>
+<p>Inconsistency resolution</p>
+</li>
+<li>
+<p>Handling failures</p>
+</li>
+<li>
+<p>System architecture diagram</p>
+</li>
+<li>
+<p>Write path</p>
+</li>
+<li>
+<p>Read path</p>
+</li>
+</ul>
+<p>The content below is largely based on three popular key-value store systems: Dynamo [4], Cassandra [5], and BigTable [6].</p>
+<h3 id="data-partition">Data partition</h3>
+<p>For large applications, it is infeasible to fit the complete data set in a single server. The simplest way to accomplish this is to split the data into smaller partitions and store them in multiple servers. There are two challenges while partitioning the data:</p>
+<ul>
+<li>
+<p>Distribute data across multiple servers evenly.</p>
+</li>
+<li>
+<p>Minimize data movement when nodes are added or removed.</p>
+</li>
+</ul>
+<p>Consistent hashing discussed in the previous chapter is a great technique to solve these problems. Let us revisit how consistent hashing works at a high-level.</p>
+<ul>
+<li>
+<p>First, servers are placed on a hash ring. In Figure 4, eight servers, represented by <em>s0, s1, …, s7</em>, are placed on the hash ring.</p>
+</li>
+<li>
+<p>Next, a key is hashed onto the same ring, and it is stored on the first server encountered while moving in the clockwise direction. For instance, <em>key0</em> is stored in <em>s1</em> using this logic.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a circular arrangement of eight nodes, labeled s0 through s7, connected by a gray line forming a ring.  Each node is a circle containing its respective label.  A dark gray filled circle, labeled 'key0', is positioned slightly outside the ring, adjacent to node s0. A curved arrow originates from 'key0' and points directly to node s1, indicating a directional connection or data flow from 'key0' to s1. The text 'Viewer does not support full SVG 1.1' is present at the bottom, indicating a limitation in rendering the image fully, likely due to the viewer's inability to handle the SVG format completely.  The overall structure suggests a simplified representation of a circular data structure or a system with a key element ('key0') influencing a specific node (s1) within the circular flow." loading="lazy" width="353" height="361" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-4-SVUGPDYI.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4</figcaption></div></figure>
+<p>Using consistent hashing to partition data has the following advantages:</p>
+<p><strong>Automatic scaling:</strong> servers could be added and removed automatically depending on the load.</p>
+<p><strong>Heterogeneity:</strong> the number of virtual nodes for a server is proportional to the server capacity. For example, servers with higher capacity are assigned with more virtual nodes.</p>
+<h3 id="data-replication">Data replication</h3>
+<p>To achieve high availability and reliability, data must be replicated asynchronously over <em>N</em> servers, where <em>N</em> is a configurable parameter. These <em>N</em> servers are chosen using the following logic: after a key is mapped to a position on the hash ring, walk clockwise from that position and choose the first <em>N</em> servers on the ring to store data copies. In Figure 5 (<em>N = 3</em>), <em>key0</em> is replicated at <em>s1, s2,</em> and <em>s3</em>.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a circular arrangement of eight nodes, labeled s0 through s7, connected by a gray line forming a complete ring.  Three nodes, s1, s2, and s3, are highlighted in dark green.  Node s0 is a white circle, while the remaining nodes (s1-s7) are also circles but smaller. A dark gray filled circle labeled 'key0' is positioned adjacent to s0 on the right.  The arrangement suggests a ring topology or a circular data structure.  No arrows are present, indicating an undirected relationship between the nodes.  The text 'Viewer does not support full SVG 1.1' at the bottom indicates a limitation of the viewer used to display the image, not a feature of the diagram itself.  The labels suggest that the nodes might represent states or data points within a system, with 'key0' potentially representing a key or reference point." loading="lazy" width="347" height="355" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-5-NG3WIQQO.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5</figcaption></div></figure>
+<p>With virtual nodes, the first <em>N</em> nodes on the ring may be owned by fewer than <em>N</em> physical servers. To avoid this issue, we only choose unique servers while performing the clockwise walk logic.</p>
+<p>Nodes in the same data center often fail at the same time due to power outages, network issues, natural disasters, etc. For better reliability, replicas are placed in distinct data centers, and data centers are connected through high-speed networks.</p>
+<h3 id="consistency">Consistency</h3>
+<p>Since data is replicated at multiple nodes, it must be synchronized across replicas. Quorum consensus can guarantee consistency for both read and write operations. Let us establish a few definitions first.</p>
+<p><strong><em>N</em></strong> = The number of replicas</p>
+<p><strong><em>W</em></strong> = A write quorum of size <em>W</em>. For a write operation to be considered as successful, write operation must be acknowledged from <em>W</em> replicas.</p>
+<p><strong><em>R</em></strong> = A read quorum of size <em>R</em>. For a read operation to be considered as successful, read operation must wait for responses from at least <em>R</em> replicas.</p>
+<p>Consider the following example shown in Figure 6 with <em>N = 3</em>.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified distributed system architecture for data storage, likely a key-value store.  A central component, labeled 'coordinator...', acts as a central point of communication for three other nodes, labeled 's0,' 's1,' and 's2.'  These nodes are arranged around the coordinator in a circular fashion, connected by gray lines representing communication channels.  The arrows indicate the direction of data flow.  Each node (s0, s1, s2) sends data to the coordinator using the `put(key1, val1)` operation, which presumably stores a key-value pair.  The coordinator then sends an 'ACK' (acknowledgment) back to each node to confirm successful receipt and storage.  The dashed lines represent the asynchronous nature of the communication, implying that the coordinator doesn't necessarily respond immediately after receiving the `put` request.  The text 'Viewer does not support full SVG 1.1' indicates a limitation of the visualization software used to create the diagram." loading="lazy" width="381" height="358" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-6-RNMG7AUI.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6 (ACK = acknowledgement)</figcaption></div></figure>
+<p><em>W = 1</em> does not mean data is written on one server. For instance, with the configuration in Figure 6, data is replicated at <em>s0</em>, <em>s1,</em> and <em>s2</em>. <em>W = 1</em> means that the coordinator must receive at least one acknowledgment before the write operation is considered as successful. For instance, if we get an acknowledgment from <em>s1</em>, we no longer need to wait for acknowledgements from <em>s0</em> and <em>s2</em>. A coordinator acts as a proxy between the client and the nodes.</p>
+<p>The configuration of <em>W, R</em> and <em>N</em> is a typical tradeoff between latency and consistency. If <em>W = 1</em> or <em>R = 1</em>, an operation is returned quickly because a coordinator only needs to wait for a response from any of the replicas. If <em>W</em> or <em>R &gt; 1</em>, the system offers better consistency; however, the query will be slower because the coordinator must wait for the response from the slowest replica.</p>
+<p>If <em>W + R &gt; N</em>, strong consistency is guaranteed because there must be at least one overlapping node that has the latest data to ensure consistency.</p>
+<p>How to configure <em>N, W</em>, and <em>R</em> to fit our use cases? Here are some of the possible setups:</p>
+<p>If <em>R = 1</em> and <em>W = N</em>, the system is optimized for a fast read.</p>
+<p>If <em>W = 1 and R = N</em>, the system is optimized for fast write.</p>
+<p>If <em>W + R &gt; N</em>, strong consistency is guaranteed (Usually <em>N = 3, W = R = 2</em>).</p>
+<p>If <em>W + R &lt;= N</em>, strong consistency is not guaranteed.</p>
+<p>Depending on the requirement, we can tune the values of <em>W, R, N</em> to achieve the desired level of consistency.</p>
+<h4 id="consistency-models">Consistency models</h4>
+<p>Consistency model is other important factor to consider when designing a key-value store. A consistency model defines the degree of data consistency, and a wide spectrum of possible consistency models exist:</p>
+<ul>
+<li>
+<p>Strong consistency: any read operation returns a value corresponding to the result of the most updated write data item. A client never sees out-of-date data.</p>
+</li>
+<li>
+<p>Weak consistency: subsequent read operations may not see the most updated value.</p>
+</li>
+<li>
+<p>Eventual consistency: this is a specific form of weak consistency. Given enough time, all updates are propagated, and all replicas are consistent.</p>
+</li>
+</ul>
+<p>Strong consistency is usually achieved by forcing a replica not to accept new reads/writes until every replica has agreed on current write. This approach is not ideal for highly available systems because it could block new operations. Dynamo and Cassandra adopt eventual consistency, which is our recommended consistency model for our key-value store. From concurrent writes, eventual consistency allows inconsistent values to enter the system and force the client to read the values to reconcile. The next section explains how reconciliation works with versioning.</p>
+<h3 id="inconsistency-resolution-versioning">Inconsistency resolution: versioning</h3>
+<p>Replication gives high availability but causes inconsistencies among replicas. Versioning and vector locks are used to solve inconsistency problems. Versioning means treating each data modification as a new immutable version of data. Before we talk about versioning, let us use an example to explain how inconsistency happens:</p>
+<p>As shown in Figure 7, both replica nodes <em>n1</em> and <em>n2</em> have the same value. Let us call this value the original <em>value. Server 1</em> and <em>server 2</em> get the same value for <em>get(“name”)</em> operation.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram illustrating data retrieval from two separate servers (server 1 and server 2) accessing a database.  Each server, depicted as a green rectangle labeled 'server 1' and 'server 2' respectively, sends a request 'get('name')' to a database instance.  The databases, represented as blue cylinders labeled 'n1' and 'n2', each contain a single entry 'name: john'.  Upon receiving the request, each database instance returns the value 'john' to the corresponding server.  The arrows indicate the direction of data flow, showing the request traveling from the server to the database and the response traveling back to the server.  The diagram visually demonstrates a redundant system where both servers can independently retrieve the same data ('john') from their respective database instances." loading="lazy" width="450" height="263" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-7-MX7NGSSF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7</figcaption></div></figure>
+<p>Next, <em>server 1</em> changes the name to “johnSanFrancisco”, and <em>server 2</em> changes the name to “johnNewYork” as shown in Figure 8. These two changes are performed simultaneously. Now, we have conflicting values, called versions <em>v1</em> and <em>v2</em>.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram illustrating data insertion into two separate databases.  Two servers, labeled 'server 1' and 'server 2,' are depicted as green rectangles.  Each server sends data to a distinct database represented as blue cylinders labeled 'n1' and 'n2' respectively.  Server 1 sends a 'put' request with the key-value pair ('name', 'johnSanFrancisco') to database n1, which then stores the data as indicated by 'name: johnSanFrancisco' next to n1. Similarly, server 2 sends a 'put' request with the key-value pair ('name', 'johnNewYork') to database n2, resulting in the storage of 'name: johnNewYork' within n2.  The arrows indicate the direction of data flow from the servers to their respective databases.  There is a vertical line connecting n1 and n2, suggesting a potential relationship or connection between the two databases, although the nature of this connection is not explicitly defined in the diagram." loading="lazy" width="500" height="227" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-8-WXAQYDBT.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8</figcaption></div></figure>
+<p>In this example, the original value could be ignored because the modifications were based on it. However, there is no clear way to resolve the conflict of the last two versions. To resolve this issue, we need a versioning system that can detect conflicts and reconcile conflicts. A vector clock is a common technique to solve this problem. Let us examine how vector clocks work.</p>
+<p>A vector clock is a <em>[server, version]</em> pair associated with a data item. It can be used to check if one version precedes, succeeds, or in conflict with others.</p>
+<p>Assume a vector clock is represented by <em>D([S1, v1], [S2, v2], …, [Sn, vn])</em>, where <em>D</em> is a data item, <em>v1</em> is a version counter, and <em>s1</em> is a server number, etc. If data item <em>D</em> is written to server <em>Si</em>, the system must perform one of the following tasks.</p>
+<ul>
+<li>
+<p>Increment <em>vi</em> if <em>[Si, vi]</em> exists.</p>
+</li>
+<li>
+<p>Otherwise, create a new entry <em>[Si, 1]</em>.</p>
+</li>
+</ul>
+<p>The above abstract logic is explained with a concrete example as shown in Figure 9.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data flow diagram illustrating a data replication and reconciliation process.  A top-down flow begins with data `D1([Sx, 1])`, where `Sx` likely represents a source and `1` a version or timestamp, written by `Sx` (step 1). This data is then written again by `Sx` to create `D2([Sx, 2])` (step 2).  `D2` then branches into two paths: one where the data is written by `Sy` (step 3) resulting in `D3([Sx, 2], [Sy, 1])`, indicating replication to `Sy` with the original source and version information included; and another where the data is written by `Sz` (step 4) resulting in `D4([Sx, 2], [Sz, 1])`, similarly replicating to `Sz`. Finally, `D3` and `D4` converge, and their data is reconciled and written by `Sx` (step 5) to produce `D5([Sx, ...])`, suggesting a final, consolidated data set incorporating information from `Sx`, `Sy`, and `Sz`.  The ellipsis in `D5` indicates potentially further information included in the final reconciled data.  The numbers in parentheses represent sequential steps in the process." loading="lazy" width="450" height="467" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-9-APUHGGQW.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9</figcaption></div></figure>
+<p>1. A client writes a data item <em>D1</em> to the system, and the write is handled by server <em>Sx</em>, which now has the vector clock <em>D1[(Sx, 1)]</em>.</p>
+<p>2. Another client reads the latest <em>D1</em>, updates it to <em>D2</em>, and writes it back. <em>D2</em> descends from <em>D1</em> so it overwrites <em>D1</em>. Assume the write is handled by the same server <em>Sx</em>, which now has vector clock <em>D2([Sx, 2])</em>.</p>
+<p>3. Another client reads the latest <em>D2</em>, updates it to <em>D3</em>, and writes it back. Assume the write is handled by server <em>Sy</em>, which now has vector clock <em>D3([Sx, 2], [Sy, 1]))</em>.</p>
+<p>4. Another client reads the latest <em>D2</em>, updates it to <em>D4</em>, and writes it back. Assume the write is handled by server <em>Sz</em>, which now has <em>D4([Sx, 2], [Sz, 1]))</em>.</p>
+<p>5. When another client reads <em>D3</em> and <em>D4</em>, it discovers a conflict, which is caused by data item <em>D2</em> being modified by both <em>Sy</em> and <em>Sz</em>. The conflict is resolved by the client and updated data is sent to the server. Assume the write is handled by <em>Sx</em>, which now has <em>D5([Sx, 3], [Sy, 1], [Sz, 1])</em>. We will explain how to detect conflict shortly.</p>
+<p>Using vector clocks, it is easy to tell that a version <em>X</em> is an ancestor (i.e. no conflict) of version <em>Y</em> if the version counters for each participant in the vector clock of <em>Y</em> is greater than or equal to the ones in version <em>X</em>. For example, the vector clock <em>D([s0, 1], [s1, 1])]</em> is an ancestor of <em>D([s0, 1], [s1, 2])</em>. Therefore, no conflict is recorded.</p>
+<p>Similarly, you can tell that a version <em>X</em> is a sibling (i.e., a conflict exists) of <em>Y</em> if there is any participant in <em>Y</em>'s vector clock who has a counter that is less than its corresponding counter in <em>X</em>. For example, the following two vector clocks indicate there is a conflict: <em>D([s0, 1], [s1, 2])</em> and <em>D([s0, 2], [s1, 1]).</em></p>
+<p>Even though vector clocks can resolve conflicts, there are two notable downsides. First, vector clocks add complexity to the client because it needs to implement conflict resolution logic.</p>
+<p>Second, the <em>[server: version]</em> pairs in the vector clock could grow rapidly. To fix this problem, we set a threshold for the length, and if it exceeds the limit, the oldest pairs are removed. This can lead to inefficiencies in reconciliation because the descendant relationship cannot be determined accurately. However, based on Dynamo paper [4], Amazon has not yet encountered this problem in production; therefore, it is probably an acceptable solution for most companies.</p>
+<h3 id="handling-failures">Handling failures</h3>
+<p>As with any large system at scale, failures are not only inevitable but common. Handling failure scenarios is very important. In this section, we first introduce techniques to detect failures. Then, we go over common failure resolution strategies.</p>
+<h4 id="failure-detection">Failure detection</h4>
+<p>In a distributed system, it is insufficient to believe that a server is down because another server says so. Usually, it requires at least two independent sources of information to mark a server down.</p>
+<p>As shown in Figure 10, all-to-all multicasting is a straightforward solution. However, this is inefficient when many servers are in the system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a fully connected graph, or complete graph, of four nodes labeled S0, S1, S2, and S3, arranged cyclically within a larger gray circle.  Each node is connected to every other node via directed edges represented by blue arrows.  The arrows indicate the direction of information flow or communication between the nodes.  Specifically, there are bidirectional connections between S0 and each of S1, S2, and S3, meaning information flows both to and from S0.  Similarly, S1, S2, and S3 are also interconnected with bidirectional arrows, allowing for information exchange between them.  The overall structure suggests a system where each component (S0, S1, S2, S3) can communicate directly with every other component, implying a high degree of connectivity and potentially decentralized communication architecture.  The text 'Viewer does not support full SVG 1.1' at the bottom indicates a limitation of the display medium, not the diagram itself." loading="lazy" width="364" height="364" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-10-U4WMW34H.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10</figcaption></div></figure>
+<p>A better solution is to use decentralized failure detection methods like gossip protocol. Gossip protocol works as follows:</p>
+<ul>
+<li>
+<p>Each node maintains a node membership list, which contains member IDs and heartbeat counters.</p>
+</li>
+<li>
+<p>Each node periodically increments its heartbeat counter.</p>
+</li>
+<li>
+<p>Each node periodically sends heartbeats to a set of random nodes, which in turn propagate to another set of nodes.</p>
+</li>
+<li>
+<p>Once nodes receive heartbeats, membership list is updated to the latest info.</p>
+</li>
+</ul>
+<p>•If the heartbeat has not increased for more than predefined periods, the member is considered as offline.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system diagram showing a membership list and a ring topology network.  The top-left shows a partial membership list labeled 's0's membership list,' displaying a sample entry: 'Member IDHeartbeat counterTime01023212:00:0111022412:00:102990811:58:0231...'.  The main part of the image depicts a ring network with five nodes labeled s0, s1, s2, s3, and s5.  Nodes are represented as circles, connected by a gray arc forming the ring.  Directed blue arrows indicate communication flow.  A dashed blue line connects s0 to s2, labeled 'detected s2 is down,' indicating that s0 has detected a failure in s2.  Solid blue arrows show directed connections from s0 to s1, s0 to s3, s3 to s4, s3 to s5, and s4 to s3.  Node s2 is visually part of the ring but has no incoming or outgoing connections shown.  The bottom-right corner displays a message: 'Viewer does not support full SVG 1.1'." loading="lazy" width="700" height="298" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-11-SHKPJFQN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11</figcaption></div></figure>
+<p>As shown in Figure 11:</p>
+<ul>
+<li>
+<p>Node <em>s0</em> maintains a node membership list shown on the left side.</p>
+</li>
+<li>
+<p>Node <em>s0</em> notices that node s2’s (member ID = 2) heartbeat counter has not increased for a long time.</p>
+</li>
+<li>
+<p>Node <em>s0</em> sends heartbeats that include <em>s2</em>’s info to a set of random nodes. Once other nodes confirm that <em>s2</em>’s heartbeat counter has not been updated for a long time, node <em>s2</em> is marked down, and this information is propagated to other nodes.</p>
+</li>
+</ul>
+<h4 id="handling-temporary-failures">Handling temporary failures</h4>
+<p>After failures have been detected through the gossip protocol, the system needs to deploy certain mechanisms to ensure availability. In the strict quorum approach, read and write operations could be blocked as illustrated in the quorum consensus section.</p>
+<p>A technique called “sloppy quorum” [4] is used to improve availability. Instead of enforcing the quorum requirement, the system chooses the first <em>W</em> healthy servers for writes and first <em>R</em> healthy servers for reads on the hash ring. Offline servers are ignored.</p>
+<p>If a server is unavailable due to network or server failures, another server will process requests temporarily. When the down server is up, changes will be pushed back to achieve data consistency. This process is called hinted handoff. Since <em>s2</em> is unavailable in Figure 12, reads and writes will be handled by <em>s3</em> temporarily. When <em>s2</em> comes back online, <em>s3</em> will hand the data back to <em>s2</em>.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified distributed system architecture, likely for a key-value store, depicted as a circular arrangement of four nodes: s0, s1, s2, and s3, all interconnected and communicating with a central 'coordinator'.  Solid arrows indicate the flow of data, specifically `put(key1, val1)` operations, representing the insertion of a key-value pair.  These data flows originate from the coordinator and are directed towards s0 and s1, with each receiving node sending back an 'ACK' acknowledgment to the coordinator along a separate arrow.  A dashed arrow shows a `put(key1, val1)` operation from the coordinator to s2, suggesting a less reliable or different communication method.  Node s3 is shown connected to the circle but without any explicit data flow depicted. The nodes s0, s1, s2, and s3 are likely replicas or shards of the data store, and the coordinator manages data distribution and consistency. The text 'Viewer does not support full SVG 1.1' indicates a limitation of the rendering software used to display the diagram." loading="lazy" width="381" height="361" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-12-TCHVLATH.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12</figcaption></div></figure>
+<h4 id="handling-permanent-failures">Handling permanent failures</h4>
+<p>Hinted handoff is used to handle temporary failures. What if a replica is permanently unavailable? To handle such a situation, we implement an anti-entropy protocol to keep replicas in sync. Anti-entropy involves comparing each piece of data on replicas and updating each replica to the newest version. A Merkle tree is used for inconsistency detection and minimizing the amount of data transferred.</p>
+<p>Quoted from Wikipedia [7]: “A hash tree or Merkle tree is a tree in which every non-leaf node is labeled with the hash of the labels or values (in case of leaves) of its child nodes. Hash trees allow efficient and secure verification of the contents of large data structures”.</p>
+<p>Assuming key space is from 1 to 12, the following steps show how to build a Merkle tree. Highlighted boxes indicate inconsistency.</p>
+<p>Step 1: Divide key space into buckets (4 in our example) as shown in Figure 13. A bucket is used as the root level node to maintain a limited depth of the tree.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram illustrating data partitioning across two servers, labeled 'server 1' and 'server 2'.  Each server is depicted as a rounded rectangle containing several vertical rectangular blocks representing data partitions.  Server 1 shows partitions labeled '1...', '...', '7...', and '10...', indicating a range of data stored within each partition.  Similarly, server 2 displays partitions with the same labels '1...', '...', '7...', and '10...', suggesting a replication or distribution strategy. The ellipses ('...') within the labels imply that each partition contains multiple data entries, not just the numbers shown.  There are no explicit connections drawn between the servers, implying that data access might be handled independently or through a separate, unillustrated mechanism. The bottom text 'Viewer does not support full SVG 1.1' indicates a technical limitation in rendering the original diagram, not a part of the system's design." loading="lazy" width="451" height="160" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-13-2LCEPIWQ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13</figcaption></div></figure>
+<p>Step 2: Once the buckets are created, hash each key in a bucket using a uniform hashing method (Figure 14).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram illustrating data distribution across two servers, labeled 'server 1' and 'server 2'. Each server is depicted as a rounded rectangle containing several rectangular boxes representing data partitions.  Server 1 shows three partitions with labels indicating data mapping: '1 -&gt; 2343...', '7 -&gt; 9654...', and '10 -&gt; 3542...'.  The ellipses (...) suggest that the numerical sequences continue beyond what's shown.  Server 2 mirrors this structure, displaying identical data mapping labels in the same order.  The arrangement suggests a potential data replication or sharding strategy, where similar data is distributed across multiple servers for redundancy or load balancing.  The text 'Viewer does not support full SVG 1.1' at the bottom indicates a limitation of the image rendering software." loading="lazy" width="700" height="200" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-14-S2QAQ6NW.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14</figcaption></div></figure>
+<p>Step 3: Create a single hash node per bucket (Figure 15).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating a distributed system architecture with two servers, labeled 'server 1' and 'server 2'. Each server contains four rectangular boxes representing processes or services, identified by numerical IDs: 6901, 6773, 8601 (highlighted in light red on server 1 and 7975 on server 2), and 7812.  These boxes are connected via lines to dashed-line-bordered rectangular boxes representing data stores or other resources.  The connections show data flow, with labels indicating the data item (a number) and an arrow indicating direction. For example, on server 1, process 6901 sends data item '1' to a data store labeled '1 -&gt; 2343...', while process 8601 sends data item '7' to a data store labeled '7 -&gt; 9654...'. Server 2 shows a similar structure with corresponding processes and data flows, but with different data items (e.g., 7975 sends '7' to '7 -&gt; 9654...').  The bottom note indicates a limitation of the viewer used to display the image." loading="lazy" width="700" height="249" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-15-I46TOGGB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15</figcaption></div></figure>
+<p>Step 4: Build the tree upwards till root by calculating hashes of children (Figure 16).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating data distribution across two servers, labeled 'server 1' and 'server 2'. Each server contains a tree-like structure.  The top node of each tree is a colored rectangle (light red/pink) containing a numerical ID (5357 for server 1 and 9213 for server 2).  These top nodes branch down to other nodes, some colored rectangles (light red/pink) and some white rectangles, each containing numerical IDs.  The white rectangles represent data chunks, while the light red/pink rectangles represent aggregations or summaries of data chunks below them.  The lowest level of each tree contains white rectangles with labels indicating a range of data (e.g., '1 -&gt; 2343...', '7 -&gt; 9654...', '10 -&gt; 3542...'), suggesting a partitioning scheme.  The structure is consistent across both servers, with similar numerical IDs appearing in both, but with different aggregations and data ranges at the bottom level, implying a distributed data storage and retrieval system.  The diagram shows a hierarchical structure where higher-level nodes summarize or aggregate data from lower-level nodes." loading="lazy" width="750" height="446" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-16-5GFGLUJW.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16</figcaption></div></figure>
+<p>To compare two Merkle trees, start by comparing the root hashes. If root hashes match, both servers have the same data. If root hashes disagree, then the left child hashes are compared followed by right child hashes. You can traverse the tree to find which buckets are not synchronized and synchronize those buckets only.</p>
+<p>Using Merkle trees, the amount of data needed to be synchronized is proportional to the differences between the two replicas, and not the amount of data they contain. In real-world systems, the bucket size is quite big. For instance, a possible configuration is one million buckets per one billion keys, so each bucket only contains 1000 keys.</p>
+<h4 id="handling-data-center-outage">Handling data center outage</h4>
+<p>Data center outage could happen due to power outage, network outage, natural disaster, etc. To build a system capable of handling data center outage, it is important to replicate data across multiple data centers. Even if a data center is completely offline, users can still access data through the other data centers.</p>
+<h3 id="system-architecture-diagram">System architecture diagram</h3>
+<p>Now that we have discussed different technical considerations in designing a key-value store, we can shift our focus on the architecture diagram, shown in Figure 17.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram showing a client interacting with a distributed system.  A rectangular box labeled 'Client' sends 'read/write' requests to a central node labeled 'n6' and marked as 'coordinator'.  This coordinator node receives requests and sends 'response' data back to the client via a dashed line indicating a two-way communication. Node n6 is connected to a ring of seven other nodes (n0-n5, n7) via solid grey lines.  Solid black arrows indicate data flow from n6 to nodes n0, n1, and n2, while dashed black arrows show data flow from nodes n0, n1, and n2 back to n6.  This suggests a distributed data storage or processing system where the coordinator manages communication and data distribution among the other nodes.  Nodes n0, n1, and n2 are depicted as light blue circles, suggesting they might have a different role or status compared to the other nodes in the ring (n3, n4, n5, n7), which are represented as simple white circles. The bottom of the image contains a message indicating that the viewer does not support full SVG 1.1." loading="lazy" width="634" height="364" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-17-727LAZC5.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17</figcaption></div></figure>
+<p>Main features of the architecture are listed as follows:</p>
+<ul>
+<li>
+<p>Clients communicate with the key-value store through simple APIs: <em>get(key)</em> and <em>put(key, value)</em>.</p>
+</li>
+<li>
+<p>A coordinator is a node that acts as a proxy between the client and the key-value store.</p>
+</li>
+<li>
+<p>Nodes are distributed on a ring using consistent hashing.</p>
+</li>
+<li>
+<p>The system is completely decentralized so adding and moving nodes can be automatic.</p>
+</li>
+<li>
+<p>Data is replicated at multiple nodes.</p>
+</li>
+<li>
+<p>There is no single point of failure as every node has the same set of responsibilities.</p>
+</li>
+</ul>
+<p>As the design is decentralized, each node performs many tasks as presented in Figure 18.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a single node in a distributed system, depicted as a large circle labeled 'node'.  Inside this circle are six rectangular boxes arranged in a 3x2 grid, each representing a component of the node.  The top row contains 'Client API' (on the left) which handles client requests, and 'Failure detection' (on the right) responsible for monitoring system health. The second row shows 'Conflict resolution' (left), managing data inconsistencies, and 'Failure repair mecha...' (right), indicating a mechanism for recovering from failures (the full text is cut off). The third row displays 'Replication' (left), suggesting data replication for redundancy, and 'Storage engine' (right), responsible for persistent data storage. The bottom row contains two empty boxes with '...' indicating additional unspecified components within the node.  No explicit connections are drawn between the boxes, implying internal communication and data flow between these components within the node itself." loading="lazy" width="442" height="442" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-18-VIXXZUFG.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18</figcaption></div></figure>
+<h3 id="write-path">Write path</h3>
+<p>Figure 19 explains what happens after a write request is directed to a specific node. Please note the proposed designs for write/read paths are primary based on the architecture of Cassandra [8].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture diagram of a write operation in a database system.  A `Client` sends a `Write` request to a `Server`.  The server first writes the data to a green `Memory cache` (labeled '2').  Concurrently, the server also writes the data to a blue `Commit log` (labeled '1') residing on `DISK` within the `MEMORY` section.  After the data is written to the memory cache, a `Flush` operation (labeled '3') moves the data from the `Memory cache` to a collection of light-blue `SSTables` (Sorted String Tables), also located on `DISK`.  The diagram illustrates the flow of data from the client, through the server's memory cache and commit log, ultimately persisting to the SSTables on disk, ensuring data durability.  The numbers (1, 2, 3) likely represent sequential steps in the process." loading="lazy" width="600" height="295" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-19-L5VIQL76.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19</figcaption></div></figure>
+<p>1. The write request is persisted on a commit log file.</p>
+<p>2. Data is saved in the memory cache.</p>
+<p>3. When the memory cache is full or reaches a predefined threshold, data is flushed to SSTable [9] on disk. Note: A sorted-string table (SSTable) is a sorted list of &lt;key, value&gt; pairs. For readers interested in learning more about SStable, refer to the reference material [9].</p>
+<h3 id="read-path">Read path</h3>
+<p>After a read request is directed to a specific node, it first checks if data is in the memory cache. If so, the data is returned to the client as shown in Figure 20.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating a read operation.  A light-blue rectangle labeled 'Client' initiates a 'Read request' which travels to a light-grey rectangle labeled 'Server'.  Within the server, a numbered circle '1' indicates a processing step. The request proceeds to a dark-green rectangle labeled 'Memory cache'. If the data is found in the cache, a dashed line indicates the 'Return result' back to the client.  Below the server, a pale-yellow section labeled 'DISK' shows the persistent storage. This section contains a light-blue rectangle labeled 'Result data', a group of six smaller light-blue squares grouped within a larger light-blue rectangle labeled 'SSTables', and a light-blue rectangle labeled 'Bloom filter'.  The 'SSTables' and 'Bloom filter' are presumably used for efficient data lookup on disk. The overall diagram depicts a tiered architecture with a memory cache for fast access, and persistent storage on disk for larger datasets, using a Bloom filter for efficient data existence checks before accessing the SSTables." loading="lazy" width="600" height="282" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-20-CMQ6VUZJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20</figcaption></div></figure>
+<p>If the data is not in memory, it will be retrieved from the disk instead. We need an efficient way to find out which SSTable contains the key. Bloom filter [10] is commonly used to solve this problem.</p>
+<p>The read path is shown in Figure 21 when data is not in memory.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating a read operation in a database system.  A client initiates a 'Read request' (1) to a server. The server first checks a green 'Memory cache' (1). If the data is present, it's returned directly to the client (5). If not, the server proceeds to the disk layer labeled 'DISK' (2).  Here, a 'Bloom filter' (3) is consulted to quickly check if the requested data exists in the underlying storage. If the Bloom filter indicates the data's presence, the system accesses the 'SSTables' (4), which are depicted as a collection of light blue blocks representing data segments. The retrieved 'Result data' (4) is then sent back to the client (5) via the server. The entire process is numbered sequentially (1-5) to show the flow of the request and response.  The diagram clearly separates the memory and disk layers, highlighting the caching mechanism and the use of a Bloom filter for efficient data lookup." loading="lazy" width="600" height="282" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-key-value-store/figure-6-21-WBKMXPRG.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21</figcaption></div></figure>
+<p>1. The system first checks if data is in memory. If not, go to step 2.</p>
+<p>2. If data is not in memory, the system checks the bloom filter.</p>
+<p>3. The bloom filter is used to figure out which SSTables might contain the key.</p>
+<p>4. SSTables return the result of the data set.</p>
+<p>5. The result of the data set is returned to the client.</p>
+<h2 id="summary">Summary</h2>
+<p>This chapter covers many concepts and techniques. To refresh your memory, the following table summarizes features and corresponding techniques used for a distributed key-value store.</p>
+<div class="table-wrap" style="--table-min-width: 500px;"><table><tbody><tr class="odd"><td><strong>Goal/Problems</strong></td><td><strong>Technique</strong></td></tr><tr class="even"><td>Ability to store big data</td><td>Use consistent hashing to spread load across servers</td></tr><tr class="odd"><td>High availability reads</td><td><p>Data replication</p><p>Multi-datacenter setup</p></td></tr><tr class="even"><td>Highly available writes</td><td>Versioning and conflict resolution with vector clocks</td></tr><tr class="odd"><td>Dataset partition</td><td>Consistent Hashing</td></tr><tr class="even"><td>Incremental scalability</td><td>Consistent Hashing</td></tr><tr class="odd"><td>Heterogeneity</td><td>Consistent Hashing</td></tr><tr class="even"><td>Tunable consistency</td><td>Quorum consensus</td></tr><tr class="odd"><td>Handling temporary failures</td><td>Sloppy quorum and hinted handoff</td></tr><tr class="even"><td>Handling permanent failures</td><td>Merkle tree</td></tr><tr class="odd"><td>Handling data center outage</td><td>Cross-datacenter replication</td></tr></tbody></table></div>
+<p class="tableCaption">Table 2</p>
+<h2 id="reference-materials">Reference materials</h2>
+<p>[1] Amazon DynamoDB: <a href="https://aws.amazon.com/dynamodb/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/dynamodb/</u></a></p>
+<p>[2] memcached: <a href="https://memcached.org/" target="_blank" rel="noopener noreferrer"><u>https://memcached.org/</u></a></p>
+<p>[3] Redis: <a href="https://redis.io/" target="_blank" rel="noopener noreferrer"><u>https://redis.io/</u></a></p>
+<p>[4] Dynamo: Amazon’s Highly Available Key-value Store:<br>
+<a href="https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf" target="_blank" rel="noopener noreferrer"><u>https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf</u></a></p>
+<p>[5] Cassandra: <a href="https://cassandra.apache.org/" target="_blank" rel="noopener noreferrer"><u>https://cassandra.apache.org/</u></a></p>
+<p>[6] Bigtable: A Distributed Storage System for Structured Data:<br>
+<a href="https://static.googleusercontent.com/media/research.google.com/en//archive/bigtable-osdi06.pdf" target="_blank" rel="noopener noreferrer"><u>https://static.googleusercontent.com/media/research.google.com/en//archive/bigtable-osdi06.pdf</u></a></p>
+<p>[7] Merkle tree: <a href="https://en.wikipedia.org/wiki/Merkle_tree" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Merkle_tree</u></a></p>
+<p>[8] Cassandra architecture: <a href="https://cassandra.apache.org/doc/latest/architecture/" target="_blank" rel="noopener noreferrer"><u>https://cassandra.apache.org/doc/latest/architecture/</u></a></p>
+<p>[9] SStable: <a href="https://www.igvita.com/2012/02/06/sstable-and-log-structured-storage-leveldb/" target="_blank" rel="noopener noreferrer"><u>https://www.igvita.com/2012/02/06/sstable-and-log-structured-storage-leveldb/</u></a></p>
+<p>[10] Bloom filter <a href="https://en.wikipedia.org/wiki/Bloom_filter" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Bloom_filter</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="design-consistent-hashing.html">← Previous</a>
+        <a href="design-a-unique-id-generator-in-distributed-systems.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

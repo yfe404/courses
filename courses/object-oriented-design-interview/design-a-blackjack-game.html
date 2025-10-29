@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a Blackjack Game - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design a Blackjack Game
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-tic-tac-toe-game.html">← Previous</a>
+        <a href="design-a-shipping-locker-system.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">11</span> Design a Blackjack Game
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/design-a-blackjack-game" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">11</strong><h1>Design a Blackjack Game</h1></header><p>In this chapter, we will discuss the object-oriented design of the Blackjack game (also called “21”). Blackjack is a popular card game where the goal is to get a hand of cards that adds up to 21, or as close as possible, without going over. The game is a mix of strategy (deciding when to hit or stand) and luck (the cards you get), making it a captivating and iconic casino game.</p>
+<p>Let’s gather the game’s requirements through a typical interview-style conversation.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified visual depiction of a Blackjack game in progress.  The title 'BLACKJACK' is displayed at the top. Below it, the game is divided into two sections labeled 'DEALER' and 'YOU,' representing the dealer's and player's hands respectively.  The dealer's hand shows a face-down card represented by a gray shaded pattern and an eight of diamonds (8♦). The player's hand displays a ten of spades (10♠) and an ace of clubs (A♣).  Each card is shown within a distinct square box. The arrangement is straightforward, with the dealer's hand above the player's hand, clearly indicating the game's progression and the current state of each hand. No other information, such as scores or betting amounts, is presented." loading="lazy" width="612" height="381" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-1-CWNCCRFY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Blackjack Game</figcaption></div></figure>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>Here’s an example of a typical prompt an interviewer might present:</p>
+<p>“Picture yourself at a casino table, ready to play a round of Blackjack, also known as ‘21.’ At the start, you and other players place bets, and the dealer distributes two cards to each player, including themselves. You evaluate your hand, aiming to get as close to 21 as possible without going over, and decide whether to hit or stand. After all players make their moves, the dealer reveals their hand and hits until reaching at least 17, then stands. Behind the scenes, the game manages a deck of cards, tracks player actions, ensures fair dealing, and updates balances. Let’s design a Blackjack game system that handles all this.”</p>
+<p><strong>Note:</strong> Blackjack has various rules (e.g., soft 17, double down, splitting). This document focuses on the technical design and object-oriented implementation of a simplified standard Blackjack game.</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate:</strong> Should I design the game to support multiple players or just one player competing against the dealer?<br>
+<strong>Interviewer:</strong> The game should support multiple players.</p>
+<p><strong>Candidate:</strong> What happens after a player takes their turn?<br>
+<strong>Interviewer:</strong> After each player takes their turn (“hit” or “stand”), the game should check if all players have either stood or busted (hand value exceeding 21). When this happens, the game should determine the winner by comparing each player's hand value and settle the bets.</p>
+<p><strong>Candidate:</strong> Should the dealer follow any specific rules for when to hit or stand?<br>
+<strong>Interviewer:</strong> Yes, the dealer should continue to "hit" until their hand totals at least 17. Once they reach 17 or higher, they must "stand."</p>
+<p><strong>Candidate:</strong> How are bets handled in the game, and how are players paid?<br>
+<strong>Interviewer:</strong> Players place their bets before the initial cards are dealt. Players who win receive a payout equal to their bet (e.g., a $10 bet wins $10, plus their original bet returned), while players who bust lose their bet.</p>
+<h3 id="requirements">Requirements</h3>
+<p>Based on the conversation, here are the key functional requirements we’ve identified.</p>
+<ul>
+<li>The game should support multiple players and a dealer.</li>
+<li>Players should be dealt two cards at the beginning of the game.</li>
+<li>Players should have the option to "hit" (request an additional card) or "stand" (keep their current hand).</li>
+<li>Aces should be valued as 1 or 11, with the value chosen to optimize the player’s hand.</li>
+<li>After each player’s turn, the game checks if all players have stood or busted. ​​Once all players have completed their turns, the dealer takes their turn, hitting until their hand totals at least 17, then standing. The game then determines the winner and settles the bets.</li>
+<li>Players who win receive a payout equal to their bet (1:1), while players who bust lose their bet.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>The user interface must be intuitive, with clear prompts and visual feedback on game state to accommodate users with minimal Blackjack experience.</li>
+</ul>
+<p>With these requirements in hand, let’s map out the game’s flow using an activity diagram to visualize how it all comes together.</p>
+<h2 id="activity-diagram">Activity Diagram</h2>
+<p>Understanding the flow of a game like Blackjack is crucial when designing its object-oriented structure, especially given the game’s mix of sequential steps and decision points. This is where an activity diagram comes into play. An activity diagram visually maps out the workflow of the game, capturing each action, decision, and transition in a clear, step-by-step manner.</p>
+<p>In the context of Blackjack, this means outlining everything from dealing cards to determining winners, ensuring we account for all possible paths, such as a player busting or the dealer hitting until 17. Let’s look at the activity diagram for Blackjack, which captures this process in detail.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart detailing the logic of a Blackjack game.  The flowchart begins with a filled circle representing the start, followed by sequential steps: 'Initialize game with players,' 'Players place bets,' and 'Deal two cards to all players and dealer.'  A 'New turn start' step initiates a loop labeled 'Player Turns,' where each player's turn involves getting the next player, prompting for a 'Player action?' (hit or stand).  A 'hit' leads to 'Draw card,' followed by a check for 'Player bust?'. If yes, 'Record bust and lose bet' occurs; otherwise, the player action loop continues until all players have acted.  The 'Dealer Turn' section then executes, where the dealer draws cards until their hand value is 17 or greater.  Finally, the 'Determine Winners' section iterates through players, comparing their hand values to the dealer's.  If the dealer busts, players who didn't bust win; otherwise, comparisons determine if a player wins, loses, or ties, resulting in payouts or bet returns. The flowchart concludes with an 'End Game' step represented by an empty circle.  Decision points are represented by diamonds, and actions by rounded rectangles.  The flow is indicated by arrows connecting the steps." loading="lazy" width="575" height="892" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-2-TZNTSFYB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Activity Diagram of Blackjack Game</figcaption></div></figure>
+<p>Now that we’ve got a clear picture of the game’s flow, let’s break down the core objects we’ll need to bring this design to life.</p>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>As we have done in earlier chapters, let’s enumerate the core objects.</p>
+<ul>
+<li><strong>BlackJackGame:</strong> The BlackJackGame class acts as the central entity of the game, managing the overall flow from start to finish. It is responsible for dealing cards, tracking player actions (“hit”, or “stand”), and determining the winner.</li>
+<li><strong>Player:</strong> The Player interface represents each participant in the game, with concrete implementations as RealPlayer for humans tracking bets and balance, and DealerPlayer for the dealer, who does not place bets and must hit until reaching a hand value of 17 or higher, as per Blackjack rules.</li>
+<li><strong>Hand:</strong> Each player is associated with a Hand class, which manages the cards they receive during the game. This class calculates all possible hand values based on the cards held. This is especially important when handling Aces, which can count to 1 or 11, depending on which value keeps the player’s hand value closer to 21 without exceeding it.</li>
+<li><strong>Deck:</strong> The Deck class is responsible for managing the collection of cards used in the game. It shuffles the cards when a new round begins and provides a new card when a player requests a hit.</li>
+<li><strong>Card:</strong> Each individual card is represented by the Card class, which is defined by its Rank and Suit enums. The Rank determines the card’s value in the game, while the Suit provides its identity, such as “Hearts” or “Spades”.</li>
+</ul>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>Now that we know the core objects and their roles, the next step is to create classes and methods to build the Blackjack game.</p>
+<h3 id="card">Card</h3>
+<p>The Card class is a straightforward, immutable building block that holds a rank and a suit. It acts as a data-only entity with no behavior. This ensures immutability to prevent accidental changes and maintain game consistency.</p>
+<p><em>Note</em>: Immutability means that once a card is created, its rank and suit cannot be changed.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Card` class in an object-oriented programming context.  The diagram is a rectangular box with the label 'Card' and a large 'C' in a circle at the top-left, indicating a class. Inside the box, three components are listed:  two instance variables, `Rank rank` and `Suit suit`, represented by open circles, suggesting these are attributes of a `Card` object.  Finally, a method `int[] getRankValues()` is shown, represented by a filled circle, indicating it's a method that returns an integer array.  No connections or information flow between external components are depicted; the diagram solely describes the internal structure of the `Card` class, showing its attributes and a method to retrieve rank values." loading="lazy" width="267" height="159" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-3-KIPQRLZL.svg" style="color: transparent;"></div></figure>
+<p>The Card class is kept simple, it uses getRankValues() to fetch values from Rank.
+It leaves the heavy lifting of value calculations to the Hand class, sticking to
+a clean separation of duties. Note that the return value is a list of integers rather
+than a single value because Ace has two possible values (1 or 11).</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The Card class is designed as a standalone entity to represent
+individual cards, enabling reuse across multiple decks or game variants.</p></div>
+<p>Since Card relies on Rank and Suit to define its value and identity, let’s explore those next.</p>
+<h4 id="rank-and-suit-enumerations">Rank and Suit enumerations</h4>
+<p>When modeling Rank and Suit, enums are the ideal choice as they’re type-safe, readable, and easy to maintain.</p>
+<ul>
+<li>Rank captures card values: numbers 2 through 10 are worth face value, Jack, Queen, and King are each worth 10, and an Ace can be either 1 or 11, depending on what benefits the hand most.</li>
+<li>Suit lists the standard four options: Hearts, Diamonds, Clubs, and Spades.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram showing two independent entities, 'Rank' and 'Suit,' likely representing attributes for a playing card in an object-oriented design context.  The 'Rank' entity, denoted by a label 'E' (likely signifying an Entity), lists the possible ranks of a card: ACE (with values [1, 11]), TWO [2], THREE [3], FOUR [4], FIVE [5], SIX [6], SEVEN [7], EIGHT [8], NINE [9], TEN [10], JACK [10], QUEEN [10], and KING [10].  The numerical values in brackets indicate the point values associated with each rank. Similarly, the 'Suit' entity, also labeled with 'E,' lists the four possible suits of a card: HEARTS, SPADES, CLUBS, and DIAMONDS.  There are no connections or information flow depicted between the 'Rank' and 'Suit' entities; they stand as separate, independent components." loading="lazy" width="294" height="346" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-4-2QM6TPBO.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Suit and Rank Enums</figcaption></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice: Why enums over other approaches?</strong> Consider using strings instead.
+You’d have a lot of flexibility, but that comes at a cost: extra validation to
+avoid invalid inputs, messy conversions when calculating hand values, and potentially
+higher memory usage. Integers might seem like a better alternative because they
+allow simple numeric representation (e.g., 1 for Ace, 10 for Jack), but they’re
+error-prone, developers might accidentally assign invalid values like 0 or 15,
+and their lack of inherent meaning requires additional checks, reducing the clarity
+that enums provide with named constants.</p></div>
+<p>For a card game like Blackjack, where precise values and clear representations are key, enums make the design both robust and easy to follow.</p>
+<p>With cards defined, let’s see how they come together in the Deck class.</p>
+<h3 id="deck">Deck</h3>
+<p>The Deck class serves as the backbone of Blackjack’s card management, handling a standard 52-card deck. It uses a List&lt;Card&gt; to mimic a physical deck’s order, providing essential methods like shuffling to randomize the cards, drawing cards for players, counting the remaining cards, checking if the deck is empty, and resetting for a new round. This reset process shuffles the deck to ensure fair dealing.</p>
+<p>Below is the representation of this class:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Deck` class in an object-oriented programming context.  The diagram is a rectangular box with the class name 'Deck' and a 'C' symbol indicating it's a class, positioned in the upper-right corner. Inside the box, the upper section lists the class's attributes: a private integer variable `nextCardIndex` and a private `List&lt;Card&gt;` named `cards`, suggesting the deck holds a list of `Card` objects. The lower section details the class's methods: a `shuffle()` method (presumably to randomize the card order), a `draw()` method returning a `Card` object, a `getRemainingCardCount()` method returning an integer representing the number of cards left, an `isEmpty()` method returning a boolean indicating whether the deck is empty, and a `reset()` method (likely to restore the deck to its initial state).  No connections or information flow to other classes are depicted; the diagram focuses solely on the internal structure and functionality of the `Deck` class itself." loading="lazy" width="287" height="206" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-5-H325QFH6.svg" style="color: transparent;"></div></figure>
+<p>Now that we’ve got a deck to draw from, let’s define the players who’ll use it.</p>
+<h3 id="player">Player</h3>
+<p>The Player interface serves as the blueprint for all participants in Blackjack, laying the foundation for both human players and the dealer. For human players, the RealPlayer class tracks essential details like a player’s name, hand, current bet, and balance, while providing methods for placing bets, receiving payouts, and retrieving key information. DealerPlayer, on the other hand, represents the house (no betting or balance here), just hitting until reaching 17 or higher, per Blackjack rules.</p>
+<p>Here is the representation of this interface with concrete classes:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating an object-oriented design for a player in a game, likely Blackjack.  The diagram shows an interface `Player` at the top, defined by methods `bet(int bet)`, `loseBet()`, `payout()`, `returnBet()`, `isBust()`, `getHand()`, `getBalance()`, `getName()`, and `getBet()`.  This interface is implemented by two classes: `RealPlayer` and `DealerPlayer`.  Both `RealPlayer` and `DealerPlayer` are connected to the `Player` interface via dashed lines with a hollow triangle pointing towards the classes, indicating implementation.  `RealPlayer` has private member variables `name` (string), `hand` (Hand), `bet` (int), and `balance` (int). `DealerPlayer` similarly has private member variables `name` (string) and `hand` (Hand).  The diagram shows that both `RealPlayer` and `DealerPlayer` share the same interface, implying they both have the functionality defined in the `Player` interface, but with potentially different internal implementations." loading="lazy" width="309" height="420" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-6-YV2GI6S7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Player interface with concrete classes</figcaption></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> An interface-based design for Player is chosen to abstract common
+behaviors across human players and the dealer, promoting extensibility.</p></div>
+<p>Now that our players are set, let’s look at how they’ll manage their cards with the Hand class.</p>
+<h3 id="hand">Hand</h3>
+<p>The Hand class manages the cards for a player or dealer in Blackjack, keeping track of a list of cards and calculating all possible hand values. It smartly handles Aces as either 1 or 11 to keep the hand as close to 21 as possible without going over. To support this, the class offers methods to add cards, access the card list, retrieve the possible values (stored as a sorted set to avoid duplicates), clear the hand for a new round, and determine if the hand is bust using isBust().</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a 'Hand' class, likely within the context of a card game.  The diagram is a rectangular box with the class name 'Hand' and a 'C' symbol indicating it's a class, prominently displayed at the top.  Inside the box, two private member variables are listed: `handCards`, a `List&lt;Card&gt;` representing a list of cards in the hand, and `possibleValues`, a `SortedSet&lt;Integer&gt;` representing the possible numerical values of the cards in the hand. Below the member variables, five public member functions are defined: `addCard(Card)`, which adds a card to the hand; `getCards()`, which returns the list of cards in the hand; `getPossibleValues()`, which returns the sorted set of possible values; `clear()`, which clears the hand of all cards; and `isBust()`, which returns a boolean value indicating whether the hand's value exceeds a certain limit (bust condition).  The data types used, such as `List`, `SortedSet`, `Card`, and `Integer`, suggest a well-structured and type-safe design." loading="lazy" width="396" height="217" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-7-B6DWCECP.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> Keeping Hand separate from Player keeps the design clean and
+modular by splitting responsibilities: Hand focuses solely on managing the cards
+and their values, while Player handles other player-specific details like bets
+and balance.</p></div>
+<p>With hands managing cards and totals, let’s see how the BlackjackGame class ties it all together.</p>
+<h3 id="blackjackgame">BlackJackGame</h3>
+<p>The BlackJackGame class is the central entity in our Blackjack game, orchestrating the action from the initial card dealing to the end of each round. It oversees the game’s deck, the players, and the dealer, handling card distribution, tracking turns, and wrapping up rounds by deciding winners and settling bets. To keep things fair, it ensures the dealer keeps hitting until reaching 17, then holds, while players get to choose whether to hit or stand.</p>
+<p>Here is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a BlackjackGame class in an object-oriented design.  The diagram shows the `BlackJackGame` class with its internal attributes and methods.  The attributes, preceded by a square, include: a `Deck` object named `deck`, a `List&lt;Player&gt;` named `players`, a `Player` object named `dealer`, a `Player` object named `currentPlayer`, a `Map&lt;Player, Action&gt;` named `playerTurnStatusMap` storing player actions, and a `GamePhase` object named `currentPhase`. The methods, preceded by a circle, include: `getNextEligiblePlayer()` which returns a `Player` object, `startNewRound()`, `dealInitialCards()`, `bet(Player, int)`, `hit(Player)`, and `stand(Player)`.  There are no explicit connections or information flows depicted between the `BlackJackGame` class and other classes beyond the data types of its attributes (Deck, Player, Action, GamePhase) which imply relationships but don't show the details of those relationships." loading="lazy" width="395" height="296" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-8-ZZMNPDXT.svg" style="color: transparent;"></div></figure>
+<p>Now that we’ve detailed our key classes, let’s put them together in a complete class
+diagram to see the full picture.</p>
+<h2 id="complete-class-diagram">Complete Class Diagram</h2>
+<p>Below is the complete class diagram of the Blackjack game:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a Blackjack game.  The central class, `BlackJackGame`, contains attributes representing the game's state: a `Deck`, a list of `Player` objects, the current `Player`, a map tracking player actions, and the current game phase.  `BlackJackGame` has methods to manage the game flow, including determining the next eligible player, starting a new round, dealing initial cards, handling bets, and processing player hits and stands.  It has a one-to-many relationship with the `Player` interface, which is implemented by `RealPlayer` (representing human players) and `DealerPlayer`. Both `RealPlayer` and `DealerPlayer` have attributes for name, hand (a `Hand` object), and balance (for `RealPlayer`).  The `Hand` class manages a list of `Card` objects and calculates possible hand values, including bust detection.  The `Card` class has attributes for rank and suit.  Finally, the `Deck` class manages a list of `Card` objects, providing methods for shuffling, drawing cards, and checking for emptiness.  `BlackJackGame` uses a `Deck` and interacts with `Player` objects (both `RealPlayer` and `DealerPlayer`) through its methods.  `RealPlayer` and `DealerPlayer` both have a one-to-one relationship with `Hand`, and `Hand` has a one-to-many relationship with `Card`.  The `Deck` supplies `Card` objects to the `Hand` objects." loading="lazy" width="467" height="837" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-blackjack-game/image-11-9-BBJVCDSH.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Class Diagram of Blackjack</figcaption></div></figure>
+<p>Let’s turn this design into working code.</p>
+<h2 id="code---blackjack">Code - Blackjack</h2>
+<p>In this section, we will implement the core functionality of the Blackjack game, emphasizing critical components such as deck management for card distribution, turn coordination for players and the dealer, bet resolution, and winner determination through hand value comparison.</p>
+<h3 id="card-1">Card</h3>
+<p>The Card class is a straightforward representation of a playing card, combining a Rank and a Suit. It’s designed to be immutable. Its attributes stay fixed once created. The getRankValues() method retrieves the card's possible values from Rank (e.g., 1 or 11 for an Ace).</p>
+<p>Below is the code implementation of this class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Card</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> Rank rank;
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> Suit suit;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Card</span><span class="hljs-params">(Rank rank, Suit suit)</span> {
+        <span class="hljs-built_in">this</span>.rank = rank;
+        <span class="hljs-built_in">this</span>.suit = suit;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span>[] getRankValues() {
+        <span class="hljs-keyword">return</span> rank.getRankValues();
+    }
+}
+
+</code></pre>
+<p>Rank is an enum that defines card values: Aces can be 1 or 11, numbered cards retain their face value, and face cards (Jack, Queen, King) are all worth 10. It stores these values in an array and provides them through getRankValues().</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">Rank</span> {
+    ACE(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">1</span>, <span class="hljs-number">11</span>}`),
+    TWO(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">2</span>}`),
+    THREE(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">3</span>}`),
+    FOUR(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">4</span>}`),
+    FIVE(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">5</span>}`),
+    SIX(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">6</span>}`),
+    SEVEN(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">7</span>}`),
+    EIGHT(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">8</span>}`),
+    NINE(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">9</span>}`),
+    TEN(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">10</span>}`),
+    JACK(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">10</span>}`),
+    QUEEN(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">10</span>}`),
+    KING(<span class="hljs-keyword">new</span> <span class="hljs-title class_">int</span>[] `{<span class="hljs-number">10</span>}`);
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span>[] rankValues;
+
+    Rank(<span class="hljs-type">int</span>[] rankValues) {
+        <span class="hljs-built_in">this</span>.rankValues = rankValues;
+    }
+
+    <span class="hljs-comment">// Returns the possible values for the rank</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span>[] getRankValues() {
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>.rankValues;
+    }
+}
+</code></pre>
+<p>For Rank, we define Ace with [1, 11] from the start, rather than defaulting to 11 and adjusting later if the hand busts. This allows the Hand class to calculate all possible totals upfront, which is useful for handling multiple Aces.</p>
+<p>Suit is a simple enum representing the four standard suits, Hearts, Spades, Clubs, and Diamonds. It acts purely as a label, giving each card its suit without additional logic.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">enum</span> <span class="hljs-title class_">Suit</span> {
+    HEARTS,
+    SPADES,
+    CLUBS,
+    DIAMONDS
+}
+</code></pre>
+<p>With cards ready, let’s bundle them into a Deck for gameplay.</p>
+<h3 id="deck-1">Deck</h3>
+<p>The Deck class represents a full deck of playing cards and provides essential operations such as shuffling, drawing, and resetting. It maintains a structured collection of Card objects and ensures that cards are drawn in the correct sequence.</p>
+<p>Here is the implementation of this class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Deck</span> {
+    <span class="hljs-type">int</span> <span class="hljs-variable">nextCardIndex</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;
+    List&lt;Card&gt; cards;
+
+    <span class="hljs-comment">// Constructor initializes the deck</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Deck</span><span class="hljs-params">()</span> {
+        initializeDeck();
+    }
+
+    <span class="hljs-comment">// Initializes the deck with all cards</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initializeDeck</span><span class="hljs-params">()</span> {
+        cards = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+        <span class="hljs-keyword">for</span> (Suit suit : Suit.values()) {
+            <span class="hljs-keyword">for</span> (Rank rank : Rank.values()) {
+                cards.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Card</span>(rank, suit));
+            }
+        }
+        nextCardIndex = <span class="hljs-number">0</span>; <span class="hljs-comment">// Reset to start drawing from the first card</span>
+    }
+
+    <span class="hljs-comment">// Shuffles the deck using current time as seed</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">shuffle</span><span class="hljs-params">()</span> {
+        Collections.shuffle(cards, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Random</span>(System.currentTimeMillis()));
+    }
+
+    <span class="hljs-comment">// Draws the next card from the deck</span>
+    <span class="hljs-keyword">public</span> Card <span class="hljs-title function_">draw</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (isEmpty() || nextCardIndex &gt;= cards.size()) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"No more cards in deck"</span>);
+        }
+        <span class="hljs-type">Card</span> <span class="hljs-variable">drawCard</span> <span class="hljs-operator">=</span> cards.get(nextCardIndex);
+        nextCardIndex++;
+        <span class="hljs-keyword">return</span> drawCard;
+    }
+
+    <span class="hljs-comment">// Returns the number of remaining cards in the deck</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getRemainingCardCount</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> cards.size() - nextCardIndex;
+    }
+
+    <span class="hljs-comment">// Checks if the deck is empty</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isEmpty</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> getRemainingCardCount() == <span class="hljs-number">0</span>;
+    }
+
+    <span class="hljs-comment">// Resets the deck to start drawing from the beginning</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">reset</span><span class="hljs-params">()</span> {
+        nextCardIndex = <span class="hljs-number">0</span>;
+    }
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p>The deck is initialized by pairing each Suit with every Rank, creating a complete set of 52 cards. These cards are stored in a List&lt;Card&gt;, which provides an efficient way to manage them.</p>
+<p><strong>Implementation choice:</strong> Instead of removing cards when drawn, the deck tracks the next available card using nextCardIndex. This avoids the costly list operation of removing elements from an ArrayList, which requires shifting all remaining elements (O(n) complexity. By simply incrementing an index, drawing a card becomes an O(1) operation, improving performance.</p>
+<p>Now that we’ve got cards flowing from the deck, let’s see how they land in a player’s Hand.</p>
+<h3 id="hand-1">Hand</h3>
+<p>The Hand class is responsible for managing a player's cards and computing possible hand totals, particularly when dealing with Aces, which can be worth 1 or 11. To achieve this, it maintains a List&lt;Card&gt; for tracking the cards in the hand and a SortedSet&lt;Integer&gt; to store all possible hand values dynamically.</p>
+<p>When a new card is added via addCard(), it updates both the list of cards and the possible hand values. Handling Aces correctly is crucial:</p>
+<ul>
+<li>If the card is an Ace, both 1 and 11 are introduced as potential hand values.</li>
+<li>If it's a non-Ace, its value is added to every existing total, generating all possible hand values.</li>
+</ul>
+<p>This approach precomputes all valid hand scores upfront, avoiding unnecessary recalculations during gameplay and ensuring that multiple Aces are handled efficiently.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Hand</span> {
+    <span class="hljs-keyword">final</span> List&lt;Card&gt; handCards = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+
+    <span class="hljs-comment">// Sorted set of all possible hand values, accounting for Ace flexibility (1 or 11).</span>
+    <span class="hljs-keyword">final</span> SortedSet&lt;Integer&gt; possibleValues = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TreeSet</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Hand</span><span class="hljs-params">()</span> {}
+
+    <span class="hljs-comment">// Adds a card to the hand and updates the set of possible total values.</span>
+    <span class="hljs-comment">// For Aces (1 or 11), computes all combinations with existing totals; for other cards, adds</span>
+    <span class="hljs-comment">// their value to each total.</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addCard</span><span class="hljs-params">(Card card)</span> {
+        <span class="hljs-keyword">if</span> (card == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">"Cannot add null card to hand"</span>);
+        }
+        handCards.add(card);
+
+        <span class="hljs-comment">// card.getRankValues() returns [1, 11] for Aces or a single value (e.g., [10]) for others.</span>
+        <span class="hljs-keyword">if</span> (possibleValues.isEmpty()) {
+            <span class="hljs-comment">// Initialize with the card's values</span>
+            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> value : card.getRankValues()) {
+                possibleValues.add(value);
+            }
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-comment">// Add all possible card values to each existing total</span>
+            SortedSet&lt;Integer&gt; newPossibleValue = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TreeSet</span>&lt;&gt;();
+            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> value : possibleValues) {
+                <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> cardValue : card.getRankValues()) {
+                    newPossibleValue.add(value + cardValue);
+                }
+            }
+            possibleValues.clear();
+            possibleValues.addAll(newPossibleValue);
+        }
+    }
+
+    <span class="hljs-comment">// Returns an unmodifiable list of cards in the hand</span>
+    <span class="hljs-keyword">public</span> List&lt;Card&gt; <span class="hljs-title function_">getCards</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Collections.unmodifiableList(handCards);
+    }
+
+    <span class="hljs-comment">// Returns an unmodifiable sorted set of possible hand values</span>
+    <span class="hljs-keyword">public</span> SortedSet&lt;Integer&gt; <span class="hljs-title function_">getPossibleValues</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Collections.unmodifiableSortedSet(possibleValues);
+    }
+
+    <span class="hljs-comment">// Clears the hand and possible values</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">clear</span><span class="hljs-params">()</span> {
+        handCards.clear();
+        possibleValues.clear();
+    }
+
+    <span class="hljs-comment">// Checks if the hand is bust (all possible values &gt; 21)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isBust</span><span class="hljs-params">()</span> {
+        <span class="hljs-comment">// check if all possible value of the player's hand is busted</span>
+        <span class="hljs-keyword">if</span> (possibleValues.isEmpty()) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-keyword">return</span> possibleValues.first() &gt; <span class="hljs-number">21</span>;
+        }
+    }
+}
+
+</code></pre>
+<p>The isBust() method determines whether a player has exceeded 21. It evaluates the lowest value in possibleValue, and if all options are above 21, the hand is considered bust. This is a critical check that immediately signals when a player is out of the game.</p>
+<p><strong>Implementation strategy:</strong> Handling Aces efficiently is the biggest challenge in Blackjack hand management. Instead of recalculating Ace values dynamically each time a hand is evaluated, the Hand class precomputes all possible totals upfront. This allows for faster, more efficient scoring and ensures that Blackjack’s unique Ace logic is handled seamlessly without requiring mid-game adjustments.</p>
+<p><strong>Data structure choice:</strong> A SortedSet (implemented as TreeSet) is used for possibleValues to maintain sorted hand values, enabling O(log n) insertion and O(1) access to the lowest value for isBust(). Alternatively, a HashSet offers O(1) insertion but lacks sorting, requiring O(n) to find the minimum. Similarly, a List could store values but would need O(n) for sorting or searching, which is less efficient for frequent checks in Blackjack’s fast-paced gameplay.</p>
+<p>With hands tracking cards and totals, let’s define the Players who’ll hold them.</p>
+<h3 id="player-1">Player</h3>
+<p>In Blackjack, players fall into two distinct categories: human players, who place bets and manage their funds, and the dealer, who follows fixed rules and does not participate in betting. The Player interface and its concrete implementations, RealPlayer and DealerPlayer, provide a structured way to model these roles.</p>
+<p>Below is the implementation of this interface.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Player</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">bet</span><span class="hljs-params">(<span class="hljs-type">int</span> bet)</span>;
+
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">loseBet</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">returnBet</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">payout</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isBust</span><span class="hljs-params">()</span>;
+
+    Hand <span class="hljs-title function_">getHand</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-type">int</span> <span class="hljs-title function_">getBalance</span><span class="hljs-params">()</span>;
+
+    String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-type">int</span> <span class="hljs-title function_">getBet</span><span class="hljs-params">()</span>;
+}
+</code></pre>
+<p>The RealPlayer class models a human player who engages in betting and managing their funds. It implements the Player interface, ensuring that bet handling is managed separately from the core game logic. When placing a bet, the bet() method ensures that the bet does not exceed the player's available balance before deducting the amount.</p>
+<p>To maintain a clear separation of concerns, RealPlayer does not handle card evaluation directly. Instead, it delegates all card-related operations to the Hand class. This ensures that the player's bet handling and card logic remain separate, making the class more modular and maintainable.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RealPlayer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Player</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Hand hand;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> bet;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> balance;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">RealPlayer</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> startBalance)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.hand = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Hand</span>();
+        <span class="hljs-built_in">this</span>.bet = <span class="hljs-number">0</span>;
+        <span class="hljs-built_in">this</span>.balance = startBalance;
+    }
+
+    <span class="hljs-comment">// Places a bet for the player</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">bet</span><span class="hljs-params">(<span class="hljs-type">int</span> bet)</span> {
+        <span class="hljs-keyword">if</span> (bet &gt; balance) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">"Bet is greater than balance"</span>);
+        }
+        <span class="hljs-built_in">this</span>.bet = bet;
+        <span class="hljs-built_in">this</span>.balance -= bet;
+    }
+
+    <span class="hljs-comment">// Handles the player losing a bet</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">loseBet</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.bet = <span class="hljs-number">0</span>;
+    }
+
+    <span class="hljs-comment">// Handles returning the player's bet</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">returnBet</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.balance += bet;
+        <span class="hljs-built_in">this</span>.bet = <span class="hljs-number">0</span>;
+    }
+
+    <span class="hljs-comment">// Handles the player winning a payout</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">payout</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.balance += bet * <span class="hljs-number">2</span>; <span class="hljs-comment">// Return bet plus equal amount</span>
+        <span class="hljs-built_in">this</span>.bet = <span class="hljs-number">0</span>;
+    }
+
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p>The DealerPlayer class represents the house and follows predefined rules that differ from those of human players. Since the dealer does not participate in betting, the bet-handling methods, bet(), and loseBet() are implemented as empty functions, as they are never invoked in gameplay. Similarly, getBalance() and getBet() always return 0, reflecting the fact that the dealer does not manage a balance or place bets.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DealerPlayer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Player</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">String</span> <span class="hljs-variable">name</span> <span class="hljs-operator">=</span> <span class="hljs-string">"Dealer"</span>;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Hand hand;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DealerPlayer</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.hand = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Hand</span>();
+    }
+
+    <span class="hljs-comment">// Bet-handling methods for Dealer (bet, loseBet, returnBet) are implemented as empty functions.</span>
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">payout</span><span class="hljs-params">()</span> {
+        <span class="hljs-comment">// Dealer does not get a payout, so this method only prints the winning hand</span>
+    }
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p>With players and their hands set, let’s orchestrate the whole game in BlackJackGame.</p>
+<h3 id="blackjackgame-1">BlackjackGame</h3>
+<p>The BlackJackGame class serves as the central orchestrator of the game, handling players, the dealer, the deck, turn management, and enforcing the game rules. It ensures that the game follows a structured flow, with each player's actions and the final outcome being resolved according to the rules of Blackjack.</p>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BlackJackGame</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Deck</span> <span class="hljs-variable">deck</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Deck</span>();
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;Player&gt; players = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Player</span> <span class="hljs-variable">dealer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DealerPlayer</span>();
+    <span class="hljs-keyword">private</span> <span class="hljs-type">Player</span> <span class="hljs-variable">currentPlayer</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;
+
+    <span class="hljs-comment">// Tracks the current status of each player's turn (e.g., HIT or STAND)</span>
+    Map&lt;Player, Action&gt; playerTurnStatusMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-type">GamePhase</span> <span class="hljs-variable">currentPhase</span> <span class="hljs-operator">=</span> GamePhase.STARTED;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">BlackJackGame</span><span class="hljs-params">(List&lt;Player&gt; players)</span> {
+        <span class="hljs-keyword">for</span> (Player player : players) {
+            <span class="hljs-keyword">if</span> (player == <span class="hljs-literal">null</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>();
+            <span class="hljs-built_in">this</span>.players.add(player);
+            <span class="hljs-built_in">this</span>.playerTurnStatusMap.put(player, <span class="hljs-literal">null</span>);
+        }
+        <span class="hljs-built_in">this</span>.playerTurnStatusMap.put(dealer, <span class="hljs-literal">null</span>);
+        deck.shuffle(); <span class="hljs-comment">// Shuffle the deck when game starts</span>
+    }
+
+    <span class="hljs-comment">// Determines the next player who can take an action (i.e., has not stood or bust). If the</span>
+    <span class="hljs-comment">// current player is the dealer, it triggers the dealer's turn.</span>
+    <span class="hljs-keyword">public</span> Player <span class="hljs-title function_">getNextEligiblePlayer</span><span class="hljs-params">()</span> {
+        <span class="hljs-comment">// If current player hasn't stood or bust, they can continue their turn</span>
+        <span class="hljs-keyword">if</span> (currentPlayer != <span class="hljs-literal">null</span>
+                &amp;&amp; !Action.STAND.equals(playerTurnStatusMap.get(currentPlayer))
+                &amp;&amp; !currentPlayer.isBust()) {
+            <span class="hljs-keyword">return</span> currentPlayer;
+        }
+
+        <span class="hljs-comment">// Find the first player who hasn't stood or bust</span>
+        <span class="hljs-keyword">if</span> (currentPlayer == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">for</span> (Player player : players) {
+                <span class="hljs-keyword">if</span> (!Action.STAND.equals(playerTurnStatusMap.get(player)) &amp;&amp; !player.isBust()) {
+                    currentPlayer = player;
+                    <span class="hljs-keyword">return</span> currentPlayer;
+                }
+            }
+        }
+
+        <span class="hljs-comment">// else, find the next player after the current one who hasn't stood or bust</span>
+        <span class="hljs-type">int</span> <span class="hljs-variable">currentPlayerIndex</span> <span class="hljs-operator">=</span> players.indexOf(currentPlayer);
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> currentPlayerIndex + <span class="hljs-number">1</span>; i &lt; players.size(); i++) {
+            <span class="hljs-type">Player</span> <span class="hljs-variable">player</span> <span class="hljs-operator">=</span> players.get(i);
+            <span class="hljs-keyword">if</span> (!Action.STAND.equals(playerTurnStatusMap.get(player)) &amp;&amp; !player.isBust()) {
+                <span class="hljs-keyword">if</span> (currentPlayer == dealer) {
+                    <span class="hljs-keyword">if</span> (!Action.STAND.equals(playerTurnStatusMap.get(dealer))) dealerTurn();
+                    <span class="hljs-keyword">return</span> currentPlayer;
+                }
+                currentPlayer = player;
+                <span class="hljs-keyword">return</span> currentPlayer;
+            }
+        }
+
+        <span class="hljs-comment">// If no players are left to act, return null</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dealerTurn</span><span class="hljs-params">()</span> {
+        <span class="hljs-comment">// Dealer hits if below 17</span>
+        <span class="hljs-keyword">while</span> (dealer.getHand().getPossibleValues().last() &lt; <span class="hljs-number">17</span>) {
+            <span class="hljs-type">Card</span> <span class="hljs-variable">newDraw</span> <span class="hljs-operator">=</span> deck.draw();
+            dealer.getHand().addCard(newDraw);
+        }
+        playerTurnStatusMap.put(dealer, Action.STAND);
+        checkGameEndCondition();
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startNewRound</span><span class="hljs-params">()</span> {
+        deck.reset();
+        <span class="hljs-keyword">for</span> (Player player : playerTurnStatusMap.keySet()) {
+            player.getHand().clear(); <span class="hljs-comment">// Clear player's hand</span>
+        }
+        dealer.getHand().clear(); <span class="hljs-comment">// Clear dealer's hand</span>
+        <span class="hljs-comment">// Reset all turn statuses to null</span>
+        playerTurnStatusMap.replaceAll((p, v) -&gt; <span class="hljs-literal">null</span>);
+        currentPlayer = <span class="hljs-literal">null</span>; <span class="hljs-comment">// Reset current player</span>
+        currentPhase = GamePhase.STARTED;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dealInitialCards</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">if</span> (!GamePhase.BET_PLACED.equals(currentPhase)) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"All players must bet before dealing"</span>);
+        }
+        <span class="hljs-comment">// Deal first card to each real player in order</span>
+        <span class="hljs-keyword">for</span> (Player player : players) {
+            player.getHand().addCard(deck.draw());
+        }
+        <span class="hljs-comment">// Deal first card to dealer</span>
+        dealer.getHand().addCard(deck.draw());
+        <span class="hljs-comment">// Deal second card to each real player in order</span>
+        <span class="hljs-keyword">for</span> (Player player : players) {
+            player.getHand().addCard(deck.draw());
+        }
+        <span class="hljs-comment">// Deal second card to dealer</span>
+        dealer.getHand().addCard(deck.draw());
+        currentPhase = GamePhase.INITIAL_CARD_DRAWN;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">bet</span><span class="hljs-params">(Player player, <span class="hljs-type">int</span> bet)</span> {
+        <span class="hljs-keyword">if</span> (!GamePhase.STARTED.equals(currentPhase)) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"Bets must be placed at the start of the round"</span>);
+        }
+        player.bet(bet);
+        <span class="hljs-comment">// Transition to BET_PLACED once all players have bet</span>
+        <span class="hljs-keyword">if</span> (players.stream()
+                .filter(p -&gt; !(p <span class="hljs-keyword">instanceof</span> DealerPlayer))
+                .allMatch(p -&gt; p.getBet() &gt; <span class="hljs-number">0</span>)) {
+            currentPhase = GamePhase.BET_PLACED;
+        }
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">hit</span><span class="hljs-params">(Player player)</span> {
+        <span class="hljs-keyword">if</span> (Action.STAND.equals(playerTurnStatusMap.get(player))) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"Player has already stood"</span>);
+        }
+        <span class="hljs-keyword">if</span> (player.isBust()) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"Player is already bust"</span>);
+        }
+
+        <span class="hljs-type">Card</span> <span class="hljs-variable">drawnCard</span> <span class="hljs-operator">=</span> deck.draw();
+        player.getHand().addCard(drawnCard);
+        playerTurnStatusMap.put(player, Action.HIT);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">stand</span><span class="hljs-params">(Player player)</span> {
+        <span class="hljs-keyword">if</span> (Action.STAND.equals(playerTurnStatusMap.get(player))) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"Player has already stood"</span>);
+        }
+        <span class="hljs-keyword">if</span> (player.isBust()) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"Player is already bust"</span>);
+        }
+        playerTurnStatusMap.put(player, Action.STAND);
+    }
+
+    <span class="hljs-comment">// Checks if the game has ended (all players done), then resolves bets by comparing each</span>
+    <span class="hljs-comment">// player's hand to the dealer's.</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">checkGameEndCondition</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">boolean</span> <span class="hljs-variable">allPlayersDone</span> <span class="hljs-operator">=</span>
+                players.stream()
+                        .allMatch(
+                                p -&gt; Action.STAND.equals(playerTurnStatusMap.get(p)) || p.isBust());
+        <span class="hljs-keyword">if</span> (!allPlayersDone) {
+            <span class="hljs-keyword">return</span>;
+        }
+
+        <span class="hljs-type">int</span> <span class="hljs-variable">dealerValue</span> <span class="hljs-operator">=</span> dealer.getHand().getPossibleValues().last();
+        <span class="hljs-type">boolean</span> <span class="hljs-variable">dealerBusts</span> <span class="hljs-operator">=</span> dealer.isBust();
+
+        <span class="hljs-keyword">for</span> (Player player : players) {
+            <span class="hljs-keyword">if</span> (player.isBust()) {
+                player.loseBet();
+            } <span class="hljs-keyword">else</span> {
+                <span class="hljs-type">int</span> <span class="hljs-variable">playerValue</span> <span class="hljs-operator">=</span> player.getHand().getPossibleValues().last();
+                <span class="hljs-keyword">if</span> (dealerBusts || playerValue &gt; dealerValue) {
+                    player.payout();
+                } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (playerValue == dealerValue) {
+                    player.returnBet();
+                } <span class="hljs-keyword">else</span> {
+                    player.loseBet();
+                }
+            }
+        }
+        currentPhase = GamePhase.END;
+    }
+
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<ul>
+<li>Each round begins with startNewRound(), which resets the deck, ensuring that players start with a clean slate.</li>
+<li>Once the round starts, players place their bets using the bet() method, then dealInitialCards() distributes two cards per player, including the dealer. This guarantees a fair and structured start before betting and player actions begin.</li>
+<li>The game progresses through player turns using getNextEligiblePlayer(), which selects the next active player who has not yet stood or busted. Once all players have finished their turns, control shifts to the dealer via dealerTurn().</li>
+</ul>
+<p>The dealer follows strict, predefined rules:</p>
+<ul>
+<li>The dealer must hit until their total reaches at least 17.</li>
+<li>Once at 17 or higher, the dealer must stand.</li>
+</ul>
+<p>Players can take two primary actions during their turn:</p>
+<ul>
+<li>hit(): Draws a card and updates the player's hand. If the player exceeds 21, they are marked as bust, eliminating them from further action.</li>
+<li>stand(): Locks in the player's hand, preventing further draws.</li>
+</ul>
+<p>The checkGameEndCondition() method finalizes the round once all players have stood or busted. It compares each player’s hand individually against the dealer’s:</p>
+<ul>
+<li>If the dealer busts (hand exceeds 21), non-bust players win and receive a payout.</li>
+<li>For non-bust players, if their hand value exceeds the dealer’s (but is ≤ 21), they win and are paid out. If it’s lower, they lose their bet. In the case of a tie, return the bet to the player.</li>
+</ul>
+<p>Now that we’ve built a working game, let’s explore how we can make it more flexible for future changes</p>
+<h2 id="deep-dive-topic">Deep Dive Topic</h2>
+<p>At this point, you’ve nailed the core requirements of the Blackjack game. This section will dive deeper into a potential extension to make the design more adaptable.</p>
+<h3 id="decoupling-player-and-dealer-decision-logic">Decoupling player and dealer decision logic</h3>
+<p>In the current design, BlackJackGame directly controls player actions, calling hit() or stand() based on predefined conditions in the game logic. Similarly, the dealer’s "hit until 17" rule is hardcoded into dealerTurn(). This approach tightly couples decision-making with the game class, leaving little room for custom moves. Any rule modification, such as allowing a cautious player to stand at 12 or adjusting the dealer’s hit threshold, requires modifying BlackJackGame, leading to complex maintenance and potential bugs.</p>
+<p>To resolve this, we introduce a decision-making abstraction that shifts control to individual players. This keeps BlackJackGame focused on coordinating turns, while each player determines their moves independently.</p>
+<p><strong>Step 1: Define a decision-making interface</strong></p>
+<p>To give each player control over their moves, we create a PlayerDecisionLogic interface with one method, decideAction(Hand), that picks ‘Hit’ or ‘Stand’ based on the hand.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">PlayerDecisionLogic</span> {
+    <span class="hljs-comment">// Decides the next action for a player based on their hand</span>
+    Action <span class="hljs-title function_">decideAction</span><span class="hljs-params">(Hand hand)</span>;
+}
+</code></pre>
+<p><strong>Step 2: Tailor decisions for humans and dealers</strong></p>
+<p>With the interface in place, we implement two concrete decision classes:</p>
+<ul>
+<li>RealPlayerDecisionLogic: This captures a human player’s approach, say, hitting if the hand’s below 16.</li>
+<li>DealerDecisionLogic: This locks in the dealer’s rule, hit if under 17.</li>
+</ul>
+<p>Here’s the code:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RealPlayerDecisionLogic</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">PlayerDecisionLogic</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Action <span class="hljs-title function_">decideAction</span><span class="hljs-params">(Hand hand)</span> {
+        <span class="hljs-keyword">return</span> hand.getPossibleValues().last() &lt; <span class="hljs-number">16</span> ? Action.HIT : Action.STAND;
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DealerDecisionLogic</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">PlayerDecisionLogic</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Action <span class="hljs-title function_">decideAction</span><span class="hljs-params">(Hand hand)</span> {
+        <span class="hljs-keyword">return</span> hand.getPossibleValues().last() &lt; <span class="hljs-number">17</span> ? Action.HIT : Action.STAND;
+    }
+}
+
+</code></pre>
+<p><strong>Step 3: Integrate decisions into players</strong></p>
+<p>We update the Player interface with a getDecisionLogic() method, letting each player define its decision style. RealPlayer defaults to RealPlayerDecisionLogic, while DealerPlayer uses DealerDecisionLogic:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Player</span> {
+    <span class="hljs-comment">// Returns the decision logic for the player</span>
+    PlayerDecisionLogic <span class="hljs-title function_">getDecisionLogic</span><span class="hljs-params">()</span>; <span class="hljs-comment">// ... other methods …</span>
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RealPlayer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Player</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> PlayerDecisionLogic decisionLogic;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">RealPlayer</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> startBalance)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.hand = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Hand</span>();
+        <span class="hljs-built_in">this</span>.bet = <span class="hljs-number">0</span>;
+        <span class="hljs-built_in">this</span>.balance = startBalance;
+        <span class="hljs-built_in">this</span>.decisionLogic = <span class="hljs-keyword">new</span> <span class="hljs-title class_">RealPlayerDecisionLogic</span>();
+    }
+
+    <span class="hljs-comment">// Returns the decision logic for the player</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> PlayerDecisionLogic <span class="hljs-title function_">getDecisionLogic</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> decisionLogic;
+    }
+    <span class="hljs-comment">// ... other methods ...</span>
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DealerPlayer</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Player</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> PlayerDecisionLogic decisionLogic;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DealerPlayer</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.hand = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Hand</span>();
+        <span class="hljs-built_in">this</span>.decisionLogic = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DealerDecisionLogic</span>();
+    }
+
+    <span class="hljs-comment">// Returns the decision logic for the dealer</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> PlayerDecisionLogic <span class="hljs-title function_">getDecisionLogic</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> decisionLogic;
+    }
+    <span class="hljs-comment">// ... other methods ...</span>
+}
+</code></pre>
+<p><strong>Step 4: Adjust the game flow</strong></p>
+<p>In this step, we refactor the BlackJackGame code to use decision logic for both players and the dealer, streamlining the turn sequence. We introduce the performPlayerAction() method, which queries each player’s decision logic (RealPlayerDecisionLogic or DealerDecisionLogic) to decide whether to hit or stand. This replaces the hardcoded dealerTurn() method, integrating the dealer into the same flow as the players.</p>
+<p>We also add the playNextTurn() method to coordinate turns, relying on getNextEligbilePlayer() to determine who acts next.</p>
+<p>Here’s the updated code:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BlackJackGame</span> {
+    <span class="hljs-comment">// ... fields unchanged ...</span>
+
+    <span class="hljs-comment">// Find the next player who can take an action</span>
+    <span class="hljs-keyword">public</span> Player <span class="hljs-title function_">getNextEligiblePlayer</span><span class="hljs-params">()</span> {
+        <span class="hljs-comment">// No current player: find first eligible player from the start</span>
+        <span class="hljs-keyword">if</span> (currentPlayer == <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">for</span> (Player player : players) {
+                <span class="hljs-keyword">if</span> (!Action.STAND.equals(playerTurnStatusMap.get(player)) &amp;&amp; !player.isBust()) {
+                    currentPlayer = player;
+                    <span class="hljs-keyword">return</span> currentPlayer;
+                }
+            }
+            <span class="hljs-comment">// Instead of calling dealerTurn(), check if the dealer can act</span>
+            <span class="hljs-keyword">if</span> (!Action.STAND.equals(playerTurnStatusMap.get(dealer))) {
+                currentPlayer = dealer;
+                <span class="hljs-keyword">return</span> dealer;
+            }
+        } <span class="hljs-keyword">else</span> {
+            <span class="hljs-type">int</span> <span class="hljs-variable">currentIndex</span> <span class="hljs-operator">=</span> players.indexOf(currentPlayer);
+            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> currentIndex + <span class="hljs-number">1</span>; i &lt; players.size(); i++) {
+                <span class="hljs-type">Player</span> <span class="hljs-variable">player</span> <span class="hljs-operator">=</span> players.get(i);
+                <span class="hljs-keyword">if</span> (!Action.STAND.equals(playerTurnStatusMap.get(player)) &amp;&amp; !player.isBust()) {
+                    currentPlayer = player;
+                    <span class="hljs-keyword">return</span> currentPlayer;
+                }
+            }
+            <span class="hljs-comment">// If all players are done, check if the dealer can act</span>
+            <span class="hljs-keyword">if</span> (currentPlayer != dealer &amp;&amp; !Action.STAND.equals(playerTurnStatusMap.get(dealer))) {
+                currentPlayer = dealer;
+                <span class="hljs-keyword">return</span> dealer;
+            }
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>; <span class="hljs-comment">// All turns are complete, including the dealer's</span>
+    }
+
+    <span class="hljs-comment">// Executes the next turn by acting for the next player or dealer.</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">playNextTurn</span><span class="hljs-params">()</span> {
+        <span class="hljs-type">Player</span> <span class="hljs-variable">nextPlayer</span> <span class="hljs-operator">=</span> getNextEligiblePlayer();
+        <span class="hljs-keyword">if</span> (nextPlayer != <span class="hljs-literal">null</span>) {
+            performPlayerAction(nextPlayer);
+        }
+    }
+
+    <span class="hljs-comment">// Performs the action decided by the player's decision logic (hit or stand).</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">performPlayerAction</span><span class="hljs-params">(Player player)</span> {
+        <span class="hljs-type">Action</span> <span class="hljs-variable">action</span> <span class="hljs-operator">=</span> player.getDecisionLogic().decideAction(player.getHand());
+        <span class="hljs-keyword">if</span> (action == Action.HIT) {
+            hit(player);
+        } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (action == Action.STAND) {
+            stand(player);
+        }
+    }
+    <span class="hljs-comment">// ... other methods unchanged, dealerTurn() removed ...</span>
+}
+
+</code></pre>
+<p>The getNextEligiblePlayer() method now handles the full turn sequence: it returns the next player who hasn’t stood or busted, then the dealer once all players are done, and finally null when the dealer has stood, ending the turns. While dealerTurn() is removed, its logic lives on in DealerDecisionLogic, ensuring the dealer hits until 17 or higher.</p>
+<p>This design shifts decision-making to the players, letting BlackJackGame coordinate turns while each player’s logic lives separately. If you’ve heard of the Strategy Pattern, you might notice this follows it, defining a set of decision rules that can swap in and out. Here:</p>
+<ul>
+<li>PlayerDecisionLogic sets the decision contract.</li>
+<li>RealPlayerDecisionLogic and DealerDecisionLogic are the specific behaviors.</li>
+<li>BlackJackGame uses them without needing to handle decisions internally.</li>
+</ul>
+<p><em>Note</em>: To learn more about the Strategy Pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-parking-lot">Parking Lot</a></strong> chapter.</p>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>In this chapter, we have built a solid Blackjack game from the ground up, with the key takeaway being how we structured responsibilities across Card, Deck, Hand, Player, and BlackJackGame into a clear, well-organized design. Each piece does its job, for instance, Card holds the essentials, Deck shuffles and deals, Hand tracks totals, and BlackJackGame runs the show. This approach keeps the game logical, easy to follow, and scalable.</p>
+<p>We also took things further by decoupling decision-making with PlayerDecisionLogic, making it easy to swap strategies for players and the dealer. If you’re familiar with the Strategy pattern, you’ll recognize how it is applied here, giving the game flexibility without rewrites.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-tic-tac-toe-game.html">← Previous</a>
+        <a href="design-a-shipping-locker-system.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

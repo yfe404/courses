@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News feed app - Mobile System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../mobile-system-design-interview.html">Mobile System Design Interview</a> /
+        News feed app
+    </div>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="a-framework-for-mobile-sd-interviews.html">← Previous</a>
+        <a href="chat-app.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">03</span> News feed app
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/mobile-system-design-interview/news-feed-app" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">03</strong><h1>News feed app</h1></header><p>News feeds are the core feature of many popular social media platforms. From Facebook News Feed and X (formerly Twitter) Timeline to the Instagram Feed, these continuously updating streams of content keep users engaged by providing fresh updates from friends, family, and followed accounts, encouraging them to keep scrolling.</p>
+<p>At its heart, a news feed is a continuously updating list of content items. This content typically includes status updates, photos, videos, links, etc. While each platform might brand their feed differently, the fundamental concept remains largely the same across applications. Most news feed systems share these key features:</p>
+<ul>
+<li>A scrollable list of content items.</li>
+<li>Detailed views for individual posts.</li>
+<li>Endless scrolling functionality.</li>
+<li>Common social interactions like likes, comments and shares.</li>
+</ul>
+<p>While the core structure is often similar, specific content types and interviewer requirements can lead to varying technical approaches. In this chapter, we'll walk through the process of designing a news feed app, tackling the challenge step-by-step.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified visual design of a mobile app's feed, likely a social media or content-sharing platform.  The design shows a vertically stacked list of four identical content items within a smartphone screen outline. Each item is enclosed in a dashed-line rectangle and contains a circular placeholder representing a user profile picture, a horizontal progress bar (likely indicating loading or progress), a heart icon (suggesting a 'like' function), an upward-pointing arrow icon (possibly indicating a 'share' or 'upload' function), and either an image icon (a picture of a sun behind a mountain) or a play button icon, depending on the content type.  No text labels or URLs are visible. The arrangement suggests a scrollable feed where each item displays user-generated content, potentially images or videos, along with interaction options like liking and sharing.  The items are visually identical except for the content type indicator (image or video icon), implying a consistent design pattern for different content types within the feed." width="260" height="452" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-1-DYCZZEHE.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: A typical news feed mobile app</figcaption></div></figure>
+<h2 id="step-1-understand-the-problem-and-establish-design-scope">Step 1: Understand the problem and establish design scope</h2>
+<p>The first step in any system design interview is to gather information and clarify requirements. This helps us understand the features to support and overall scope of the project. Here's how a typical conversation between the candidate and an interviewer might unfold:</p>
+<p><strong>Candidate</strong>: Before diving into the mobile app specifics, I'd like to understand the broader ecosystem. Are we designing only for mobile, or should we consider other clients like web or wearables that might share the same backend?<br>
+<strong>Interviewer</strong>: Good question. While today's focus is on mobile, we should keep in mind that there will likely be other clients in the future.</p>
+<p><strong>Candidate:</strong> That's helpful, thanks. I'm thinking the app should support the following features: Users can view their feed, share and like posts, see post details, and create new content. The feed would implement infinite scrolling, loading more content as users reach the bottom. And posts are displayed in the order we receive them from the server. Is this aligned with what you're envisioning?<br>
+<strong>Interviewer</strong>: That's spot on.</p>
+<p><strong>Candidate:</strong> Great. Are we limiting posts to text only, or can users include media like photos and videos?<br>
+<strong>Interviewer:</strong> Let's make it more interesting. Users can include text and media attachments such as images and videos. Additionally, let's support rich text editing, so posts can have headers, bold text, italics, and so on.</p>
+<p><strong>Candidate:</strong> That adds a nice touch. What about real-time features? Are we implementing live updates for things like share counts and likes? Or push notifications for new posts from close friends?<br>
+<strong>Interviewer:</strong> For simplicity, let's exclude real-time updates and notifications in this design.</p>
+<p><strong>Candidate:</strong> Fair enough. Can you give me an idea of the scale we're working with? How many users are we expecting, and what's their geographical distribution?<br>
+<strong>Interviewer:</strong> We're aiming big: 500 million monthly active users, spread across the globe.</p>
+<p><strong>Candidate:</strong> That's a substantial scope. Given the global distribution and the fact that users will be accessing our app from regions with varying network reliability, should we include an offline mode for viewing previously loaded content? And what about pre-fetching content to speed up initial load times?<br>
+<strong>Interviewer:</strong> Offline mode is a yes, great idea. Let's skip pre-fetching for this exercise.</p>
+<p><strong>Candidate:</strong> Noted. Are we designing user authentication, or can we assume users are already logged in?<br>
+<strong>Interviewer:</strong> Assume they're authenticated within the system.</p>
+<p>The conversation can continue covering other topics we might consider interesting and relevant to news feed apps. Through this back-and-forth, we can build a clear picture of what needs to be designed. Let's summarize what we need to build.</p>
+<h4 id="requirements">Requirements</h4>
+<p>Based on our discussion, we're designing a news feed system with the following <strong>functional requirements</strong>:</p>
+<ul>
+<li>Users can browse a feed of posts from others.</li>
+<li>Users can like and share posts directly in the feed.</li>
+<li>Users can compose posts with rich text, images, and videos.</li>
+<li>Tapping a post opens a detailed view.</li>
+<li>Infinite scrolling fetches more posts as users scroll down.</li>
+<li>Offline mode allows access to previously loaded content without connectivity.</li>
+</ul>
+<p>As for <strong>non-functional requirements</strong>, we need to build a system that ensures:</p>
+<ul>
+<li>Scalability: Our system should handle 500 million monthly active users globally, adapting to varied network conditions while maintaining responsive performance.</li>
+<li>Performance: The app must deliver smooth scrolling experiences and efficient post creation, with optimized handling of media content across all device types.</li>
+<li>Reliability: Users should experience consistent functionality even with poor network connectivity, with effective caching for offline access.</li>
+<li>Data efficiency: The system should minimize data consumption for users on limited plans through smart caching and selective content loading strategies.</li>
+<li>Consistency: The app should maintain eventual consistency for actions performed offline, ensuring reliable synchronization when connectivity is restored.</li>
+</ul>
+<p>Features that are <strong>out of scope</strong> for this exercise:</p>
+<ul>
+<li>Real-time updates and push notifications.</li>
+<li>Pre-fetching of posts before the user opens the app for quicker post loading.</li>
+<li>Authentication, we'll assume users are already authenticated.</li>
+</ul>
+<h4 id="ui-sketch">UI sketch</h4>
+<ul>
+<li>The <strong>News/Posts Feed screen</strong> is the heart of our app, displaying an endless list of posts. Users can like and share posts directly from this screen. Tapping a post opens its detailed view. A Floating Action Button (FAB) allows users to create new posts.</li>
+<li>The <strong>Create Post screen</strong> allows users to compose new posts with rich text, images, and videos.</li>
+<li>The <strong>Post Detail screen</strong> shows the full content of a selected post, along with options to like and share.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a three-screen mobile application workflow for creating and posting content.  The leftmost screen displays a user's existing content, showing a profile icon, a text input field (likely for a caption), and a large grey video player icon indicating a previously uploaded video.  A heart icon and an upload icon are present at the top, suggesting like and upload functionalities. A curved arrow points from this screen to the central screen. The central screen shows a list of content creation options, each represented by a dashed-bordered rectangle. Each rectangle contains a profile icon placeholder, a text input field, and either an image icon or a video icon, along with the heart and upload icons. A plus (+) button is at the bottom, indicating the addition of a new content creation option. A curved arrow connects this screen to the rightmost screen. The rightmost screen is titled 'Create Post' and features a large empty text box for the main post content, a grid of six smaller empty boxes likely for additional media or tags, an upload icon, and a 'POST' button at the bottom. The flow suggests a user selects content from the central screen, which is then transferred to the 'Create Post' screen for finalization and posting." loading="lazy" width="602" height="308" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-2-JD2AUAF2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Basic sketch of our news feed mobile app showing the screens and their relationships</figcaption></div></figure>
+<p>Having framed the problem and outlined the user experience, we've built a strong foundation for our design. Next, we'll explore the API design to support these features.</p>
+<h2 id="step-2-api-design">Step 2: API design</h2>
+<p>The purpose of the API design is to establish a clear and detailed agreement between the clients and the backend system. Well-defined APIs ensure that both you and the interviewer are aligned on the functional requirements. In this section, we will talk about three main areas:</p>
+<ul>
+<li>Communication protocol.</li>
+<li>API endpoints.</li>
+<li>Additional considerations for API design.</li>
+</ul>
+<h3 id="communication-protocol">Communication protocol</h3>
+<p>Let's first examine the main interactions that will occur between our client and backend:</p>
+<ol>
+<li><strong>Feed retrieval</strong>: When a user opens the app, the client requests recent posts from the backend.</li>
+<li><strong>Post creation</strong>: As users create new posts, the client sends this content to the backend.</li>
+<li><strong>Post details</strong>: When a user taps on a post, the client fetches additional details from the backend.</li>
+<li><strong>User interactions</strong>: The client notifies the backend when a user likes or shares a post.</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-server interaction model.  A rectangular box labeled 'Client' contains a smartphone icon, symbolizing a mobile application.  This client communicates with a second rectangular box labeled 'Backend services:'.  Between these boxes are two arrows representing data flow.  A rightward arrow labeled '1 Request' indicates a request sent from the client to the backend.  The backend services box lists four functionalities: 'Feed retrieval,' 'Post creation,' 'Post details,' and 'User interactions.' A leftward arrow labeled '2 Response' shows the backend sending a response back to the client.  The numbered labels (1 and 2) suggest a sequential order of request and response." loading="lazy" width="481" height="121" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-3-U6M5RAAF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: Client-initiated requests to the backend in the news feed app</figcaption></div></figure>
+<p>Notice that in all these scenarios, the client initiates the interaction. Given our app's large scale and the variety of client types we're supporting, <strong>HTTP with REST APIs</strong> emerges as a suitable choice for our communication protocol. Let's examine the advantages and disadvantages in Table 1:</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">HTTP with REST Advantages</th><th style="text-align: left;">HTTP with REST Disadvantages</th></tr></thead><tbody><tr><td style="text-align: left;">Widely used and well-understood. Developers are generally familiar with it, making implementation and maintenance easier. <p></p>Servers are stateless. Each request contains all the information needed to process it, simplifying horizontal scaling and handling multiple clients. <p></p>Can leverage HTTP caching mechanisms to reduce server load and improve response times by serving cached data when appropriate.</td><td style="text-align: left;">Managing different versions of an API can become cumbersome as the API evolves. Without a solid versioning strategy, some APIs may become bloated or difficult to maintain. <p></p>Stateless means each request is independent and carries all necessary info, such as auth tokens or session data, every time. This repetitive overhead, especially without persistent connections, can impact mobile performance through extra data usage and connection setup latency. <p></p>Some clients might receive more data than needed (over-fetching) or require multiple requests to get all necessary data (under-fetching).</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 1: HTTP with REST advantages and disadvantages</p></p>
+<p>While there are other options for client-server communication, such as GraphQL that can avoid over-fetching by allowing clients to specify exactly what data they need in a single request, we'll focus on <strong>HTTP with REST APIs</strong> in this chapter. This approach is widely used in the industry, with prominent examples including Meta's Graph API [1], Reddit APIs [2], and X (formerly Twitter) APIs [3].</p>
+<p>For data encoding, we have several choices, including JSON, XML, and protocol buffers. Table 2 compares these options to determine the best fit for our news feed app.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">JSON</th><th style="text-align: left;">XML</th><th style="text-align: left;">Protocol Buffers</th></tr></thead><tbody><tr><td style="text-align: left;">Human-readable and results in smaller payloads compared to XML. Natively supported in most programming languages and commonly used with REST APIs.</td><td style="text-align: left;">Given we won't need to send much metadata in our news feed app's network requests, JSON is preferable to XML.</td><td style="text-align: left;">Could be a good option for our news feed app. However, we're not making our app performance-critical in this exercise, so we can avoid the steep setup cost by using JSON.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 2: Trade-offs for encoding data over the network in the news feed</p></p>
+<p>For our news feed app, we'll use <strong>JSON as our data format</strong>. This choice offers a good balance of simplicity, readability, and efficiency. While Protocol Buffers could be a potential optimization, it's a more specialized technology, and not every developer is familiar with it. For simplicity, we'll opt for JSON in our design. However, if you're comfortable with Protobufs, feel free to use it for the API design. It's a great option too.</p>
+<div class="note-block"><p><strong>✅ Decisions made!</strong></p><p><ul>
+<li><strong>HTTP with REST APIs</strong> for client-server communication.</li>
+<li><strong>JSON</strong> as the data format for these network exchanges.</li>
+</ul></p></div>
+<h3 id="api-endpoints">API endpoints</h3>
+<p>Now that we've chosen our communication protocol and data format, let's design the specific endpoints our system needs. We'll focus on the core interactions required for our news feed functionality.</p>
+<h4 id="feed-retrieval">Feed retrieval</h4>
+<pre><code>Authentication: Bearer &lt;token&gt;
+GET /v1/feed?after=&lt;some-value&gt;&amp;limit=30
+    Body: empty
+    Response: 200 OK. Payload of type FeedApiResponse
+</code></pre>
+<div class="note-block"><p><strong>📌 Remember:</strong> Including a version in endpoint APIs, such as /v1/, gives us
+flexibility to introduce breaking changes in newer versions while maintaining
+stability in older ones. This versioning approach allows for controlled API
+deprecation when needed. For more on API versioning, see Chapter 10: Mobile
+System Design Building Blocks.</p></div>
+<h5 id="data-models">Data models</h5>
+<p>Since this is a GET request, the request body is empty. As a response, we receive a FeedApiResponse object with the following structure:</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class FeedApiResponse</strong> <br>feed: List&lt;PostPreview&gt; <br>paging: PaginationMetadata</td><td style="text-align: left;"><strong>struct FeedApiResponse</strong> <br>feed: [PostPreview] <br>paging: PaginationMetadata</td></tr><tr><td style="text-align: left;"><strong>data class PostPreview</strong><br>postId: Long<br>contentSummary: String<br>author: AuthorPreview<br>createdAt: String<br>liked: Boolean<br>likeCount: Int<br>attachmentCount: Int<br>attachmentPreviewImageUrl: String?</td><td style="text-align: left;"><strong>struct PostPreview</strong> <br>postId: Int64 <br>contentSummary: String <br>author: AuthorPreview <br>createdAt: String <br>liked: Bool <br>likeCount: Int <br>attachmentCount: Int <br>attachmentPreviewImageUrl: String?</td></tr><tr><td style="text-align: left;"><strong>data class AuthorPreview</strong> <br>id: Long <br>name: String <br>profileImageThumbnailUrl: String</td><td style="text-align: left;"><strong>struct AuthorPreview</strong> <br>id: Int64 <br>name: String <br>profileImageThumbnailUrl: String</td></tr></tbody></table></div>
+<p>The PostPreview data model is designed with efficiency in mind. It fetches just enough data to create a rich user experience without overloading network or client resources. Instead of retrieving all attachments, we only fetch a count and a single preview thumbnail URL. We also include key interaction details such as whether the user has liked the post.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Throughout this book, we present API responses as Kotlin and Swift data models rather than raw JSON. In practice, these JSON payloads get converted to platform-specific data structures within the network layer (specifically in the network data sources shown in our architecture diagrams).</p><p>On Android, developers often rely on libraries such as kotlinx.serialization, or Moshi for JSON serialization and deserialization.</p><p>On iOS, Swift's built-in Codable protocol handles this elegantly, mapping JSON fields to Swift struct properties.</p></div>
+<h5 id="pagination">Pagination</h5>
+<p>Our feed endpoint needs to support pagination since we're displaying posts in an infinite scrolling list. In Chapter 10, we cover different pagination types and their trade-offs. For our news feed, offset pagination would struggle with our frequently updated content. As users scroll deeper, the query performance degrades, and the content window becomes inaccurate as new posts are added.</p>
+<p><strong>Cursor-based pagination</strong> works better for our use case because it:</p>
+<ul>
+<li>Handles large datasets more efficiently by using indexed columns instead of calculating offsets.</li>
+<li>Provides better feed consistency by using unique identifiers to maintain stable ordering.</li>
+<li>Works well with real-time content that's constantly changing</li>
+</ul>
+<div class="note-block"><p><strong>✅ Decision made!</strong> We use cursor-based pagination in the feed retrieval endpoint.</p></div>
+<h5 id="other-headers">Other headers</h5>
+<p>The presence of the Authentication header in the endpoint indicates that the user needs to be authenticated to call this endpoint. Also, as we use JSON as the data format, you can assume all our requests include an Accept: application/json header by default.</p>
+<h4 id="post-creation">Post creation</h4>
+<p>Unlike the GET requests we use to fetch data, we use POST requests to send new information to the backend:</p>
+<pre><code>Authentication: Bearer &lt;token&gt;
+POST /v1/posts
+    Body: NewPostRequest
+    Response: 201 Created
+</code></pre>
+<p>When creating a new post, the client sends a POST request with a NewPostRequest in the body. This contains all the details about the new post. The server responds with a 201 status code to indicate successful creation, but doesn't include any data in the response body.</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class NewPostRequest</strong> <br>requestId: Long <br>content: String <br>attachments: List&lt;NewAttachment&gt;</td><td style="text-align: left;"><strong>struct NewPostRequest</strong> <br>requestId: Int64 <br>content: String <br>attachments: [NewAttachment]</td></tr><tr><td style="text-align: left;"><strong>data class NewAttachment</strong> <br>type: String <br>contentUrl: String <br>caption: String?</td><td style="text-align: left;"><strong>struct NewAttachment</strong> <br>type: String <br>contentUrl: String <br>caption: String?</td></tr></tbody></table></div>
+<p>Note that the requestId sent by the client isn't the same as the postId assigned by the server. Some critical information, such as the postId and created_at timestamp, is generated by the backend rather than sent by the client. This approach ensures the backend remains the source of truth for critical data. We'll explore this concept in the "Additional considerations for API design: ID and timestamp generation" section.</p>
+<p>For attachments, our endpoint design assumes that media has already been uploaded to our servers before creating the post. The client simply includes the URL of the uploaded attachment in the NewAttachment's contentUrl field. This two-step process (first uploading attachments, then creating the post) helps manage large files more efficiently. We'll explore this process in more detail in the deep dive section.</p>
+<h4 id="post-details">Post details</h4>
+<pre><code>Authentication: Bearer &lt;token&gt;
+GET /v1/posts/`{postId}`
+    Body: empty
+    Response: 200 OK. Payload of type PostDetailApiResponse
+</code></pre>
+<p>Following REST API guidelines, the request path includes the postId parameter to identify exactly which resource we want to retrieve.</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class PostDetailApiResponse</strong> <br>post: PostDetail</td><td style="text-align: left;"><strong>struct PostDetailApiResponse</strong> <br>post: PostDetail</td></tr><tr><td style="text-align: left;"><strong>data class PostDetail</strong> <br>postId: Long <br>content: String <br>author: AuthorPreview <br>createdAt: String <br>liked: Boolean <br>likeCount: Int <br>shareCount: Int <br>attachments: List&lt;Attachment&gt;</td><td style="text-align: left;"><strong>struct PostDetail</strong> <br>postId: Int64 <br>content: String <br>author: AuthorPreview <br>createdAt: String <br>liked: Bool <br>likeCount: Int <br>shareCount: Int <br>attachments: [Attachment]</td></tr><tr><td style="text-align: left;"><strong>data class Attachment</strong> <br>id: Long <br>type: String <br>contentUrl: String <br>previewImageUrl: String? <br>caption: String?</td><td style="text-align: left;"><strong>struct Attachment</strong> <br>id: Int64 <br>type: String <br>contentUrl: String <br>previewImageUrl: String? <br>caption: String?</td></tr></tbody></table></div>
+<p>Unlike the PostPreview data model, PostDetail contains all the information associated with a post, including the full content and all attachments with their respective content.</p>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>In apps with a list-detail structure such as our news feed, it's common to use two different data models for the same content:</p><ol>
+<li>
+<p>A lightweight model for the list view (PostPreview in our system) that contains just enough information for a good list experience and uses thumbnails or low-resolution images to save bandwidth.</p>
+</li>
+<li>
+<p>A full model for the detail view (PostDetail in our system) that includes all post details and higher-resolution images, loaded only when a user shows interest by tapping on a post.</p>
+</li>
+</ol><p>This two-tier approach balances app responsiveness with user experience. It helps both the client and server save resources by loading detailed data only when necessary, optimizing network usage, processing power, and memory consumption. This is especially important for low-end mobile devices.</p></div>
+<h4 id="user-interactions-with-a-post">User interactions with a post</h4>
+<p>The endpoint for user interactions with posts follows a similar pattern to post creation:</p>
+<pre><code>Authentication: Bearer &lt;token&gt;
+
+POST /v1/posts/`{postId}`/interactions
+    Body: PostInteractionRequest
+    Response: 201 Created
+</code></pre>
+<br>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class PostInteractionRequest</strong> <br>requestId: Long <br>type: String</td><td style="text-align: left;"><strong>struct PostInteractionRequest</strong> <br>requestId: Int64 <br>type: String</td></tr></tbody></table></div>
+<p>The interaction's type could be an enum with different values such as LIKED, REMOVED_LIKE, or SHARED. The requestId is typically a random UUID [4] generated by the client which helps the backend identify unique requests but isn't stored long-term.</p>
+<div class="note-block"><p><strong>📝 Note:</strong> These POST requests don't include the user's ID. Instead, the
+backend extracts this information from the authentication token. This approach
+not only saves bandwidth by avoiding redundant data but also prevents
+potential security issues that could arise from mismatched user IDs in the
+request and the auth token.</p></div>
+<h3 id="additional-considerations-for-api-design-id-and-timestamp-generation">Additional considerations for API design: ID and timestamp generation</h3>
+<p>You may have noticed that when creating a new post, we don't send the postId or created_at timestamp to the backend. This deliberate choice helps maintain data integrity at scale. In large-scale applications, centralizing ID and timestamp generation on the backend offers several advantages:</p>
+<ol>
+<li><strong>Consistency</strong>: The backend can enforce uniform formats and validation rules across all clients.</li>
+<li><strong>Reliability</strong>: Client devices might have incorrect system clocks or could be manipulated, leading to inaccurate timestamps.</li>
+<li><strong>Uniqueness</strong>: The backend can guarantee unique IDs without collisions, even under high transaction volumes.</li>
+<li><strong>Database integration</strong>: Backend systems can leverage database features such as auto-incrementing keys and timestamp functions (such as CURRENT_TIMESTAMP) to efficiently generate these values during insertion.</li>
+</ol>
+<p>Many companies have developed specialized mechanisms for generating IDs at scale, such as X (formerly Twitter)'s Snowflake ID system [5], which creates distributed, time-based IDs that maintain proper ordering while avoiding collisions across multiple servers.</p>
+<p>By keeping these critical operations on the backend, we establish a reliable foundation for our data that becomes increasingly important as our user base grows to hundreds of millions.</p>
+<h2 id="step-3-high-level-client-architecture">Step 3: High-level client architecture</h2>
+<p>With our backend communication protocol, endpoints, and data models defined, we're ready to design the high-level architecture of our mobile system. In this section, we'll cover:</p>
+<ol>
+<li>High-level mobile architecture design.</li>
+<li>External server-side components.</li>
+<li>Key client architecture components for UI and data layers.</li>
+<li>Data flow across app layers.</li>
+</ol>
+<p>Let's build our design based on the requirements we've gathered and the APIs we've defined. These will guide our decisions about which components to include in our architecture. Figure 4 shows the high-level mobile architecture for our news feed system. Notice that the arrows represent data flow, not component dependencies. This distinction is important for understanding how information moves through our app.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-side architecture diagram for a mobile application, likely a social media platform.  The diagram is divided into two main layers within a 'Client' boundary: a UI layer and a Data layer. The UI layer contains three screens ('News Feed Screen,' 'Post Detail Screen,' 'Create Post Screen') each paired with a corresponding 'State Holder' managing its data.  A 'Navigator' component controls navigation between these screens. A 'Media Loader' interacts with a 'CDN' (Content Delivery Network) via HTTPS to load media assets. The Data layer uses 'Dependency Injection' to connect the UI layer to data sources.  A 'Posts Repository' interacts with both 'Posts Local DataSource' (likely a local cache) and 'Posts Remote DataSource' which fetches data from a 'Backend' server via HTTPS.  The 'Posts DB' represents a local database.  Finally, a 'User Repository' likely manages user-specific data, also potentially interacting with the backend.  Data flows from the 'Posts DB' and 'Backend' through the data sources to the repository, then up through dependency injection to the state holders, and finally to the screens in the UI layer.  The CDN is accessed directly by the 'Media Loader' for efficient media delivery." loading="lazy" width="602" height="461" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-4-COY2K5TD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: News feed high-level mobile architecture</figcaption></div></figure>
+<p>Let's examine the key components of our architecture and how they work together, starting with the external server-side components.</p>
+<h3 id="external-server-side-components">External server-side components</h3>
+<p>Our system relies on two key external components to handle data storage, business logic processing, and content delivery.</p>
+<h4 id="backend">Backend</h4>
+<p>The primary external component in our system is the <strong>Backend</strong>. As discussed earlier, it's a RESTful service that communicates with our client app using HTTPS and JSON for data exchange. The backend serves two primary functions:</p>
+<ol>
+<li>It provides the client app with the data it needs such as posts, and user information.</li>
+<li>It permanently stores users' posts and interactions.</li>
+</ol>
+<p>The backend contains most of the business logic in our system, handling operations such as feed generation, post creation, and user interaction processing.</p>
+<h4 id="content-delivery-network-cdn">Content Delivery Network (CDN)</h4>
+<p>We can enhance our design by adding a <strong>Content Delivery Network (CDN)</strong>. CDNs excel at distributing static content such as user profile images and media attachments across various geographical locations. This approach offers several benefits:</p>
+<ul>
+<li>Helps load the news feed quickly and consistently regardless of the user's location.</li>
+<li>Reduces load on servers, particularly helpful during traffic spikes or major events [6].</li>
+<li>Improves overall performance by serving content from servers physically closer to users.</li>
+</ul>
+<p>Given the scale of our system (500 million monthly active users) and the amount of static content we need to deliver, <strong>adding a CDN is a smart choice</strong>. It will help us maintain performance and user experience as our user base grows. In our setup, the backend is responsible for providing the CDN with the content to distribute.</p>
+<h3 id="client-architecture">Client architecture</h3>
+<p>Now that we've outlined the external components our client will interact with, let's dive into the core of our mobile system design. We're aiming to build an app that's robust, performant, and scalable. To achieve this, we've structured our architecture into two main layers:</p>
+<ul>
+<li>The <strong>UI layer</strong> is where users interact with our app. It's responsible for displaying posts, handling user interactions, and preparing data for the screen. This layer creates the visual experience users engage with.</li>
+<li>The <strong>Data layer</strong> acts as the backbone of our app, handling the client-side business logic for posts. It manages how posts are created, modified, and retrieved on the device.</li>
+</ul>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>During your interview, use the architectural patterns you're most comfortable with, whether that's the repository pattern, Clean Architecture, MVVM, MVI, or MVP.</p><p>What matters most isn't which pattern you choose, but how clearly you can explain your reasoning and demonstrate how data flows through your design. Interviewers want to see your thought process and how you organize components to solve real problems.</p><p>For comprehensive coverage of architectural patterns and topics, refer to Chapter 10: Mobile System Design Building Blocks.</p></div>
+<p>To ensure our app remains predictable and error-resistant, we're implementing <strong>Unidirectional Data Flow (UDF)</strong> and <strong>Reactive programming</strong> to propagate data through our architecture. With UDF, data flows in one direction (from data sources through our repositories to UI components) while user actions flow in the opposite direction through clearly defined channels. Reactive programming complements this by providing tools to handle asynchronous data streams and propagate changes throughout the app. Together, these approaches create a predictable, maintainable system with clear data paths and efficient state management.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>To implement UDF and Reactive Programming, Android developers can leverage Kotlin Coroutines and Flow APIs. On iOS, the Combine framework offers similar capabilities.</p></div>
+<p>We're also adhering to key software design principles such as <strong>separation of concerns</strong> and <strong>single responsibility</strong>. Each component in our diagram has a specific, well-defined role. To tie everything together and make our app more modular and testable, we'll use <strong>dependency injection</strong> to keep our components loosely coupled.</p>
+<div class="note-block"><p><strong>✅ Architecture decisions made!</strong></p><ul>
+<li>
+<p><strong>Layered architecture</strong> consisting primarily of UI and data layers.</p>
+</li>
+<li>
+<p><strong>Unidirectional Data Flow (UDF)</strong> and <strong>Reactive programming</strong> to shape how data flows through the architecture.</p>
+</li>
+</ul></div>
+<p>Let's now examine the key components within each layer and define their responsibilities.</p>
+<h4 id="data-layer">Data layer</h4>
+<p>When designing the data layer, we need to consider the types of application data the app handles. For each type of application data, we typically include:</p>
+<ul>
+<li><strong>A Repository</strong> that acts as the main interface for that data type, exposing it to the rest of the app and handling related business logic.</li>
+<li><strong>Data Sources</strong> that manage specific data operations. We might have zero to many data sources, depending on where we need to fetch or store data.</li>
+</ul>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>The data layer is crucial as it contains both the client-side business logic and application data. In most system designs, it's worth dedicating more time to this layer as that demonstrates to your interviewer that you understand the importance of robust data management and business logic in mobile app architecture.</p></div>
+<p>In our news feed app, the main type of application data is Posts. To handle this data effectively, we set up these key components in our data layer:</p>
+<ul>
+<li>The <strong>Posts Repository</strong> is the central component that exposes the news feed and individual posts to the app, managing the core business logic.</li>
+<li>The <strong>Posts Remote Data Source</strong> handles network communication with the backend for fetching and sending post data.</li>
+<li>The <strong>Posts Local Data Source</strong> manages local storage of posts, enabling offline functionality.</li>
+</ul>
+<p>Additionally, we include a <strong>User Repository</strong> to handle user-related information, such as the currently logged-in user's details and authentication token.</p>
+<p>By structuring our data layer this way, we create a clean separation of concerns. Each component has a clear responsibility, making our system more modular and easier to maintain. This approach also allows us to easily add support for other types of data in the future, such as user profile data or analytics, following the same pattern.</p>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>When creating and discussing the high-level architecture diagram during your interview, focus on the most critical aspects rather than covering every detail. Your interviewer will likely assume you have a solid grasp of the fundamentals. Prioritize explaining your key design decisions and trade-offs. If the interviewer wants more information on a particular point, they'll ask follow-up questions.</p><p>For example, you wouldn't need to explain basic concepts like what UI and data layers are. Instead, concentrate on how you've applied these concepts to solve the specific problem at hand. This demonstrates your ability to focus on what's important and communicate effectively under time constraints, both valuable skills in real-world mobile development.</p></div>
+<h4 id="ui-layer">UI layer</h4>
+<p>With our data layer components in place, let's move on to the UI layer, which handles how we present information to users. To keep things simple, we'll create high-level UI components for each screen we identified in our requirements gathering phase. Our system includes three main screens: News Feed, Post Detail, and Create Post.</p>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>Don't aim for perfection in Step 3: High-level client architecture. We're creating a basic skeleton of our mobile app's architecture, not a complete blueprint. We'll have chances to refine and improve the design throughout the interview. We should keep an eye on the clock and avoid getting caught up in details, the goal is to create a solid foundation that we can build upon later.</p></div>
+<p>Each screen has a corresponding State Holder component (think of a ViewModel on Android) that serves two key functions:</p>
+<ol>
+<li>It manages the UI state, determining what data should be displayed on the screen.</li>
+<li>It handles the screen's logic, which might involve processing user interactions, transforming data for display, and coordinating with the data layer to fetch and modify application state.</li>
+</ol>
+<p>Tying these screens together is a <strong>Navigation component</strong> that manages how users move between screens and passes along any necessary information, such as a postId when opening the Post Detail screen.</p>
+<h5 id="use-case-news-feed">Use case: News Feed</h5>
+<p>Let's use the News Feed screen to illustrate how the UI layer works in practice. While we won't cover every screen, this example represents the general approach for all screens in the app.</p>
+<p>The News Feed State Holder automatically subscribes to the Posts Repository in the data layer. This subscription retrieves relevant post data to display to the user. The state holder exposes this data to the UI through a NewsFeedUiState stream, implemented as an observable data holder. Besides post data, the UI state may include other important information such as error messages, loading indicators, or other UI-specific states.</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class NewsFeedUiState</strong><br> feed: List&lt;PostPreviewUiModel&gt;<br> isLoading: Boolean<br> errorMessage: String?</td><td style="text-align: left;"><strong>struct NewsFeedUiState</strong><br> feed: [PostPreviewUiModel]<br> isLoading: Bool<br> errorMessage: String?</td></tr></tbody></table></div>
+<div class="note-block"><p><strong>📝 Note:!</strong> The NewsFeedUiState uses a PostPreviewUiModel instead of the previously defined PostPreview. This is intentional! It's a best practice to separate domain or data models from UI models. The UI layer often requires only a subset of the full data, sometimes even reshaped or pre-processed to efficiently render the screen. This approach keeps the UI lean, minimizes unnecessary memory usage, and allows the data presentation to evolve independently of backend or storage changes. The closer the model is to the UI, the more it should reflect what the UI needs, not how the data is stored or retrieved.</p></div>
+<p>For navigation events, the UI component handles user interactions directly. When a user taps on a post in the feed, the News Feed Screen notifies the Navigation component about which screen to display next, passing along the relevant postId (Figure 5). This approach is common in event-based navigation libraries.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified sequence diagram illustrating the user flow for opening a post detail screen in a news feed application.  A user icon on the left represents the user initiating the process.  A labeled arrow (1) indicates the user action 'Open Post Details,' which triggers a transition to the 'News Feed Screen' box.  From the 'News Feed Screen,' a downward arrow labeled (2) 'openPostDetail (postId)' shows a function call to a 'Navigator' box, which acts as an intermediary.  The 'Navigator' box, shaded light gray, receives the `postId` parameter.  Finally, a downward arrow labeled (3) shows the Navigator's response, leading to the display of the 'Post Detail Screen' box.  The overall flow depicts a user interaction on the News Feed, triggering a navigation process via the Navigator, ultimately resulting in the display of the specific post's details." loading="lazy" width="481" height="375" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-5-74CUN2XZ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Opening a post detail data flow</figcaption></div></figure>
+<p>The News Feed State Holder also manages user interactions such as liking or sharing a post. When a user likes a post, the state holder delegates this action to the Posts Repository, which handles changes to the application data. If the system uses optimistic writes, the state holder immediately updates the UI state to reflect the like action, providing instant feedback to the user.</p>
+<h5 id="common-components-in-the-ui-layer">Common components in the UI layer</h5>
+<p>We introduce a <strong>Media Loader component</strong> to handle post media attachments including image loading, which are typically represented as string URLs in our data models. This component efficiently downloads and manages static images and other media, typically served from our CDN.</p>
+<p>This approach centralizes media handling, ensuring consistency across the app and providing optimized caching, loading, and error handling for all visual content. The Media Loader can also implement features such as progressive loading or placeholders to enhance the user experience even further.</p>
+<h4 id="data-flow-across-app-layers">Data flow across app layers</h4>
+<p>To illustrate how data flows through the app hierarchy, Figure 6 shows what happens when a user logs in to the app for the first time. As soon as login completes, the News Feed state holder subscribes to the Posts Repository's data stream. Since the local data source is empty at this point, the repository reaches out to the backend to fetch the user's news feed (step 4).</p>
+<p>Once the network data source receives the backend response, the Posts Repository updates the local database through the local data source (step 8). This update triggers a chain reaction: the local data source emits the updated database state into the posts data stream, which propagates up to the UI, refreshing the screen with the user's news feed (step 13).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a news feed application.  A user (represented by a stick figure labeled 'User') initiates the process by logging in (step 1). This action triggers the display of the 'News Feed Screen'.  The screen interacts with a 'News Feed State Holder' (steps 2 and 13), which manages the application's state. The state holder communicates with a 'Posts Repository,' which in turn interacts with two data sources: 'Posts Local DataSource' (steps 3, 8, and 11) and 'Posts Remote DataSource' (steps 4 and 7). The local data source interacts with a 'Posts DB' (steps 9 and 10), representing a local database storing posts. The remote data source interacts with a 'Backend' (steps 5 and 6), representing a server-side component responsible for fetching and updating data.  Data flows between the components are numbered, indicating the sequence of operations: the repository pulls data from both local and remote sources (steps 7 and 8), updates the state holder (step 12), and the state holder updates the news feed screen (step 13).  The local data source also synchronizes with the Posts DB (steps 9 and 10).  The entire diagram illustrates the data flow and interactions between the user interface, data storage, and backend services in the news feed application." loading="lazy" width="542" height="460" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-6-TOGRKAP7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: User login data flow</figcaption></div></figure>
+<div class="note-block"><p><strong>💡 Pro tip!</strong> Before moving on, pause to check that the functional and
+non-functional requirements outlined earlier are covered. It's much easier to
+address any missing use cases now rather than later when you're deep in
+technical discussions. Think of it as double-checking your foundation. You
+want it solid before building on top of it.</p></div>
+<h2 id="step-4-design-deep-dive">Step 4: Design deep dive</h2>
+<p>Now that we've sketched out the high-level client architecture, it's time to dig into the details. In a mobile system design interview, the areas you explore in depth often depend on your interviewer's interests and the unique challenges of the system you're designing. For our news feed app, we'll focus on these key areas:</p>
+<ul>
+<li>Local storage and offline mode support.</li>
+<li>Optimistic writes and offline interactions.</li>
+<li>Displaying rich post content.</li>
+<li>Troubleshooting janky news feed scrolling.</li>
+</ul>
+<h3 id="local-storage-and-offline-mode-support">Local storage and offline mode support</h3>
+<p>A core requirement of our news feed app is the ability to function effectively without an internet connection. To deliver this experience, we need a robust local storage strategy that balances performance, resource usage, and user experience.</p>
+<p>To maintain optimal performance, we need to implement thoughtful data management strategies for both our database content and media assets. Let's examine these topics: storage and eviction policies, offline mode user experience, and caching strategy for media content.</p>
+<h4 id="choosing-the-right-storage-solution">Choosing the right storage solution</h4>
+<p>Local storage in our app serves several critical purposes:</p>
+<ul>
+<li>Offline browsing and resilience against poor connectivity: When there's no internet connection or in areas with spotty coverage, users can still scroll through previously cached posts, ensuring users always have something to engage with.</li>
+<li>Improved performance: Opening a cached post details happens instantly, as data loads from local storage rather than making a network request.</li>
+</ul>
+<p>When selecting a storage solution for our news feed, we need to consider the structure and access patterns of our data. Let's compare the main options in Table 3:</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;"><strong>Relational Database</strong></th><th style="text-align: left;"><strong>Non-relational Database</strong></th><th style="text-align: left;"><strong>Key-value stores</strong></th></tr></thead><tbody><tr><td style="text-align: left;">Posts content is a well-structured data model that requires complex data relationships and advanced querying needs such as filtering, sorting, and potentially searching through posts. <br>Relational databases can provide data integrity and consistency and are designed to scale efficiently.</td><td style="text-align: left;">Posts data is a well-structured data model, so we won't benefit from the advantages of non-relational databases. <br>We need support for complex queries and cannot allow inconsistencies in our local storage.</td><td style="text-align: left;">Key-value stores aren't designed for handling large amounts of data or complex data structures. The lack of relational structure could lead to data redundancy. Storing too much data can lead to performance degradation. <br>They don't support relationships, advanced querying, or transactional operations out of the box.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 3: Trade-offs for storing posts data locally on the device</p></p>
+<p>Given these considerations, we'll implement a <strong>relational database</strong> for our news feed app. This solution provides the best combination of structured data storage, query capabilities, and transactional support needed for our offline functionality.</p>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>For most mobile apps, a relational database is the go-to choice for storing application data. It offers built-in scalability, robust platform support, and mature tooling that handles common data access patterns effectively. While other storage options exist, it's safe to consider a relational database the default starting point unless specific requirements suggest otherwise.</p></div>
+<h5 id="database-eviction-policy">Database eviction policy</h5>
+<p>Our news feed app serves a large user base with a constant stream of new content. Storing every post indefinitely on the client would be inefficient and wasteful of device resources. Instead, we need an intelligent eviction policy that keeps our local database lean and relevant.</p>
+<p>We can design a hybrid approach combining three complementary policies:</p>
+<ol>
+<li><strong>Least Recently Used (LRU)</strong>: Prioritizes keeping posts the user has recently viewed, as these are most likely to be accessed again.</li>
+<li><strong>Time-to-Live (TTL)</strong>: Sets expiration times for each post, ensuring our cache doesn't contain stale content.</li>
+<li><strong>Custom Minimum Threshold</strong>: Guarantees that a baseline number of posts always remains available for offline viewing.</li>
+</ol>
+<p>This combined approach offers an optimal balance, prioritizing content that's both fresh and relevant to the user while efficiently managing device storage. When determining optimal cache settings, we'll start with these defaults:</p>
+<ul>
+<li>Maximum cache size: 100-200MB, adjustable based on usage patterns.</li>
+<li>Default TTL: 15 days for regular posts.</li>
+<li>Minimum threshold: 50 posts or equivalent to fill 2-3 screens.</li>
+</ul>
+<p>These parameters should be configurable from the backend, allowing us to fine-tune based on real-world analytics data.</p>
+<h4 id="offline-mode-user-experience">Offline mode user experience</h4>
+<p>When a user has no internet connection and opens the app, they'll see posts previously cached in the database. This provides a seamless experience even without connectivity. To make this work, we follow the Single Source of Truth (SSOT) pattern and store posts in a local database on the device as soon as we receive them from the backend. For security reasons, we scope the database to the current user, clearing it when they log out to protect their data.</p>
+<p>The Posts Repository consistently exposes a stream of post data from the local data source, regardless of internet connectivity. This approach establishes <strong>the local data source as the single source of truth for post data in the client</strong>, ensuring users always have access to content they've previously seen.</p>
+<div class="note-block"><p><strong>📌 Remember the Single Source of Truth (SSOT) pattern.</strong></p><p>A fundamental principle in our architecture to support offline mode is establishing the local database as the single source of truth for post data within the client. This means:</p><ol>
+<li>
+<p>All UI components retrieve data exclusively from the local database, never directly from the network.</p>
+</li>
+<li>
+<p>Network responses update the local database, which then propagates changes to the UI.</p>
+</li>
+<li>
+<p>User interactions are recorded in the local database before being sent to the server.</p>
+</li>
+</ol><p>This pattern creates a consistent flow of data regardless of network status: Backend → Local Storage → UI.</p></div>
+<p>If the user attempts to refresh their feed while offline:</p>
+<ol>
+<li>The Posts Repository tries to fetch data from the remote data source.</li>
+<li>This attempt fails due to the connection issue.</li>
+<li>The failure propagates to the state holder, which updates the UI state.</li>
+<li>The UI displays an appropriate message about connectivity issues.</li>
+<li>Previously cached content continues to be displayed.</li>
+</ol>
+<p>This offline-first approach ensures our app remains useful and engaging even in challenging connectivity scenarios, significantly improving the user experience in regions with unstable networks or for users who frequently transition between connected and disconnected states.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Early versions of Facebook's iOS app used Apple's Core Data to cache feed stories locally. This became slow at their scale and they replaced it with a lightweight, denormalized disk cache using object serialization, seeing significant performance improvements [7].</p><p>Instagram's mobile app also caches feed content on disk to enable offline usage. It maintains a response store for feed JSON and an image/video cache so that content can be delivered from disk as if from the network when offline [8].</p><p>Reddit chose to use Android's internal storage for video caching after external storage proved unreliable on some devices [9].</p></div>
+<h3 id="optimistic-writes-and-offline-interactions">Optimistic writes and offline interactions</h3>
+<p>Optimistic writes and offline interaction capabilities are crucial for delivering a top-notch user experience at scale, especially for boosting engagement and retention. These features allow users to interact smoothly with the app, even on low-end devices or in areas with poor network connectivity.</p>
+<p><strong>Optimistic writes are a design strategy that immediately updates the app's UI in response to user actions, without waiting for backend confirmation</strong>. This approach creates a more responsive and fluid experience by giving users the impression that their actions take effect instantly.</p>
+<p>When handling a UI event that calls for optimistic writes, such as liking a post, the state holder performs two parallel actions:</p>
+<ol>
+<li>It immediately updates the UI state to reflect the change, as if the data layer had already confirmed it. This is the essence of an optimistic write.</li>
+<li>It calls the Posts repository to update the application state and notifies the backend via a network request.</li>
+</ol>
+<p>Once the backend syncs the optimistic write, the UI remains unchanged even if the underlying application data updates. This is because the UI was proactively updated during the initial optimistic write.</p>
+<p>Supporting optimistic writes and offline interactions effectively requires careful implementation. We'll explain how to approach this from four angles:</p>
+<ul>
+<li>Data layer updates.</li>
+<li>Error-handling strategies.</li>
+<li>Common challenges and how to avoid them.</li>
+<li>A walkthrough of an optimistic write data flow example.</li>
+</ul>
+<h4 id="data-layer-updates">Data layer updates</h4>
+<p>Optimistic writes work well for some events, but it's important to go a step further. We should store all user interactions locally until the backend confirms them. This approach supports offline functionality and ensures we don't lose any data during offline periods or poor network conditions.</p>
+<p>To make this work, we use the local database as a queue, keeping track of user interactions in the order they happen. If there are user interactions to process when the device is offline, the repository will go through the queue in the background when the device regains connectivity.</p>
+<p>To maintain the order of records, we use an AUTO INCREMENT field as the id in a new UserInteraction data model. This model also includes:</p>
+<ul>
+<li>postId and userId to identify the relevant post and user.</li>
+<li>action field for interaction types (e.g. LIKED, UNLIKED, SHARED, BOOKMARKED).</li>
+<li>status field to track the interaction's state (PENDING, FAILED or CANCELED).</li>
+<li>updated_at timestamp to record the last sync attempt.</li>
+<li>failureCount to track unsuccessful sync attempts.</li>
+</ul>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class UserInteraction</strong><br>id: Long<br>postId: Long<br>userId: Long<br>action: UserInteractionAction<br>status: UserInteractionStatus<br>createdAt: String<br>updatedAt: String<br>failureCount: Int</td><td style="text-align: left;"><strong>struct UserInteraction</strong><br>id: Int64<br>postId: Int64<br>userId: Int64<br>action: UserInteractionAction<br>status: UserInteractionStatus<br>createdAt: String<br>updatedAt: String<br>failureCount: Int</td></tr><tr><td style="text-align: left;"><strong>enum class UserInteractionAction</strong> <br>LIKED, UNLIKED, <br>SHARED, BOOKMARKED</td><td style="text-align: left;"><strong>enum UserInteractionAction</strong> <br>case liked, unliked<br> case shared, bookmarked</td></tr><tr><td style="text-align: left;"><strong>enum class UserInteractionStatus</strong> <br>PENDING, FAILED, CANCELED</td><td style="text-align: left;"><strong>enum UserInteractionStatus</strong> <br>case pending, failed, canceled</td></tr></tbody></table></div>
+<p>It's important to sync all user interactions with the server, even if multiple interactions occur on the same post. This data can provide valuable insights for analysis. To handle potential conflicts, we can employ the "last write wins" strategy.</p>
+<p>In our local database, we add a new UserInteractions table to store all user interactions. Once an interaction successfully syncs with the server, the Posts Repository removes it from the UserInteractions table, and updates the corresponding entry in the Posts table.</p>
+<p>We represent the database tables in the data layer design (Figure 7) as Data Access Objects (DAO) components.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data layer architecture diagram for a posts system.  The diagram shows a cylindrical database labeled 'Posts DB' connected to a rectangular component labeled 'Posts DAO' (Data Access Object).  The 'Posts DAO' is further connected to a 'Posts Local DataSource' and a 'User Interactions DAO'.  The 'User Interactions DAO' also connects directly to the 'Posts DB'.  Both the 'Posts Local DataSource' and 'Posts Remote DataSource' feed into a central 'Posts Repository' component.  Finally, an upward-pointing arrow emerges from the 'Posts Repository,' suggesting data flow towards a higher layer (not shown) in the application architecture.  The entire structure is enclosed within a dashed rectangle labeled 'Data layer,' indicating the scope of the diagram.  The connections between components represent data flow or interactions, with data likely moving from the database through the DAOs and data sources to the repository and ultimately to the higher application layers." loading="lazy" width="602" height="336" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-7-GZDSC36X.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7: Data layer design update</figcaption></div></figure>
+<h4 id="error-handling-strategies">Error handling strategies</h4>
+<p>When user interactions fail to sync with the server, we need a robust error handling approach. Let's implement a retry mechanism with exponential backoff:</p>
+<ol>
+<li>If a network request fails, we mark the interaction status as FAILED.</li>
+<li>The system then attempts to retry the sync after a progressively longer delay.</li>
+<li>This process continues until we reach a maximum number of attempts.</li>
+</ol>
+<p>What happens if we hit that maximum? It depends on how critical the interaction is. For less critical actions, we might simply update the status to CANCELED and roll back any UI changes. For more important interactions, we could notify the user. For instance, if a post submission fails, we might send a push notification asking the user to retry manually.</p>
+<p>But what about cases where the backend state has changed since our optimistic write? This is where conflict resolution comes into play. We have a few options: discard the local interaction, attempt to merge the changes, or notify the user about the conflict and let them decide. The best approach often depends on the specific use case and the nature of the data involved.</p>
+<h4 id="common-challenges">Common challenges</h4>
+<p>While optimistic writes and allowing offline interactions can greatly enhance user experience, they come with their own set of challenges. Let's explore some common ones and how we address them in our system:</p>
+<ul>
+<li>The big challenge is maintaining data consistency between the client and backend.
+<ul>
+<li>To overcome this, we treat the backend as the single source of truth. Whenever we receive data from the backend, we update our local Posts database to match, ensuring alignment.</li>
+</ul>
+</li>
+<li>User interactions could potentially be applied out of order.
+<ul>
+<li>To mitigate this, we include timestamps for both creation and last modification of each interaction. Furthermore, we send these interactions to the backend in order, ensuring sequential processing.</li>
+</ul>
+</li>
+<li>Users might experience confusing UI behavior or anomalies if optimistic updates are rolled back or if conflict resolution isn't clear.
+<ul>
+<li>For critical scenarios, we notify the user of what happened and guide them on next steps.</li>
+</ul>
+</li>
+<li>Optimistic writes can put additional strain on the backend due to retries and conflict resolution.
+<ul>
+<li>We mitigate this by implementing an exponential backoff strategy for retries. We could also batch user interactions if needed.</li>
+</ul>
+</li>
+</ul>
+<h4 id="optimistic-write-data-flow">Optimistic write data flow</h4>
+<ul>
+<li>When the state holder receives the UI event, it performs two actions in parallel:
+<ul>
+<li>Updates its UI state to reflect the change (step 1.1), providing instant feedback to the user.</li>
+<li>Notifies the repository about the interaction (step 1.2), which persists locally (step 2) and syncs with the backend (step 3).</li>
+</ul>
+</li>
+<li>After the interaction is successfully synced (step 4), the local data source first removes the user interaction from the database (step 5) and updates the Post (step 6).</li>
+<li>Subsequent updates to the local database after the optimistic write don't cause new UI state emissions from the state holder (step 7). This is because the UI state doesn't change, we updated the UI state optimistically in step 1.1.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a news feed application.  A user interacts with the system by liking a post, which is sent to the 'News Feed Screen'. This screen interacts with a 'News Feed State Holder' (1.1). The state holder communicates with a 'Posts Repository' (1.2, 7). The repository interacts with both a 'Posts Local DataSource' (2) and a 'Posts Remote DataSource' (3). The local data source interacts with a database ('Posts DB') via 'User Interactions DAO' (5) and 'Posts DAO' (6). The remote data source interacts with a 'Backend' (4).  Data flows between components are numbered for clarity, showing the interaction between the user interface, data storage, and backend services.  The diagram illustrates how a user action triggers data updates and retrieval from both local and remote sources, maintaining consistency in the news feed display." loading="lazy" width="602" height="552" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-8-WOSHK342.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8: Optimistic write data flow</figcaption></div></figure>
+<p>By implementing optimistic writes and robust offline capabilities, we create an app that feels responsive and reliable under all network conditions. This approach significantly enhances user experience and effectively manages the complexities of distributed systems.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p><p>Instagram developed a Direct's Mutation Manager in their mobile apps to
+manage potential issues such as network failures or data inconsistencies for
+optimistic writes [10].</p></p></div>
+<h3 id="displaying-rich-post-content">Displaying rich Post content</h3>
+<p>Our system requirements include allowing users to add rich text to their posts. While the Post's content is stored as a simple String, displaying it as plain text wouldn't meet user expectations. Modern social networks offer features such as links, mentions, and text styling. Our application goes a step further by supporting rich editing, including elements such as headers, bold text, and italics.</p>
+<p>To handle this rich content effectively, we have two main options: create our own markup language or use an existing one like HTML or Markdown. Let's examine the trade-offs of each approach.</p>
+<p>Developing a custom markup language can be expensive and requires ongoing maintenance. Facebook's past attempt at this, the Facebook Markup Language (FBML), was eventually deprecated [11] in favor of standard HTML and JavaScript, primarily using React. X (formerly Twitter), on the other hand, still uses a custom approach with their own text library [12]. Some companies opt for existing solutions, such as Reddit, which uses a specialized version of Markdown [13].</p>
+<p>Given our current needs, creating a custom markup language or parsing method isn't the best use of our resources. Instead, let's consider which standard markup language would best suit our system in Table 4:</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;"><strong>Option</strong></th><th style="text-align: left;"><strong>Advantages</strong></th><th style="text-align: left;"><strong>Disadvantages</strong></th></tr></thead><tbody><tr><td style="text-align: left;">HTML</td><td style="text-align: left;">Supports rich formatting needed for news feed posts. <br>Allows custom elements for future features such as text highlighting in posts or user mentions. <br>Consistent rendering across platforms.</td><td style="text-align: left;">Complexity could impact user post creation for non-technical users. <br>Requires sanitization to prevent XSS attacks. <br>Rendering HTML content can be resource-intensive and it may affect scrolling performance on low-end devices.</td></tr><tr><td style="text-align: left;">Markdown</td><td style="text-align: left;">Simpler for users to create formatted posts with basic features. <br>Can be converted to HTML for rendering, giving us flexibility in how we process and display content.</td><td style="text-align: left;">Limited formatting options for our rich content needs and might be insufficient for complex post layouts. <br>Markdown still has its own syntax that users need to learn.</td></tr></tbody></table></div>
+<p class="tableCaption">Table 4: Trade-offs for encoding posts content</p>
+<p>Given our requirements for a modern, rich, and interactive news feed with diverse formatting options, <strong>we've decided to use HTML for encoding post content</strong>. This choice allows us to leverage HTML's versatility while addressing its potential drawbacks:</p>
+<ol>
+<li>To manage HTML's complexity, we'll establish best practices that define a consistent way to implement each app feature. This approach will help prevent multiple HTML methods from being used for the same functionality.</li>
+<li>Since our backend sends post content and summaries as HTML-encoded strings, we need to prioritize content validation and sanitization. This step is crucial in preventing security vulnerabilities such as XSS attacks.</li>
+</ol>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>To validate and sanitize HTML-encoded Strings, we can use the OWASP Java HTML Sanitizer or the jsoup libraries on Android. For iOS, we can use the HTMLKit or Purifier libraries.</p></div>
+<p>By implementing these strategies, we can harness HTML's power while mitigating its potential issues, ensuring a robust and secure content handling system for our news feed.</p>
+<h4 id="rendering-html-encoded-content">Rendering HTML-encoded content</h4>
+<p>When it comes to displaying HTML-encoded content on the screen, we have two primary options to consider: using a WebView to render the HTML directly, or parsing the HTML and displaying it using native UI components. Table 5 takes a closer look at these approaches and weighs their pros and cons.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;"><strong>Option</strong></th><th style="text-align: left;"><strong>Advantages</strong></th><th style="text-align: left;"><strong>Disadvantages</strong></th></tr></thead><tbody><tr><td style="text-align: left;">WebView</td><td style="text-align: left;">Renders complex post formatting with minimal effort and supports all HTML features in a single component. <br>Ensures consistent appearance across all platforms, as WebViews use the same rendering engine as mobile browsers.</td><td style="text-align: left;">Higher memory usage may impact feed scrolling. <br>Interactions feel less native in the scrolling feed and it's more difficult to integrate seamlessly with feed animations.</td></tr><tr><td style="text-align: left;">Native UI components</td><td style="text-align: left;">Better scrolling performance in the feed. <br>Consistent with platform design language that provides smoother integration with other gestures.</td><td style="text-align: left;">Requires custom HTML to native UI parser implementation. <br>More development effort to maintain.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 5: Trade-offs for rendering HTML post content on the screen</p></p>
+<p>For simpler HTML content such as formatted text with links and images, parsing HTML into native components strikes the right balance between performance and visual quality. And since we can establish HTML best practices when creating post content, <strong>we opt to parse the HTML and render it using native UI components</strong>. This choice enhances app performance and delivers a more polished user experience.</p>
+<div class="note-block"><p><strong>✅ Decisions made!</strong></p><ul>
+<li>
+<p>HTML for encoding post content to support rich text.</p>
+</li>
+<li>
+<p>Native UI components to render HTML-encoded content on the screen.</p>
+</li>
+</ul></div>
+<h4 id="updates-to-the-high-level-architecture-diagram">Updates to the high-level architecture diagram</h4>
+<p>To enhance our high-level architecture diagram, we add a <strong>Post Content Renderer</strong> component. This component renders posts on the screen using native components, assisted by the <strong>HTML Parser</strong>. All screens in our diagram will depend on the Post Content Renderer, improving code readability, testability, and allowing reuse of logic across screens.</p>
+<p>Similarly, we introduce a <strong>Post Editor</strong> for the Create Post Screen. This editor lets users type rich content, which is then encoded to a String using the <strong>HTML Encoder</strong> component. Figure 9 illustrates these new dependencies within the UI layer.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UI layer architecture diagram for a mobile application, likely a news or blogging platform.  The diagram shows three main screen components: 'News Feed Screen,' 'Post Detail Screen,' and 'Create Post Screen.' Each screen interacts with a corresponding 'State Holder' (News Feed State Holder, Post Detail State Holder, Create Post State Holder) which presumably manages the data associated with that screen.  The 'News Feed Screen' and 'Post Detail Screen' both send data to a 'Post Content Renderer,' which in turn sends the rendered content to an 'HTML Parser.'  The 'Create Post Screen' interacts with a 'Post Editor,' which uses an 'HTML Encoder' to format the content before it's likely sent to a backend (not shown).  All connections between components are represented by dashed arrows, indicating data flow or interaction.  The 'Post Content Renderer' acts as a central component, receiving data from different screens and processing it for display. The shaded boxes ('Post Content Renderer,' 'HTML Parser,' 'Post Editor,' 'HTML Encoder') suggest these are distinct modules or services." loading="lazy" width="602" height="319" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/news-feed-app/figure-3-9-6NQQRESX.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9: UI layer design update</figcaption></div></figure>
+<p>This approach ensures a consistent, high-quality rendering experience across all screens where post content appears, while maximizing performance and maintaining the native feel of our application.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Back in 2012, the Facebook iOS app switched from HTML5 to native iOS code to optimize performance [7].</p><p>Reddit reported that moving to Server-Driven UI and stripping unneeded data from responses reduced home feed latency by 12% [14].</p></div>
+<h3 id="janky-news-feed-scrolling">Janky news feed scrolling</h3>
+<p>During mobile system design interviews, the interviewer might pose hypothetical scenarios to test your troubleshooting skills and technical depth. A common question might be: "<em>What could be causing janky, slow scrolling in the news feed? If this were happening, how would you fix it?</em>"</p>
+<p>This type of question evaluates your understanding of mobile performance optimization and your ability to diagnose complex issues. Let's explore the potential causes and solutions.</p>
+<h4 id="inefficient-rendering">Inefficient rendering</h4>
+<p>Several potential issues could lead to janky scrolling in a news feed. Let's examine the most common culprits.</p>
+<p><strong>View recycling inefficiencies</strong> are a primary concern. The main goal of item recycling is to reuse views that are no longer visible instead of creating new ones for each item that scrolls into view. This reduces the number of view creation and layout operations, which significantly improves performance and reduces memory usage.</p>
+<p>When a new view comes into the visible area, the system should check a recycling pool for an available reusable view with the matching identifier and reconfigure it with new data. Because views are recycled rather than constantly created and destroyed, the main thread has more bandwidth to handle user interactions and animations, resulting in smoother scrolling.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Both platforms provide native APIs that support efficient view recycling:</p><ul>
+<li>
+<p>On Android, use RecyclerView in the View system, or lazy lists such as LazyRow and LazyColumn in Jetpack Compose.</p>
+</li>
+<li>
+<p>On iOS, use UITableView or UICollectionView, or the List API in SwiftUI.</p>
+</li>
+</ul></div>
+<p><strong>Asynchronous content loading</strong> is another critical aspect built into our news feed design. As we've covered, heavy objects such as images and attachments in the post data model come as URL strings rather than actual content. When rendering a post item on screen, these objects can be loaded asynchronously, freeing the main thread from expensive operations that could cause stuttering.</p>
+<p>Other UI inefficiencies related to rendering that affect performance and overall user experience might include:</p>
+<ul>
+<li><strong>Main thread blocking</strong>: Heavy computations, synchronous network calls, or file I/O operations on the main thread can freeze the UI. To address this, move all resource-intensive operations to background threads.</li>
+<li><strong>Complex layouts</strong>: Deeply nested view hierarchies are costly for the rendering engine. Flatten layouts where possible, reduce hierarchy depth, and eliminate redundant or overlapping views.</li>
+<li><strong>Inefficient state management</strong>: Unnecessary re-renders caused by poorly managed state can severely impact performance. Implement debouncing for state updates to limit their frequency, and introduce caching and memoization to avoid redundant operations.</li>
+<li><strong>Unoptimized images</strong>: Loading and displaying large images without proper optimization is often a major performance bottleneck. Ensure your media loading library is performant, and consider resizing images to the required dimensions before display if the server doesn't provide optimized versions.</li>
+</ul>
+<h4 id="dynamic-image-and-video-quality">Dynamic image and video quality</h4>
+<p>The user experience in our app, particularly during news feed scrolling, is directly influenced by device performance. A high-end device is more likely to deliver a smooth experience compared to a low-end one with limited resources. CPU and memory usage, GPU performance, network conditions, and battery level all affect overall performance.</p>
+<p>For devices with limited capabilities, we can implement a dynamic strategy that adapts image and video quality based on current conditions. This approach helps:</p>
+<ul>
+<li>Reduce load times and make the app more responsive.</li>
+<li>Maintain a steady frame rate during scrolling.</li>
+<li>Use device resources efficiently.</li>
+<li>Make the app more resilient across diverse devices and conditions.</li>
+</ul>
+<p>To implement this feature, we first define multiple quality settings for images and videos. Depending on device performance and network conditions, the app adjusts quality dynamically based on thresholds:</p>
+<ul>
+<li><strong>Images</strong>: Low (480x320 or lower), Medium (720x480), High (1080x720 or higher)</li>
+<li><strong>Videos</strong>: Low (360p), Medium (720p), High (1080p or higher)</li>
+</ul>
+<p>Our backend should be capable of delivering different quality versions of the same media based on the client's request. For each image or video, it needs to store several pre-processed versions at different quality levels or dynamically generate the requested quality variant on demand.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>To improve scroll smoothness on Android, Facebook developed Litho, an open source UI rendering framework which moves much of the UI work off the main thread. Facebook saw up to 20% faster scrolling performance in News Feed after the Litho-powered video component and in some list subviews as high as 42% scroll performance improvement [15].</p><p>Pinterest's teams discovered that video startup delay was hurting engagement on their feed. They optimized their Adaptive Bitrate (ABR) streaming pipeline to speed this up. Their startup latency dropped ~36% [16] [17].</p><p>Reddit cancels video prefetch downloads if the user scrolls too fast to defer non-essential work during scroll [9].</p></div>
+<h2 id="step-5-wrap-up">Step 5: Wrap-up</h2>
+<p>In this chapter, we've designed a comprehensive news feed system that enables users to create, view, and interact with rich content posts. Our approach leveraged HTTP with REST APIs for client-initiated requests and JSON for data encoding in network communications. We established well-structured backend endpoints following REST principles to support our core functionality.</p>
+<p>We designed a client architecture with offline support, diving deep into key areas such as selecting the right local storage, implementing optimistic writes and seamless offline interactions, rendering rich Post content, and addressing janky scrolling in the news feed.</p>
+<p>If you find yourself with extra time during your interview or want to challenge yourself with additional features, consider exploring these extensions:</p>
+<ul>
+<li>Comment functionality: Enable users to comment on posts and respond to other comments [18].</li>
+<li>Push notifications and live updates: Notify users of interactions with their posts and implement real-time updates for metrics like counts and new comments [19].</li>
+<li>Search capabilities: Implement search for both online and offline posts. For local database searching, explore Full-Text Search (FTS) [20].</li>
+<li>Post editing: Develop a strategy for handling updates to posts that have already been synced with clients.</li>
+<li>Scheduled posts: Allow users to create posts that publish at a future time. Android [21] and iOS [22] links.</li>
+<li>Intelligent pre-fetching: Download posts when the device is in ideal conditions [23].</li>
+<li>Multi-language support: Design the system to handle posts in various languages. Android [24] and iOS [25] links.</li>
+</ul>
+<h2 id="resources">Resources</h2>
+<p>[1] Meta's Graph API: <a href="https://developers.facebook.com/docs/graph-api/" target="_blank" rel="noopener noreferrer">https://developers.facebook.com/docs/graph-api/</a><br>
+[2] Reddit RESTful APIs: <a href="https://www.reddit.com/dev/api/" target="_blank" rel="noopener noreferrer">https://www.reddit.com/dev/api/</a><br>
+[3] X (formerly Twitter) APIs: <a href="https://developer.x.com/en/docs/twitter-api/getting-started/about-twitter-api" target="_blank" rel="noopener noreferrer">https://developer.x.com/en/docs/twitter-api/getting-started/about-twitter-api</a><br>
+[4] UUID: <a href="https://en.wikipedia.org/wiki/Universally%5C_unique%5C_identifier" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Universally\_unique\_identifier</a><br>
+[5] Snowflake ID: <a href="https://en.wikipedia.org/wiki/Snowflake%5C_ID" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Snowflake\_ID</a><br>
+[6] How production engineers support global events on Facebook: <a href="https://engineering.fb.com/2018/02/12/production-engineering/how-production-engineers-support-global-events-on-facebook/" target="_blank" rel="noopener noreferrer">https://engineering.fb.com/2018/02/12/production-engineering/how-production-engineers-support-global-events-on-facebook/</a><br>
+[7] Making News Feed nearly 50% faster on iOS: <a href="https://engineering.fb.com/2014/10/31/ios/making-news-feed-nearly-50-faster-on-ios" target="_blank" rel="noopener noreferrer">https://engineering.fb.com/2014/10/31/ios/making-news-feed-nearly-50-faster-on-ios</a><br>
+[8] Instagram pre-fetching: <a href="https://instagram-engineering.com/improving-performance-with-background-data-prefetching-b191acb39898" target="_blank" rel="noopener noreferrer">https://instagram-engineering.com/improving-performance-with-background-data-prefetching-b191acb39898</a><br>
+[9] Reddit's improvement to video playback: <a href="https://proandroiddev.com/improving-video-playback-with-exoplayer-7ac55e9bd0af" target="_blank" rel="noopener noreferrer">https://proandroiddev.com/improving-video-playback-with-exoplayer-7ac55e9bd0af</a><br>
+[10] Instagram optimistic writes: <a href="https://instagram-engineering.com/making-direct-messages-reliable-and-fast-a152bdfd697f" target="_blank" rel="noopener noreferrer">https://instagram-engineering.com/making-direct-messages-reliable-and-fast-a152bdfd697f</a><br>
+[11] Facebook Markup Language deprecation: <a href="https://developers.facebook.com/blog/post/568/" target="_blank" rel="noopener noreferrer">https://developers.facebook.com/blog/post/568/</a><br>
+[12] X (formerly Twitter) text library: <a href="https://github.com/twitter/twitter-text" target="_blank" rel="noopener noreferrer">https://github.com/twitter/twitter-text</a><br>
+[13] Reddit-flavored Markdown: <a href="https://www.reddit.com/wiki/markdown/" target="_blank" rel="noopener noreferrer">https://www.reddit.com/wiki/markdown/</a><br>
+[14] Reddit Adopts Server-Driven UI for Its New Feed Architecture across Mobile Apps: <a href="https://www.infoq.com/news/2023/09/reddit-feed-server-driven-ui" target="_blank" rel="noopener noreferrer">https://www.infoq.com/news/2023/09/reddit-feed-server-driven-ui</a><br>
+[15] Improving Android video on News Feed with Litho<br>
+<a href="https://engineering.fb.com/2018/01/31/android/improving-android-video-on-news-feed-with-litho" target="_blank" rel="noopener noreferrer">https://engineering.fb.com/2018/01/31/android/improving-android-video-on-news-feed-with-litho</a><br>
+[16] Improving ABR Video Performance at Pinterest: <a href="https://medium.com/pinterest-engineering/improving-abr-video-performance-at-pinterest-f0ea47a6d4fc" target="_blank" rel="noopener noreferrer">https://medium.com/pinterest-engineering/improving-abr-video-performance-at-pinterest-f0ea47a6d4fc</a><br>
+[17] How Pinterest Optimized Video Playback:<br>
+<a href="https://blog.quastor.org/p/how-pinterest-optimized-video-playback" target="_blank" rel="noopener noreferrer">https://blog.quastor.org/p/how-pinterest-optimized-video-playback</a><br>
+[18] Comments section: <a href="https://en.wikipedia.org/wiki/Comments%5C_section" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Comments\_section</a><br>
+[19] Push Technology: <a href="https://en.wikipedia.org/wiki/Push%5C_technology" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Push\_technology</a><br>
+[20] Full-text search: <a href="https://en.wikipedia.org/wiki/Full-text%5C_search" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Full-text\_search</a><br>
+[21] Schedule tasks on Android: <a href="https://developer.android.com/develop/background-work/background-tasks" target="_blank" rel="noopener noreferrer">https://developer.android.com/develop/background-work/background-tasks</a><br>
+[22] Schedule tasks on iOS: <a href="https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/using_background_tasks_to_update_your_app" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/using_background_tasks_to_update_your_app</a><br>
+[23] Prefetching: <a href="https://en.wikipedia.org/wiki/Prefetching" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Prefetching</a><br>
+[24] Multi-language on Android: <a href="https://developer.android.com/training/basics/supporting-devices/languages" target="_blank" rel="noopener noreferrer">https://developer.android.com/training/basics/supporting-devices/languages</a><br>
+[25] Multi-language on iOS: <a href="https://developer.apple.com/documentation/xcode/supporting-multiple-languages-in-your-app" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/xcode/supporting-multiple-languages-in-your-app</a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="a-framework-for-mobile-sd-interviews.html">← Previous</a>
+        <a href="chat-app.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

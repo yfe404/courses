@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized News Feed - Machine Learning System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../machine-learning-system-design-interview.html">Machine Learning System Design Interview</a> /
+        Personalized News Feed
+    </div>
+
+    <div class="nav">
+        <a href="../machine-learning-system-design-interview.html">← Course Contents</a>
+        <a href="similar-listings-on-vacation-rental-platforms.html">← Previous</a>
+        <a href="people-you-may-know.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">10</span> Personalized News Feed
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/machine-learning-system-design-interview/personalized-news-feed" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">10</strong><h1>Personalized News Feed</h1></header><h3 id="introduction">Introduction</h3>
+<p>A news feed is a feature of social network platforms that keeps users engaged by showing friends’ recent activities on their timelines. Most social networks such as Facebook [1], Twitter [2], and LinkedIn [3] personalize news feed to maintain user engagement.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><div style="position: relative; width: 200px; height: 393px;"><img alt="Image represents a smartphone screen displaying a user interface mockup.  The screen is depicted as a black outline of a modern smartphone.  Within the screen are two distinct rectangular sections, stacked vertically. Each section contains a user interface element representing a social media post or similar.  The top section shows a user icon (a small circle with a person symbol inside), followed by a blank text input field, and then a larger rectangular area containing a video camera icon, suggesting a video post. The bottom section mirrors this structure, with a user icon and a blank text input field, but instead of a video camera, it displays a stylized mountain icon, indicating an image post.  There is no explicit information flow depicted; the diagram simply shows the layout of the UI elements and their arrangement on the screen.  No URLs or parameters are visible." width="200" height="393" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(200px, 100vw), (max-width: 1200px) min(200px, 80vw), min(200px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-01-1-7QNZGFDY.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.1: User timeline with personalized feeds</figcaption></div></figure></center>
+<p>In this chapter, we are asked to design a personalized news feed system.</p>
+<h3 id="clarifying-requirements">Clarifying Requirements</h3>
+<p>Here is a typical interaction between a candidate and an interviewer.</p>
+<p><strong>Candidate:</strong> Can I assume the motivation for a personalized news feed is to keep users engaged with the platform?<br>
+<strong>Interviewer:</strong> Yes, we display sponsored ads between posts, and more engagement leads to increased revenue.</p>
+<p><strong>Candidate:</strong> When a user refreshes their timeline, we display posts with new activities to the user. Can I assume this activity consists of both unseen posts and posts with unseen comments?<br>
+<strong>Interviewer:</strong> That is a fair assumption.</p>
+<p><strong>Candidate:</strong> Can a post contain textual content, images, video, or any combination?<br>
+<strong>Interviewer:</strong> It can be any combination.</p>
+<p><strong>Candidate:</strong> To keep users engaged, the system should place the most engaging content at the top of timelines, as people are more likely to interact with the first few posts. Does that sound right?<br>
+<strong>Interviewer:</strong> Yes, that's correct.</p>
+<p><strong>Candidate:</strong> Is there a specific type of engagement we are optimizing for? I assume there are different types of engagement, such as clicks, likes, and shares.<br>
+<strong>Interviewer:</strong> Great question. Different reactions have different values on our platform. For example, liking a post is more valuable than only clicking it. Ideally, our system should consider major reactions when ranking posts. With that, I'll leave you to define "engagement" and choose what your model should optimize for.</p>
+<p><strong>Candidate:</strong> What are the major reactions available on the platform? I assume users can click, like, share, comment, hide, block another user, and send connection requests. Are there other reactions we should consider?<br>
+<strong>Interviewer:</strong> You mentioned the major ones. Let's keep our focus on those.</p>
+<p><strong>Candidate:</strong> How fast is the system supposed to work?<br>
+<strong>Interviewer:</strong> We expect the system to display the ranked posts quickly after users refresh their timelines or open the application. If it takes too long, users will get bored and leave. Let's assume the system should display the ranked posts in less than 200 milliseconds (ms).</p>
+
+<p><strong>Candidate:</strong> How many daily active users do we have? How many timeline updates do we expect each day?<br>
+<strong>Interviewer:</strong> We have almost 3 billion users in total. Around 2 billion are daily active users who check their feeds twice a day.</p>
+<p>Let's summarize the problem statement. We are asked to design a personalized news feed system. The system retrieves unseen posts or posts with unseen comments, and ranks them based on how engaging they are to the user. This should take no longer than <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>200</mn><mrow><mtext>&nbsp;</mtext><mi mathvariant="normal">m</mi><mi mathvariant="normal">s</mi></mrow></mrow><annotation encoding="application/x-tex">200 \mathrm{~ms}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">200</span><span class="mord"><span class="mspace nobreak">&nbsp;</span><span class="mord mathrm">ms</span></span></span></span></span>. The objective of the system is to increase user engagement.</p>
+<h3 id="frame-the-problem-as-an-ml-task">Frame the problem as an ML task</h3>
+<h4 id="defining-the-ml-objective">Defining the ML objective</h4>
+<p>Let's examine the following three possible ML objectives:</p>
+<ul>
+<li>Maximize the number of specific implicit reactions, such as dwell time or user clicks</li>
+<li>Maximize the number of specific explicit reactions, such as likes or shares</li>
+<li>Maximize a weighted score based on both implicit and explicit reactions</li>
+</ul>
+<p>Let's discuss each option in more detail.</p>
+<p><strong>Option 1: Maximize the number of specific implicit reactions, such as dwell time or user clicks</strong>
+In this option, we choose implicit signals as a proxy for user engagement. For example, we optimize the ML system to maximize user clicks.</p>
+<p>The advantage is that we have more data about implicit reactions than explicit ones. More training data usually leads to more accurate models.</p>
+<p>The disadvantage is that implicit reactions do not always reflect a user's true opinion about a post. For example, a user may click on a post, but find it is not worth reading.</p>
+<p><strong>Option 2: Maximize the number of specific explicit reactions, such as likes, shares, and hides</strong></p>
+<p>With this option, we choose explicit reactions as a proxy for user opinions about a post.</p>
+<p>The advantage of this approach is that explicit signals usually carry more weight than implicit signals. For example, a user liking a post sends a stronger engagement signal than if they simply click it.</p>
+<p>The main disadvantage is that very few users actually express their opinions with explicit reactions. For example, a user may find a post engaging but not react to it. In this scenario, it's hard for the model to make an accurate prediction given the limited training data.</p>
+<p><strong>Option 3: Maximize a weighted score based on both implicit and explicit reactions</strong></p>
+<p>In this option, we use both implicit and explicit reactions to determine how engaged a user is with a post. In particular, we assign a weight to each reaction, based on how valuable the reaction is to us. We then optimize the ML system to maximize the weighted score of reactions.</p>
+<p>Table 10.1 shows the mapping between different reactions and weights. As you can see, pressing the "like" button has more weight than a click, while a share is more valuable than a like. In addition, negative reactions such as hide and block have a negative weight. Note that these weights can be chosen based on business needs.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: center;">Reaction</th><th style="text-align: center;">Click</th><th style="text-align: center;">Like</th><th style="text-align: center;">Comment</th><th style="text-align: center;">Share</th><th style="text-align: center;">Friendship request</th><th style="text-align: center;">Hide</th><th style="text-align: center;">Block</th></tr></thead><tbody><tr><td style="text-align: center;">Weight</td><td style="text-align: center;">1</td><td style="text-align: center;">5</td><td style="text-align: center;">10</td><td style="text-align: center;">20</td><td style="text-align: center;">30</td><td style="text-align: center;">-20</td><td style="text-align: center;">-50</td></tr></tbody></table></div>
+<p class="tableCaption">Table 10.1: Weights of different reactions</p>
+<p><strong>Which option to choose?</strong></p>
+<p>We choose the final blended option because it allows us to assign different weights to different reactions. This is important because we can optimize the system based on what’s important to the business.</p>
+<h4 id="specifying-the-systems-input-and-output">Specifying the system’s input and output</h4>
+<p>As Figure 10.2 shows, the personalized news feed system takes a user as input and outputs a ranked list of unseen posts or posts with unseen comments sorted by engagement score.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture of a personalized news feed system.  A user, depicted as a person icon labeled 'User,' is connected via a directed arrow to a rectangular box labeled 'Personalized news feed system.' This system processes user data (implicitly) to generate a ranked list of news posts. The output of the 'Personalized news feed system' is shown as a dashed-line box labeled 'Ranked posts,' containing multiple rectangular boxes representing individual posts. Each post box contains a stylized mountain icon (likely representing post content) and is labeled 'Post 1,' 'Post 2,' and 'Post k,' indicating a variable number of posts.  Above each post box is a small person icon and a blank rectangle, possibly representing user information associated with each post or user interaction data. The vertical arrangement of the posts within the 'Ranked posts' box implies a ranking order, with Post 1 being the highest-ranked.  The ellipsis (...) between Post 2 and Post k signifies that there are more posts in the ranked list than explicitly shown.  The overall flow is unidirectional, from the user to the system and then to the ranked posts." loading="lazy" width="476" height="338" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(476px, 100vw), (max-width: 1200px) min(476px, 80vw), min(476px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-02-1-BMMEXULU.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.2: A personalized news feed system’s input-output</figcaption></div></figure></center>
+<h4 id="choosing-the-right-ml-category">Choosing the right ML category</h4>
+<p>A personalized news feed system produces a ranked list of posts based on how engaging the posts are to a user. Pointwise Learning to Rank (LTR) is a simple yet effective approach that personalizes news feeds by ranking posts based on engagement scores. To understand how to compute engagement scores between users and posts, let's examine a concrete example.</p>
+<p>As Figure <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10.3</mn></mrow><annotation encoding="application/x-tex">10.3</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">10.3</span></span></span></span> shows, we employ several binary classifiers to predict the probabilities of various implicit and explicit reactions for a <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟨</mo></mrow><annotation encoding="application/x-tex">\langle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">⟨</span></span></span></span> user, post <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\rangle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mclose">⟩</span></span></span></span> pair.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a machine learning model predicting user reactions to a social media post.  At the top is a table showing predicted probabilities for various user reactions:  Click (23%), Like (48%), Comment (12%), Share (4%), Friendship request (0.1%), Hide (0.005%), and Block (0.0003%).  Below the table, a dashed box encloses several classifiers: a Click classifier, a Like classifier, an ellipsis indicating other classifiers, and a Block classifier.  These classifiers process information from a 'Post' (represented by a box with a mountain icon and a small user icon and text input field) and a 'User' (represented by a person icon). Arrows indicate that the Post and User data are input to each classifier.  Finally, an upward arrow connects the output of the classifiers to the probability table at the top, suggesting that the classifiers' predictions contribute to the overall reaction probability estimates." loading="lazy" width="522" height="362" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(522px, 100vw), (max-width: 1200px) min(522px, 80vw), min(522px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-03-1-GNTAVUFJ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.3: Predicted probabilities of various reactions</figcaption></div></figure></center>
+<p>Once these probabilities are predicted, we compute the engagement score. Figure 10.4 shows an example of how the engagement score is calculated.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><td><strong>Reaction</strong></td><td>Click</td><td>Like</td><td>Comment</td><td>Share</td><td>Friendship request</td><td>Hide</td><td>Block</td></tr></thead><tbody><tr><td><strong>Predicted probability</strong></td><td>23%</td><td>48%</td><td>12%</td><td>4%</td><td>0.1%</td><td>0.005%</td><td>0.0003%</td></tr><tr><td><strong>Value</strong></td><td>1</td><td>5</td><td>10</td><td>20</td><td>30</td><td>-20</td><td>-50</td></tr><tr><td><strong>Score</strong></td><td>0.23</td><td>2.4</td><td>1.2</td><td>0.8</td><td>0.03</td><td>-0.001</td><td>-0.00015</td></tr><tr><td colspan="8"><center>Engagement score = 4.65885</center></td></tr></tbody></table></div>
+<p class="tableCaption">Figure 10.4: Calculate the engagement score</p>
+<h3 id="data-preparation">Data Preparation</h3>
+<h4 id="data-engineering">Data engineering</h4>
+<p>It is generally helpful to understand what raw data is available before going on to engineer predictive features. Here, we assume the following types of raw data are available:</p>
+<ul>
+<li>Users</li>
+<li>Posts</li>
+<li>User-post interactions</li>
+<li>Friendship</li>
+</ul>
+<h5 id="users">Users</h5>
+<p>The user data schema is shown below.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: center;">ID</th><th style="text-align: center;">Username</th><th style="text-align: center;">Age</th><th style="text-align: center;">Gender</th><th style="text-align: center;">City</th><th style="text-align: center;">Country</th><th style="text-align: center;">Language</th><th style="text-align: center;">Time zone</th></tr></thead></table></div>
+<p class="tableCaption">Table 10.2: User data schema</p>
+<h5 id="posts">Posts</h5>
+<p>Table 10.3 shows post data.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: center;">Author ID</th><th style="text-align: center;">Textual Content</th><th style="text-align: center;">Hashtags</th><th style="text-align: center;">Mentions</th><th style="text-align: center;">Images or videos</th><th style="text-align: center;">Timestamp</th></tr></thead><tbody><tr><td style="text-align: center;">5</td><td style="text-align: center;">Today at our fav place with my best friend</td><td style="text-align: center;">life_is_good, happy</td><td style="text-align: center;">hs2008</td><td style="text-align: center;">-</td><td style="text-align: center;">1658450539</td></tr><tr><td style="text-align: center;">1</td><td style="text-align: center;">It was the best trip we ever had</td><td style="text-align: center;">Travel, Maldives</td><td style="text-align: center;">Alexish, shan.tony</td><td style="text-align: center;">htcdn.mysite.com/maldives.jpg</td><td style="text-align: center;">1658451341</td></tr><tr><td style="text-align: center;">29</td><td style="text-align: center;">Today I had a bad experience I would like to tell you about. I went...</td><td style="text-align: center;">-</td><td style="text-align: center;">-</td><td style="text-align: center;">-</td><td style="text-align: center;">1658451365</td></tr></tbody></table></div>
+<p class="tableCaption">Table 10.3: Post data</p>
+<h5 id="user-post-interactions">User-post interactions</h5>
+<p>Table 10.4 shows user-post interaction data.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: center;">User ID</th><th style="text-align: center;">Post ID</th><th style="text-align: center;">Interaction type</th><th style="text-align: center;">Interaction value</th><th style="text-align: right;">Location (lat, long)</th><th style="text-align: center;">Timestamp</th></tr></thead><tbody><tr><td style="text-align: center;">4</td><td style="text-align: center;">18</td><td style="text-align: center;">Like</td><td style="text-align: center;">-</td><td style="text-align: right;">38.8951 <br> -77.0364</td><td style="text-align: center;">1658450539</td></tr><tr><td style="text-align: center;">4</td><td style="text-align: center;">18</td><td style="text-align: center;">Share</td><td style="text-align: center;">User 9</td><td style="text-align: right;">41.9241 <br> -89.0389</td><td style="text-align: center;">1658451365</td></tr><tr><td style="text-align: center;">9</td><td style="text-align: center;">18</td><td style="text-align: center;">Comment</td><td style="text-align: center;">You look amazing</td><td style="text-align: right;">22.7531 <br> 47.9642</td><td style="text-align: center;">1658435948</td></tr><tr><td style="text-align: center;">9</td><td style="text-align: center;">18</td><td style="text-align: center;">Block</td><td style="text-align: center;">-</td><td style="text-align: right;">22.7531 <br> 47.9642</td><td style="text-align: center;">1658451849</td></tr><tr><td style="text-align: center;">6</td><td style="text-align: center;">9</td><td style="text-align: center;">Impression</td><td style="text-align: center;"></td><td style="text-align: right;">37.5189 <br> 122.6405</td><td style="text-align: center;">1658821820</td></tr></tbody></table></div>
+<p class="tableCaption">Table 10.4: User-post interaction data</p>
+<h5 id="friendship">Friendship</h5>
+<p>The friendship table stores data of connections between users. We assume users can specify their close friends and family members. Table 10.5 shows examples of friendship data.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: center;">User ID 1</th><th style="text-align: center;">User ID 2</th><th style="text-align: center;">Time when friendship was formed</th><th style="text-align: center;">Close friend</th><th style="text-align: center;">Family member</th></tr></thead><tbody><tr><td style="text-align: center;">28</td><td style="text-align: center;">3</td><td style="text-align: center;">1558451341</td><td style="text-align: center;">True</td><td style="text-align: center;">False</td></tr><tr><td style="text-align: center;">7</td><td style="text-align: center;">39</td><td style="text-align: center;">1559281720</td><td style="text-align: center;">False</td><td style="text-align: center;">True</td></tr><tr><td style="text-align: center;">11</td><td style="text-align: center;">25</td><td style="text-align: center;">1559312942</td><td style="text-align: center;">False</td><td style="text-align: center;">False</td></tr></tbody></table></div>
+<p class="tableCaption">Table 10.5: Friendship data</p>
+<h4 id="feature-engineering">Feature engineering</h4>
+<p>In this section, we engineer predictive features and prepare them for the model. In particular, we engineer features from each of the following categories:</p>
+<ul>
+<li>Post features</li>
+<li>User features</li>
+<li>User-author affinities</li>
+</ul>
+<h5 id="post-features">Post features</h5>
+<p>In practice, each post has many attributes. We cannot cover everything, so only discuss the most important ones.</p>
+<ul>
+<li>Textual content</li>
+<li>Images or videos</li>
+<li>Reactions</li>
+<li>Hashtags</li>
+<li>Post's age</li>
+</ul>
+<h6 id="textual-content">Textual content</h6>
+<p><strong>What is it?</strong> This is the textual content - the main body - of a post.</p>
+<p><strong>Why is it important?</strong> Textual content helps determine what the post is about.</p>
+<p><strong>How to prepare it?</strong> We preprocess textual content and use a pre-trained language model to convert the text into a numerical vector. Since the textual content is usually in the form of sentences and not a single word, we use a context-aware language model such as BERT [4].</p>
+<h6 id="images-or-videos">Images or videos</h6>
+<p><strong>What is it?</strong> A post may contain images or videos.</p>
+<p><strong>Why is it important?</strong> We can extract important signals from images. For example, an image of a gun may indicate that a post is unsafe for children.</p>
+<p><strong>How to prepare it?</strong> First, preprocess the images or videos. Next, use a pre-trained model to convert the unstructured image/video data into an embedding vector. For example, we can use ResNet, [5] or the recently introduced CLIP model [6] as the pre-trained model.</p>
+<h6 id="reactions">Reactions</h6>
+<p><strong>What is it?</strong> This refers to the number of likes, shares, replies, etc., of a post.</p>
+<p><strong>Why is it important?</strong> The number of likes, shares, hides, etc., indicates how engaging users find a post to be. A user is more likely to engage with a post with thousands of likes than a post with ten likes.</p>
+<p><strong>How to prepare it?</strong> These values are represented by numerical values. We scale these numerical values to bring them into a similar range.</p>
+<h6 id="hashtags">Hashtags</h6>
+<p><strong>Why is it important?</strong> Users use hashtags to group content around a certain topic. These hashtags represent the topics to which a post relates. For example, a post with the hashtag "#women_in_tech" indicates the content relates to technology and females, so the model may decide to rank it higher for people who are interested in technology.</p>
+<p><strong>How to prepare it?</strong> The detailed steps to preprocess text are already explained in Chapter 4, YouTube Video Search, so we will only focus on the unique steps for preparing hashtags.</p>
+<ul>
+<li><strong>Tokenization:</strong> Hashtags like "lifeisgood" or "programmer_lifestyle" contain multiple words. We use algorithms such as Viterbi [7] to tokenize the hashtags. For instance, "lifeisgood" becomes 3 words: "life" "is" "good".</li>
+<li><strong>Tokens to IDs:</strong> Hashtags evolve quickly on social media platforms and change as trends come and go. A feature hashing technique is a good fit because it is capable of assigning indexes to unseen hashtags.</li>
+<li><strong>Vectorization:</strong> We use simple text representation methods such as TF-IDF [8] or word2vec [9], instead of Transformer-based models, to vectorize hashtags. Let's take a look at why. Transformer-based models are useful when the context of the data is essential. In the case of hashtags, each one is usually a single word or a phrase, and often no context is necessary to understand what the hashtag means. Therefore, faster and lighter text representation methods are preferred.</li>
+</ul>
+<h6 id="posts-age">Post’s age</h6>
+<p><strong>What is it?</strong> This feature shows how much time has passed since the author posted the content.</p>
+<p><strong>Why is it important?</strong> Users tend to engage with newer content.</p>
+<p><strong>How to prepare it?</strong> We bucketize the post's age into a few categories and use one-hot encoding to represent it. For example, we use the following buckets:</p>
+<ul>
+<li>0: less than 1 hour</li>
+<li>1 : between 1 to 5 hours</li>
+<li>2: between 5 to 24 hours</li>
+<li>3: between 1-7 days</li>
+<li>4: between 7-30 days</li>
+<li>5: more than a month</li>
+</ul>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a machine learning model's feature engineering pipeline.  The bottom layer shows raw features:  'Age' (bucketized and one-hot encoded into a vector [1,0,0,0,0,0]), '# Likes' (scaled to a single value 125), and '# Shares' (scaled to 9).  These, along with textual features ('Fun!!', 'DOG', 'Holiday' – hashtags) processed by a 'Preprocess' step and fed into a 'Pre-trained text model', and image/video features (represented by a triangle) processed by a separate 'Preprocess' step and fed into a 'Pre-trained image/video model', constitute the input. Each model outputs a vector of features (e.g., [-0.8, 0.6, 0] for one text model). An 'Aggregate' block combines these vectors.  Finally, the 'Concatenated features' block merges all processed features into a single feature vector for subsequent model training.  Arrows indicate the flow of data between components, showing how individual features are transformed and combined to create a comprehensive feature set." loading="lazy" width="833" height="501" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(833px, 100vw), (max-width: 1200px) min(833px, 80vw), min(833px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-05-1-REPQ7JC3.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.5: Post-related feature preparation</figcaption></div></figure></center>
+<h5 id="user-features">User features</h5>
+<p>Some of the most important user-related features are:</p>
+<ul>
+<li>Demographics: age, gender, country, etc</li>
+<li>Contextual information: device, time of the day, etc</li>
+<li>User-post historical interactions</li>
+<li>Being mentioned in the post</li>
+</ul>
+<p>Since we have already discussed user demographic and contextual information in previous chapters, here we only examine the remaining two features.</p>
+<h6 id="user-post-historical-interactions">User-post historical interactions</h6>
+<p>All posts liked by a user are represented by a list of post IDs. The same logic applies to shares and comments.</p>
+<p><strong>Why is it important?</strong> Users' previous engagements are usually helpful in determining their future engagements.</p>
+<p><strong>How to prepare it?</strong>
+Extract features from each post that the user interacted with.</p>
+<h6 id="being-mentioned-in-a-post">Being mentioned in a post</h6>
+<p><strong>What is it?</strong> This means whether or not the user is mentioned in a post.
+Why is it important? Users usually pay more attention to posts that mention them.</p>
+<p><strong>How to prepare it?</strong> This feature is represented by a binary value. If a user is mentioned in the post, this feature is 1 , otherwise 0 .</p>
+<p>Figure 10.6 summarizes feature preparation for users.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a feature engineering pipeline for a machine learning model.  The pipeline begins with three distinct input categories: Demographics (Age, Gender, City, Country, Language), Contextual Information (Time of day, Device, Is mentioned), and User-post historical interactions (Liked post ID, Shared post IDs). Each input feature undergoes preprocessing:  Age is bucketized and one-hot encoded; Gender, City, Country, and Language are embedded into numerical vectors; Time of day and Device are bucketized and one-hot encoded; and Liked post ID and Shared post IDs are processed in a 'Post-related feature preparation' step, resulting in numerical vectors.  These processed features, represented as numerical vectors (some shown with example values), are then concatenated into a single feature vector labeled 'Concatenated features.'  Finally, an aggregation step combines these features into a final aggregated feature vector, which would then be fed into a machine learning model (not shown).  The arrows indicate the flow of data between the different processing stages." loading="lazy" width="925" height="562" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(925px, 100vw), (max-width: 1200px) min(925px, 80vw), min(925px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-06-1-X6FODWBT.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.6: Feature preparation for user-related data</figcaption></div></figure></center>
+<h5 id="user-author-affinities">User-author affinities</h5>
+<p>According to studies, affinity features, such as the connection between the user and the author, are among the most important factors in predicting a user's engagement on Facebook [10]. Let's engineer some features to capture user-author affinities.</p>
+<h6 id="likeclickcommentshare-rate">Like/click/comment/share rate</h6>
+<p>This is the rate at which a user reacted to previous posts by an author. For example, a like rate of 0.95 indicates that a user liked the posts from that author 95 percent of the time.</p>
+<h6 id="length-of-friendship">Length of friendship</h6>
+<p>The number of days the user and the author have been friends on the platform. This feature can be obtained from the friendship data.</p>
+<p><strong>Why is it important?</strong> Users tend to engage more with their friends.</p>
+<h6 id="close-friends-and-family">Close friends and family</h6>
+<p>A binary value representing whether the user and the author have included each other in their close friends and family list.</p>
+<p><strong>Why is it important?</strong> Users pay more attention to posts by close friends and family members. Figure <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10.7</mn></mrow><annotation encoding="application/x-tex">10.7</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">10.7</span></span></span></span> summarizes features related to user-author affinities.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data concatenation process for a machine learning model.  A rectangular box at the top labeled 'Concatenated features' represents the output of the process. Five rectangular boxes below point upwards to this box, indicating that their data is being combined. Each lower box contains a numerical value and a descriptive label:  '0.68 Like rate,' '0.23 Click rate,' '0.11 Share rate,' '1325 Friendship length,' and '1 Close friends and family.' These values likely represent features extracted from a dataset, with the labels describing the nature of each feature. The arrows show the flow of information, where each feature's value is input into the 'Concatenated features' box, resulting in a combined feature vector used as input for a subsequent machine learning model (not shown in the image)." loading="lazy" width="424" height="178" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(424px, 100vw), (max-width: 1200px) min(424px, 80vw), min(424px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-07-1-PLNLMKCV.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.7: User-author affinity features</figcaption></div></figure></center>
+<h3 id="model-development">Model Development</h3>
+<h4 id="model-selection">Model selection</h4>
+<p>We choose neural networks for the following reasons:</p>
+<ul>
+<li>Neural networks work well with unstructured data, such as text and images.</li>
+<li>Neural networks allow us to use embedding layers to represent categorical features.</li>
+<li>With a neural network architecture, we can fine-tune pre-trained models employed during feature engineering. This is not possible with other models.</li>
+</ul>
+<p>Before training a neural network, we need to choose its architecture. There are two architectural options for building and training our neural networks:</p>
+<ul>
+<li>N independent DNNs</li>
+<li>A multi-task DNN</li>
+</ul>
+<p>Let’s explore each one.</p>
+<p><strong>Option 1: N independent DNNs</strong><br>
+In this option, we use N independent deep neural networks (DNN), one for
+each reaction. This is shown in Figure 10.8.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a machine learning model architecture for predicting user engagement with a post.  At the bottom is a long rectangular box representing the input features of a post (e.g., text, images, user demographics).  Above this, four separate Deep Neural Networks (DNNs) – a Click classifier, a Like classifier, a Share classifier, and a Comment classifier – each process the input features independently.  Each DNN outputs a probability score for its respective engagement type (click, like, share, comment).  These probability scores are displayed in individual boxes above their corresponding DNNs: 0.8 for click probability, 0.5 for like probability, 0.01 for share probability, and 0.2 for comment probability.  Arrows indicate the flow of information: from the input features to each DNN, and from each DNN to its corresponding probability output.  An ellipsis (...) indicates that more classifiers of this type could be added." loading="lazy" width="626" height="257" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(626px, 100vw), (max-width: 1200px) min(626px, 80vw), min(626px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-08-1-3NROB2YN.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.8: Using independent DNNs</figcaption></div></figure></center>
+<p>This option has two drawbacks:</p>
+<ul>
+<li><strong>Expensive to train.</strong> Training several independent DNNs is compute-intensive and time-consuming.</li>
+<li><strong>For less frequent reactions, there might not be enough training data.</strong> This means our system is not able to predict the probabilities of infrequent reactions accurately.</li>
+</ul>
+<p><strong>Option 2: Multi-task DNN</strong><br>
+To overcome these issues, we use a multi-task learning approach (Figure 10.9).</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a deep neural network (DNN) model designed for multi-task classification.  At the bottom, a row of boxes labeled 'Input features' represents the input data fed into the model.  An arrow points upwards to a central box labeled 'Shared layers,' indicating that these layers process the input features and are shared across different classification tasks.  From the 'Shared layers,' arrows extend to four separate boxes representing classification heads: 'Click classification head,' 'Like classification head,' 'Share classification head,' and 'Comment classification head.' Each classification head receives the output from the shared layers and performs a specific classification task (predicting click, like, share, or comment probability, respectively).  Above each classification head is a box displaying the probability associated with that task (0.8 for click, 0.5 for like, 0.01 for share, and 0.2 for comment).  These probabilities are likely the output of the respective classification heads.  The entire DNN model, including the shared layers and classification heads, is enclosed within a dashed line.  The ellipsis ('...') between the 'Share' and 'Comment' classification heads suggests the possibility of additional classification heads beyond those explicitly shown." loading="lazy" width="626" height="384" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(626px, 100vw), (max-width: 1200px) min(626px, 80vw), min(626px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-09-1-EBHVL5OP.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.9: Multi-task DNN</figcaption></div></figure></center>
+<p>We explained multi-task learning in Chapter 5, Harmful Content Detection, so we only briefly discuss it here. In summary, multi-task learning refers to the process of learning multiple tasks simultaneously. This allows the model to learn the similarities between tasks and avoid unnecessary computations. For a multi-task neural network model, it's essential to choose an appropriate architecture. The choice of architecture and the associated hyperparameters are usually determined by running experiments. That means training and evaluating the model on different architectures and choosing the one which leads to the best result.</p>
+<h5 id="improving-the-dnn-architecture-for-passive-users">Improving the DNN architecture for passive users</h5>
+<p>So far, we have employed a DNN to predict reactions such as shares, likes, clicks, and comments. However, many users use the platform passively, meaning they do not interact much with the content on their timelines. For such users, the current DNN model will predict very low probabilities for all reactions, since they rarely react to posts. Therefore, we need to change the DNN architecture to consider passive users.</p>
+<p>For this to work, we add two implicit reactions to the list of tasks:</p>
+<ul>
+<li>Dwell-time: the time a user spends on a post.</li>
+<li>Skip: if a user spends less than t seconds (e.g., <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.5</mn></mrow><annotation encoding="application/x-tex">0.5</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.5</span></span></span></span> seconds) on a post, then that post can be assumed to have been skipped by the user.</li>
+</ul>
+<p>Figure 10.10 shows the multi-task DNN model with the additional tasks.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a deep neural network (DNN) model designed for multi-task learning.  At the bottom, a horizontal array labeled 'Input features' feeds into a 'Shared layers' block.  This block processes the input features and its output is then fed into six separate 'classification heads,' each responsible for a different prediction task. These heads are: 'Skip classification head,' 'Dwell-time prediction head,' 'Click classification head,' 'Like classification head,' 'Share classification head,' and 'Comment classification head.'  Each head receives input from the shared layers and produces a prediction. Above each head is a box displaying the predicted probability or value for that task.  For example, 'Skip probability' shows '0.04,' 'Predicted dwell time' shows '13.2,' and so on.  The connections between the shared layers and the classification heads are solid lines, indicating direct information flow.  Dashed lines connect the 'Skip classification head' and 'Dwell-time prediction head' to the 'Click classification head,' suggesting a potential secondary, less direct influence or information sharing between these specific heads. The entire DNN model, including the shared layers and classification heads, is enclosed within a dashed box." loading="lazy" width="818" height="385" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(818px, 100vw), (max-width: 1200px) min(818px, 80vw), min(818px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-10-1-6AOIITAR.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.10: Multi-task DNN model with two new tasks</figcaption></div></figure></center>
+<h4 id="model-training">Model training</h4>
+<h5 id="constructing-the-dataset">Constructing the dataset</h5>
+<p>In this step, we construct the dataset from raw data. Since the DNN model needs to learn multiple tasks, positive and negative data points are created for each (e g., click, like, etc.)</p>
+<p>We will use the reaction type of "like" as an example to explain how to create positive/negative data points. Each time a user likes a post, we add a data point to our dataset, compute <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟨</mo></mrow><annotation encoding="application/x-tex">\langle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mopen">⟨</span></span></span></span> user, post <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">⟩</mo></mrow><annotation encoding="application/x-tex">\rangle</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mclose">⟩</span></span></span></span> features, and then label it as positive.</p>
+<p>To create negative data points, we chose impressions that didn't lead to a "like" reaction. Note that the number of negative data points is usually much higher than positive data points. To avoid having an imbalanced dataset, we create negative data points to equal the number of positive data points. Figure 10.11 shows positive and negative data points for the "like" reaction.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a tabular dataset used for training a machine learning model, likely for a binary classification task.  The table is divided into five columns: '#' representing a unique identifier for each data instance (rows 1, 2, and 3); 'User features', 'Post features', and 'Affinity features' each containing a vector of numerical features; and 'Label' indicating the class of each instance ('Positive' or 'Negative'). Each row represents a single data point.  For example, row 1 shows a data point with 'User features' vector [1, 0, 1, 0.8, 0.1, 1], 'Post features' vector [0, 1, 1, 0.4, 0], 'Affinity features' vector [0.9, 0.6, 0.3, 8, 0], and a 'Positive' label.  The features are likely extracted from user data, post content, and the affinity between the user and the post. The data is structured to be directly used as input for a machine learning algorithm, where each row is a sample and the columns represent the features and the target variable." loading="lazy" width="677" height="195" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(677px, 100vw), (max-width: 1200px) min(677px, 80vw), min(677px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-11-1-M52YEXWP.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.11: Training data for like classification task</figcaption></div></figure></center>
+<p>This same process can be used to create positive and negative labels for other reactions. However, because dwell-time is a regression task, we construct it differently. As shown in Figure 10.12, the ground truth label is the dwell-time of the impression.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a tabular dataset showing features extracted for two instances (#1 and #2).  Each row represents an instance, and each instance is described by four feature sets: 'User features', 'Post features', 'Affinity features', and 'Dwell-time'.  The 'User features', 'Post features', and 'Affinity features' are each represented as vectors of numerical values, contained within individual boxes.  For instance #1, the 'User features' vector is [0, 0, 0, 0.1, 0.9, 1]; the 'Post features' vector is [1, 1, 0, 0.1, 1]; and the 'Affinity features' vector is [0.6, 0.6, 0.3, 0.2, 5, 0].  Instance #2 shows similar vector representations for each feature set, but with different numerical values.  Finally, a single numerical value representing 'Dwell-time' is provided for each instance (8.1 for instance #1 and 11.5 for instance #2), seemingly associated with the combined feature vectors of that instance.  The table's structure suggests that these features might be used as input for a machine learning model." loading="lazy" width="707" height="147" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(707px, 100vw), (max-width: 1200px) min(707px, 80vw), min(707px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-12-1-MNRGHEPP.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.12: Training data for dwell-time task</figcaption></div></figure></center>
+<h5 id="choosing-the-loss-function">Choosing the loss function</h5>
+<p>Multi-task models are trained to learn multiple tasks simultaneously. This means we need to compute the loss for each task separately and then combine them to get an overall loss. Typically, we define a loss function for each task depending on the ML category of the task. In our case, we use a binary cross-entropy loss for each binary classification task, and a regression loss such as MAE [11], MSE [12], or Huber loss [13] for the regression task (dwell-time prediction). The overall loss is computed by combining task-specific losses, as shown in Figure 10.13.</p>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a multitask deep neural network (Multitask DNN) architecture designed for a prediction task involving multiple related outputs.  The bottom layer shows 'Input features' feeding into the 'Multitask DNN'. This DNN simultaneously predicts four different outputs: predicted dwell time, skip probability, like probability, and share probability.  Each output has a corresponding label: dwell-time (7.3), skip label (1), like label (1), and share label (0).  Arrows indicate the flow of information, with the DNN producing predictions (18.5, 0.89, 0.1, 0.7 for each output respectively).  These predictions are compared to their respective labels to calculate individual loss functions (L&lt;sub&gt;dwell&lt;/sub&gt;, L&lt;sub&gt;skip&lt;/sub&gt;, L&lt;sub&gt;like&lt;/sub&gt;, L&lt;sub&gt;share&lt;/sub&gt;).  A weighted sum of these individual losses, as shown in the equation at the top (Loss = λL&lt;sub&gt;dwell&lt;/sub&gt; + L&lt;sub&gt;skip&lt;/sub&gt; + L&lt;sub&gt;like&lt;/sub&gt; + ... + L&lt;sub&gt;share&lt;/sub&gt;), constitutes the overall loss function that the DNN aims to minimize during training.  The ellipsis (...) indicates that there could be more outputs and corresponding loss functions beyond the four explicitly shown." loading="lazy" width="516" height="495" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(516px, 100vw), (max-width: 1200px) min(516px, 80vw), min(516px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-13-1-FYF4J3WC.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.13: Training workflow</figcaption></div></figure></center>
+<h3 id="evaluation">Evaluation</h3>
+<h4 id="offline-metrics">Offline metrics</h4>
+<p>During the offline evaluation, we measure the performance of our model in predicting different reactions. To evaluate the performance of an individual type of reaction, we can use binary classification metrics, such as precision and recall. However, these metrics alone may not be sufficient to understand the overall performance of a binary classification model. So, we use the ROC curve to understand the trade-off between the true positive rate and false positive rate. In addition, we compute the area under the ROC curve (ROC-AUC) to summarize the performance of the binary classification with a numerical value.</p>
+<h4 id="online-metrics">Online metrics</h4>
+<p>We use the following metrics to measure user engagement from various angles:</p>
+<ul>
+<li>Click-through rate (CTR)</li>
+<li>Reaction rate</li>
+<li>Total time spent</li>
+<li>User satisfaction rate found in a user survey</li>
+</ul>
+<p><strong>CTR.</strong> The ratio between the number of clicks and impressions.</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>C</mi><mi>T</mi><mi>R</mi><mo>=</mo><mfrac><mtext>&nbsp;number&nbsp;of&nbsp;clicked&nbsp;posts&nbsp;</mtext><mtext>&nbsp;number&nbsp;of&nbsp;impressions&nbsp;</mtext></mfrac></mrow><annotation encoding="application/x-tex">C T R=\frac{\text { number of clicked posts }}{\text { number of impressions }}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.00773em;">CTR</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 2.2519em; vertical-align: -0.8804em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3714em;"><span style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">&nbsp;number&nbsp;of&nbsp;impressions&nbsp;</span></span></span></span><span style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">&nbsp;number&nbsp;of&nbsp;clicked&nbsp;posts&nbsp;</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>
+<p>A high CTR does not always indicate more user engagement. For example, users may click on a low-value clickbait post, and quickly realize it is not worth reading. Despite this limitation, it is an important metric to track.</p>
+<p><strong>Reaction rates.</strong> These are a set of metrics that reflect user reactions. For example, a like rate measures the ratio between posts liked and the total number of posts displayed in users' feeds.</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>&nbsp;Like&nbsp;rate&nbsp;</mtext><mo>=</mo><mfrac><mtext>&nbsp;number&nbsp;of&nbsp;liked&nbsp;posts&nbsp;</mtext><mtext>&nbsp;number&nbsp;of&nbsp;impressions&nbsp;</mtext></mfrac></mrow><annotation encoding="application/x-tex">\text { Like rate }=\frac{\text { number of liked posts }}{\text { number of impressions }}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord text"><span class="mord">&nbsp;Like&nbsp;rate&nbsp;</span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 2.2519em; vertical-align: -0.8804em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3714em;"><span style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">&nbsp;number&nbsp;of&nbsp;impressions&nbsp;</span></span></span></span><span style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">&nbsp;number&nbsp;of&nbsp;liked&nbsp;posts&nbsp;</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>
+<p>Similarly, we track other reactions such as "share rate", "comment rate", "hide rate", "block rate", and "skip rate". These are stronger signals than CTR, as users have explicitly expressed a preference.</p>
+<p>The metrics we discussed so far are based on user reactions. But what about passive users? These are users who tend not to react at all to the majority of posts. To capture the effectiveness of our personalized news feed system for passive users, we add the following two metrics.</p>
+<p><strong>Total time spent.</strong> This is the total time users spend on the timeline during a fixed period, such as 1 week. This metric measures the overall engagement of both passive and active users.</p>
+<p><strong>User satisfaction rate found in a user survey.</strong> Another way to measure the effectiveness of our personalized news feed system is to explicitly ask users for their opinion about the feed, or how engaging they find the posts. Since we seek explicit feedback, this is an accurate way to measure the system’s effectiveness.</p>
+<h3 id="serving">Serving</h3>
+<p>At serving time, the system serves requests by outputting a ranked list of posts. Figure 10.14 shows the architectural diagram of the personalized news feed system. The system comprises the following pipelines:</p>
+<ul>
+<li>Data preparation pipeline</li>
+<li>Prediction pipeline</li>
+</ul>
+<center><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a machine learning system for personalized feed generation.  A user initiates the process.  Their request flows into a 'Prediction pipeline' which begins with a 'Retrieval service' that fetches relevant posts. These posts then enter a 'Ranking service', which uses an 'ML model' to score them. The 'Ranking service' receives input from both an 'Online feature computation' (likely real-time features) and a 'Feature store' (containing pre-computed features).  The 'Feature store' is populated by a 'Batch feature computation' process that processes a 'Stream of new data and interactions' stored in a 'Data store'.  After initial ranking, the posts are passed to a 'Re-ranking service' for further refinement before finally being presented to the user as a 'Personalized feed for the user', shown as a series of 'Post 1', 'Post 2', ..., 'Post k', each representing a post with user interaction elements.  The entire system is structured as a data flow from user request to personalized feed, with feature computation and model application at its core." loading="lazy" width="755" height="396" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(755px, 100vw), (max-width: 1200px) min(755px, 80vw), min(755px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmachine-learning-system-design-interview%2Fpersonalized-news-feed%2Fch10-14-1-NQHGT6VS.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10.14: ML system design of a personalized news feed system</figcaption></div></figure></center>
+<p>We do not go into detail about the data preparation pipeline because it is very similar to that described in Chapter 8, Ad Click Prediction in Social Platforms. Let’s examine the prediction pipeline.</p>
+<h4 id="prediction-pipeline">Prediction pipeline</h4>
+<p>The prediction pipeline consists of the following components: retrieval service, ranking service, and re-ranking service.</p>
+<h5 id="retrieval-service">Retrieval service</h5>
+<p>This component retrieves posts that a user has not seen, or which have comments also unseen by them. To learn more about efficiently fetching unseen posts, read [14].</p>
+<h5 id="ranking-service">Ranking service</h5>
+<p>This component ranks the retrieved posts by assigning an engagement score to each one.</p>
+<h5 id="re-ranking-service">Re-ranking service</h5>
+<p>This service modifies the list of posts by incorporating additional logic and user filters. For example, if a user has explicitly expressed interest in a certain topic, such as soccer, this service assigns a higher rank to the post.</p>
+<h3 id="other-talking-points">Other Talking Points</h3>
+<p>If there is time left at the end of the interview, here are some additional talking points:</p>
+<ul>
+<li>How to handle posts that are going viral [15].</li>
+<li>How to personalize the news feed for new users [16].</li>
+<li>How to mitigate the positional bias present in the system [17].</li>
+<li>How to determine a proper retraining frequency [18].</li>
+</ul>
+<h3 id="references">References</h3>
+<ol>
+<li>News Feed ranking in Facebook. <a href="https://engineering.fb.com/2021/01/26/ml-applications/news-feed-ranking/" target="_blank" rel="noopener noreferrer">https://engineering.fb.com/2021/01/26/ml-applications/news-feed-ranking/</a>.</li>
+<li>Twitter’s news feed system. <a href="https://blog.twitter.com/engineering/en_us/topics/insights/2017/using-deep-learning-at-scale-in-twitters-timelines" target="_blank" rel="noopener noreferrer">https://blog.twitter.com/engineering/en_us/topics/insights/2017/using-deep-learning-at-scale-in-twitters-timelines</a>.</li>
+<li>LinkedIn’s News Feed system LinkedIn. <a href="https://engineering.linkedin.com/blog/2020/understanding-feed-dwell-time" target="_blank" rel="noopener noreferrer">https://engineering.linkedin.com/blog/2020/understanding-feed-dwell-time</a>.</li>
+<li>BERT paper. <a href="https://arxiv.org/pdf/1810.04805.pdf" target="_blank" rel="noopener noreferrer">https://arxiv.org/pdf/1810.04805.pdf</a>.</li>
+<li>ResNet model. <a href="https://arxiv.org/pdf/1512.03385.pdf" target="_blank" rel="noopener noreferrer">https://arxiv.org/pdf/1512.03385.pdf</a>.</li>
+<li>CLIP model. <a href="https://openai.com/blog/clip/" target="_blank" rel="noopener noreferrer">https://openai.com/blog/clip/</a>.</li>
+<li>Viterbi algorithm. <a href="https://en.wikipedia.org/wiki/Viterbi_algorithm" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Viterbi_algorithm</a>.</li>
+<li>TF-IDF. <a href="https://en.wikipedia.org/wiki/Tf%E2%80%93idf" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Tf%E2%80%93idf</a>.</li>
+<li>Word2vec. <a href="https://en.wikipedia.org/wiki/Word2vec" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Word2vec</a>.</li>
+<li>Serving a billion personalized news feed. <a href="https://www.youtube.com/watch?v=Xpx5RYNTQvg" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=Xpx5RYNTQvg</a>.</li>
+<li>Mean absolute error loss. <a href="https://en.wikipedia.org/wiki/Mean_absolute_error" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Mean_absolute_error</a>.</li>
+<li>Means squared error loss. <a href="https://en.wikipedia.org/wiki/Mean_squared_error" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Mean_squared_error</a>.</li>
+<li>Huber loss. <a href="https://en.wikipedia.org/wiki/Huber_loss" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Huber_loss</a>.</li>
+<li>A news feed system design. <a href="https://liuzhenglaichn.gitbook.io/system-design/news-feed/design-a-news-feed-system" target="_blank" rel="noopener noreferrer">https://liuzhenglaichn.gitbook.io/system-design/news-feed/design-a-news-feed-system</a>.</li>
+<li>Predict viral tweets. <a href="https://towardsdatascience.com/using-data-science-to-predict-viral-tweets-615b0acc2e1e" target="_blank" rel="noopener noreferrer">https://towardsdatascience.com/using-data-science-to-predict-viral-tweets-615b0acc2e1e</a>.</li>
+<li>Cold start problem in recommendation systems. <a href="https://en.wikipedia.org/wiki/Cold_start_(recommender_systems)" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Cold_start_(recommender_systems)</a>.</li>
+<li>Positional bias. <a href="https://eugeneyan.com/writing/position-bias/" target="_blank" rel="noopener noreferrer">https://eugeneyan.com/writing/position-bias/</a>.</li>
+<li>Determine retraining frequency. <a href="https://huyenchip.com/2022/01/02/real-time-machine-learning-challenges-and-solutions.html#towards-continual-learning" target="_blank" rel="noopener noreferrer">https://huyenchip.com/2022/01/02/real-time-machine-learning-challenges-and-solutions.html#towards-continual-learning</a>.</li>
+</ol>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../machine-learning-system-design-interview.html">← Course Contents</a>
+        <a href="similar-listings-on-vacation-rental-platforms.html">← Previous</a>
+        <a href="people-you-may-know.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

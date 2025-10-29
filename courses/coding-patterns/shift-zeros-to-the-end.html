@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Zeros to the End - Coding Patterns</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../coding-patterns.html">Coding Patterns</a> /
+        Shift Zeros to the End
+    </div>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="pair-sum-sorted.html">← Previous</a>
+        <a href="triplet-sum.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">move all zeros to the end</span> Shift Zeros to the End
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/coding-patterns/two-pointers/shift-zeros-to-the-end" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><h1>Shift Zeros to the End</h1></header><div class="style_problemDescription__T4cPe"><p>Given an array of integers, modify the array in place to <strong>move all zeros to the end</strong> while maintaining the relative order of non-zero elements.</p><h4 id="example">Example:</h4><pre><code class="hljs language-python">Input: nums = [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>]
+Output: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>]
+</code></pre></div>
+<h2 id="intuition">Intuition</h2>
+<p>This problem has three main requirements:</p>
+<ol>
+<li>Move all zeros to the end of the array.</li>
+<li>Maintain the relative order of the non-zero elements.</li>
+<li>Perform the modification in place.</li>
+</ol>
+<p>A naive approach to this problem is to build the output using a separate array (<code>temp</code>). We can add all non-zero elements from the left of <code>nums</code> to this temporary array and leave the rest of it as zeros. Then, we just set the input array equal to <code>temp</code>.</p>
+<blockquote>
+<p>By identifying and moving the non-zero elements from the left side of the array first, we ensure their order is preserved when we add them to the output:</p>
+</blockquote>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-0-tab-0" aria-controls="rc-tabs-0-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-1" aria-controls="rc-tabs-0-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-2" aria-controls="rc-tabs-0-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-0-more-popup" id="rc-tabs-0-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-0-panel-0" aria-labelledby="rc-tabs-0-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">shift_zeros_to_the_end_naive</span>(<span class="hljs-params">nums: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]</span>) -&gt; <span class="hljs-literal">None</span>:
+    temp = [<span class="hljs-number">0</span>] * <span class="hljs-built_in">len</span>(nums)
+    i = <span class="hljs-number">0</span>
+    <span class="hljs-comment"># Add all non-zero elements to the left of 'temp'.</span>
+    <span class="hljs-keyword">for</span> num <span class="hljs-keyword">in</span> nums:
+        <span class="hljs-keyword">if</span> num != <span class="hljs-number">0</span>:
+            temp[i] = num
+            i += <span class="hljs-number">1</span>
+    <span class="hljs-comment"># Set 'nums' to 'temp'.</span>
+    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(nums)):
+        nums[j] = temp[j]
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<p>Unfortunately, this solution breaks the third requirement of modifying the input array in place.</p>
+<p>However, there's still valuable insight to be gained from this approach. In particular, notice that this solution focuses on the non-zero elements instead of zeros. This means if we change our goal to <strong>move all non-zero elements to the left of the array</strong>, the zeros will consequently end up on the right. Therefore, we only need to focus on non-zero elements:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="The image represents a data transformation process.  It shows an input array `[0 1 0 2 3]` enclosed in square brackets.  A light-blue rectangular box highlights the non-zero elements (1, 2, and 3) within this array. A solid black arrow points from the input array to an output array `[1 2 3 0 0]`.  Below the input array, the text 'non-zero numbers go here' in light-blue indicates that the transformation involves extracting only the non-zero numbers.  Light-blue horizontal lines are drawn under both the input and output arrays, visually connecting the non-zero elements in the input to their corresponding positions in the output, implying a direct mapping of non-zero values.  The zeros in the input array are preserved in the output array, maintaining the original array's length." loading="lazy" width="600" height="66" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-1-IJRTSKQD.svg" style="color: transparent;"></div></figure>
+<p>If there was a way to iterate over the above range of the array where the non-zero elements go, we could iteratively place each non-zero element in that range.</p>
+<p><strong>Two pointers</strong><br>
+We can use two pointers for this:</p>
+<ul>
+<li>A left pointer to iterate over the left of the array where the non-zero elements should be placed.</li>
+<li>A right pointer to find non-zero elements.</li>
+</ul>
+<p>Consider the example below. Start by placing the left and right pointers at the start of the array. Before we move non-zero elements to the left, we need the right pointer to be pointing at a non-zero element. So, we ignore the zero at the first element and increment <code>right</code>:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visualization of a coding pattern, likely illustrating pointer manipulation within an array.  The top section shows two gray boxes labeled 'left' and 'right' pointing downwards to an array `[0 1 0 2 3]`.  This represents the initial state of the array and the pointers. Below, a second similar arrangement shows the array after a step in the algorithm.  The 'left' pointer remains unchanged, but the 'right' pointer (shown in orange) has moved one position to the right.  A dashed gray box in the middle displays a conditional statement: `nums[right] == 0 → right += 1`, indicating that if the element at the index pointed to by 'right' is equal to 0, then the value of 'right' is incremented.  The dashed line connecting the 'right' pointer in the second array to the conditional statement visually connects the conditional check to the pointer's movement. The overall diagram illustrates a single iteration of an algorithm that likely involves traversing and manipulating an array using two pointers." loading="lazy" width="597" height="177" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-2-NAB3RLLM.svg" style="color: transparent;"></div></figure>
+<p>Remember, we only use the left pointer to keep track of where non-zero elements should be placed. So, until we find a non-zero element, we shouldn’t move this pointer.</p>
+<hr>
+<p>Now, the value at the right pointer is non-zero. Let’s discuss how to handle this case.</p>
+<p><strong>1. Swap the elements at <code>left</code> and <code>right</code>:</strong> First, we’d like to move the element at the right pointer to the left of the array. So, we swap it with the element at the left pointer.</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a sorting algorithm's step.  Two rectangular boxes labeled 'left' and 'right' are positioned above a horizontal array `[0 1 0 2 3]`. Arrows descend from 'left' and 'right' pointing to the array elements at indices 0 and 1 respectively. A dashed-line rectangle to the right contains the conditional statement 'nums[right] != 0 → swap(nums[left], nums[right])', indicating that if the element at the index pointed to by 'right' (which is 1 in this case) is not equal to 0, then a swap operation occurs between the elements at the indices pointed to by 'left' and 'right'.  The 'nums' refers to the array, and 'left' and 'right' act as index pointers. The arrow '→' signifies the conditional execution of the swap function." loading="lazy" width="770" height="125" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-3-NHRSBRLL.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a swap operation within a sorting algorithm, likely a variation of quicksort or similar.  At the top, two rectangular boxes labeled 'left' and 'right' are shown, each with a downward-pointing arrow. These arrows point to a numerical array represented as `[1 0 2 3]`, where the numbers 1 and 0 are highlighted in light peach circles. A gray horizontal line connects the numbers 1 and 0, indicating their positions within the array.  A curved orange arrow, labeled 'swapped,' arcs underneath the line, connecting the circled 1 and 0, illustrating the exchange of these two elements.  The overall diagram demonstrates a single swap step in a sorting process, where the values pointed to by 'left' and 'right' pointers are interchanged." loading="lazy" width="263" height="120" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-4-5ODTEVDH.svg" style="color: transparent;"></div></figure>
+<p><strong>2. Increment the pointers:</strong></p>
+<ul>
+<li>After the swap is complete, we should increment the left pointer to position it where the next non-zero element should go.</li>
+<li>Let’s also increment the right pointer in search of the next non-zero element.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="The image represents a simple illustration of a coding pattern, possibly related to array manipulation or pointer movement.  Two rectangular boxes labeled 'left' and 'right' are positioned above a horizontal line segment.  Downward arrows connect each box to a number below the line.  The numbers below the line are arranged as an array-like structure: `[1 0 0 2 3]`.  A dashed-line rectangle to the right contains the text 'left += 1, right += 1', indicating an operation where the values associated with 'left' and 'right' are incremented by 1.  The arrows suggest that the 'left' and 'right' variables might represent indices or pointers into the array, and the operation in the dashed box describes how these indices are updated.  The overall diagram visually depicts a step in an algorithm that involves iterating or manipulating an array using two pointers." loading="lazy" width="560" height="90" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-5-IAQXF357.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, possibly related to array traversal or pointer manipulation.  Two rectangular boxes labeled 'left' (in orange) and 'right' (in gray) are positioned at the top.  A solid downward-pointing arrow extends from each box, indicating data flow.  These arrows point to the numbers 0 and 0 respectively, which are situated below on a horizontal gray line representing an array or sequence.  The number 1 is placed to the left of the 0 from the 'left' box, and the number 2 and 3 are placed to the right of the 0 from the 'right' box, all on the same horizontal line, enclosed within square brackets `[ ]` to denote an array structure. A dashed orange arrow connects the 'left' box's output (0) to the number 1, suggesting a possible indirect or conditional relationship or data flow.  The overall arrangement suggests a process where the 'left' and 'right' elements might represent pointers or indices that traverse the array, potentially converging or interacting at a central point (the 0s)." loading="lazy" width="265" height="90" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-6-VEUCCWPT.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>We can apply this logic to the rest of the array, incrementing the right pointer at each step to find the next non-zero element:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, possibly within a sorting or searching algorithm.  Two rectangular boxes labeled 'left' and 'right' are positioned above a horizontal array represented by `[1 0 0 2 3]`.  Arrows descend from 'left' and 'right' pointing to the array elements at indices 1 and 2 respectively (the values 0 and 0).  A separate, light-grey, dashed-bordered rectangle to the right contains a conditional statement: `nums[right] == 0 -&gt; right += 1`. This indicates that if the element at the index `right` in the `nums` array is equal to 0, then the value of `right` is incremented by 1.  The diagram visually shows the variables `left` and `right` potentially used as pointers or indices within the array, and the conditional statement describes a step in an algorithm that modifies the `right` pointer based on the value of the array element it points to." loading="lazy" width="613" height="90" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-7-AFMMQFWI.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a simplified illustration of a data structure, possibly an array, being manipulated.  Two rectangular boxes, labeled 'left' (in gray) and 'right' (in orange), represent pointers or indices. A gray horizontal line depicts an array containing the elements [1, 0, 0, 2, 3]. A solid downward-pointing arrow from 'left' points to the element '0' at index 1, indicating that the 'left' pointer is currently at this position. An orange downward-pointing arrow from 'right' points to the element '2' at index 3, showing the 'right' pointer's position. A dashed orange curved arrow connects the 'right' pointer to the element '0' at index 2, suggesting a potential movement or operation involving this element.  The overall arrangement visualizes the pointers' positions within the array and hints at a possible algorithm or process involving these pointers, perhaps related to partitioning or searching within the data structure." loading="lazy" width="613" height="90" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-8-EIRQV4PD.svg" style="color: transparent;"></div></figure>
+<hr>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a step in a sorting algorithm, likely a comparison-based sort.  Two rectangular boxes labeled 'left' and 'right' are positioned above a horizontal array `[1, 0, 0, 2, 3]`. Arrows descend from 'left' and 'right' pointing to the array elements at indices 1 and 4 respectively (0 and 2). A dashed-line rectangle to the right displays the condition `nums[right] != 0` followed by a right arrow and the action `swap(nums[left], nums[right])`. This indicates that if the element at the index pointed to by 'right' (which is 2) is not equal to 0, then the elements at the indices pointed to by 'left' and 'right' (0 and 2) will be swapped.  The diagram illustrates a single comparison and potential swap operation within a larger sorting process." loading="lazy" width="770" height="125" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-9-M2BOBUFL.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a swapping operation within an array.  The diagram shows an array `[1, 2, 0, 3]` with two pointers, labeled 'left' and 'right,' initially pointing to the elements 2 and 0 respectively.  Arrows from rectangular boxes labeled 'left' and 'right' indicate the pointers' positions. A gray horizontal line connects the elements 1, 2, 0, and 3, representing the array.  A curved orange arrow labeled 'swapped' shows the exchange of the values at the 'left' and 'right' pointer positions.  To the right, a light gray, dashed-bordered rectangle contains the operation `left += 1, right += 1`, indicating that after the swap, both pointers will increment their positions by one in the next iteration.  The overall image illustrates a single step in a sorting algorithm, likely involving a swap and pointer movement." loading="lazy" width="770" height="125" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-10-67EQWWFS.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a simple coding pattern, possibly related to array manipulation or pointer movement.  The diagram shows a numerical array `[1 2 0 0 3]` represented horizontally. Above the array, two rectangular boxes labeled 'left' and 'right' in orange are positioned.  A solid orange arrow descends from 'left' pointing to the element '0' in the second position from the left within the array.  Similarly, a solid orange arrow descends from 'right' pointing to the element '3' at the right end of the array. Dashed orange lines curve from 'left' to the element '2' and from 'right' to the element '0' in the third position, suggesting a potential search or traversal pattern. The overall arrangement suggests a process where two pointers, one starting from the left and the other from the right, might be moving towards the center of the array, potentially for comparison, searching, or merging operations." loading="lazy" width="263" height="80" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-11-F5CI56AA.svg" style="color: transparent;"></div></figure>
+<hr>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a step in a sorting algorithm, likely a part of a larger process.  Two rectangular boxes labeled 'left' and 'right' are positioned above a numerical array `[1, 2, 0, 0, 3]`.  Arrows descend from 'left' and 'right' pointing to the '0' elements within the array, indicating these are the current indices being considered. A dashed-line rectangle to the right shows a conditional statement: `nums[right] != 0 → swap(nums[left], nums[right])`. This indicates that if the element at the index 'right' is not equal to 0, then a `swap` function is called to exchange the values at the 'left' and 'right' indices within the `nums` array.  The arrow represents the flow of control based on the condition." loading="lazy" width="770" height="125" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-12-XNRYRK65.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a swapping operation within an array.  The diagram shows an array `[1, 2, 3, 0]` with two pointers, 'left' and 'right', initially pointing to the elements 3 and 0 respectively.  Rectangular boxes labeled 'left' and 'right' above indicate the pointers' origins.  A downward-pointing arrow from each box connects to its corresponding element in the array.  The elements 3 and 0 are highlighted in light peach. A gray horizontal line connects the elements 1 and 2, visually representing the array's structure. A curved orange arrow labeled 'swapped' connects the highlighted elements 3 and 0, indicating that these elements have been exchanged. To the right, a light gray, dashed-bordered rectangle displays the operation performed: `→ left += 1, right += 1`, signifying that after the swap, both pointers will increment their positions by one." loading="lazy" width="770" height="125" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-13-EFX6N3MT.svg" style="color: transparent;"></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, possibly related to array manipulation or pointer movement.  The diagram shows a light-blue rectangular array `[1 2 3]` with a light-blue underline indicating its boundaries.  Two orange rectangular boxes labeled 'left' and 'right' are positioned above the array.  Dashed orange arrows point downwards from 'left' and 'right' to the array elements. The 'left' arrow points to the first element (1) and the 'right' arrow points to the last element (3).  The arrows suggest that the 'left' and 'right' variables might represent pointers or indices that can be manipulated to traverse the array.  The empty space `∅` between the array and the pointers suggests an initial state or a potential intermediate step in an algorithm.  The overall structure suggests a two-pointer approach commonly used in algorithms like merging or partitioning." loading="lazy" width="325" height="90" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/shift-zeros-to-the-end/image-01-05-14-RQIWELLT.svg" style="color: transparent;"></div></figure>
+<p>Once all swapping is done, all zeros will end up at the right end of the array as intended, without disturbing the order of the non-zero elements. The two-pointer strategy used in this problem is unidirectional traversal.</p>
+<div class="style_tryBanner__WFMKc"><div><div class="style_tryTitle__dVqce">Try it yourself</div><div class="style_tryDesc___lKzS">Write your solution to the problem before checking the reference implementation.</div></div><a target="_blank" href="/exercises/coding-patterns/two-pointers/shift-zeros-to-the-end"><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_openBtn__F_m3N"><span>Open Code Editor</span></button></a></div>
+<h2 id="implementation">Implementation</h2>
+<p>You might have noticed that we always move the right pointer forward, regardless of whether it points to a zero or a non-zero. This allows us to use a for-loop to iterate the right pointer.</p>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-1-tab-0" aria-controls="rc-tabs-1-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-1-tab-1" aria-controls="rc-tabs-1-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-1-tab-2" aria-controls="rc-tabs-1-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-1-more-popup" id="rc-tabs-1-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-1-panel-0" aria-labelledby="rc-tabs-1-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">shift_zeros_to_the_end</span>(<span class="hljs-params">nums: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]</span>) -&gt; <span class="hljs-literal">None</span>:
+    <span class="hljs-comment"># The 'left' pointer is used to position non-zero elements.</span>
+    left = <span class="hljs-number">0</span>
+    <span class="hljs-comment"># Iterate through the array using a 'right' pointer to locate non-zero</span>
+    <span class="hljs-comment"># elements.</span>
+    <span class="hljs-keyword">for</span> right <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(nums)):
+        <span class="hljs-keyword">if</span> nums[right] != <span class="hljs-number">0</span>:
+            <span class="hljs-keyword">if</span> right != left:
+                nums[left], nums[right] = nums[right], nums[left]
+            <span class="hljs-comment"># Increment 'left' since it now points to a position already occupied</span>
+            <span class="hljs-comment"># by a non-zero element.</span>
+            left += <span class="hljs-number">1</span>
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<h3 id="complexity-analysis">Complexity Analysis</h3>
+<p><strong>Time complexity:</strong> The time complexity of <code>shift_zeros_to_the_end</code> is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> denotes the length of the array. This is because we iterate through the input array once.</p>
+<p><strong>Space complexity:</strong> The space complexity is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span> because shifting is done in place.</p>
+<p><strong>Test Cases</strong><br>
+In addition to the examples discussed, below are more examples to consider when testing your code.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Input</th><th style="text-align: left;">Expected output</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code>nums = []</code></td><td style="text-align: left;"><code>[]</code></td><td style="text-align: left;">Tests an empty array.</td></tr><tr><td style="text-align: left;"><code>nums = [0]</code></td><td style="text-align: left;"><code>[0]</code></td><td style="text-align: left;">Tests an array with one 0.</td></tr><tr><td style="text-align: left;"><code>nums = [1]</code></td><td style="text-align: left;"><code>[1]</code></td><td style="text-align: left;">Tests an array with one 1.</td></tr><tr><td style="text-align: left;"><code>nums = [0, 0, 0]</code></td><td style="text-align: left;"><code>[0, 0, 0]</code></td><td style="text-align: left;">Tests an array with all 0s.</td></tr><tr><td style="text-align: left;"><code>nums = [1, 3, 2]</code></td><td style="text-align: left;"><code>[1, 3, 2]</code></td><td style="text-align: left;">Tests an array with all non-zeros.</td></tr><tr><td style="text-align: left;"><code>nums = [1, 1, 1, 0, 0]</code></td><td style="text-align: left;"><code>[1, 1, 1, 0, 0]</code></td><td style="text-align: left;">Tests an array with all zeros already at the end.</td></tr><tr><td style="text-align: left;"><code>nums = [0, 0, 1, 1, 1]</code></td><td style="text-align: left;"><code>[1, 1, 1, 0, 0]</code></td><td style="text-align: left;">Tests an array with all zeros at the start.</td></tr></tbody></table></div>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="pair-sum-sorted.html">← Previous</a>
+        <a href="triplet-sum.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat app - Mobile System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../mobile-system-design-interview.html">Mobile System Design Interview</a> /
+        Chat app
+    </div>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="news-feed-app.html">← Previous</a>
+        <a href="stock-trading-app.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">04</span> Chat app
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/mobile-system-design-interview/chat-app" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">04</strong><h1>Chat app</h1></header><p>In this chapter, we'll tackle the design of a chat app. Chat apps are so common that designing one has become a very common question in mobile system design interviews. Figure 1 showcases some of the most popular chat applications currently in the market.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a collection of six popular messaging application logos, arranged in two rows and three columns.  The top row features, from left to right: a green speech bubble containing a white telephone icon labeled 'Whatsapp,' a light blue speech bubble with a white lightning bolt icon labeled 'Facebook messenger,' and a green square with two overlapping white speech bubbles labeled 'Wechat.' The bottom row displays, from left to right: a green square speech bubble with the word 'LINE' in white labeled 'Line,' a green and darker green overlapping speech bubble icon labeled 'Google Chat,' and a purple Discord logo labeled 'Discord.'  There are no connections or information flow explicitly depicted between the logos; the image simply presents the logos and their respective names for visual identification." width="602" height="185" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-1-GAXQKZQC.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: Most popular chat apps</figcaption></div></figure>
+<p>Chat apps have evolved to meet a wide range of communication needs. They serve as platforms to host one-on-one conversations, help friend groups stay connected, allow families to share life updates and photos, and even enable gamers to strategize during online matches. With such a diversity of potential functions, it's crucial to define clearly the specific requirements for the chat app we're designing.</p>
+<h2 id="step-1-understand-the-problem-and-establish-design-scope">Step 1: Understand the problem and establish design scope</h2>
+<p>When tackling the design of a chat app, it's essential to first get on the same page as your interviewer. Here's how that conversation might play out:</p>
+<p><strong>Interviewer:</strong> Welcome to today's session! We'll be designing the mobile client app architecture and backend communication for a chat application.</p>
+<p><strong>Candidate:</strong> Thanks, I'm looking forward to this! Before we dive in, I'd like to clarify a few points about the app's functionality. Typically, chat apps allow users to send and receive messages in real time, view their conversation list, and access chat history offline. Are we focusing on one-on-one chats, group chats, or both? This could significantly impact our design approach.<br>
+<strong>Interviewer:</strong> Let's keep it simple and focus solely on one-on-one conversations. We'll leave group chats out of scope for now.</p>
+<p><strong>Candidate:</strong> Understood. Now, about the backend's role, some chat systems, such as WhatsApp [1], use the backend as a temporary message relay, holding messages until they're delivered to clients, without permanent storage. Is this the approach we're taking?<br>
+<strong>Interviewer:</strong> Yes, that's exactly the approach we'll use for this design.</p>
+<p><strong>Candidate:</strong> I see. Are we supporting only text messages, or should we consider attachments and reactions, as well?<br>
+<strong>Interviewer:</strong> Let's keep it simple and focus on text messages only for now.</p>
+<p><strong>Candidate:</strong> Alright. What about common chat features such as push notifications for new messages, typing indicators, and online status updates? Should we include these in our design?<br>
+<strong>Interviewer:</strong> Yes, let's incorporate those features.</p>
+<p><strong>Candidate:</strong> Great. Now, can you give me an idea of the app's scale? Are we designing for a startup or a large-scale, global application?<br>
+<strong>Interviewer:</strong> We're thinking big here. We're looking at about 30 million daily active users worldwide.</p>
+<p><strong>Candidate:</strong> That's a significant user base. For user registration and authentication, can we assume users are already authenticated when they access these features, and that their contact lists are pre-loaded when they open the app?<br>
+<strong>Interviewer:</strong> Yes, those are safe assumptions.</p>
+<p><strong>Candidate:</strong> Got it. And lastly, about security, we'll obviously secure the client–backend connection, but should we also consider encrypting messages stored on the device to protect against potential security breaches?<br>
+<strong>Interviewer:</strong> For now, let's keep message encryption on the device out of scope.</p>
+<p>This back-and-forth helps us build a comprehensive picture of our design requirements. Let's take a moment to summarize what we've established so far.</p>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>When addressing a familiar interview question, take the lead by proposing both functional and non-functional requirements upfront. This proactive approach not only showcases your leadership skills but also helps your interview stand out.</p></div>
+<h4 id="requirements">Requirements</h4>
+<p>Based on our discussions, we're designing a chat system with the following <strong>functional requirements</strong>:</p>
+<ul>
+<li>Users can view their recent conversations, organized by the timestamp of the latest message.</li>
+<li>Users can chat in real time, including both sending and receiving text messages.</li>
+<li>During conversations, users can monitor their contacts' online status, typing indicators, message delivery status, and read receipts.</li>
+<li>Users can browse their chat history without an internet connection. The conversation history loads efficiently through pagination.</li>
+<li>The app supports push notifications to alert users of new messages.</li>
+</ul>
+<p>For our <strong>non-functional requirements</strong>, we need to build a system that ensures:</p>
+<ul>
+<li>Scalability: Our system must handle 30 million daily active users worldwide and deliver reliable performance across various network conditions.</li>
+<li>Data integrity: The app should maintain consistency during offline use, especially when storing messages that will be delivered once connectivity returns.</li>
+<li>Durability: Client-side data must remain reliable since it serves as the source of truth for messages.</li>
+</ul>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>When asking about Daily Active Users (DAU), you're doing more than just getting a number. The scale and geographic distribution of users directly influence your technical decisions. High DAU numbers often signal a need to focus more on topics such as performance optimization, resource efficiency, scalable architecture patterns, and the right network protocol choice.</p><p>Always connect scale requirements to your technical choices during the interview. This demonstrates thoughtful system design and shows you understand how business requirements shape architecture decisions.</p></div>
+<p>To keep our design focused, we'll consider the following features <strong>out of scope</strong>:</p>
+<ul>
+<li>User authentication and registration.</li>
+<li>Group chats and media file sharing.</li>
+<li>Message encryption.</li>
+</ul>
+<p>As we move forward, it's important to remember that the scale of our system will significantly influence our design decisions. We'll need to consider carefully how each choice affects our ability to efficiently manage a large user base and high message volume.</p>
+<h4 id="ui-sketch">UI sketch</h4>
+<p>Figure 2 shows the basic layout of our chat app. On the left, the Chat List screen displays recent conversations and a button to start a new chat. Tapping a conversation opens the Conversation screen, which shows recent messages, the other user's online and typing statuses, and a text field to send new messages.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram illustrating the interaction between a chat list view and a chat message view within a mobile messaging application.  The left phone screen displays a list of chat conversations, each represented by a horizontal rectangular element containing a circular user profile placeholder, a progress bar (likely indicating message read status or other metadata), and a timestamp (e.g., 5:30 PM, 12:30 PM, 10:15 AM, 08:06 AM).  These elements are arranged vertically, suggesting a chronological order from most recent to oldest.  A '+' button is present at the bottom, indicating the ability to initiate a new conversation.  A curved arrow points from the third conversation element (10:15 AM) to the right phone screen, which depicts a single chat message view. This view shows a circular user profile placeholder, an 'Online Typing...' status indicator, and several grayed-out rectangular placeholders representing incoming or outgoing messages within the selected conversation.  A play button is at the bottom, possibly indicating the ability to play voice messages or other media. The arrow indicates that selecting a conversation from the list on the left screen navigates the user to the corresponding chat message view on the right." loading="lazy" width="465" height="370" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-2-LQTNWS4X.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Basic sketch of the chat mobile app</figcaption></div></figure>
+<h2 id="step-2-api-design">Step 2: API design</h2>
+<p>Now that we've established our requirements, let's dive into the API design. This step is crucial for understanding how the client and backend will communicate. In this section, we'll look at:</p>
+<ul>
+<li>Client and backend expectations.</li>
+<li>Server-initiated connections.</li>
+<li>Network protocols in the chat app.</li>
+<li>Endpoints and data models.</li>
+</ul>
+<h3 id="client-and-backend-expectations">Client and backend expectations</h3>
+<p>In a chat system, clients don't communicate directly with each other. Instead, they connect to a backend that acts as a mediator. When a client sends a message, it goes to the backend. The backend then identifies the intended recipient and forwards the message. If the recipient isn't online, the backend holds on to the message until they connect.</p>
+<p>Figure 3 illustrates the interactions between clients and the chat backend service, showing how messages flow through the system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture for a messaging system.  The diagram shows three main components arranged horizontally. On the left is a rectangular box labeled 'Sender' containing a simple icon of a smartphone.  A thin arrow labeled 'Message' extends from the Sender box to a central rectangular box labeled 'Backend services:'. This central box lists two functions: '1. store message' and '2. relay message'.  Another thin arrow labeled 'Message' extends from the Backend services box to a rectangular box on the right labeled 'Receiver,' which also contains a smartphone icon. The arrows indicate the flow of a message: the Sender sends a message to the Backend services, which stores it and then relays it to the Receiver." loading="lazy" width="602" height="107" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-3-PSKY6X5N.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: Client and server interactions in a chat system</figcaption></div></figure>
+<p>Let's examine how our client app and backend need to communicate. There are two distinct types of interactions we need to handle:</p>
+<ol>
+<li>When clients initiate contact with the backend, such as sending messages or syncing pending ones, HTTP works well for these scenarios since these client-initiated requests follow a simple request-response pattern.</li>
+<li>When the backend needs to reach clients for real-time features, such as message delivery or online status updates, the recipient's app needs to know about these events immediately, but HTTP only allows clients to make requests, not the other way around.</li>
+</ol>
+<p>While push notifications can help inform users about new messages or events when the app isn't active, they aren't enough for an active chat session. Real-time features like message delivery, read receipts, and online status updates require something more immediate and reliable than push notifications, which can be slow and inconsistent. Given how sensitive chat apps are to latency, we need a more robust solution that can deliver a seamless, real-time experience.</p>
+<h3 id="server-initiated-connections">Server-initiated connections</h3>
+<p>Over time, developers have created several techniques to support server-initiated connections. These include polling, long polling, Server-Sent Events (SSE), WebSockets, and other solutions built on top of HTTP/2 such as gRPC.</p>
+<p>These approaches frequently come up in mobile system design interviews, so it's important to understand them. Let's explore the key methods that have shaped how mobile apps communicate with servers.</p>
+<h4 id="polling">Polling</h4>
+<p>Polling (or short polling) is a basic technique whereby the client repeatedly asks the server, "Do you have any new messages for me?". As shown in Figure 4, the process works like this: The client asks for new data; the server responds with or without new information; the client waits briefly, then asks again.</p>
+<p>While easy to implement, polling can be wasteful. It often leads to many unnecessary requests, especially when there's no new data to report. This constant back-and-forth can burden both the client and the server, consuming extra network resources and processing power.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence diagram illustrating a client-server interaction for checking new messages.  Two rectangular boxes labeled 'Client' and 'Server' are positioned vertically, representing the two communicating entities.  Horizontal arrows depict the flow of communication.  The client repeatedly sends requests to the server ('New messages?') using solid arrows. The server responds with 'NO' (indicating no new messages) for several consecutive requests, followed by a dotted line representing the closing of the connection after each 'NO' response.  After several unsuccessful checks, the server finally responds with 'Yes. Return new messages,' indicating the presence of new messages, followed by a dotted line representing the closing of the connection.  The ellipsis ('...') below indicates that this polling process continues indefinitely until new messages are available." loading="lazy" width="457" height="407" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-4-LRNDNYPJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: Polling strategy</figcaption></div></figure>
+<h4 id="long-polling">Long polling</h4>
+<p>Long polling emerged as an improvement by addressing some of the inefficiencies of traditional polling. Let's take a closer look at how it works in Figure 5.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence diagram illustrating the interaction between a Client and a Server in a messaging system using a long-polling approach.  The diagram shows a vertical timeline for both the Client and the Server.  The Client initiates the interaction by sending a request 'New messages?' to the Server. The Server then waits for new messages. If new messages arrive, the Server responds with 'Yes. Return new messages' to the Client.  The connection is then closed, represented by a dotted line labeled 'connection closed'.  This process repeats, with the Client repeatedly sending 'New messages?' requests. However, if no new messages arrive within a certain timeframe, the Server times out and closes the connection, indicated by 'Timeout' and 'connection closed'.  The ellipsis (...) at the bottom suggests this polling cycle continues indefinitely.  The arrows indicate the direction of communication, with requests going from Client to Server and responses from Server to Client." loading="lazy" width="473" height="361" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-5-3HKUKFVX.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Long polling strategy</figcaption></div></figure>
+<p>With HTTP long polling, the client asks the server for updates and waits. Unlike short polling, the server holds the connection open until there's new data or a timeout occurs. Once the client gets a response, it immediately asks again.</p>
+<p>While better than short polling, long polling has some issues too:</p>
+<ul>
+<li>It's still inefficient for infrequent chatters, as most requests will just time out.</li>
+<li>In multi-server setups, the server with the new message might not be the one connected to the recipient.</li>
+<li>Servers can't easily tell if a client has disconnected.</li>
+</ul>
+<h4 id="server-sent-events">Server-Sent Events</h4>
+<p>Server-Sent Events (SSE) offer a way for servers to push updates to clients over a single HTTP connection. This approach, illustrated in Figure 6, differs from traditional request–response models.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating a uni-directional communication pattern between a server and a mobile device using Server-Sent Events (SSE).  The diagram shows a server icon, labeled 'Server,' connected to a mobile phone icon, labeled 'Mobile,' via a horizontal line representing the initial connection.  The text 'SSE (Server-sent event)' is positioned to the left, clarifying the communication method.  Above the horizontal line, the word 'uni-directional' indicates the communication's one-way nature.  Multiple diagonal arrows extend from the server to the mobile device, representing the server pushing data to the mobile client over time.  These arrows are labeled with 'Time' on both the top and bottom horizontal lines, indicating the progression of time and the continuous stream of data from the server.  The arrows visually demonstrate that the data flow is exclusively from the server to the mobile device, with no response or feedback from the mobile device to the server." loading="lazy" width="602" height="253" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-6-3EHEF7MJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: Server-Sent Events strategy</figcaption></div></figure>
+<p>At its core, SSE maintains an open HTTP connection between the client and server. To prevent the connection from timing out due to inactivity, the server may periodically send a colon-prefixed comment line. This simple technique keeps the connection alive, even when there's no actual data to transmit.</p>
+<div class="note-block"><p><strong>📝 Note!</strong> This is how SSE works under the hood:</p><ol>
+<li>
+<p>The client sends an HTTP GET request to the SSE server endpoint, setting the Accept header to text/event-stream.</p>
+</li>
+<li>
+<p>The server replies with a 200 OK status and sets the Content-Type to text/event-stream. It then keeps the connection open, ready to push updates.</p>
+</li>
+<li>
+<p>The server sends events in a simple text format, continuously updating the client.</p>
+</li>
+<li>
+<p>If the connection drops, the client typically reconnects automatically. To avoid missing events, it can include a Last-Event-ID header in its reconnection request, allowing the server to send only the events that occurred since the last received event.</p>
+</li>
+</ol></div>
+<p>SSE is far more efficient than polling methods. By establishing a single, persistent connection and pushing updates only when necessary, SSE significantly reduces network traffic and server load. This makes it a more resource-friendly option for real-time communication.</p>
+<p>In the context of our chat app, we could leverage SSE for server-initiated events while using standard HTTP requests for client-initiated actions. This hybrid approach would allow us to receive messages and other events through the SSE connection, while sending user messages via separate HTTP requests.</p>
+<p>Although SSE presents a viable solution, there's another alternative to consider: WebSockets.</p>
+<h4 id="websocket-protocol">WebSocket protocol</h4>
+<p>The WebSocket (WS) protocol has one of the most common solutions for real-time, bidirectional communication between clients and servers. Figure 7 shows how it works.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-server communication diagram illustrating the WebSocket handshake and data transfer process.  On the left, a 'Client' icon (representing a web browser) is connected via a thick vertical line to two vertically stacked rectangles labeled 'HTTP' and 'WebSocket,' respectively. On the right, a 'Server' icon (depicting a database server) is similarly connected to two vertically stacked rectangles also labeled 'HTTP' and 'WebSocket.'  The communication begins with a 'TCP 3-way handshake' between the client and server, represented by a horizontal arrow.  Next, the client sends an 'Upgrade: WebSocket' request to the server via a diagonal arrow. The server responds with a '101 Switching Protocols' message, indicated by another diagonal arrow.  Following this protocol switch, bidirectional data transfer occurs between the client's and server's 'WebSocket' components, shown by two diagonal arrows labeled 'WebSocket data' in both directions, indicating continuous, full-duplex communication." loading="lazy" width="542" height="442" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-7-4NWI6UF2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7: WebSocket protocol in action</figcaption></div></figure>
+<p>WebSocket connections begin their life as standard HTTP connections that are then "upgraded" to WebSocket connections through a well-defined protocol. This approach allows WebSockets to operate seamlessly even in the presence of firewalls, as they utilize the same ports (80 and 443) as HTTP and HTTPS traffic.</p>
+<p>Once established, this two-way channel enables both client and server to freely exchange messages. WebSockets don't impose restrictions on data formats; they accommodate everything from plain text to binary data. This flexibility has contributed to their widespread adoption.</p>
+<h4 id="messaging-protocols-used-in-real-world-apps">Messaging protocols used in real-world apps</h4>
+<p>WebSockets are built on top of TCP (Transmission Control Protocol) and provide a reliable connection for data transfer. TCP establishes and maintains a connection throughout the session, ensuring data packets are delivered in order and without errors. It handles error-checking, acknowledges received packets, and resends lost ones.</p>
+<p>In contrast, UDP (User Datagram Protocol) doesn't establish a connection first before sending data. It sends each packet independently, which means it can't guarantee delivery, order, or error-free transmission. While this approach lacks TCP's reliability, it has less overhead, making it faster for certain applications.</p>
+<p>Over the years, developers have created various real-time messaging protocols designed for specific use cases. These protocols are typically built on either TCP or UDP, depending on their needs. Some notable examples include:</p>
+<ul>
+<li>WebSocket: This full-duplex protocol enables communication over a single TCP connection.
+<ul>
+<li>Slack uses WebSockets for real-time communication [2] [3], and Uber used it as well in the past [4] [5].</li>
+</ul>
+</li>
+<li>XMPP (Extensible Messaging and Presence Protocol): An XML-based protocol supporting real-time messaging and presence information.
+<ul>
+<li>WhatsApp historically used XMPP as the backbone of its messaging system [6], and Kik Messenger also used it [7] .</li>
+</ul>
+</li>
+<li>MQTT (Message Queuing Telemetry Transport): A lightweight publish/subscribe messaging protocol that operates over TCP.
+<ul>
+<li>Facebook Messenger's initial implementation used MQTT [8].</li>
+</ul>
+</li>
+<li>WebRTC (Web Real-Time Communication): This protocol primarily uses UDP (with TCP fallback) to support peer-to-peer audio, video, and data streams.
+<ul>
+<li>Discord [9] uses WebRTC for voice and video functionalities.</li>
+</ul>
+</li>
+<li>IRC (Internet Relay Chat): Operating on TCP, IRC is used mainly for group communication in channels, but it also supports private messaging.
+<ul>
+<li>Mozilla used IRC as the primary tool for community communication [10].</li>
+</ul>
+</li>
+</ul>
+<h3 id="network-protocols-in-the-chat-app">Network protocols in the chat app</h3>
+<p>In summary, Table 1 compares the network protocols that can be used for server-initiated connections to meet the system's real-time requirements.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Option</th><th style="text-align: left;">Advantages</th><th style="text-align: left;">Disadvantages</th></tr></thead><tbody><tr><td style="text-align: left;">Short polling</td><td style="text-align: left;">Simple implementation. <br>Works with standard HTTP infrastructure and wide compatibility across platforms.</td><td style="text-align: left;">Inefficient with excessive requests. <br>High bandwidth usage occurs when many requests return no new data</td></tr><tr><td style="text-align: left;">Long polling</td><td style="text-align: left;">Near real-time updates with fewer requests than short polling. <br>Good for non-critical updates.</td><td style="text-align: left;">Complex timeout handling. <br>Doesn't scale well with many clients as it's resource-intensive on servers.</td></tr><tr><td style="text-align: left;">Server-Sent Events (SSE)</td><td style="text-align: left;">Single open HTTP connection for server-to-client messages. <br>Built-in reconnection support and works well over HTTP/2.</td><td style="text-align: left;">Unidirectional (server to client only) so it requires a separate mechanism for client-to-server communication. <br>Resource-intensive with many connections.</td></tr><tr><td style="text-align: left;">WebSocket</td><td style="text-align: left;">True bidirectional communication. <br>Low-latency message delivery and reduced overhead without repeated request/response cycles.</td><td style="text-align: left;">More complex to implement as it requires more infrastructure support (e.g., load balancers). <br>Scaling persistent connections is challenging.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 1: Trade-offs for choosing the network protocol for real-time features</p></p>
+<p>After evaluating the different options, we chose a hybrid approach for the chat app:</p>
+<ol>
+<li><strong>HTTP with REST APIs for client-initiated operations</strong> such as sending messages.</li>
+<li><strong>WebSocket for receiving real-time messages</strong> from the server.</li>
+</ol>
+<p>While implementing two protocols adds some complexity, this creates a more maintainable system as the app grows. By using WebSocket only for real-time features rather than all communication, including sending messages, we avoid common scaling issues that typically emerge in production environments.</p>
+<div class="note-block"><p><strong>⚠️ Careful!</strong></p><p>Scaling WebSocket services in production requires careful consideration. Some key challenges include:</p><ul>
+<li>
+<p>Managing persistent connections consumes significant server resources.</p>
+</li>
+<li>
+<p>Load balancing WebSocket connections is more complex than standard HTTP traffic.</p>
+</li>
+<li>
+<p>Connection recovery and state management need thorough handling.</p>
+</li>
+<li>
+<p>Monitoring and debugging WebSocket services require specialized tooling.</p>
+</li>
+</ul><p>By limiting WebSocket usage to just real-time features rather than all communication, we can better manage these scaling challenges.</p></div>
+<p><strong>We chose WebSockets over SSE for our chat application</strong> primarily because they offer better performance in chat scenarios. WebSockets provide lower latency and reduced header overhead, which is crucial when sending frequent small messages such as typing indicators and read receipts. While SSE could handle one-way server updates, WebSockets have more consistent support across mobile platforms and come with mature tooling for managing connections. This includes built-in capabilities for reconnection strategies and keep-alive mechanisms.</p>
+<p>This hybrid approach, which combines HTTP and WebSockets, has been widely adopted in the industry. For example, Slack uses HTTP for most write operations through their Web API [11], while leveraging WebSocket for real-time events through their Real-Time Messaging (RTM) API [12]. Discord follows a similar pattern [13], demonstrating how well this architecture works at scale.</p>
+<p>The client establishes the WebSocket connection for real-time updates when the app starts, and it remains active until either the client or server terminates it. Figure 8 demonstrates how clients and servers would interact with HTTP for client-initiated requests and WebSockets for real-time updates in our system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture diagram illustrating a communication flow between two mobile devices, labeled 'Sender' and 'Receiver,' mediated by a central 'Backend services' component.  The 'Sender' device, depicted as a smartphone icon within a rounded rectangle, initiates communication using the HTTPS protocol (indicated by the label 'https' on the connecting arrow) to send data to the 'Backend services.' This central component, also represented within a rounded rectangle, processes the received data. Subsequently, the 'Backend services' utilize the WebSockets protocol (labeled 'wss' on the connecting arrow) to forward the processed data to the 'Receiver' device, another smartphone icon within a rounded rectangle.  The arrows indicate the unidirectional flow of information from the sender, through the backend, to the receiver." loading="lazy" width="602" height="107" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-8-7LXBRZHQ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8: Client and server interactions in the chat system</figcaption></div></figure>
+<div class="note-block"><p><strong>✅ Decisions made!</strong></p><ul>
+<li>
+<p>HTTP with REST APIs for sending messages and other client-initiated operations.</p>
+</li>
+<li>
+<p>WebSocket for real-time features, where the server needs to push updates to clients.</p>
+</li>
+<li>
+<p>Careful scope limitation of WebSocket usage to manage scaling complexity.</p>
+</li>
+</ul></div>
+<h3 id="endpoints-and-data-models">Endpoints and data models</h3>
+<p>Now that we've chosen our communication protocol and data format, let's dive into the specific endpoints and data models we'll need.</p>
+<h4 id="client-initiated-requests">Client-initiated requests</h4>
+<p>For sending messages, we can define the following endpoint:</p>
+<pre><code>Authentication: Bearer &lt;token&gt;
+POST /v1/messages
+  Body: NewMessageRequest
+  Response: 201 Created. Payload of type NewMessageResponse
+</code></pre>
+<br>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class NewMessageRequest</strong> <br>requestId: Long <br>toUserId: Long <br>content: String <br>createdAt: String</td><td style="text-align: left;"><strong>struct NewMessageRequest</strong> <br>requestId: Int64 <br>toUserId: Int64 <br>content: String <br>createdAt: String</td></tr><tr><td style="text-align: left;"><strong>data class NewMessageResponse</strong> <br>message: Message <br>fromMessageRequestId: Long?</td><td style="text-align: left;"><strong>struct NewMessageResponse</strong> <br>message: Message <br>fromMessageRequestId: Int64?</td></tr></tbody></table></div>
+<p>The requestId field in NewMessageRequest acts as an <strong>idempotency key</strong> to allow the backend to de-duplicate requests when the same request is accidentally sent multiple times, and the optional fromMessageRequestId field in NewMessageResponse helps match a Message with the corresponding NewMessageRequest.</p>
+<p>We could also define another endpoint for <strong>syncing new messages</strong> when the app initializes:</p>
+<pre><code>Authentication: Bearer &lt;token&gt;
+GET /v1/messages?lastSyncedMessage=`{messageId}`&amp;limit=`{limit}`
+  Body: empty
+  Response: 200 OK. Payload of type SyncMessagesResponse
+</code></pre>
+<h4 id="data-models">Data models</h4>
+<p>The main application data model in our system is the Message. Here's what it looks like:</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class Message</strong> <br>messageId: Long <br>fromUserId: Long <br>toUserId: Long <br>content: String <br>status: MessageStatus <br>createdAt: String</td><td style="text-align: left;"><strong>struct Message</strong> <br>messageId: Int64 <br>fromUserId: Int64 <br>toUserId: Int64 <br>content: String <br>status: MessageStatus <br>createdAt: String</td></tr><tr><td style="text-align: left;"><strong>enum class MessageStatus</strong> PENDING, SYNCED, DELIVERED, READ</td><td style="text-align: left;"><strong>enum MessageStatus</strong> case pending, synced, delivered, read</td></tr></tbody></table></div>
+<p>The status field drives what message indicator the UI displays on the screen and contains the following values:</p>
+<ul>
+<li>PENDING: The backend hasn't received the message yet.</li>
+<li>SYNCED: The backend has received the message.</li>
+<li>DELIVERED: The backend has delivered the message to the recipient.</li>
+<li>READ: The recipient has read the message.</li>
+</ul>
+<p>Another key data model is the ConversationPreview, which represents what users see in the Chat list screen. It's worth noting that the following data models related to client app screens are private to the client. The backend doesn't concern itself with how the client displays messages.</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class ConversationPreview</strong> <br>contact: User <br>lastMessageSummary: String <br>lastMessageTimestamp: String <br>unreadCount: Int</td><td style="text-align: left;"><strong>struct ConversationPreview</strong> <br>contact: User <br>lastMessageSummary: String <br>lastMessageTimestamp: String <br>unreadCount: Int</td></tr><tr><td style="text-align: left;"><strong>data class User</strong> <br>id: Long <br>name: String <br>avatarUrl: String <br>lastConnectedAt: String</td><td style="text-align: left;"><strong>struct User</strong> <br>id: Int64 <br>name: String <br>avatarUrl: String <br>lastConnectedAt: String</td></tr></tbody></table></div>
+<p>The ConversationPreview is a lightweight model containing just enough information to display a conversation in the Chats list. When a user taps on one of these items, it opens the Conversation screen with that user. Since we can only have one conversation per user, the User's id serves as a unique identifier for each conversation.</p>
+<p>When the user opens the Conversation screen, the app loads the full Conversation data type, which contains more detailed information about the chat:</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class Conversation</strong> <br>contact: User <br>contactInfo: ContactInfo? <br>unreadCount: Int <br>messages: List&lt;Message&gt;</td><td style="text-align: left;"><strong>struct Conversation</strong> <br>contact: User <br>contactInfo: ContactInfo? <br>unreadCount: Int <br>messages: [Message]</td></tr><tr><td style="text-align: left;"><strong>data class ContactInfo</strong> <br>onlineStatus: String <br>typing: Boolean</td><td style="text-align: left;"><strong>struct ContactInfo</strong> <br>onlineStatus: String <br>typing: Bool</td></tr></tbody></table></div>
+<h4 id="real-time-features">Real-time features</h4>
+<p>For the real-time features powered by WebSocket, we use a Uniform Resource Identifier (URI) format similar to HTTP URLs. While HTTP URLs begin with <code>http://</code> or <code>https://</code>, WebSocket URIs start with <code>ws://</code> for standard connections or <code>wss://</code> for secure, encrypted ones. For our chat backend service, we'll use the following URI: <code>wss://my-api.chat.com/v1/socket/updates</code>.</p>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>We include versions in our API endpoints for good reasons. This practice gives us the flexibility to introduce breaking changes or major new features in newer versions while keeping older versions stable. It also allows us to deprecate outdated APIs in a controlled manner. For a deeper dive into API versioning, refer back to Chapter 10: Mobile System Design Building Blocks.</p></div>
+<p>When sending data over the Websocket, we use JSON in the following format:</p>
+<pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"message_type"</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">"payload"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<p>Each event consists of two main parts: a type field that specifies the event type (as defined earlier), and a payload field containing the actual event data as a JSON object. The content of the payload varies depending on the message type.</p>
+<p>Once the WebSocket connection is established, the backend can send real-time updates like the following:</p>
+<ul>
+<li>new_message: New message for the client.</li>
+<li>message_read: A message has been read by the recipient.</li>
+<li>contact_status_update: Update on the contact's status, including online status, typing indicators, or other relevant information.</li>
+</ul>
+<h2 id="step-3-high-level-client-architecture">Step 3: High-level client architecture</h2>
+<p>Now that we've established the API design, let's explore the high-level client architecture. We'll focus on:</p>
+<ul>
+<li>External server-side components.</li>
+<li>Client architecture components for UI and data layers.</li>
+<li>Data storage.</li>
+</ul>
+<p>Figure 9 shows the high-level architecture of the chat system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a mobile chat application.  The diagram is divided into a client-side (left) and server-side (right). The client-side, labeled 'Client,' contains a 'UI layer' with components 'Chat List Screen,' 'Conversation Screen,' 'Chat List State Holder,' and 'Conversation State Holder,' all coordinated by a 'Navigator.'  These UI components interact with a 'Data layer' containing 'Conversations Repository,' 'Messages Repository,' and 'Users Repository.' The 'Messages Repository' interacts with 'Messages Local DataSource' which in turn interacts with a 'Chats DB.'  The data layer also includes 'Messages Remote DataSource' and 'Real time updates Remote DataSource,' which communicate with the server-side. The server-side includes a 'Backend' which communicates with a 'CDN' via HTTPS for image loading ('Image Loader' on the client side). The 'Backend' also interacts with a 'Push Notifications Provider' (a third-party service) via HTTPS for push notifications, which are received by a 'Push Notifications Client' on the client side.  Data flows between the client and server primarily via HTTPS and WebSockets (WSS) for real-time updates.  The client-side uses dependency injection between the UI and Data layers." loading="lazy" width="602" height="471" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-9-4LOND75Z.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9: High-level mobile architecture of our chat system</figcaption></div></figure>
+<div class="note-block"><p><strong>📝 Note:</strong> The components identified in the chat system don't differ much from those identified in the previous chapter when designing a News Feed. Thus, we'll go through this section quickly. If you have questions, revisit Chapter 3: Design a News Feed App.</p></div>
+<h3 id="external-server-side-components">External server-side components</h3>
+<p>Our system relies on the <strong>Backend</strong>, <strong>CDN,</strong> and the <strong>Push Notifications Provider</strong> components.</p>
+<p>The third-party Push Notifications Provider allows us to reach users even when they're not actively using the app, handling the complex infrastructure needed for reliable notification delivery. We'll explore push notifications in more depth during our deep dive section.</p>
+<h3 id="client-architecture">Client architecture</h3>
+<p>Building on the foundation laid in previous chapters, we choose a <strong>layered architecture</strong> that follows Unidirectional Data Flow (UDF), reactive programming, and other key principles, such as separation of concerns, to ensure our app is robust, performant, and scalable.</p>
+<h4 id="data-layer">Data layer</h4>
+<p>The Message is the central type of application data in the chat app. To handle this effectively, we've incorporated various data layer components, with the <strong>Messages Repository</strong> at the core, managing all read and write operations. Similarly, we've included a <strong>Users Repository</strong> to handle user-related information such as names and profile images.</p>
+<p>The Messages Repository works with both local and remote data sources. While client-initiated requests flow through traditional HTTP endpoints via the <strong>Messages Local DataSource</strong> component, the dedicated <strong>Real time updates Remote DataSource</strong> component maintains a persistent WebSocket connection to receive real-time updates from the backend. This dual approach ensures that the system stays responsive to both user actions and server events.</p>
+<p>The <strong>Push Notifications Client component</strong> serves as a listener for notifications from the external provider.</p>
+<h4 id="ui-layer">UI layer</h4>
+<p>The UI layer is built around the app's main screens: the <strong>Chat List and Conversation</strong>. To optimize performance, we have centralized image loading into a single <strong>Image Loader</strong> component, which fetches data from the content delivery network (CDN).</p>
+<p>The <strong>Message List</strong> is a key component. It displays all messages of a conversation in chronological order, including those that failed to send or are still pending. Failed messages are indicated on the UI, and a resend option is provided for each message.</p>
+<h3 id="data-storage">Data storage</h3>
+<p>Let's explore the best way to store messages in the chat app. While mobile platforms offer simple storage options such as SharedPreferences on Android and UserDefaults on iOS, these key-value stores aren't the right fit for our needs. They work well for small pieces of data such as user preferences, but they weren't designed to handle growing message histories or the complex relationships between messages, conversations, and users. As message volume increases, these simple storage solutions would slow down and make it difficult to search through conversations effectively.</p>
+<p>A <strong>relational database</strong> is a good choice for our chat app. Messages are naturally structured data: each message belongs to a conversation, has an author, and follows a clear format.</p>
+<div class="note-block"><p><strong>📝 Note:</strong> For a deeper dive into comparing different storage alternatives, refer to the Data Storage section in Chapter 10: Mobile System Design Building Blocks.</p></div>
+<p>Relational databases excel at managing these relationships while providing three crucial benefits:</p>
+<ol>
+<li>They handle complex queries efficiently. When users search their message history or filter conversations, the database can quickly find and return the right messages, even as the history grows large.</li>
+<li>They ensure data consistency and provide ACID properties (Atomicity, Consistency, Isolation, and Durability). When multiple messages are being sent and received simultaneously, the database maintains data integrity and prevents conflicts. This reliability is essential for a chat application.</li>
+<li>They support future growth. As we add features such as message reactions or thread replies, we can extend our database schema without disrupting existing messages. This flexibility lets our app evolve while keeping all message history intact.</li>
+</ol>
+<p>These capabilities make relational databases ideal for handling the complex, growing, and interconnected nature of chat message data. While they may require more initial setup than simpler solutions, they provide the robust foundation we need for a reliable chat application.</p>
+<h4 id="eviction-policy">Eviction policy</h4>
+<p>Managing local storage is crucial for our chat app since all conversations are stored on the device. While we could automatically manage storage through eviction policies or time-based deletion, putting users in control often provides a better experience. Popular messaging apps take different approaches: WhatsApp alerts users when storage runs low and guides them through freeing up space [14], while Slack automatically removes messages older than 90 days or a year for their free tier[15].</p>
+<p>Similarly, we could implement one of the following options:</p>
+<ul>
+<li>Implement eviction policies that remove messages and files based on specific criteria such as message date or attachment size.</li>
+<li>Set up automatic deletion after a defined time period.</li>
+<li>Let users manage their own storage by showing them usage stats and cleanup options.</li>
+</ul>
+<div class="note-block"><p><strong>💡 Pro tip!</strong></p><p>When designing mobile systems, certain decisions, such as how to handle message storage under memory constraints, often involve product teams. While you can propose different approaches and analyze their trade-offs during the interview, it's wise to first check with you interviewer on whether these product-level decisions are within scope before diving into implementation details.</p></div>
+<p>For our chat app, we can suggest a user-centric storage management strategy if the interviewer is okay with that decision. Our strategy works as follows:</p>
+<ol>
+<li>Monitor available device storage through periodic checks.</li>
+<li>Proactively alert users when space runs low, offering clear options to delete older messages, remove entire conversations, or clean up other app data.</li>
+</ol>
+<p>By giving users visibility and control over storage management, we help them make informed decisions about their chat history while preventing the app from consuming too much space.</p>
+<div class="note-block"><p><strong>✅ Decisions made!</strong></p><ul>
+<li>
+<p>We choose a relational database to persist message data on disk.</p>
+</li>
+<li>
+<p>We alert users when storage runs low.</p>
+</li>
+</ul></div>
+<h2 id="step-4-design-deep-dive">Step 4: Design deep dive</h2>
+<p>Now that we've established the client-backend communication protocol and outlined the client architecture, it's time to dive deeper into some key areas. We'll concentrate on the following five critical areas:</p>
+<ul>
+<li>Message ordering on the screen.</li>
+<li>Sending messages.</li>
+<li>DB implementation details.</li>
+<li>Push notifications.</li>
+</ul>
+<h3 id="message-ordering-on-the-screen">Message ordering on the screen</h3>
+<p>Message ordering is fundamental to chat apps. It's what makes conversations feel natural and easy to follow. When messages appear in the wrong order, users can quickly become confused and frustrated. What seems like a simple requirement, showing messages in chronological order, actually involves several challenging edge cases on mobile devices:</p>
+<ul>
+<li>Network delays can cause messages to arrive out of sequence.</li>
+<li>Offline messages need to be integrated once users reconnect.</li>
+<li>Different devices may have mismatched system clocks.</li>
+<li>Both past messages and new updates must maintain consistent ordering.</li>
+</ul>
+<h4 id="message-lifecycle">Message lifecycle</h4>
+<p>Let's explore how messages flow through our system to make a better decision on screen message ordering. Figure 10 illustrates this process:</p>
+<ol>
+<li>The Messages repository immediately creates and stores new messages, and the UI displays them on screen right away to provide instant feedback.</li>
+<li>Behind the scenes, the repository forwards this message to the Messages remote data source, which packages it as a NewMessageRequest and sends it to the backend via HTTP.</li>
+<li>The backend processes this request, generating a unique messageId for the message.</li>
+<li>The backend then takes two parallel actions: (step 4.1) sends a 201 response back to the sender with a NewMessageResponse object, and (step 4.2) notifies the recipient, either through a WebSocket if they are active, or a push notification if they are inactive.</li>
+<li>Once the sender's client receives the HTTP response, it updates the message in local storage with the new messageId. Lastly, the UI refreshes to show successful delivery.</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence diagram illustrating the process of sending a message in a mobile application.  The diagram shows two mobile devices, labeled 'Sender' and 'Receiver,' interacting with a 'Backend' server.  The 'Sender' initiates the process (1) by creating and displaying a new message.  Then, it sends an HTTP request labeled 'NewMessageRequest' (2) to the 'Backend.' The 'Backend' processes the message, assigns a new message ID (3), and replies to the 'Sender' with a 'NewMessageResponse' (4.1). The 'Sender' then updates its screen to reflect the message status (5).  Concurrently, the 'Backend' pushes the new message to the 'Receiver' using a WebSockets (WS) event or a push notification (4.2).  The arrows indicate the flow of information and actions between the components.  The numbered annotations describe each step in the process." loading="lazy" width="602" height="331" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-10-6VVXVSU6.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10: Message lifecycle in the chat system</figcaption></div></figure>
+<h4 id="message-ordering">Message ordering</h4>
+<p>In steps 1 and 5 of Figure 10, the client needs to display the message on the screen. To implement reliable message ordering in our client app, we need to make a key design decision: what field should we use to sort messages on the conversation screen?</p>
+<p>The Message data model provides two potential fields for ordering: the messageId assigned by the server when the message is processed and the createdAt timestamp set by the client when the message is created. Table 2 explores trade-offs between different approaches.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Trade-offs for ordering messages in the client</th><th style="text-align: left;"></th><th style="text-align: left;"></th></tr></thead><tbody><tr><td style="text-align: left;"><strong>Order by</strong></td><td style="text-align: left;"><strong>Advantages</strong></td><td style="text-align: left;"><strong>Disadvantages</strong></td></tr><tr><td style="text-align: left;">messageId</td><td style="text-align: left;">A server-generated ID ensures consistent ordering across clients. <br>Backend remains the source of truth.</td><td style="text-align: left;">The client doesn't have the messageId until the backend generates it. <br>Doesn't support offline messaging effectively.</td></tr><tr><td style="text-align: left;">createdAt timestamp</td><td style="text-align: left;">Low latency. Immediate message display without waiting for the backend. <br>Supports offline messaging.</td><td style="text-align: left;">Vulnerable to inconsistencies from device clock differences. <br>Susceptible to client-side manipulation.</td></tr><tr><td style="text-align: left;">createdAt timestamp with client-backend clock synchronization</td><td style="text-align: left;">Combines timestamp benefits with improved reliability. <br>Reduces ordering issues through synchronization, for example, via WebSocket events or Meta's Simple Precision Time Protocol [16].</td><td style="text-align: left;">Clock drift between devices can still cause problems. <br>Complex to implement accurately across diverse networks.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 2: Trade-offs for ordering messages in the client</p></p>
+<p>While synchronizing client and backend clocks could work, it would add significant complexity and cost to our system. Instead, we can mitigate the downsides of messageId and createdAt approaches by <strong>combining</strong> them:</p>
+<ul>
+<li>Messages that have been successfully sent to and acknowledged by the server are ordered by messageId.</li>
+<li>Messages that are still waiting to be sent or are in the process of being sent are ordered by createdAt timestamp and always appear at the end of the message list.</li>
+</ul>
+<p>Most popular chat apps use a server-assigned ID to sort messages on the client side. While some apps publish detailed documentation about it, such as Discord's Snowflake [17] id approach [18], others, such as WhatsApp with its id field [19], Facebook Messenger with mid [20] or Slack with ts [21], are more opaque about their specifics. How to order pending messages is a product decision, and apps might decide to implement it in different ways.</p>
+<div class="note-block"><p><strong>✅ Decisions made!</strong></p><p>The Conversation screen uses a <strong>hybrid approach</strong> to order messages on the screen:</p><ul>
+<li>
+<p>Messages that have been successfully sent to and acknowledged by the server are ordered based on a server-generated messageId.</p>
+</li>
+<li>
+<p>Messages that are still waiting to be sent or are in progress are ordered based on the client-generated createdAt timestamp and always appear at the end of the message list.</p>
+</li>
+</ul></div>
+<h4 id="messageid-responsibilities">messageId responsibilities</h4>
+<p>In our system, the messageId plays a crucial role in maintaining the correct order of messages. They're designed to be sortable by time, ensuring that newer messages always have higher IDs than older ones. The backend is the source of truth for generating these IDs to ensure data integrity, reliable delivery, and consistent message ordering.</p>
+<p>While this might seem straightforward, creating these IDs correctly can be tricky, especially for a large-scale system. That's why we typically delegate this responsibility to the backend. Servers are better suited to quickly and accurately generate unique, time-ordered IDs for millions of messages.</p>
+<h3 id="sending-messages">Sending messages</h3>
+<p>Sending messages reliably in a mobile app isn't always straightforward. Network issues can prevent messages from reaching their destination. To handle this challenge, we need a way of tracking different message states: messages not yet sent, messages in transit, and messages that failed to send.</p>
+<p>The data layer can model those states with the following MessageRequest data model. Just before sending the message, the remote data source maps this into a NewMessageRequest object. This approach helps us handle various message scenarios and implement retry mechanisms if needed.</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class MessageRequest</strong> <br>requestId: Long <br>toUserId: Long <br>content: String <br>status: MessageRequestStatus <br>lastModifiedAt: String <br>lastSentAt: String? <br>failCount: Int?</td><td style="text-align: left;"><strong>struct MessageRequest</strong> <br>requestId: Int64 <br>toUserId: Int64 <br>content: String <br>status: MessageRequestStatus <br>lastModifiedAt: String <br>lastSentAt: String? <br>failCount: Int?</td></tr><tr><td style="text-align: left;"><strong>enum class MessageRequestStatus</strong> <br>DRAFT, PENDING, SENT, FAILED</td><td style="text-align: left;"><strong>enum MessageRequestStatus</strong> <br>case draft, pending, sent, failed</td></tr></tbody></table></div>
+<p>The status field tracks the message's current state:</p>
+<ul>
+<li>DRAFT: The message is created but not yet sent by the client.</li>
+<li>PENDING: The message is queued and ready to be sent to the backend.</li>
+<li>SENT: The client has delivered the message to the backend via a send_messages event, but it hasn't received a delivery acknowledgment as part of the messages event.</li>
+<li>FAILED: Either the server reported a failure for this message or the request timed out.</li>
+</ul>
+<div class="note-block"><p><strong>📝 Note:</strong> You might notice there's no SUCCEEDED status in our MessageRequest model. This is by design. When the server acknowledges a message's delivery, we don't simply update the status. Instead, we remove the MessageRequest entirely and create a new Message object with a RECEIVED status. The NewMessageResponse model contains the information we need for this conversion, including the backend-generated messageId and the fromMessageRequestId.</p><p>Similarly, you'll never see a Message with a PENDING status in our local data source. The PENDING state is exclusive to message requests. When displaying messages in the UI, we combine both message requests and processed messages.</p></div>
+<h4 id="sending-messages-data-flow">Sending messages data flow</h4>
+<p>Let's explore how data flows through the system when a message is sent successfully. We already saw Figure 10 with the high-level process; Figure 11 illustrates the detailed data flow when the backend confirms message delivery:</p>
+<ol>
+<li>The Messages Remote DataSource gets a success response from the backend.</li>
+<li>The Remote DataSource passes this information to the Messages Repository.</li>
+<li>The Messages Repository then performs two database operations:
+<ul>
+<li>Removes the temporary message request from storage.</li>
+<li>Creates a new Message entry with the confirmed ID from the backend.</li>
+</ul>
+</li>
+<li>These database changes automatically trigger updates that flow through the app, showing the user their message was delivered successfully (steps 4-7).</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a messaging application.  The diagram shows data flow between several components.  At the bottom, a 'Chats DB' database is accessed by two Data Access Objects (DAOs): 'Message Request DAO' and 'Message DAO,' which interact with a 'Messages Local DataSource.'  This local data source interacts with a 'Messages Repository' (3, 4).  The 'Messages Repository' receives data from a 'Messages Remote DataSource' (2), which in turn receives 'Message received' from a 'Backend' component (1).  The 'Messages Repository' also feeds into a 'Conversations Repository' (5), which updates a 'Conversation State Holder' (6). Finally, the 'Conversation State Holder' is connected to a 'Conversation Screen' (7), representing the user interface.  Numbers (1-7) indicate the order of data flow or interaction between components." loading="lazy" width="542" height="432" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-11-6ZCLQP24.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11: Client receiving message confirmation data flow</figcaption></div></figure>
+<p>The process works similarly for read receipts. When someone reads a message:</p>
+<ol>
+<li>The backend sends a read_messages event through the WebSocket connection.</li>
+<li>The client's Real-time Updates Remote DataSource receives the event.</li>
+<li>It notifies the Messages Repository about the read status change.</li>
+<li>The Repository updates the message status in the local database.</li>
+<li>This change then flows through to the UI, updating the read status indicators.</li>
+</ol>
+<h4 id="message-delivery-failures">Message delivery failures</h4>
+<p>While our previous example showed a successful message delivery, real-world scenarios aren't always smooth. Sometimes, we might never receive a response for a particular NewMessageRequest. This can happen due to unstable network connections or other unforeseen issues.</p>
+<p>When a request fails or times out, we don't give up immediately. Instead, we update the MessageRequest status to FAILED and increment its failCount. This tracking allows us to decide whether to <strong>keep retrying with exponential backoff</strong> or stop retrying completely after a certain number of failed attempts.</p>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>Exponential backoff is a retry strategy whereby the delay between attempts is progressively increased. For instance, if we start with a one-second delay, the next retry might wait two seconds, then four seconds, and so on. This approach avoids overwhelming our system with rapid-fire retries and gives the network a chance to recover.</p></div>
+<p>We don't want to retry forever, so we set a <strong>maximum retry limit</strong>. If a message fails too many times, we automatically stop trying, mark it as permanently failed, and notify the user, offering them options to retry manually or delete the message.</p>
+<div class="note-block"><p><strong>✅ Decision made!</strong> We use an <strong>exponential backoff algorithm</strong> to retry failed messages.</p></div>
+<h4 id="data-layer-design-update">Data layer design update</h4>
+<p>The new functionality we've introduced to handle failures, reconnections, and message requests has significantly impacted our client architecture. Figure 12 illustrates these changes in the updated data layer.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data layer architecture for a messaging system.  The system is composed of several interconnected components. At the bottom is a `Chats DB` database, which interacts with `Message DAO` and `Message Request DAO` components. These DAOs, in turn, feed into `Messages Local DataSource`.  `Messages Local DataSource` and `Messages Remote DataSource` both connect to a central `Messages Repository`.  The `Messages Repository` also receives data from `Pending Messages Provider`, which itself receives data from `Message Request DAO`.  `Messages Remote DataSource` communicates with a `Backend` via `https`.  Finally, a `Messages Scheduler` component interacts with `Messages Remote DataSource` and `Pending Messages Provider`, and is controlled by a `Messages Timeout Controller`.  Data flows primarily from the database, through the DAOs and data sources, to the repository, then to the scheduler, and finally to the backend.  The `Pending Messages Provider` acts as a buffer for messages awaiting processing or transmission." loading="lazy" width="602" height="309" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-12-BIAO45LJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12: Data layer design update</figcaption></div></figure>
+<p>To streamline the Messages remote data source and prevent it from becoming overburdened, we've introduced several new components, each with specific responsibilities:</p>
+<ul>
+<li>The <strong>Messages Scheduler</strong> component orchestrates message sending from a background thread. It batches messages when appropriate and manages retries for failed messages, working in tandem with the Messages Timeout Controller.</li>
+<li>The <strong>Message Timeout Controller</strong> component monitors timeouts for messages awaiting backend confirmation.</li>
+<li>The <strong>Pending Messages Provider</strong> component retrieves message requests that are either pending or failed to send from the local data source. Following dependency injection best practices, the actual implementation would rely on the Messages Local Data Source.</li>
+</ul>
+<p>By introducing more components and reducing the complexity of the Messages Remote Data Source, we enhance the overall readability and maintainability of the system.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Airbnb developed a message synchronization mechanism to reduce network requests and data inconsistencies, resulting in faster inbox loading and an improved user experience, particularly in areas with slow network connections [22].</p><p>Facebook Messenger's clients handle offline messaging through an orchestrated sync service. In the Messenger “Lightspeed” rebuild, Facebook introduced a module called MSYS (Messenger SYnc System) to manage local data and tasks [23].</p></div>
+<h3 id="db-implementation-details">DB implementation details</h3>
+<p>When it comes to implementing our database, SQLite stands out as an excellent choice for mobile devices. It's a lightweight yet powerful relational database system that can be easily embedded into mobile operating systems. SQLite's support for complex queries and transactions makes it well-suited for our chat application's needs.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Apple's CoreData can use SQLite as its underlying storage mechanism. You might also want to consider other open source alternatives such as SQLite.swift [24] or FMDB [25]. On Android, the most popular choices are Google's Jetpack Room [26] and Square's SQLDelight [27].</p></div>
+<p>To maximize performance, we'll need to carefully structure our data models. This means optimizing our entity-relationship models to better align with how SQLite operates. We'll store regular messages in the Messages table and unsynced message requests in the MessageRequests table. This separation is important because unsynced requests don't have a Message id yet.</p>
+<h4 id="sqlite-statements">SQLite statements</h4>
+<p>Here are the instructions to define the tables in SQLite:</p>
+<pre><code class="hljs language-sql"><span class="hljs-keyword">CREATE TABLE</span> Users (
+  id <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">PRIMARY KEY</span>,
+  name TEXT <span class="hljs-keyword">NOT NULL</span>,
+  avatar_url TEXT,
+  last_connected_at TEXT,
+)
+</code></pre>
+<pre><code class="hljs language-sql"><span class="hljs-keyword">CREATE TABLE</span> Messages (
+  id <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">PRIMARY KEY</span>,
+  from_user_id <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">NOT NULL</span>,
+  to_user_id <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">NOT NULL</span>,
+  content TEXT <span class="hljs-keyword">NOT NULL</span>,
+  status TEXT <span class="hljs-keyword">NOT NULL</span>,
+  created_at TEXT <span class="hljs-keyword">NOT NULL</span>,
+  <span class="hljs-keyword">FOREIGN KEY</span> (from_user_id) <span class="hljs-keyword">REFERENCES</span> Users(id),
+  <span class="hljs-keyword">FOREIGN KEY</span> (to_user_id) <span class="hljs-keyword">REFERENCES</span> Users(id)
+);
+</code></pre>
+<pre><code class="hljs language-sql"><span class="hljs-keyword">CREATE TABLE</span> MessageRequests (
+  request_id <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">PRIMARY KEY</span>,
+  to_user_id <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">NOT NULL</span>,
+  content TEXT <span class="hljs-keyword">NOT NULL</span>,
+  status TEXT <span class="hljs-keyword">NOT NULL</span>,
+  last_modified_at TEXT <span class="hljs-keyword">NOT NULL</span>,
+  last_sent_at TEXT,
+  fail_count <span class="hljs-type">INTEGER</span>,
+  <span class="hljs-keyword">FOREIGN KEY</span> (to_user_id) <span class="hljs-keyword">REFERENCES</span> Users(id)
+)
+</code></pre>
+<div class="note-block"><p><strong>📝 Note:</strong> For the data model's IDs, we use an INTEGER in the SQLite statement even if that's represented as a Long in Kotlin or Int64 in Swift.</p><p>SQLite uses a dynamic type system based on type affinity, which means it associates storage classes with columns based on the declared data type. INTEGER is a type representing a signed integer, stored in 1, 2, 3, 4, 6, or 8 bytes. Any type name that contains the string "INT" (e.g., INT, INTEGER, BIGINT, SMALLINT) will have an INTEGER affinity.</p></div>
+<h4 id="data-layer-updates">Data layer updates</h4>
+<p>Figure 13 illustrates the updates to our data layer design. We've represented the three newly created tables as distinct Data Access Object (DAO) components. To separate concerns, we split the different types of application data (messages and user information) into their own repositories.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data layer architecture diagram for a chat application.  The diagram is enclosed within a dotted-line box labeled 'Data layer'. At the bottom is a database cylinder labeled 'Chats DB,' which serves as the persistent storage.  Above it are three Data Access Objects (DAOs): 'User DAO,' 'Message DAO,' and 'Message Request DAO,' each connected to the database with a downward-pointing arrow indicating data retrieval and persistence.  The 'User DAO' connects upward to 'Users Local DataSource,' which in turn connects to a 'Users Repository.'  Similarly, 'Message DAO' and 'Message Request DAO' connect upward to 'Messages Local DataSource,' which connects to a 'Messages Repository.'  Arrows between 'Users Repository' and 'Conversations Repository' and between 'Messages Repository' and 'Conversations Repository' show data flow between these repositories, likely representing the relationship between users, conversations, and messages.  An upward-pointing arrow from the 'Conversations Repository' suggests data might be flowing out of this layer to a higher layer (not shown) in the application architecture." loading="lazy" width="542" height="397" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-13-X7K7QLFO.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13: Data layer design update—this only shows repositories</figcaption></div></figure>
+<p>and local data sources-related components</p>
+<p>It's important to note that while we've split our message storage across different tables, this shouldn't impact the overall data flow of the application. We hide the fact that messages are split across two tables behind the data layer. The repository merges data from Messages and MessageRequests, so higher layers of the app see a unified conversation list and don’t need to know about the split.</p>
+<h4 id="challenges">Challenges</h4>
+<p>Storing messages locally on a device for a chat application sounds straightforward, but it comes with its own set of hurdles. Let's explore these challenges and discuss practical solutions:</p>
+<h5 id="managing-table-dependencies-and-schema-initialization">Managing table dependencies and schema initialization</h5>
+<p>When working with multiple SQL statements, whether they're included in the same or different SQL script files, the execution order matters. The Users table must be created before other tables since they depend on it. Keeping all these CREATE TABLE statements in a single SQL script file helps prevent execution order issues and makes the database setup more reliable.</p>
+<p>For simplicity, consistency, and data integrity, we've chosen to consolidate all three tables (Users, Messages, and MessageRequests) within a single SQLite database file named chats.db.</p>
+<p>While separating Users into its own database may promote modularity or support future cross-app reuse, this approach introduces several complications:</p>
+<ul>
+<li>Foreign key constraints across separate database files are not enforceable, so referential integrity must be maintained manually in the application layer.</li>
+<li>Managing multiple databases in the same app requires careful orchestration, especially when setting up the database in different environments (development, testing, production).</li>
+<li>Separate databases increase the likelihood of incorrect execution order, which can result in schema setup failures. Debugging these issues can be time-consuming and frustrating.</li>
+</ul>
+<p>By <strong>keeping all tables in a single chats.db database file</strong>, we've opted for simplicity and reliability in our current scenario. This choice allows us to focus on other aspects of the system design without introducing unnecessary complexity in our database setup.</p>
+<div class="note-block"><p><strong>✅ Decisions made!</strong></p><ul>
+<li>
+<p>The Users, Messages, and MessageRequests tables are kept in the same chats.db database.</p>
+</li>
+<li>
+<p>CREATE TABLE statements are part of the same SQL script file.</p>
+</li>
+</ul></div>
+<h5 id="size-and-performance">Size and performance</h5>
+<p>As your chat app grows, the database can become large and slow down app performance. Both Android and iOS have limits on efficient data storage and access.</p>
+<p>To address these performance challenges, we could:</p>
+<ul>
+<li>Split large tables into smaller ones. For example, divide the Messages and MessageRequests table by user IDs, where each logged-in user's messages are stored in their own database file (e.g., chats-currentUserId.db). This helps manage database size and improve query performance for the current user's data.</li>
+<li>Add indexes to frequently searched columns, such as to_user_id. But be careful, while indexing speeds up searches, it can slow down adding new data.</li>
+<li>Batch transactions by grouping multiple database writes into a single transaction instead of performing them individually. This reduces disk I/O operations and enhances throughput.</li>
+<li>Set up proper error handling with retry mechanisms for temporary failures, especially during high load periods.</li>
+<li>Use a connection pool to manage concurrent database access efficiently in case multiple threads access the database simultaneously. This prevents bottlenecks and ensures efficient resource usage.</li>
+</ul>
+<div class="note-block"><p><strong>📌 Remember!</strong> Mobile clients should perform all database operations on a background thread to prevent blocking the UI thread and ensure a responsive user experience.</p></div>
+<h3 id="push-notifications">Push notifications</h3>
+<p>Our design requirements include implementing push notifications to alert users about new messages when they are offline. We've already outlined the key components for push notifications in our high-level architecture diagram. Figure 14 illustrates the various elements involved in the push notification system. Let's dive deeper into how these components interact and explore the platform-specific approaches for Android and iOS.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram focusing on push notifications.  The diagram shows a 'Data layer' containing a 'Messages Repository' and a 'Push Notifications Client'. The 'Push Notifications Client' maintains a 'Persistent TCP connection' with a 'Push Notifications Provider' which is labeled as 'Third Party'.  The 'Backend' component communicates with the 'Push Notifications Provider' via an 'https' connection.  Information flow is unidirectional from the 'Backend' to the 'Push Notifications Provider' and bidirectional between the 'Push Notifications Client' and the 'Messages Repository'.  The 'Messages Repository' likely stores the notification messages, the 'Push Notifications Client' receives notifications via the persistent TCP connection, and the 'Push Notifications Provider' handles the actual delivery of these notifications to end-users.  The 'Backend' is responsible for sending notifications to the 'Push Notifications Provider'." loading="lazy" width="542" height="311" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/chat-app/figure-4-14-NN2UYYQM.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14: Push notifications–related components in the chat system design</figcaption></div></figure>
+<h4 id="sending-push-notifications-from-the-backend">Sending push notifications from the backend</h4>
+<p>The backend triggers a push notification when a message is sent to an inactive user, that is, one without an active WebSocket connection to our servers. To deliver these notifications, the backend sends HTTPS requests to an external Push Notifications Provider. This provider is Firebase Cloud Messaging (FCM) for Android devices and Apple Push Notification Service (APNs) for iOS.</p>
+<p>To correctly route notifications, the backend maintains a mapping between users and their devices. This mapping is created during the app installation process, where each device registers for push notifications in the background. The backend then stores a unique token for each user's device, allowing for targeted notification delivery.</p>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>There are many types of push notifications you can send from the backend, for example, alert notifications that immediately alert users; silent notifications that are processed in the background without letting the user know; and rich media notifications that can include images, videos, or other media.</p><p>In our case, we send alert notifications to keep the user informed regarding how many unread messages they have and the message content.</p></div>
+<h4 id="receiving-push-notifications">Receiving push notifications</h4>
+<p>Android and iOS devices maintain a low-power, persistent TLS-encrypted TCP connection to FCM and APNS servers, respectively. This approach eliminates the need for individual apps to manage their own connections, which would be resource-intensive. When a notification arrives, the device either wakes up the relevant app or displays the notification if the app isn't running.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>On Android and iOS, the system maintains a persistent connection to handle push notifications efficiently. Android uses Google Play Services for this purpose, while iOS relies on a background service called the push notification daemon.</p><p>For Android developers, implementing push notifications involves creating a service that extends FirebaseMessagingService. iOS developers, on the other hand, work with the UNUserNotificationCenterDelegate protocol, typically integrating it into the app's UIApplicationDelegate.</p></div>
+<p>The handling of notifications differs based on the app's state:</p>
+<ul>
+<li>If the app is in the foreground, the Push Notifications Client processes the notification directly and calls the Messages Repository to sync messages.</li>
+<li>If the app is in the background or terminated, the device shows the notification in the system tray. When the user taps on it, the system brings the app to the foreground, allowing the Push Notifications Client to access the notification payload.</li>
+</ul>
+<h4 id="challenges-with-push-notifications">Challenges with push notifications</h4>
+<p>While push notifications are a powerful feature, they come with several challenges that developers need to navigate:</p>
+<ul>
+<li>FCM, APNs, or even the device itself might throttle notifications, especially in power-saving modes where the system may delay delivery, limit network access, or batch requests to conserve battery.</li>
+<li>Apps must obtain user consent to send notifications. If users decline or later opt out through device or app settings, your app loses this communication channel.</li>
+<li>Android and iOS use distinct APIs and workflows for push notifications. This necessitates platform-specific code and can result in inconsistent user experiences due to varying feature support and behaviors.</li>
+<li>Push notifications often need to direct users to specific screens within the app. This requires implementing URL schemes or universal links. Restoring the appropriate app state based on these deep links can be tricky, particularly if the app wasn't already running.</li>
+<li>Ensuring compatibility across various devices and OS versions is crucial but challenging. The asynchronous nature of push notifications can make debugging delivery issues particularly complex.</li>
+</ul>
+<p>Given these potential pitfalls in message delivery, order, and overall complexity, our chat app uses push notifications primarily as a lightweight alert mechanism to notify users of new messages.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Slack's server-side infrastructure decides when and what to push. Every message posted in Slack goes through Slack's event pipeline, and a background job is enqueued to handle potential notifications. Slack's job queue system processes over a billion jobs per day, including the fan-out of push notifications [28].</p></div>
+<h2 id="step-5-wrap-up">Step 5: Wrap-up</h2>
+<p>In this chapter, we've designed a chat system. We used HTTP for client-initiated requests and WebSockets for real-time updates, including read receipts and users' online statuses.</p>
+<p>We outlined the client architecture, defined the backend HTTP and WebSocket endpoints, and created the necessary data models. We also took a closer look at message ordering on the screen, how the client sends messages, the database implementation, and push notifications.</p>
+<p>If you have extra time in your interview or want to challenge yourself with different requirements, consider these additional topics:</p>
+<ul>
+<li>Online status or Presence information [29]: How WebSocket disconnections affect the user's online status and what role TCP half-open state [30] plays in this.</li>
+<li>Group chat functionality: Design message creation and delivery for group settings. Think about implementing role-based permissions for group management [31] and adding user mention capabilities within group conversations.</li>
+<li>Enhanced security: Implement database encryption to protect conversations from unauthorized access. You could also explore end-to-end encryption to ensure only senders and recipients can read messages [32].</li>
+<li>Rich media support: Extend conversations with attachments such as images, videos, and location data. Address the challenges of larger file sizes through compression techniques and implement thumbnail generation for efficient media previews.</li>
+<li>Message management: Design systems for editing and deleting messages. Consider how to track and display edit history for transparency, and implement selective message deletion (for sender only or all participants).</li>
+<li>Search capabilities: Develop search functionality within individual conversations and create a global search feature across all chats [33].</li>
+</ul>
+<h2 id="references">References</h2>
+<p>[1] WhatsApp's message storage policy: <a href="https://www.whatsapp.com/legal/privacy-policy-eea" target="_blank" rel="noopener noreferrer">https://www.whatsapp.com/legal/privacy-policy-eea</a><br>
+[2] WebSockets at Slack: <a href="https://api.slack.com/apis/connections/socket" target="_blank" rel="noopener noreferrer">https://api.slack.com/apis/connections/socket</a><br>
+[3] WebSockets at Slack: <a href="https://slack.engineering/rebuilding-slack-on-the-desktop/" target="_blank" rel="noopener noreferrer">https://slack.engineering/rebuilding-slack-on-the-desktop/</a><br>
+[4] WebSockets at Uber: <a href="https://blog.bytebytego.com/p/how-uber-built-real-time-chat-to" target="_blank" rel="noopener noreferrer">https://blog.bytebytego.com/p/how-uber-built-real-time-chat-to</a><br>
+[5] WebSockets at Uber: <a href="https://www.uber.com/blog/building-scalable-real-time-chat/" target="_blank" rel="noopener noreferrer">https://www.uber.com/blog/building-scalable-real-time-chat/</a><br>
+[6] WhatsApp uses a customized version of XMPP: <a href="https://en.wikipedia.org/wiki/WhatsApp" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/WhatsApp</a><br>
+[7] Products using XMPP: <a href="https://xmpp.org/uses/instant-messaging/" target="_blank" rel="noopener noreferrer">https://xmpp.org/uses/instant-messaging/</a><br>
+[8] Facebook Messenger uses MQTT: <a href="https://engineering.fb.com/2011/08/12/android/building-facebook-messenger/" target="_blank" rel="noopener noreferrer">https://engineering.fb.com/2011/08/12/android/building-facebook-messenger/</a><br>
+[9] Discord uses WebRTC: <a href="https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc" target="_blank" rel="noopener noreferrer">https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc</a><br>
+[10] Mozilla uses IRC: <a href="https://developer.mozilla.org/en-US/docs/Glossary/IRC" target="_blank" rel="noopener noreferrer">https://developer.mozilla.org/en-US/docs/Glossary/IRC</a><br>
+[11] Slack Web API: <a href="https://api.slack.com/web" target="_blank" rel="noopener noreferrer">https://api.slack.com/web</a><br>
+[12] Slack Socket Mode APIs: <a href="https://api.slack.com/apis/socket-mode" target="_blank" rel="noopener noreferrer">https://api.slack.com/apis/socket-mode</a><br>
+[13] Discord API: <a href="https://discord.com/developers/docs/events/gateway" target="_blank" rel="noopener noreferrer">https://discord.com/developers/docs/events/gateway</a><br>
+[14] Whatsapp's policy on full device memory: <a href="https://faq.whatsapp.com/5503646096388294" target="_blank" rel="noopener noreferrer">https://faq.whatsapp.com/5503646096388294</a><br>
+[15] Slack's free version message storage policy: <a href="https://slack.com/trust/privacy/privacy-faq" target="_blank" rel="noopener noreferrer">https://slack.com/trust/privacy/privacy-faq</a><br>
+[16] Simple Precision Time Protocol at Meta <a href="https://engineering.fb.com/2024/02/07/production-engineering/simple-precision-time-protocol-sptp-meta/" target="_blank" rel="noopener noreferrer">https://engineering.fb.com/2024/02/07/production-engineering/simple-precision-time-protocol-sptp-meta/</a><br>
+[17] Snowflake ID: <a href="https://en.wikipedia.org/wiki/Snowflake%5C_ID" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Snowflake\_ID</a><br>
+[18] Discord's message API: <a href="https://discord.com/developers/docs/resources/message" target="_blank" rel="noopener noreferrer">https://discord.com/developers/docs/resources/message</a><br>
+[19] WhatsApp message API: <a href="https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages" target="_blank" rel="noopener noreferrer">https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages</a><br>
+[20] Facebook Messenger message API: <a href="https://developers.facebook.com/docs/messenger-platform/reference/webhook-events/messages%5C#messaging" target="_blank" rel="noopener noreferrer">https://developers.facebook.com/docs/messenger-platform/reference/webhook-events/messages\#messaging</a><br>
+[21] Slack message API: <a href="https://api.slack.com/events/message" target="_blank" rel="noopener noreferrer">https://api.slack.com/events/message</a><br>
+[22] Messaging Sync — Scaling Mobile Messaging at Airbnb: <a href="https://medium.com/airbnb-engineering/messaging-sync-scaling-mobile-messaging-at-airbnb-659142036f06" target="_blank" rel="noopener noreferrer">https://medium.com/airbnb-engineering/messaging-sync-scaling-mobile-messaging-at-airbnb-659142036f06</a><br>
+[23] Facebook's Project LightSpeed: Rewriting the Messenger codebase:<br>
+htts://engineering.fb.com/2020/03/02/data-infrastructure/messenger<br>
+[24] SQLite.swift docs: <a href="https://github.com/stephencelis/SQLite.swift" target="_blank" rel="noopener noreferrer">https://github.com/stephencelis/SQLite.swift</a><br>
+[25] FMDB docs: <a href="https://github.com/ccgus/fmdb" target="_blank" rel="noopener noreferrer">https://github.com/ccgus/fmdb</a><br>
+[26] Google's Jetpack Room docs: <a href="https://developer.android.com/training/data-storage/room" target="_blank" rel="noopener noreferrer">https://developer.android.com/training/data-storage/room</a><br>
+[27] SQLDelight docs: <a href="https://github.com/sqldelight/sqldelight" target="_blank" rel="noopener noreferrer">https://github.com/sqldelight/sqldelight</a><br>
+[28] Scaling Slack's Job Queue: <a href="https://slack.engineering/scaling-slacks-job-queue" target="_blank" rel="noopener noreferrer">https://slack.engineering/scaling-slacks-job-queue</a><br>
+[29] Online status or Presence information: <a href="https://en.wikipedia.org/wiki/Presence%5C_information" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Presence\_information</a><br>
+[30] TCP half-open: <a href="https://en.wikipedia.org/wiki/TCP%5C_half-open" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/TCP\_half-open</a><br>
+[31] Role-based access control: <a href="https://en.wikipedia.org/wiki/Role-based%5C_access%5C_control" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Role-based\_access\_control</a><br>
+[32] End-to-end encryption: <a href="https://faq.whatsapp.com/820124435853543" target="_blank" rel="noopener noreferrer">https://faq.whatsapp.com/820124435853543</a><br>
+[33] Full-text search: <a href="https://en.wikipedia.org/wiki/Full-text%5C_search" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Full-text\_search</a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="news-feed-app.html">← Previous</a>
+        <a href="stock-trading-app.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

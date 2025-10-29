@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24 - Distributed Email Service</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="hotel-reservation-system.html">← Previous</a>
+        <a href="s3-like-object-storage.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">24</span> Distributed Email Service
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/distributed-email-service" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">24</strong><h1>Distributed Email Service</h1></header><p>In this chapter we design a large-scale email service, such as Gmail, Outlook, or Yahoo Mail. The growth of the internet has led to an explosion in the volume of emails. In 2020, Gmail had over 1.8 billion active users and Outlook had over 400 million users worldwide [1] [2].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents three distinct email service providers displayed side-by-side.  The leftmost shows the Outlook.com logo, a stylized blue square with a white circle and an envelope icon partially overlaid, followed by the text 'outlook.com'.  The center depicts the Gmail logo, a red and white envelope icon, accompanied by the text 'gmail.com'. Finally, on the right, a purple square logo featuring a white 'Y!' is presented, followed by the text 'yahoo.com'.  There are no connections or information flow depicted between the three logos; they are simply presented as independent representations of different email platforms." width="500" height="57" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-1-popular-email-providers-3H2F466J.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1 Popular email providers</figcaption></div></figure>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the Problem and Establish Design Scope</h2>
+<p>Over the years, email services have changed significantly in complexity and scale. A modern email service is a complex system with many features. There is no way we can design a real-world system in 45 minutes. So before jumping into the design, we definitely want to ask clarifying questions to narrow down the scope.</p>
+<p><strong>Candidate</strong>: How many people use the product?<br>
+<strong>Interviewer</strong>: One billion users.</p>
+<p><strong>Candidate</strong>: I think the following features are important:</p>
+<ul>
+<li>
+<p>Authentication.</p>
+</li>
+<li>
+<p>Send and receive emails.</p>
+</li>
+<li>
+<p>Fetch all emails.</p>
+</li>
+<li>
+<p>Filter emails by read and unread status.</p>
+</li>
+<li>
+<p>Search emails by subject, sender, and body.</p>
+</li>
+<li>
+<p>Anti-spam and anti-virus.</p>
+</li>
+</ul>
+<p><strong>Interviewer</strong>: That’s a good list. We don’t need to worry about authentication. Let’s focus on the other features you mentioned.</p>
+<p><strong>Candidate</strong>: How do users connect with mail servers?<br>
+<strong>Interviewer</strong>: Traditionally, users connect with mail servers through native clients that use SMTP, POP, IMAP, and vendor-specific protocols. Those protocols are legacy to some extent, yet still very popular. For this interview, let’s assume HTTP is used for client and server communication.</p>
+
+<p><strong>Candidate</strong>: Can emails have attachments?<br>
+<strong>Interviewer</strong>: Yes.</p>
+<h3 id="non-functional-requirements">Non-functional requirements</h3>
+<p>Next, let’s go over the most important non-functional requirements.</p>
+<p><strong>Reliability.</strong> We should not lose email data.</p>
+<p><strong>Availability</strong>. Email and user data should be automatically replicated across multiple nodes to ensure availability. Besides, the system should continue to function despite partial system failures.</p>
+<p><strong>Scalability</strong>. As the number of users grows, the system should be able to handle the increasing number of users and emails. The performance of the system should not degrade with more users or emails.</p>
+<p><strong>Flexibility and extensibility</strong>. A flexible/extensible system allows us to add new features or improve performance easily by adding new components. Traditional email protocols such as POP and IMAP have very limited functionality (more on this in high-level design). Therefore, we may need custom protocols to satisfy the flexibility and extensibility requirements.</p>
+<h3 id="back-of-the-envelope-estimation">Back-of-the-envelope estimation</h3>
+<p>Let’s do a back-of-the-envelope calculation to determine the scale and to discover some challenges our solution will need to address. By design, emails are storage heavy applications.</p>
+<ul>
+<li>
+<p>1 billion users.</p>
+</li>
+<li>
+<p>Assume the average number of emails a person sends per day is 10. QPS for sending emails = 10^9 * 10 / (10^5) = 100,000.</p>
+</li>
+<li>
+<p>Assume the average number of emails a person receives in a day is 40 [3] and the average size of email metadata is 50KB. Metadata refers to everything related to an email, excluding attachment files.</p>
+</li>
+<li>
+<p>Assume metadata is stored in a database. Storage requirement for maintaining metadata in 1 year: 1 billion users * 40 emails / day * 365 days * 50 KB = 730 PB.</p>
+</li>
+<li>
+<p>Assume 20% of emails contain an attachment and the average attachment size is 500 KB.</p>
+</li>
+<li>
+<p>Storage for attachments in 1 year is: 1 billion users * 40 emails / day * 365 days * 20% * 500 KB = 1,460 PB</p>
+</li>
+</ul>
+<p>From this back-of-the-envelope calculation, it’s clear we would deal with a lot of data. So, it’s likely that we need a distributed database solution.</p>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose High-Level Design and Get Buy-In</h2>
+<p>In this section, we first discuss some basics about email servers and how email servers evolve over time. Then we look at the high-level design of distributed email servers. The content is structured as follows:</p>
+<ul>
+<li>
+<p>Email knowledge 101</p>
+</li>
+<li>
+<p>Traditional mail servers</p>
+</li>
+<li>
+<p>Distributed mail servers</p>
+</li>
+</ul>
+<h3 id="email-knowledge-101">Email knowledge 101</h3>
+<p>There are various email protocols that are used to send and receive emails. Historically, most mail servers use email protocols such as POP, IMAP, and SMTP.</p>
+<h4 id=""></h4>
+<h4 id="email-protocols">Email protocols</h4>
+<p><strong>SMTP</strong>: Simple Mail Transfer Protocol (SMTP) is the standard protocol for <strong>sending</strong> emails from one mail server to another.</p>
+<p>The most popular protocols for <strong>retrieving</strong> emails are known as Post Office Protocol (POP) and the Internet Mail Access Protocol (IMAP).</p>
+<p><strong>POP</strong> is a standard mail protocol to receive and download emails from a remote mail server to a local email client. Once emails are downloaded to your computer or phone, they are deleted from the email server, which means you can only access emails on one computer or phone. The details of POP are covered in RFC 1939 [4]. POP requires mail clients to download the entire email. This can take a long time if an email contains a large attachment.</p>
+<p><strong>IMAP</strong> is also a standard mail protocol for receiving emails for a local email client. When you read an email, you are connected to an external mail server, and data is transferred to your local device. IMAP only downloads a message when you click it, and emails are not deleted from mail servers, meaning that you can access emails from multiple devices. IMAP is the most widely used protocol for individual email accounts. It works well when the connection is slow because only the email header information is downloaded until opened.</p>
+<p><strong>HTTPS</strong> is not technically a mail protocol, but it can be used to access your mailbox, particularly for web-based email. For example, it’s common for Microsoft Outlook to talk to mobile devices over HTTPS, on a custom-made protocol called ActiveSync [5].</p>
+<h4 id="domain-name-service-dns">Domain name service (DNS)</h4>
+<p>A DNS server is used to look up the mail exchanger record (MX record) for the recipient’s domain. If you run DNS lookup for gmail.com from the command line, you may get MX records as shown in Figure 2.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of an nslookup command's output, illustrating the process of querying Mail Exchanger (MX) records for the domain `gmail.com`.  The top section shows the nslookup command execution: `set q=mx` sets the query type to MX records, followed by the query for `gmail.com`. The server and its address (192.168.86.1#53) are displayed. Below, the 'Non-authoritative answer' section lists five MX records for `gmail.com`. Each record consists of the domain name (`gmail.com`), the label 'mail exchanger', an equals sign, a priority number (20, 30, 40, 5, 10), and finally, the corresponding mail server address (e.g., `alt2.gmail-smtp-in.l.google.com`).  Three arrows at the bottom connect this output to labeled components: 'MX' points to the 'mail exchanger' part, 'Priority' points to the priority numbers, and 'Mail servers' points to the mail server addresses.  The diagram visually connects the query, the response, and the components of the MX record, showing how the priority determines the order in which mail servers are contacted." loading="lazy" width="600" height="286" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-2-mx-records-BAWCU7VV.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2 MX records</figcaption></div></figure>
+<p>The priority numbers indicate preferences, where the mail server with a lower priority number is more preferred. In Figure 2, gmail-smtp-in.l.google.com is used first (priority 5). A sending mail server will attempt to connect and send messages to this mail server first. If the connection fails, the sending mail server will attempt to connect to the mail server with the next lowest priority, which is alt1.gmail-smtp-in.l.google.com (priority 10).</p>
+<h4 id="attachment">Attachment</h4>
+<p>An email attachment is sent along with an email message, commonly with Base64 encoding [6]. There is usually a size limit for an email attachment. For example, Outlook and Gmail limit the size of attachments to 20MB and 25MB respectively as of June 2021. This number is highly configurable and varies from individual to corporate accounts. Multipurpose Internet Mail Extension (MIME) [7] is a specification that allows the attachment to be sent over the internet.</p>
+<h3 id="traditional-mail-servers">Traditional mail servers</h3>
+<p>Before we dive into distributed mail servers, let’s dig a little bit through the history and see how traditional mail servers work, as doing so provides good lessons about how to scale an email server system. You can consider a traditional mail server as a system that works when there are limited email users, usually on a single server.</p>
+<h4 id="traditional-mail-server-architecture">Traditional mail server architecture</h4>
+<p>Figure 3 describes what happens when Alice sends an email to Bob, using traditional email servers.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram illustrating the process of sending and receiving emails between Outlook.com and Gmail.  The diagram shows an Outlook.com email client (represented by the Outlook logo and labeled '1 Send') sending an email. This email is first sent to an Outlook.com SMTP server, which then stores the email in the Outlook.com mail server's storage (labeled 'Storage' and 'outlook.com mail server').  The email is then sent ('2 Send') to a Gmail SMTP server, which stores it in the Gmail mail server's storage ('Storage' and 'gmail.com mail server').  Finally, the Gmail client (represented by the Gmail logo and labeled '4 Get') retrieves the email from the Gmail IMAP/POP server, which fetches it from the Gmail mail server's storage.  Both Outlook.com and Gmail utilize SMTP servers for sending and IMAP/POP servers for receiving emails.  The arrows indicate the flow of the email message between the different components.  Labels such as 'Fetch' and 'Store' clarify the actions performed by the IMAP/POP and SMTP servers respectively." loading="lazy" width="500" height="397" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-3-traditional-mail-servers-F4GDMZFR.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3 Traditional mail servers</figcaption></div></figure>
+<p>The process consists of 4 steps:</p>
+<ol>
+<li>
+<p>Alice logs in to her Outlook client, composes an email, and presses the “send” button. The email is sent to the Outlook mail server. The communication protocol between the Outlook client and the mail server is SMTP.</p>
+</li>
+<li>
+<p>Outlook mail server queries the DNS (not shown in the diagram) to find the address of the recipient’s SMTP server. In this case, it is Gmail’s SMTP server. Next, it transfers the email to the Gmail mail server. The communication protocol between the mail servers is SMTP.</p>
+</li>
+<li>
+<p>The Gmail server stores the email and makes it available to Bob, the recipient.</p>
+</li>
+<li>
+<p>Gmail client fetches new emails through the IMAP/POP server when Bob logs in to Gmail.</p>
+</li>
+</ol>
+<h4 id="storage">Storage</h4>
+<p>In a traditional mail server, emails were stored in local file directories and each email was stored in a separate file with a unique name. Each user maintained a user directory to store configuration data and mailboxes. Maildir was a popular way to store email messages on the mail server (Figure 4).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical file system structure.  At the root, represented by a folder labeled '/', is a 'home' folder.  Branching from 'home' are two folders named 'user1' and 'user2'. Each of these user folders connects to a 'Maildir' folder.  From each 'Maildir' folder, three subfolders extend: 'cur', 'new', and 'tmp'.  The lines connecting the folders visually depict the parent-child relationships within the file system, showing how each folder is nested within another.  The labels on each folder clearly indicate their names, providing a straightforward representation of a typical user home directory structure with a dedicated mail directory containing subdirectories for current, new, and temporary mail files." loading="lazy" width="500" height="626" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/distributed-email-service/figure-4-maildir-CI7G42PH.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4 Maildir</figcaption></div></figure>
+<p>File directories worked well when the user base was small, but it was challenging to retrieve and backup billions of emails. As the email volume grew and the file structure became more complex, disk I/O became a bottleneck. The local directories also don’t satisfy our high availability and reliability requirements. The disk can be damaged and servers can go down. We need a more reliable distributed storage layer.</p>
+<h4 id="-1"></h4>
+<p>Email functionality has come a long way since it was invented in the 1960s, from text-based format to rich features such as multimedia, threading [8], search, labels, and more. But email protocols (POP, IMAP, and SMTP) were invented a long time ago and they were not designed to support these new features, nor were they scalable to support billions of users.</p>
+<h3 id="distributed-mail-servers">Distributed mail servers</h3>
+<p>Distributed mail servers are designed to support modern use cases and solve the problems of scale and resiliency. This section covers email APIs, distributed email server architecture, email sending, and email receiving flows.</p>
+<h4 id="email-apis">Email APIs</h4>
+<p>Email APIs can mean very different things for different mail clients, or at different stages of an email’s life cycle. For example;</p>
+<ul>
+<li>
+<p>SMTP/POP/IMAP APIs for native mobile clients.</p>
+</li>
+<li>
+<p>SMTP communications between sender and receiver mail servers.</p>
+</li>
+<li>
+<p>RESTful API over HTTP for full-featured and interactive web-based email applications.</p>
+</li>
+</ul>
+<p>Due to the length limitations of this book, we cover only some of the most important APIs for webmail. A common way for webmail to communicate is through the HTTP protocol.</p>
+<p><strong>1. Endpoint</strong>: <strong>POST /v1/messages</strong></p>
+<p>Sends a message to the recipients in the To, Cc, and Bcc headers.</p>
+<p><strong>2. Endpoint</strong>: <strong>GET /v1/folders</strong></p>
+<p>Returns all folders of an email account.</p>
+<p><strong>Response</strong>:</p>
+<pre><code>[{id: string        Unique folder identifier.
+  name: string      Name of the folder.
+                    According to RFC6154 [9], the default folders can be one of
+                    the following: All, Archive, Drafts, Flagged, Junk, Sent,
+                    and Trash.
+  user_id: string   Reference to the account owner
+}]
+
+</code></pre>
+<p><strong>3. Endpoint</strong>: <strong>GET /v1/folders/{:folder_id}/messages</strong></p>
+<p>Returns all messages under a folder. Keep in mind this is a highly simplified API. In reality, this needs to support pagination.</p>
+<p><strong>Response</strong>:</p>
+<p>List of message objects.</p>
+<p><strong>4. Endpoint</strong>: <strong>GET /v1/messages/{:message_id}</strong></p>
+<p>Gets all information about a specific message. Messages are core building blocks for an email application, containing information about the sender, recipients, message subject, body, attachments, etc.</p>
+<p><strong>Response</strong>:</p>
+<p>A message’s object.</p>
+<pre><code>{
+  user_id: string                      // Reference to the account owner.
+  from: {name: string, email: string}  // &lt;name, email&gt; pair of the sender.
+  to: [{name: string, email: string}]  // A list of &lt;name, email&gt; paris
+  subject: string                      // Subject of an email
+  body: string                         //  Message body
+  is_read: boolean                     //  Indicate if a message is read or not.
+}
+
+</code></pre>
+<h4 id="distributed-mail-server-architecture">Distributed mail server architecture</h4>
+<p>While it is easy to set up an email server that handles a small number of users, it is difficult to scale beyond one server. This is mainly because traditional email servers were designed to work with a single server only. Synchronizing data across servers can be difficult, and keeping emails from being misclassified as spam by recipients’ mail servers is very challenging. In this section, we explore how to leverage cloud technologies to make it easier. The high-level design is shown in Figure 5.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a webmail application.  At the top, a box labeled 'Webmail' displays icons representing Edge, Chrome, and Safari browsers, indicating that the system is accessible from various web browsers.  Below, 'Web Servers' are shown connected to the browsers via 'https,' representing secure HTTP communication for standard webmail functionalities.  Separately, 'Real-time Servers' connect to the browsers via 'WebSocket,' enabling real-time features like instant messaging or notifications.  At the bottom, a 'Storage Layer' is depicted with four database cylinders: 'Metadata DB' (presumably storing email metadata), 'Attachment store' (for email attachments), 'Distributed cache' (for performance optimization), and 'Search store' (for email search functionality).  The architecture shows a clear separation between the presentation layer (browsers), application layer (web and real-time servers), and data layer (storage).  The data flow is unidirectional from the browsers to the servers and then to the storage layer, with responses flowing back through the same path." loading="lazy" width="500" height="394" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-5-high-level-design-AZNVIABQ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5 High-level design</figcaption></div></figure>
+<p>Let us take a close look at each component.</p>
+<p><strong>Webmail</strong>. Users use web browsers to receive and send emails.</p>
+<p><strong>Web servers.</strong> Web servers are public-facing request/response services, used to manage features such as login, signup, user profile, etc. In our design, all email API requests, such as sending an email, loading mail folders, loading all mails in a folder, etc., go through web servers.</p>
+<p><strong>Real-time servers.</strong> Real-time servers are responsible for pushing new email updates to clients in real-time. Real-time servers are stateful servers because they need to maintain persistent connections. To support real-time communication we have a few options, such as long polling and WebSocket. WebSocket is a more elegant solution, but one drawback of it is browser compatibility. A possible solution is to establish a WebSocket connection whenever possible and to use long-polling as a fallback.</p>
+<p>Here is an example of a real-world mail server (Apache James [10]) that implements the JSON Meta Application Protocol (JMAP) subprotocol over WebSocket [11].</p>
+<p><strong>Metadata database.</strong> This database stores mail metadata including mail subject, body, from user, to users, etc. We discuss the database choice in the deep dive section.</p>
+<p><strong>Attachment store.</strong> We choose object stores such as Amazon Simple Storage Service (S3) as the attachment store. S3 is a scalable storage infrastructure that’s suitable for storing large files such as images, videos, files, etc. Attachments can take up to 25MB in size. NoSQL column-family databases like Cassandra might not be a good fit for the following two reasons:</p>
+<ul>
+<li>
+<p>Even though Cassandra supports blob data type and its maximum theoretical size for a blob is 2GB, the practical limit is less than 1MB [12].</p>
+</li>
+<li>
+<p>Another problem with putting attachments in Cassandra is that we can’t use a row cache as attachments take too much memory space.</p>
+</li>
+</ul>
+<p><strong>Distributed cache.</strong> Since the most recent emails are repeatedly loaded by a client, caching recent emails in memory significantly improves the load time. We can use Redis here because it offers rich features such as lists and it is easy to scale.</p>
+<p><strong>Search store.</strong> The search store is a distributed document store. It uses a data structure called inverted index [13] that supports very fast full-text searches. We will discuss this in more detail in the deep dive section.</p>
+<p>Now that we have discussed some of the most important components to build distributed mail servers, let’s assemble together two main workflows.</p>
+<ul>
+<li>
+<p>Email sending flow.</p>
+</li>
+<li>
+<p>Email receiving flow.</p>
+</li>
+</ul>
+<h4 id="email-sending-flow">Email sending flow</h4>
+<p>The email sending flow is shown in Figure 6.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a webmail application.  The diagram starts with a Webmail client (represented by icons for Chrome, Edge, and Safari browsers) which connects (1) to a Load Balancer. The Load Balancer distributes requests (2) to Web Servers (shown in pink).  These web servers interact with a storage layer (3) consisting of three databases (Metadata, Search store, and Attachment) and an Object Store, all feeding into a Cache.  The web servers also send emails (4.a and 4.b) represented by icons of envelopes, to an SMTP Outgoing server (also in pink) (5).  The SMTP Outgoing server performs spam and virus checks, with a retry mechanism if necessary, before sending the email (7) to the Internet.  The numbers 1-7 indicate the flow of information through the system.  The Cache stores the latest email for faster retrieval.  The overall architecture shows a client-server model with load balancing, email processing, and a multi-database storage system." loading="lazy" width="750" height="490" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-6-email-sending-flow-U5I4QIEM.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6 Email sending flow</figcaption></div></figure>
+<ol>
+<li>
+<p>A user writes an email on webmail and presses the “send” button. The request is sent to the load balancer.</p>
+</li>
+<li>
+<p>The load balancer makes sure it doesn’t exceed the rate limit and routes traffic to web servers.</p>
+</li>
+<li>
+<p>Web servers are responsible for:</p>
+<p>3a. Basic email validation. Each incoming email is checked against pre-defined rules such as email size limit.</p>
+<p>3b. Checking if the domain of the recipient’s email address is the same as the sender. If it is the same, the web server ensures the email data is spam and virus free. If so, email data is inserted into the sender’s “Sent Folder” and recipient's “Inbox Folder”. The recipient can fetch the email directly via the RESTful API. There is no need to go to step 4.</p>
+</li>
+<li>
+<p>Message queues.</p>
+<p>4a. If basic email validation succeeds, the email data is passed to the outgoing queue. If the attachment is too large to fit in the queue, we could store the attachment in the object store and save the object reference in the queued message.</p>
+<p>4b. If basic email validation fails, the email is put in the error queue.</p>
+</li>
+<li>
+<p>SMTP outgoing workers pull messages from the outgoing queue and make sure emails are spam and virus free.</p>
+</li>
+<li>
+<p>The outgoing email is stored in the “Sent Folder” of the storage layer.</p>
+</li>
+<li>
+<p>SMTP outgoing workers send the email to the recipient mail server.</p>
+</li>
+</ol>
+<p>Each message in the outgoing queue contains all the metadata required to create an email. A distributed message queue is a critical component that allows asynchronous mail processing. By decoupling SMTP outgoing workers from the web servers, we can scale SMTP outgoing workers independently.</p>
+<p>We monitor the size of the outgoing queue very closely. If there are many emails stuck in the queue, we need to analyze the cause of the issue. Here are some possibilities:</p>
+<ul>
+<li>
+<p>The recipient’s mail server is unavailable. In this case, we need to retry sending the email at a later time. Exponential backoff [14] might be a good retry strategy.</p>
+</li>
+<li>
+<p>Not enough consumers to send emails. In this case, we may need more consumers to reduce the processing time.</p>
+</li>
+</ul>
+<h4 id="email-receiving-flow">Email receiving flow</h4>
+<p>The following diagram demonstrates the email receiving flow.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for an email service.  An email (1) enters the system, initially processed by a load balancer (2) which distributes the email to SMTP servers (2).  These servers operate under an Email Acceptance policy (1).  The emails (4) are then passed to a Mail processing (5) unit, which performs spam and virus checks (5).  After processing, the email (7) is sent to Real-time Servers (7), which handle real-time updates and notifications.  Simultaneously, the processed email is stored across a storage layer (6) comprising a database for metadata and search indexing, an object store for attachments, and a cache for the latest emails.  Users access their emails via webmail (8) using either WebSocket (8) for real-time updates or HTTPS (9) for general access, connecting to the Web servers (9) and ultimately retrieving data from the Real-time Servers (10) and the storage layer.  The numbered annotations (1-10) indicate the flow of the email and data through the system." loading="lazy" width="750" height="377" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-7-email-receiving-flow-HRTYUDLO.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7 Email receiving flow</figcaption></div></figure>
+<ol>
+<li>
+<p>Incoming emails arrive at the SMTP load balancer.</p>
+</li>
+<li>
+<p>The load balancer distributes traffic among SMTP servers. Email acceptance policy can be configured and applied at the SMTP-connection level. For example, invalid emails are bounced to avoid unnecessary email processing.</p>
+</li>
+<li>
+<p>If the attachment of an email is too large to put into the queue, we can put it into the attachment store (s3).</p>
+</li>
+<li>
+<p>Emails are put in the incoming email queue. The queue decouples mail processing workers from SMTP servers so they can be scaled independently. Moreover, the queue serves as a buffer in case the email volume surges.</p>
+</li>
+<li>
+<p>Mail processing workers are responsible for a lot of tasks, including filtering out spam mails, stopping viruses, etc. The following steps assume an email passed the validation.</p>
+</li>
+<li>
+<p>The email is stored in the mail storage, cache, and object data store.</p>
+</li>
+<li>
+<p>If the receiver is currently online, the email is pushed to real-time servers.</p>
+</li>
+<li>
+<p>Real-time servers are WebSocket servers that allow clients to receive new emails in real-time.</p>
+</li>
+<li>
+<p>For offline users, emails are stored in the storage layer. When a user comes back online, the webmail client connects to web servers via RESTful API.</p>
+</li>
+<li>
+<p>Web servers pull new emails from the storage layer and return them to the client.</p>
+</li>
+</ol>
+<h2 id="step-3---design-deep-dive">Step 3 - Design Deep Dive</h2>
+<p>Now that we have talked about all the parts of the email server, let’s go deeper into some key components and examine how to scale the system.</p>
+<ul>
+<li>
+<p>Metadata database</p>
+</li>
+<li>
+<p>Search</p>
+</li>
+<li>
+<p>Deliverability</p>
+</li>
+<li>
+<p>Scalability</p>
+</li>
+</ul>
+<h3 id="metadata-database">Metadata database</h3>
+<p>In this section, we discuss the characteristics of email metadata, choosing the right database, data model, and conversation threads (bonus point).</p>
+<h4 id="characteristics-of-email-metadata">Characteristics of email metadata</h4>
+<ul>
+<li>
+<p>Email headers are usually small and frequently accessed.</p>
+</li>
+<li>
+<p>Email body sizes can range from small to big but are infrequently accessed. You normally only read an email once.</p>
+</li>
+<li>
+<p>Most of the mail operations, such as fetching mails, marking an email as read, and searching are isolated to an individual user. In other words, mails owned by a user are only accessible by that user and all the mail operations are performed by the same user.</p>
+</li>
+<li>
+<p>Data recency impacts data usage. Users usually only read the most recent emails. 82% of read queries are for data younger than 16 days [15].</p>
+</li>
+<li>
+<p>Data has high-reliability requirements. Data loss is not acceptable.</p>
+</li>
+</ul>
+<h4 id="choosing-the-right-database">Choosing the right database</h4>
+<p>At Gmail or Outlook scale, the database system is usually custom-made to reduce input/output operations per second (IOPS) [16], as this can easily become a major constraint in the system. Choosing the right database is not easy. It is helpful to consider all the options we have on the table before deciding the most suitable one.</p>
+<ul>
+<li>
+<p>Relational database. The main motivation behind this is to search through emails efficiently. We can build indexes for email header and body. With indexes, simple search queries are fast. However, relational databases are typically optimized for small chunks of data entries and are not ideal for large ones. A typical email is usually larger than a few KB and can easily be over 100KB when HTML is involved. You might argue that the BLOB data type is designed to support large data entries. However, search queries over unstructured BLOB data type are not efficient. So relational databases such as MySQL or PostgreSQL are not good fits.</p>
+</li>
+<li>
+<p>Distributed object storage. Another potential solution is to store raw emails in cloud storage such as Amazon S3, which can be a good option for backup storage, but it’s hard to efficiently support features such as marking emails as read, searching emails based on keywords, threading emails, etc.</p>
+</li>
+<li>
+<p>NoSQL databases. Google Bigtable is used by Gmail, so it’s definitely a viable solution. However, Bigtable is not open sourced and how email search is implemented remains a mystery. Cassandra might be a good option as well, but we haven’t seen any large email providers use it yet.</p>
+</li>
+</ul>
+<p>Based on the above analysis, very few existing solutions seem to fit our needs perfectly. Large email service providers tend to build their own highly customized databases. However, in an interview setting, we won’t have time to design a new distributed database, but it’s important to explain the following characteristics that the database should have.</p>
+<ul>
+<li>
+<p>A single column can be a single-digit of MB.</p>
+</li>
+<li>
+<p>Strong data consistency.</p>
+</li>
+<li>
+<p>Designed to reduce disk I/O.</p>
+</li>
+<li>
+<p>It should be highly available and fault-tolerant.</p>
+</li>
+<li>
+<p>It should be easy to create incremental backups.</p>
+</li>
+</ul>
+<h4 id="data-model">Data model</h4>
+<p>One way to store the data is to use <em>user_id</em> as a partition key so data for one user is stored on a single shard. One limitation of this data model is that messages are not shared among multiple users. Since this is not a requirement for us in this interview, it’s not something we need to worry about.</p>
+<p>Now let us define the tables. The primary key contains two components, the partition key, and the clustering key.</p>
+<ul>
+<li>
+<p>Partition key: responsible for distributing data across nodes. As a general rule, we want to spread the data evenly.</p>
+</li>
+<li>
+<p>Clustering key: responsible for sorting data within a partition.</p>
+</li>
+</ul>
+<p>At a high level, an email service needs to support the following queries at the data layer:</p>
+<ul>
+<li>
+<p>The first query is to get all folders for a user.</p>
+</li>
+<li>
+<p>The second query is to display all emails for a specific folder.</p>
+</li>
+<li>
+<p>The third query is to create/delete/get a specific email.</p>
+</li>
+<li>
+<p>The fourth query is to fetch all read or unread emails.</p>
+</li>
+<li>
+<p>Bonus point: get conversation threads.</p>
+</li>
+</ul>
+<p>Let’s take a look at them one by one.</p>
+<p><strong>Query 1: get all folders for a user.</strong></p>
+<p>As shown in Table 1, <em>user_id</em> is the partition key, so folders owned by the same user are located in one partition.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a schema design for a database table named 'folders_by_user'.  The top box defines the key types: 'K' denotes the Partition Key, 'C↑' represents an ascending Clustering Key, and 'C↓' signifies a descending Clustering Key.  These keys are used to organize and efficiently query data within the table. The bottom box details the table structure itself.  It contains three columns: 'user_id' (of type UUID and serving as the Partition Key), 'folder_id' (also of type UUID), and 'folder_name' (of type TEXT).  The 'K' label next to 'user_id' explicitly indicates it's the Partition Key.  The absence of 'C↑' or 'C↓' next to other columns suggests they are not clustering keys in this design.  The table is designed to store information about folders, associating each folder with a specific user using their respective UUIDs." loading="lazy" width="335" height="444" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(335px, 100vw), (max-width: 1200px) min(335px, 80vw), min(335px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-1-folders-by-user-Q23KYRQB.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Table 1 Folders by user</figcaption></div></figure>
+<p><strong>Query 2: display all emails for a specific folder.</strong></p>
+<p>When a user loads their inbox, emails are usually sorted by timestamp, showing the most recent at the top. In order to store all emails for the same folder in one partition, composite partition key <em>&lt;user_id, folder_id&gt;</em> is used. Another column to note is <em>email_id</em>. Its data type is TIMEUUID [17], and it is the clustering key used to sort emails in chronological order.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table schema named 'emails_by_folder'.  The table has seven columns: `user_id` (UUID data type, primary key indicated by 'K'), `folder_id` (UUID data type, primary key indicated by 'K'), `email_id` (TIMEUUID data type, primary key indicated by 'C↓', suggesting a clustered primary key), `from` (TEXT data type), `subject` (TEXT data type), `preview` (TEXT data type), and `is_read` (BOOLEAN data type).  The table appears to store information about emails, organized by user and folder, with each email uniquely identified by its `email_id`.  The 'K' indicates primary key constraints, and the 'C↓' suggests that `email_id` is a clustered primary key, implying that rows are physically sorted by this column for efficient retrieval.  The data types specify the kind of information stored in each column, such as universally unique identifiers (UUIDs), timestamps combined with UUIDs (TIMEUUIDs), text strings, and boolean values." loading="lazy" width="335" height="386" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(335px, 100vw), (max-width: 1200px) min(335px, 80vw), min(335px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-2-emails-by-folder-Y3QS42Z5.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Table 2 Emails by folder</figcaption></div></figure>
+<p><strong>Query 3: create/delete/get an email</strong></p>
+<p>Due to space limitations, we only explain how to get detailed information about an email. The two tables in Table 3 are designed to support this query. The simple query looks like this:</p>
+<pre><code>SELECT * FROM emails_by_user WHERE email_id = 123;
+</code></pre>
+<p>An email can have multiple attachments, and these can be retrieved by the combination of <em>email_id</em> and <em>filename</em> fields.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a database schema design showing two tables: `emails_by_user` and `attachments`.  The `emails_by_user` table has columns for `user_id` (UUID, primary key - indicated by 'K'), `email_id` (TIMEUUID, child key - indicated by 'C↓'), `from` (TEXT), `to` (LIST&lt;TEXT&gt;), `subject` (TEXT), `body` (TEXT), and `attachments` (LIST&lt;filename|size&gt;).  The `attachments` table has columns for `email_id` (TIMEUUID, primary key - indicated by 'K'), `filename` (TEXT), and `url` (TEXT).  A one-to-many relationship exists between `emails_by_user` and `attachments`, indicated by the `email_id` column appearing as both a child key in `emails_by_user` and a primary key in `attachments`.  This means one email entry in `emails_by_user` can have multiple associated attachment entries in the `attachments` table, linked via the common `email_id`.  The data types for each column are specified: UUID for unique identifiers, TIMEUUID for time-based unique identifiers, TEXT for text strings, and LIST for lists of values.  The 'C↓' indicates a child key referencing the primary key in the `attachments` table." loading="lazy" width="500" height="233" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-3-emails-by-user-TDJAPLOC.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Table 3 Emails by user</figcaption></div></figure>
+<p><strong>Query 4: fetch all read or unread emails</strong></p>
+<p>If our domain model was for a relational database, the query to fetch all read emails would look like this:</p>
+<pre><code>SELECT * FROM emails_by_folder
+WHERE user_id = &lt;user_id&gt; and folder_id = &lt;folder_id&gt; and is_read = true
+ORDER BY email_id;
+</code></pre>
+<p>The query to fetch all unread emails would look very similar. We just need to change ‘is_read = true’ to ‘is_read = false’ in the above query.</p>
+<p>Our data model, however, is designed for NoSQL. A NoSQL database normally only supports queries on partition and cluster keys. Since <em>is_read</em> in the <em>emails_by_folder</em> table is neither of those, most NoSQL databases will reject this query.</p>
+<p>One way to get around this limitation is to fetch the entire folder for a user and perform the filtering in the application. This could work for a small email service, but at our design scale this does not work well.</p>
+<p>This problem is commonly solved with denormalization in NoSQL. To support the read/unread queries, we denormalize the <em>emails_by_folder</em> data into two tables as shown in Table 4.</p>
+<ul>
+<li>
+<p>read_emails: it stores all emails that are in read status.</p>
+</li>
+<li>
+<p>unread_emails: it stores all emails that are in unread status.</p>
+</li>
+</ul>
+<p>To mark an UNREAD email as READ, the email is deleted from <em>unread_emails</em> and then inserted to read_emails.</p>
+<p>To fetch all unread emails for a specific folder, we can run a query like this:</p>
+<pre><code>SELECT * FROM unread_emails
+WHERE user_id = &lt;user_id&gt; and folder_id = &lt;folder_id&gt;
+ORDER BY email_id;
+</code></pre>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two database tables, side-by-side, named `read_emails` and `unread_emails`.  Each table has the same columns: `user_id` (UUID data type, marked as a key 'K'), `folder_id` (UUID, 'K'), `email_id` (TIMEUUID, marked as a cluster key 'C↓'), `from` (TEXT), `subject` (TEXT), and `preview` (TEXT).  The 'K' designation indicates a primary key, while 'C↓' denotes a clustering key, suggesting that `email_id` determines the order of rows within each table.  The tables likely represent email data, separating read and unread emails based on user and folder, with `email_id` uniquely identifying each email and providing a time-based ordering within each user's folder.  The downward-pointing arrow next to 'C↓' visually indicates the clustering order." loading="lazy" width="500" height="210" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ftable-4-read-and-unread-emails-I5YQBZY7.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Table 4 Read and unread emails</figcaption></div></figure>
+<p>Denormalization as shown above is a common practice. It makes the application code more complicated and harder to maintain, but it improves the read performance of these queries at scale.</p>
+<p><strong>Bonus point: conversation threads</strong></p>
+<p>Threads are a feature supported by many email clients. It groups email replies with their original message [8]. This allows users to retrieve all emails associated with one conversation. Traditionally, a thread is implemented using algorithms such as JWZ algorithm [18]. We will not go into detail about the algorithm, but just explain the core idea behind it. An email header generally contains the following three fields:</p>
+<pre><code>{
+  "headers" {
+     "Message-Id": "&lt;7BA04B2A-430C-4D12-8B57-862103C34501@gmail.com&gt;",
+     "In-Reply-To": "&lt;CAEWTXuPfN=LzECjDJtgY9Vu03kgFvJnJUSHTt6TW@gmail.com&gt;",
+     "References": ["&lt;7BA04B2A-430C-4D12-8B57-862103C34501@gmail.com&gt;"]
+  }
+}
+</code></pre>
+<table><thead><tr><th>Message-Id</th><th>The value of a message ID. It is generated by a client while sending a message.</th></tr></thead><tbody><tr><td>In-Reply-To</td><td>The parent Message-Id to which the message replies.</td></tr><tr><td>References</td><td>A list of message IDs related to a thread.</td></tr></tbody></table>
+<p class="tableCaption">Table 5 Email header</p>
+<p>With these fields, an email client can reconstruct mail conversations from messages, if all messages in the reply chain are preloaded.</p>
+<h4 id="consistency-trade-off">Consistency trade-off</h4>
+<p>Distributed databases that rely on replication for high availability must make a fundamental trade-off between consistency and availability. Correctness is very important for email systems, so by design we want to have a single primary for any given mailbox. In the event of a failover, the mailbox isn’t accessible by clients, so their sync/update operation is paused until failover ends. It trades availability in favor of consistency.</p>
+<h3 id="email-deliverability">Email deliverability</h3>
+<p>It is easy to set up a mail server and start sending emails. The hard part is to get emails actually delivered to a user’s inbox. If an email ends up in the spam folder, it means there is a very high chance a recipient won’t read it. Email spam is a huge issue. According to research done by Statista [19], more than 50% of all emails sent are spam. If we set up a new mail server, most likely our emails will end up in the spam folder because a new email server has no reputation. There are a couple of factors to consider to improve email deliverability.</p>
+<p><strong>Dedicated IPs</strong>. It is recommended to have dedicated IP addresses for sending emails. Email providers are less likely to accept emails from new IP addresses that have no history.</p>
+<p><strong>Classify emails</strong>. Send different categories of emails from different IP addresses. For example, you may want to avoid sending marketing and important emails from the same servers because it might make ISPs mark all emails as promotional.</p>
+<p><strong>Email sender reputation.</strong> Warm up new email server IP addresses slowly to build a good reputation, so big providers such as Office365, Gmail, Yahoo Mail, etc. are less likely to put our emails in the spam folder. According to Amazon Simple Email Service [20], it takes about 2 to 6 weeks to warm up a new IP address.</p>
+<p><strong>Ban spammers quickly</strong>. Spammers should be banned quickly before they have a significant impact on the server’s reputation.</p>
+<p><strong>Feedback processing</strong>. It’s very important to set up feedback loops with ISPs so we can keep the complaint rate low and ban spam accounts quickly. If an email fails to deliver or a user complains, one of the following outcomes occurs:</p>
+<ul>
+<li>
+<p>Hard bounce. This means an email is rejected by an ISP because the recipient’s email address is invalid.</p>
+</li>
+<li>
+<p>Soft bounce. A soft bounce indicates an email failed to deliver due to temporary conditions, such as ISPs being too busy.</p>
+</li>
+<li>
+<p>Complaint. This means a recipient clicks the “report spam” button.</p>
+</li>
+</ul>
+<p>Figure 8 shows the process of collecting and processing bounces/complaints. We use separate queues for soft bounces, hard bounces, and complaints so they can be managed separately.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified email feedback loop.  The process begins with an ISP (Internet Service Provider) box, which sends 'Bounces and Complaints' to a central 'Feedback processing' unit. This unit then processes the received information and categorizes it into three distinct output streams represented by cylindrical containers. The top cylinder is labeled 'Soft bounces' and contains three icons representing emails, indicating temporary delivery failures. The middle cylinder is labeled 'Hard bounces' and similarly contains three email icons, representing permanent delivery failures. The bottom cylinder is labeled 'Complaints' and also contains three email icons, representing user reports of unwanted emails.  Arrows indicate the unidirectional flow of information from the ISP to the feedback processing unit and then to each of the three output categories." loading="lazy" width="500" height="228" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/distributed-email-service/figure-8-handle-feedback-loop-PFZ6YW6X.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8 Handle feedback loop</figcaption></div></figure>
+<p><strong>Email authentication.</strong> According to the 2018 data breach investigation report provided by Verizon, phishing and pretexting represent 93% of breaches [21]. Some of the common techniques to combat phishing are: Sender Policy Framework (SPF) [22], DomainKeys Identified Mail (DKIM) [23], and Domain-based Message Authentication, Reporting and Conformance (DMARC) [24].</p>
+<p>Figure 9 shows an example header of a Gmail message. As you can see, the sender @info6.citi.com is authenticated by SPF, DKIM, and DMARC.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a detailed email header displaying information about a specific email message.  The header is organized as a series of key-value pairs, each on a separate line.  The 'Message ID' shows a unique identifier `&lt;617.3471674588.202105030141197779035.0039766680@info6.citi.com&gt;`. 'Created at:' indicates the email's creation timestamp: 'Sun, May 2, 2021 at 6:41 PM,' along with its delivery time (17 seconds after creation). 'From:' specifies the sender as 'Citi Alerts &lt;alerts@info6.citi.com&gt;' using 'XyzMailer.'  The 'To:' field partially obscures the recipient's email address, showing only '@gmail.com'. The 'Subject:' line reads 'Your Citi® account statement is ready.'  The bottom section details email authentication results: 'SPF:' shows a 'PASS' with the sending IP address 63.239.204.146,  'DKIM:' indicates a 'PASS' with the domain info6.citi.com, and 'DMARC:' also shows a 'PASS.' Each authentication result includes a 'Learn more' hyperlink, presumably leading to further information about the respective authentication methods.  No information flows between the components; it's a static display of email metadata." loading="lazy" width="750" height="312" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-9-an-example-of-a-gmail-header-OW5IKA3C.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9 An example of a Gmail header</figcaption></div></figure>
+<p>You don’t need to remember all those terms. The important thing to keep in mind is that getting emails to work as intended is hard. It requires not only domain knowledge, but good relationships with ISPs.</p>
+<h3 id="search">Search</h3>
+<p>Basic mail search refers to searching for emails that contain any of the entered keywords in the subject or body. More advanced features include filtering by “From”, “Subject”, “Unread”, or other attributes. On one hand, whenever an email is sent, received, or deleted, we need to perform reindexing. On the other hand, a search query is only run when a user presses the “search” button. This means the search feature in email systems has a lot more writes than reads. By comparison with Google search, email search has quite different characteristics, as shown in Table 6.</p>
+<div class="table-wrap" style="--table-min-width: 600px;"><table><thead><tr><td></td><td><strong>Scope</strong></td><td><strong>Sorting</strong></td><td><strong>Accuracy</strong></td></tr></thead><tbody><tr><td>Google search</td><td>The whole internet</td><td>Sort by relevance</td><td><p>Indexing generally takes time, so some items may not show in the
+search result immediately.</p></td></tr><tr><td>Email search</td><td>User’s own email box</td><td><p>Sort by attributes such as time, has attachment, date within, is
+unread, etc.</p></td><td><p>Indexing should be near real-time, and the result has to be accurate.</p></td></tr></tbody></table></div>
+<p class="tableCaption">Table 6 Google search vs email search</p>
+<p>To support search functionality, we compare two approaches: Elasticsearch and native search embedded in the datastore.</p>
+<p><strong>Option 1: Elasticsearch</strong></p>
+<p>The high-level design for email search using Elasticsearch is shown in Figure 10. Because queries are mostly performed on the user’s own email server, we can group underlying documents to the same node using <em>user_id</em> as the partition key.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for email management.  Four top-level components, 'Search,' 'Send email,' 'Receive email,' and 'Delete email,' represent user actions.  'Send email,' 'Receive email,' and 'Delete email' asynchronously send data to a central 'Kafka' message queue.  The 'Search' function, however, uses a synchronous 'Sync' connection to a lower-level component.  Data from Kafka is processed by 'Kafka Consumers,' which then feeds into a 'RESTful API.' Finally, the RESTful API interacts with an 'Elasticsearch Cluster,' represented by three database cylinders, presumably for data storage and retrieval.  The arrows indicate the direction of data flow, showing how user actions are processed and stored within the system." loading="lazy" width="450" height="464" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/distributed-email-service/figure-10-elasticsearch-MNL6TTHR.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10 Elasticsearch</figcaption></div></figure>
+<p>When a user clicks the “search” button, the user waits until the search response is received. A search request is synchronous. When events such as “send email”, “receive email” or “delete email” are triggered, nothing related to search needs to be returned to the client. Reindexing is needed and it can be done with offline jobs. Kafka is used in the design to decouple services that trigger reindexing, from services that actually perform reindexing.</p>
+<p>Elasticsearch is the most popular search-engine database as of June 2021 [25] and it supports full-text search of emails very well. One challenge of adding Elasticsearch is to keep our primary email store in sync with it. One of the largest email providers in China, Tencent QQ Email, uses Elasticsearch [26].</p>
+<p><strong>Option 2: Custom search solution</strong></p>
+<p>Large-scale email providers usually develop their own custom search engines to meet their specific requirements. Designing an email search engine is a very complicated task and is out of the scope of this chapter. Here we only briefly touch on the disk I/O bottleneck, a primary challenge we will face for a custom search engine.</p>
+<p>As shown in the back-of-the-envelope calculation, the size of the metadata and attachments added daily is at the petabyte (PB) level. Meanwhile, an email account can easily have over half a million emails. The main bottleneck of the index server is usually disk I/O.</p>
+<p>Since the process of building the index is write-heavy, a good strategy might be to use Log-Structured Merge-Tree (LSM) [27] to structure the index data on disk (Figure 11). The write path is optimized by only performing sequential writes. LSM trees are the core data structure behind databases such as BigTable, Cassandra, and RocksDB. When a new email arrives, it is first added to level 0 in-memory cache, and when data size in memory reaches the predefined threshold, data is merged to the next level. Another reason to use LSM is to separate data that change frequently from those that don’t. For example, email data usually doesn't change, but folder information tends to change more often due to different filter rules. In this case, we can separate them into two different sections, so that if a request is related to a folder change, we change only the folder and leave the email data alone.</p>
+<p>If you are interested in reading more about email search, it is highly recommended you take a look at how search works in Microsoft Exchange servers [28].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical storage system visualized as horizontal layers, each representing a level in a memory hierarchy.  The bottom-most layer, labeled 'Level 0 (Memory)', is colored red and contains numerous small cylinders representing individual memory units.  Above it are four additional layers, labeled 'Level 1 (disk)', 'Level 2 (disk)', 'Level 3 (disk)', and 'Level 4 (disk)', each depicted with progressively fewer, larger cylinders.  The cylinders in each level represent storage units at that level, with the size and number of cylinders increasing as you move down the hierarchy towards Level 0 (Memory).  A vertical arrow on the left indicates the passage of time, suggesting that data might move between levels over time.  The dashed lines separating the levels visually represent the boundaries between different storage tiers, implying distinct access speeds and capacities.  The overall structure illustrates the concept of caching and data movement between different storage levels in a computer system, with faster, smaller memory at the bottom and slower, larger storage at the top." loading="lazy" width="750" height="386" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Ffigure-11-lsm-tree-QD2BNIN2.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11 LSM tree</figcaption></div></figure>
+<p>Each approach has pros and cons:</p>
+<div class="table-wrap" style="--table-min-width: 600px;"><table><thead><tr><th><strong>Feature</strong></th><th><strong>Elasticsearch</strong></th><th><strong>Custom search engine</strong></th></tr></thead><tbody><tr><td>Scalability</td><td>Scalable to some extent.</td><td>Easier to scale as we can optimize the system for the email use case.</td></tr><tr><td>System complexity</td><td>Need to maintain two different systems: datastore and Elasticsearch.</td><td>One system.</td></tr><tr><td>Data consistency</td><td>Two copies of data. One in the metadata datastore, and the other in Elasticsearch. Data consistency is hard to maintain.</td><td>A single copy of data in the metadata datastore.</td></tr><tr><td>Data loss possible</td><td>No. Can rebuild the Elasticsearch index from the primary storage, in case of failure.</td><td>No.</td></tr><tr><td>Development effort</td><td>Easy to integrate. To support large scale email search, a dedicated Elasticsearch team might be needed.</td><td>Significant engineering effort is needed to develop a custom email search engine.</td></tr></tbody></table></div>
+<p class="tableCaption">Table 7 Elastic search vs custom search engine</p>
+<p>A general rule of thumb is that for a smaller scale email system, Elasticsearch is a good option as it’s easy to integrate and doesn’t require significant engineering effort. For a larger scale, Elasticsearch might work, but we may need a dedicated team to develop and maintain the email search infrastructure. To support an email system at Gmail or Outlook scale, it might be a good idea to have a native search embedded in the database as opposed to the separate indexing approach.</p>
+<h3 id="scalability-and-availability">Scalability and availability</h3>
+<p>Since data access patterns of individual users are independent of one another, we expect most components in the system are horizontally scalable.</p>
+<p>For better availability, data is replicated across multiple data centers. Users communicate with a mail server that is physically closer to them in the network topology. During a network partition, users can access messages from other data centers (Figure 12).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="The image represents a comparison of two database replication architectures.  The top half depicts a system where a user from the United States connects to servers in a United States Data Center. These servers then interact with databases within the same data center.  Data is replicated from the United States Data Center's databases to databases in a separate Europe Data Center via a unidirectional 'Replication' arrow. The bottom half shows a modified architecture.  Here, a user from the United States is shown with a red 'X' indicating a failure or disruption.  Instead of connecting to the US Data Center, the user now connects directly to servers in the Europe Data Center, which in turn interacts with the Europe Data Center's databases.  Both architectures feature a similar structure: a user, servers in both the US and Europe data centers, and databases in both data centers. The key difference is the user's connection point and the implication of a potential failure in the US Data Center's connection in the bottom diagram, highlighting a failover mechanism to the Europe Data Center." loading="lazy" width="600" height="486" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/distributed-email-service/figure-12-multi-data-center-setup-FMIYSNFF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12 Multi-data center setup</figcaption></div></figure>
+<h2 id="step-4---wrap-up">Step 4 - Wrap Up</h2>
+<p>In this chapter, we have presented a design for building large-scale email servers. We started by gathering requirements and doing some back-of-the-envelope calculations to get a good idea of the scale. In the high-level design, we discussed how traditional email servers were designed and why they cannot satisfy modern use cases. We also discussed email APIs and high-level designs for sending and receiving flows. Finally, we dived deep into metadata database design, email deliverability, search, and scalability.</p>
+<p>If there is extra time at the end of the interview, here are a few additional talking points:</p>
+<ul>
+<li>
+<p>Fault tolerance. Many parts of the system can fail, and you can talk about how to handle node failures, network issues, event delays, etc.</p>
+</li>
+<li>
+<p>Compliance. Email service works all around the world and there are legal regulations to comply with. For instance, we need to handle and store personally identifiable information (PII) from Europe in a way that complies with General Data Protection Regulation (GDPR) [29]. Legal intercept is another typical feature in this area [30].</p>
+</li>
+<li>
+<p>Security. Email security is important because emails contain sensitive information. Gmail provides safety features such as phishing protections, safe browsing, proactive alerts, account safety, confidential mode, and email encryption [31].</p>
+</li>
+<li>
+<p>Optimizations. Sometimes, the same email is sent to multiple recipients, and the same email attachment is stored several times in the object store (S3) in the group emails. One optimization we could do is to check the existence of the attachment in storage, before performing the expensive save operation.</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="chapter-summary">Chapter summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mind map outlining the design process for an email server system.  The central node is 'Email Servers,' branching into four main steps. Step 1 details functional requirements (sending/receiving, fetching, filtering, searching, anti-spam) and non-functional requirements (reliability, extensibility, scalability). Step 2 covers email knowledge, including protocols (POP, IMAP, SMTP), DNS/MX record lookup, attachment handling (MIME), and architectural choices between traditional and distributed mail servers, along with high-level design considerations for sending and receiving email flows. Step 3 focuses on database design, including metadata database choices, email deliverability strategies, search implementation (Elasticsearch or custom), and considerations for scalability, availability, and fault tolerance, addressing potential issues like node failures and network delays. Finally, step 4 addresses compliance (PII, GDPR), security (phishing protection, encryption), and optimizations (handling multiple recipients).  Each branch connects to sub-branches representing specific aspects of the design, creating a hierarchical structure that visually represents the design process's progression and interconnectedness of various components." loading="lazy" width="650" height="1183" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(650px, 100vw), (max-width: 1200px) min(650px, 80vw), min(650px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdistributed-email-service%2Fchapter-summary-MSPMW4ME.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></figure>
+<h2 id="reference-materials">Reference Materials</h2>
+<p>[1] Number of Active Gmail Users: <a href="https://financesonline.com/number-of-active-gmail-users/" target="_blank" rel="noopener noreferrer"><u>https://financesonline.com/number-of-active-gmail-users/</u></a></p>
+<p>[2] Outlook: <a href="https://en.wikipedia.org/wiki/Outlook.com" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Outlook.com</u></a></p>
+<p>[3] How Many Emails Are Sent Per Day in 2021?:<br>
+<a href="https://review42.com/resources/how-many-emails-are-sent-per-day/" target="_blank" rel="noopener noreferrer"><u>https://review42.com/resources/how-many-emails-are-sent-per-day/</u></a></p>
+<p>[4] RFC 1939 - Post Office Protocol - Version 3: <a href="http://www.faqs.org/rfcs/rfc1939.html" target="_blank" rel="noopener noreferrer"><u>http://www.faqs.org/rfcs/rfc1939.html</u></a></p>
+<p>[5] ActiveSync: <a href="https://en.wikipedia.org/wiki/ActiveSync" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/ActiveSync</u></a></p>
+<p>[6] Email attachment: <a href="https://en.wikipedia.org/wiki/Email_attachment" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Email_attachment</u></a></p>
+<p>[7] MIME: <a href="https://en.wikipedia.org/wiki/MIME" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/MIME</u></a></p>
+<p>[8] Threading: <a href="https://en.wikipedia.org/wiki/Conversation_threading" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Conversation_threading</u></a></p>
+<p>[9] IMAP LIST Extension for Special-Use Mailboxes: <a href="https://datatracker.ietf.org/doc/html/rfc6154" target="_blank" rel="noopener noreferrer"><u>https://datatracker.ietf.org/doc/html/rfc6154</u></a></p>
+<p>[10] Apache James: <a href="https://james.apache.org/" target="_blank" rel="noopener noreferrer"><u>https://james.apache.org/</u></a></p>
+<p>[11] A JSON Meta Application Protocol (JMAP) Subprotocol for WebSocket:<br>
+<a href="https://datatracker.ietf.org/doc/rfc8887/" target="_blank" rel="noopener noreferrer"><u>https://datatracker.ietf.org/doc/rfc8887/</u></a></p>
+<p>[12] Cassandra Limitations:<br>
+<a href="https://cwiki.apache.org/confluence/display/CASSANDRA2/CassandraLimitations" target="_blank" rel="noopener noreferrer"><u>https://cwiki.apache.org/confluence/display/CASSANDRA2/CassandraLimitations</u></a></p>
+<p>[13] Inverted index: <a href="https://en.wikipedia.org/wiki/Inverted_index" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Inverted_index</u></a></p>
+<p>[14] Exponential backoff: <a href="https://en.wikipedia.org/wiki/Exponential_backoff" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Exponential_backoff</u></a></p>
+<p>[15] QQ Email System Optimization (in Chinese): <a href="https://www.slideshare.net/areyouok/06-qq-5431919" target="_blank" rel="noopener noreferrer"><u>https://www.slideshare.net/areyouok/06-qq-5431919</u></a></p>
+<p>[16] IOPS: <a href="https://en.wikipedia.org/wiki/IOPS" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/IOPS</u></a></p>
+<p>[17] UUID and timeuuid types: <a href="https://docs.datastax.com/en/cql-oss/3.3/cql/cql_reference/uuid_type_r.html" target="_blank" rel="noopener noreferrer"><u>https://docs.datastax.com/en/cql-oss/3.3/cql/cql_reference/uuid_type_r.html</u></a></p>
+<p>[18] Message threading: <a href="https://www.jwz.org/doc/threading.html" target="_blank" rel="noopener noreferrer"><u>https://www.jwz.org/doc/threading.html</u></a></p>
+<p>[19] Global spam volume: <a href="https://www.statista.com/statistics/420391/spam-email-traffic-share/" target="_blank" rel="noopener noreferrer"><u>https://www.statista.com/statistics/420391/spam-email-traffic-share/</u></a></p>
+<p>[20] Warming up dedicated IP addresses:<br>
+<a href="https://docs.aws.amazon.com/ses/latest/dg/dedicated-ip-warming.html" target="_blank" rel="noopener noreferrer"><u>https://docs.aws.amazon.com/ses/latest/dg/dedicated-ip-warming.html</u></a></p>
+<p>[21] 2018 Data Breach Investigations Report:<br>
+<a href="https://enterprise.verizon.com/resources/reports/DBIR_2018_Report.pdf" target="_blank" rel="noopener noreferrer"><u>https://enterprise.verizon.com/resources/reports/DBIR_2018_Report.pdf</u></a></p>
+<p>[22] Sender Policy Framework: <a href="https://en.wikipedia.org/wiki/Sender_Policy_Framework" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Sender_Policy_Framework</u></a></p>
+<p>[23] DomainKeys Identified Mail: <a href="https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail</u></a></p>
+<p>[24] Domain-based Message Authentication, Reporting &amp; Conformance: <a href="https://dmarc.org/" target="_blank" rel="noopener noreferrer"><u>https://dmarc.org/</u></a></p>
+<p>[25] DB-Engines Ranking of Search Engines: <a href="https://db-engines.com/en/ranking/search+engine" target="_blank" rel="noopener noreferrer"><u>https://db-engines.com/en/ranking/search+engine</u></a></p>
+<p>[26] Refactoring practice: build full-text search of QQ mailbox based on Tencent Cloud Elasticsearch: <a href="https://www.programmersought.com/article/24097547237/" target="_blank" rel="noopener noreferrer"><u>https://www.programmersought.com/article/24097547237/</u></a></p>
+<p>[27] Log-structured merge-tree: <a href="https://en.wikipedia.org/wiki/Log-structured_merge-tree" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Log-structured_merge-tree</u></a></p>
+<p>[28] Microsoft Exchange Conference 2014 Search in Exchange:<br>
+<a href="https://www.youtube.com/watch?v=5EXGCSzzQak&amp;t=2173s" target="_blank" rel="noopener noreferrer"><u>https://www.youtube.com/watch?v=5EXGCSzzQak&amp;t=2173s</u></a></p>
+<p>[29] General Data Protection Regulation:<br>
+<a href="https://en.wikipedia.org/wiki/General_Data_Protection_Regulation" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/General_Data_Protection_Regulation</u></a></p>
+<p>[30] Lawful interception: <a href="https://en.wikipedia.org/wiki/Lawful_interception" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Lawful_interception</u></a></p>
+<p>[31] Email safety: <a href="https://safety.google/intl/en_us/gmail/" target="_blank" rel="noopener noreferrer"><u>https://safety.google/intl/en_us/gmail/</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="hotel-reservation-system.html">← Previous</a>
+        <a href="s3-like-object-storage.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

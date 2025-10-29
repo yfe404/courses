@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>09 - Design A URL Shortener</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="design-a-unique-id-generator-in-distributed-systems.html">← Previous</a>
+        <a href="design-a-web-crawler.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">09</span> Design A URL Shortener
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/design-a-url-shortener" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">09</strong><h1>Design A URL Shortener</h1></header><p>In this chapter, we will tackle an interesting and classic system design interview question: designing a URL shortening service like tinyurl.</p>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the problem and establish design scope</h2>
+<p>System design interview questions are intentionally left open-ended. To design a well-crafted system, it is critical to ask clarification questions.</p>
+<p><strong>Candidate</strong>: Can you give an example of how a URL shortener work?<br>
+<strong>Interviewer</strong>: Assume URL <code>https://www.systeminterview.com/q=chatsystem&amp;c=loggedin&amp;v=v3&amp;l=long</code> is the original URL. Your service creates an alias with shorter length: <code>https://tinyurl.com/y7keocwj</code>. If you click the alias, it redirects you to the original URL.</p>
+<p><strong>Candidate</strong>: What is the traffic volume?<br>
+<strong>Interviewer</strong>: 100 million URLs are generated per day.</p>
+<p><strong>Candidate</strong>: How long is the shortened URL?<br>
+<strong>Interviewer</strong>: As short as possible.</p>
+<p><strong>Candidate</strong>: What characters are allowed in the shortened URL?<br>
+<strong>Interviewer</strong>: Shortened URL can be a combination of numbers (0-9) and characters (a-z, A-Z).</p>
+
+<p><strong>Candidate</strong>: Can shortened URLs be deleted or updated?<br>
+<strong>Interviewer</strong>: For simplicity, let us assume shortened URLs cannot be deleted or updated.</p>
+<p>Here are the basic use cases:</p>
+<ol>
+<li>
+<p>URL shortening: given a long URL =&gt; return a much shorter URL</p>
+</li>
+<li>
+<p>URL redirecting: given a shorter URL =&gt; redirect to the original URL</p>
+</li>
+<li>
+<p>High availability, scalability, and fault tolerance considerations</p>
+</li>
+</ol>
+<h3 id="back-of-the-envelope-estimation">Back of the envelope estimation</h3>
+<ul>
+<li>
+<p>Write operation: 100 million URLs are generated per day.</p>
+</li>
+<li>
+<p>Write operation per second: 100 million / 24 /3600 = 1160</p>
+</li>
+<li>
+<p>Read operation: Assuming ratio of read operation to write operation is 10:1, read operation per second: 1160 * 10 = 11,600</p>
+</li>
+<li>
+<p>Assuming the URL shortener service will run for 10 years, this means we must support 100 million * 365 * 10 = 365 billion records.</p>
+</li>
+<li>
+<p>Assume average URL length is 100.</p>
+</li>
+<li>
+<p>Storage requirement over 10 years: 365 billion * 100 bytes = 36.5 TB</p>
+</li>
+</ul>
+<p>It is important for you to walk through the assumptions and calculations with your interviewer so that both of you are on the same page.</p>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose high-level design and get buy-in</h2>
+<p>In this section, we discuss the API endpoints, URL redirecting, and URL shortening flows.</p>
+<h3 id="api-endpoints">API Endpoints</h3>
+<p>API endpoints facilitate the communication between clients and servers. We will design the APIs REST-style. If you are unfamiliar with restful API, you can consult external materials, such as the one in the reference material [1]. A URL shortener primary needs two API endpoints.</p>
+<ol>
+<li>
+<p><strong>URL shortening.</strong> To create a new short URL, a client sends a POST request, which contains one parameter: the original long URL. The API looks like this:</p>
+<pre><code>POST api/v1/data/shorten
+
+- request parameter: {longUrl: longURLString}
+- return: shortURL
+</code></pre>
+</li>
+<li>
+<p><strong>URL redirecting.</strong> To redirect a short URL to the corresponding long URL, a client sends a GET request. The API looks like this:</p>
+<pre><code>GET api/v1/shortUrl
+
+- return: longURL for HTTP redirection
+</code></pre>
+</li>
+</ol>
+<h3 id="url-redirecting">URL redirecting</h3>
+<p>Figure 1 shows what happens when you enter a tinyurl onto the browser. Once the server receives a tinyurl request, it changes the short URL to the long URL with 301 redirect.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a network request response, specifically showing details of an HTTP GET request and its corresponding response headers.  The top section displays the request details: the URL (`https://tinyurl.com/qtj5opu`), the method (GET), a 301 status code (indicating a redirect), the remote server address (`[2606:4700:10::6814:391e]:443`), and the referrer policy ('no-referrer-when-downgrade'). Below, the 'Response Headers' section lists various headers sent by the server, including `alt-svc` (specifying alternative service protocols), `cache-control` (setting caching directives), `cf-cache-status` (indicating a dynamic response from Cloudflare), `cf-ray` (a Cloudflare request identifier), `content-type` (specifying HTML content with UTF-8 encoding), `date` (timestamp of the response), `expect-ct` (related to certificate transparency), and crucially, `location` (containing the redirect URL: `https://www.amazon.com/dp/B017V4NTFA?pLink=63eaef76-979c-4d&amp;ref=adblp13nvvxx_0_2_im`).  The arrangement is linear, with request details above the response headers, and each header is presented as a key-value pair.  The information flow is unidirectional, from the client making the request to the server providing the response, including the redirect location." loading="lazy" width="750" height="345" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-url-shortener/figure-8-1-GSSWK66W.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1</figcaption></div></figure>
+<p>The detailed communication between clients and servers is shown in Figure 2.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified URL redirection system.  A 'Client' (represented by a smartphone icon) initiates the process by visiting a short URL: `https://tinyurl.com/qtj5opu`. This request is sent to a 'tinyurl server,' which then responds with a 301 status code (indicating a permanent redirect) and the 'location' of the long URL: `https://www.amazon.com/dp/B017V4NTFA?pLink=63eaef76-979c-4d&amp;ref=adblp13nvvxx_0_2_im`.  The client then automatically follows this redirect, sending a new request to the 'Amazon server' to visit the long URL.  The diagram uses arrows to show the flow of requests and responses between the client, the tinyurl server, and the Amazon server.  The text labels clearly indicate the URLs involved and the HTTP status code of the redirect." loading="lazy" width="500" height="509" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-2-KMMJ65HT.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2</figcaption></div></figure>
+<p>One thing worth discussing here is 301 redirect vs 302 redirect.</p>
+<p><strong>301 redirect</strong>. A 301 redirect shows that the requested URL is “permanently” moved to the long URL. Since it is permanently redirected, the browser caches the response, and subsequent requests for the same URL will not be sent to the URL shortening service. Instead, requests are redirected to the long URL server directly.</p>
+<p><strong>302 redirect</strong>. A 302 redirect means that the URL is “temporarily” moved to the long URL, meaning that subsequent requests for the same URL will be sent to the URL shortening service first. Then, they are redirected to the long URL server.</p>
+<p>Each redirection method has its pros and cons. If the priority is to reduce the server load, using 301 redirect makes sense as only the first request of the same URL is sent to URL shortening servers. However, if analytics is important, 302 redirect is a better choice as it can track click rate and source of the click more easily.</p>
+<p>The most intuitive way to implement URL redirecting is to use hash tables. Assuming the hash table stores <em>&lt;shortURL, longURL&gt;</em> pairs, URL redirecting can be implemented by the following:</p>
+<ul>
+<li>
+<p>Get longURL: longURL = hashTable.get(shortURL)</p>
+</li>
+<li>
+<p>Once you get the longURL, perform the URL redirect.</p>
+</li>
+</ul>
+<h3 id="url-shortening">URL shortening</h3>
+<p>Let us assume the short URL looks like this: <code>www.tinyurl.com/{hashValue}</code>. To support the URL shortening use case, we must find a hash function <em>fx</em> that maps a long URL to the *hashValue*, as shown in Figure 3.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified URL shortening system.  A rectangular box labeled 'longURL' containing the text 'longURL' represents the original, lengthy URL.  An arrow points from this box to a second rectangular box containing the mathematical function symbol 'ƒ(x)', representing a hashing function. This function takes the 'longURL' as input.  Below the 'ƒ(x)' box, a downward-pointing arrow labeled 'hash' connects it to a third rectangular box, which displays a shortened URL: 'https://tinyurl.com/qtj5opu'.  The text 'Viewer does not support full SVG' is present below the shortened URL box, indicating a limitation of the image display, not the system itself.  The overall diagram illustrates the process of inputting a long URL, applying a hashing function (ƒ(x)) to generate a short hash, and then using that hash to create a shortened, accessible URL." loading="lazy" width="301" height="231" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-url-shortener/figure-8-3-YHOCRGSP.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3</figcaption></div></figure>
+<p>The hash function must satisfy the following requirements:</p>
+<ul>
+<li>
+<p>Each <em>longURL</em> must be hashed to one <em>hashValue</em>.</p>
+</li>
+<li>
+<p>Each <em>hashValue</em> can be mapped back to the <em>longURL</em>.</p>
+</li>
+</ul>
+<p>Detailed design for the hash function is discussed in deep dive.</p>
+<h2 id="step-3---design-deep-dive">Step 3 - Design deep dive</h2>
+<p>Up until now, we have discussed the high-level design of URL shortening and URL redirecting. In this section, we dive deep into the following: data model, hash function, URL shortening and URL redirecting.</p>
+<h3 id="data-model">Data model</h3>
+<p>In the high-level design, everything is stored in a hash table. This is a good starting point; however, this approach is not feasible for real-world systems as memory resources are limited and expensive. A better option is to store <em>&lt;shortURL, longURL&gt;</em> mapping in a relational database. Figure 4 shows a simple database table design. The simplified version of the table contains 3 columns: <em>id</em>, <em>shortURL, longURL</em>.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified relational database table schema, likely for a URL shortening service.  The table is named 'url' and contains three columns. The first column, labeled 'PK' (Primary Key), indicates that the 'id' column serves as the unique identifier for each row.  The 'id' column itself presumably holds a unique integer representing each shortened URL entry. The second column, 'shortURL', stores the shortened URL string, and the third column, 'longURL', stores the corresponding original, longer URL string.  No information flows between the columns; rather, each row represents a single mapping between a short URL and its long URL counterpart. The table structure suggests that given a shortURL, one can retrieve the corresponding longURL, and vice-versa, using the 'id' as the primary key for efficient lookups." loading="lazy" width="161" height="141" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-url-shortener/figure-8-4-3R6D55TD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4</figcaption></div></figure>
+<h3 id="hash-function">Hash function</h3>
+<p>Hash function is used to hash a long URL to a short URL, also known as <em>hashValue</em>.</p>
+<h4 id="hash-value-length">Hash value length</h4>
+<p>The <em>hashValue</em> consists of characters from [0-9, a-z, A-Z], containing 10 + 26 + 26 = 62 possible characters. To figure out the length of <em>hashValue</em>, find the smallest <em>n</em> such that <em>62^n ≥ 365 billion</em>. The system must support up to 365 billion URLs based on the back of the envelope estimation. Table 1 shows the length of <em>hashValue</em> and the corresponding maximal number of URLs it can support.</p>
+<table><thead><tr><th><strong>n</strong></th><th><strong>Maximal number of URLs</strong></th></tr></thead><tbody><tr><td>1</td><td>62^1 = 62</td></tr><tr><td>2</td><td>62^2 = 3,844</td></tr><tr><td>3</td><td>62^3 = 238,328</td></tr><tr><td>4</td><td>62^ 4 = 14,776,336</td></tr><tr><td>5</td><td>62^5 = 916,132,832</td></tr><tr><td>6</td><td>62^6 = 56,800,235,584</td></tr><tr><td><strong>7</strong></td><td><strong>62^7 = 3,521,614,606,208 = ~3.5 trillion</strong></td></tr><tr><td>8</td><td>62^8 = 218,340,105,584,896</td></tr></tbody></table>
+<p class="tableCaption">Table 1</p>
+<p>When <em>n = 7, 62 ^ n = ~3.5 trillion</em>, 3.5 trillion is more than enough to hold 365 billion URLs, so the length of <em>hashValue</em> is 7.</p>
+<p>We will explore two types of hash functions for a URL shortener. The first one is “hash + collision resolution”, and the second one is “base 62 conversion.” Let us look at them one by one.</p>
+<h4 id="hash--collision-resolution">Hash + collision resolution</h4>
+<p>To shorten a long URL, we should implement a hash function that hashes a long URL to a 7-character string. A straightforward solution is to use well-known hash functions like CRC32, MD5, or SHA-1. The following table compares the hash results after applying different hash functions on this URL:<br>
+<code>https://en.wikipedia.org/wiki/Systems_design</code></p>
+<div class="table-wrap" style="--table-min-width: 500px;"><table><thead><tr><td><strong>Hash function</strong></td><td><strong>Hash value (Hexadecimal)</strong></td></tr></thead><tbody><tr><td>CRC32</td><td>5cb54054</td></tr><tr><td>MD5</td><td>5a62509a84df9ee03fe1230b9df8b84e</td></tr><tr><td>SHA-1</td><td>0eeae7916c06853901d9ccbefbfcaf4de57ed85b</td></tr></tbody></table></div>
+<p class="tableCaption">Table 2</p>
+<p>As shown in Table 2, even the shortest hash value (from CRC32) is too long (more than 7 characters). How can we make it shorter?</p>
+<p>The first approach is to collect the first 7 characters of a hash value; however, this method can lead to hash collisions. To resolve hash collisions, we can recursively append a new predefined string until no more collision is discovered. This process is explained in Figure 5.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart depicting the process of URL shortening.  It begins with a green circle labeled 'start,' which initiates the process.  An arrow leads to a light-blue rectangle labeled 'input: longURL,' representing the input of a long URL. This long URL then flows to a light-blue rectangle labeled 'hash function,' where a hashing algorithm is applied to generate a shortened URL. The output, 'shortURL,' is shown in another light-blue rectangle.  This short URL then enters a diamond-shaped decision node labeled 'exist in DB?', checking if the short URL already exists in a database (DB). If 'yes' (a collision), an arrow points to a light-blue rectangle labeled 'longURL + predefi..,' indicating that the process might involve appending a predefined string to the long URL and repeating the hashing process. If 'no,' an arrow leads to a light-blue rectangle labeled 'save to DB,' where the short URL and its corresponding long URL are stored in the database. Finally, an arrow leads from 'save to DB' to a green circle labeled 'end,' signifying the completion of the process.  The arrows indicate the flow of data and control throughout the system." loading="lazy" width="750" height="420" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-url-shortener/figure-8-5-KWG6EFZC.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5</figcaption></div></figure>
+<p>This method can eliminate collision; however, it is expensive to query the database to check if a shortURL exists for every request. A technique called bloom filters [2] can improve performance. A bloom filter is a space-efficient probabilistic technique to test if an element is a member of a set. Refer to the reference material [2] for more details.</p>
+<h4 id="base-62-conversion">Base 62 conversion</h4>
+<p>Base conversion is another approach commonly used for URL shorteners. Base conversion helps to convert the same number between its different number representation systems. Base 62 conversion is used as there are 62 possible characters for <em>hashValue</em>. Let us use an example to explain how the conversion works: convert 11157<sub>10</sub> to base 62 representation (11157<sub>10</sub> represents 11157 in a base 10 system).</p>
+<ul>
+<li>
+<p>From its name, base 62 is a way of using 62 characters for encoding. The mappings are: <em>0-0, ..., 9-9, 10-a, 11-b, ..., 35-z, 36-A, ..., 61-Z, where</em> ‘a’ stands for 10, ‘Z’ stands for 61, etc.</p>
+</li>
+<li>
+<p>11157<sub>10</sub>&nbsp;= 2 x 62<sup>2</sup>&nbsp;+ 55 x 62<sup>1</sup> + 59 x 62<sup>0</sup>&nbsp;=&nbsp;[2, 55, 59] -&gt; [2, T, X] in base 62 representation. Figure 6 shows the conversation process.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating the conversion of a decimal number (11157) into its base-62 representation.  The left side shows a repeated division process.  The number 11157 is repeatedly divided by 62, with the remainders shown on the right (59, 55, and 2).  Each division's quotient becomes the dividend in the next step (11157/62 = 179 remainder 59; 179/62 = 2 remainder 55; 2/62 = 0 remainder 2). The remainders are listed in reverse order to form the base-62 representation ('X T 2'), where 'X' represents 59 and 'T' represents 55. The final remainder is 0, indicating the end of the conversion.  The diagram visually connects each division step with a line, showing the flow of the calculation from the initial decimal number to its base-62 equivalent." loading="lazy" width="500" height="224" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-url-shortener/figure-8-6-OHTOBFS7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6</figcaption></div></figure>
+<ul>
+<li>Thus, the short URL is <code>https://tinyurl.com/</code><strong>2TX</strong></li>
+</ul>
+<h4 id="comparison-of-the-two-approaches">Comparison of the two approaches</h4>
+<p>Table 3 shows the differences of the two approaches.</p>
+<div class="table-wrap" style="--table-min-width: 500px;"><table><thead><tr><th><strong>Hash + collision resolution</strong></th><th><strong>Base 62 conversion</strong></th></tr></thead><tbody><tr><td>Fixed short URL length.</td><td>Short URL length is not fixed. It goes up with the ID.</td></tr><tr><td>Does not need a unique ID generator.</td><td>This option depends on a unique ID generator.</td></tr><tr><td>Collision is possible and needs to be resolved.</td><td>Collision is not possible because ID is unique.</td></tr><tr><td>It’s not possible to figure out the next available short URL because it doesn’t depend on ID.</td><td>It is easy to figure out what is the next available short URL if ID increments by 1 for a new entry. This can be a security concern.</td></tr></tbody></table></div>
+<p class="tableCaption">Table 3</p>
+<h3 id="url-shortening-deep-dive">URL shortening deep dive</h3>
+<p>As one of the core pieces of the system, we want the URL shortening flow to be logically simple and functional. Base 62 conversion is used in our design. We build the following diagram (Figure 7) to demonstrate the flow.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart depicting the process of URL shortening.  It begins with a rectangular box labeled '1. input: longURL,' representing the input of a long URL. An arrow connects this to a diamond-shaped decision box, '2. longURL in DB?', which checks if the long URL already exists in the database (DB).  If 'yes,' an arrow points to a rectangular box, '3. return shortURL,' indicating that the corresponding short URL is returned. If 'no,' an arrow leads to a rectangular box, '4. Generate a ne...', suggesting the generation of a new unique ID. This is followed by a box, '5. Convert ID to...', implying the conversion of this ID into a short URL. Finally, an arrow connects to '6. Save ID, shor...', indicating the saving of both the ID and the short URL into the database.  The entire flow is sequential, with each step dependent on the previous one, culminating in either returning an existing short URL or generating and saving a new one." loading="lazy" width="500" height="382" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-url-shortener/figure-8-7-A3ZKM2XP.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7</figcaption></div></figure>
+<ol>
+<li>
+<p>longURL is the input.</p>
+</li>
+<li>
+<p>The system checks if the longURL is in the database.</p>
+</li>
+<li>
+<p>If it is, it means the longURL was converted to shortURL before. In this case, fetch the shortURL from the database and return it to the client.</p>
+</li>
+<li>
+<p>If not, the longURL is new. A new unique ID (primary key) Is generated by the unique ID generator.</p>
+</li>
+<li>
+<p>Convert the ID to shortURL with base 62 conversion.</p>
+</li>
+<li>
+<p>Create a new database row with the ID, shortURL, and longURL.</p>
+</li>
+</ol>
+<p>To make the flow easier to understand, let us look at a concrete example.</p>
+<ul>
+<li>
+<p>Assuming the input longURL is: <code>https://en.wikipedia.org/wiki/Systems_design</code></p>
+</li>
+<li>
+<p>Unique ID generator returns ID: 2009215674938.</p>
+</li>
+<li>
+<p>Convert the ID to shortURL using the base 62 conversion. ID (2009215674938) is converted to “zn9edcu”.</p>
+</li>
+<li>
+<p>Save ID, shortURL, and longURL to the database as shown in Table 4.</p>
+</li>
+</ul>
+<div class="table-wrap" style="--table-min-width: 650px;"><table><thead><tr><th>id</th><th>shortURL</th><th>longURL</th></tr></thead><tbody><tr><td>2009215674938</td><td>zn9edcu</td><td><code>https://en.wikipedia.org/wiki/Systems_design</code></td></tr></tbody></table></div>
+<p class="tableCaption">Table 4</p>
+<p>The distributed unique ID generator is worth mentioning. Its primary function is to generate globally unique IDs, which are used for creating shortURLs. In a highly distributed environment, implementing a unique ID generator is challenging. Luckily, we have already discussed a few solutions in the “Design A Unique ID Generator in Distributed Systems” chapter. You can refer back to it to refresh your memory.</p>
+<h3 id="url-redirecting-deep-dive">URL redirecting deep dive</h3>
+<p>Figure 8 shows the detailed design of the URL redirecting. As there are more reads than writes, <em>&lt;shortURL, longURL&gt;</em> mapping is stored in a cache to improve performance.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram illustrating a user's request for a shortened URL and its resolution.  A user (represented by icons of a laptop and a mobile phone) initiates a GET request (1) to the shortened URL 'https://tinyurl.com/zn9edcu'. This request is directed to a load balancer (2), which distributes the traffic across multiple web servers. The web servers then return the long URL 'https://en.wikipedia.org/wiki/Systems_design' (5) to the user.  The web servers are connected to a cache (3) for faster access to frequently requested data and a database (4) for persistent storage of information.  The numbered arrows (1-5) indicate the flow of the request and response, showing the interaction between the user, load balancer, web servers, cache, and database." loading="lazy" width="700" height="264" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-url-shortener%2Ffigure-8-8-VBPJ6PXY.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8</figcaption></div></figure>
+<p>The flow of URL redirecting is summarized as follows:</p>
+<ol>
+<li>
+<p>A user clicks a short URL link: <code>https://tinyurl.com/zn9edcu</code></p>
+</li>
+<li>
+<p>The load balancer forwards the request to web servers.</p>
+</li>
+<li>
+<p>If a shortURL is already in the cache, return the longURL directly.</p>
+</li>
+<li>
+<p>If a shortURL is not in the cache, fetch the longURL from the database. If it is not in the database, it is likely a user entered an invalid shortURL.</p>
+</li>
+<li>
+<p>The longURL is returned to the user.</p>
+</li>
+</ol>
+<h2 id="step-4---wrap-up">Step 4 - Wrap up</h2>
+<p>In this chapter, we talked about the API design, data model, hash function, URL shortening, and URL redirecting.</p>
+<p>If there is extra time at the end of the interview, here are a few additional talking points.</p>
+<ul>
+<li>
+<p>Rate limiter: A potential security problem we could face is that malicious users send an overwhelmingly large number of URL shortening requests. Rate limiter helps to filter out requests based on IP address or other filtering rules. If you want to refresh your memory about rate limiting, refer to the “Design a rate limiter” chapter.</p>
+</li>
+<li>
+<p>Web server scaling: Since the web tier is stateless, it is easy to scale the web tier by adding or removing web servers.</p>
+</li>
+<li>
+<p>Database scaling: Database replication and sharding are common techniques.</p>
+</li>
+<li>
+<p>Analytics: Data is increasingly important for business success. Integrating an analytics solution to the URL shortener could help to answer important questions like how many people click on a link? When do they click the link? etc.</p>
+</li>
+<li>
+<p>Availability, consistency, and reliability. These concepts are at the core of any large system’s success. We discussed them in detail in the "Scale From Zero To Millions Of Users" chapter, please refresh your memory on these topics.</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="reference-materials">Reference materials</h2>
+<p>[1] A RESTful Tutorial: <a href="https://www.restapitutorial.com/index.html" target="_blank" rel="noopener noreferrer"><u>https://www.restapitutorial.com/index.html</u></a></p>
+<p>[2] Bloom filter: <a href="https://en.wikipedia.org/wiki/Bloom_filter" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Bloom_filter</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="design-a-unique-id-generator-in-distributed-systems.html">← Previous</a>
+        <a href="design-a-web-crawler.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

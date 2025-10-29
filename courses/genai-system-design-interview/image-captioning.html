@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Captioning - Genai System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../genai-system-design-interview.html">Genai System Design Interview</a> /
+        Image Captioning
+    </div>
+
+    <div class="nav">
+        <a href="../genai-system-design-interview.html">← Course Contents</a>
+        <a href="chatgpt-personal-assistant-chatbot.html">← Previous</a>
+        <a href="retrieval-augmented-generation.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">05</span> Image Captioning
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/genai-system-design-interview/image-captioning" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">05</strong><h1>Image Captioning</h1></header><h2 id="introduction">Introduction</h2>
+<p>Image captioning is the process of generating text that describes an image. The generated text, also known as caption, should accurately reflect the image’s content.</p>
+<p>Image captioning has multiple applications. For example, on social media platforms, it automatically suggests image captions, saving time for content creators. In online retail, it generates captions for product images, thus improving the shopping experience.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple modal dialog box with a text input field and two buttons.  The dialog box is titled 'Name Your Asset:' and contains a single text input field where 'Sun over mountains.png' is pre-filled. Below the input field are two buttons labeled 'Cancel' and 'OK'. A curved arrow points from the left, labeled 'Suggested...', indicating a suggested filename has been provided to the input field.  The dialog box also includes a small 'X' in the upper right corner, suggesting a close button.  The text 'Text is not SVG - cannot display' is present at the bottom, indicating a technical limitation in rendering the image." loading="lazy" width="333" height="161" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-1-KPJSQUCD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: Image captioning system suggests file names for an uploaded image</figcaption></div></figure>
+<p>Beyond user-facing applications, image captioning is also used in systems that operate behind the scenes. For instance, in NSFW (Not Safe for Work) content moderation, image captioning systems can generate descriptive captions that help identify and flag inappropriate or explicit content by providing text-based interpretations of images. Additionally, image captioning can address the cold-start problem in recommendation systems, which occurs when a system lacks sufficient data on new users or items to make accurate recommendations. By generating descriptive captions, the system gains textual information that helps categorize and recommend new items based on their content.</p>
+<p>In this chapter, we design a machine learning (ML) system that generates descriptive captions for images.</p>
+<h2 id="clarifying-requirements">Clarifying Requirements</h2>
+<p>Here is a typical interaction between a candidate and an interviewer:</p>
+<p><strong>Candidate:</strong> There are various types of images, including general everyday images and domain-specific images such as medical imagery or technical diagrams. Can I focus on general everyday images?<br>
+<strong>Interviewer:</strong> Sure.</p>
+<p><strong>Candidate:</strong> Are there any specific applications or use cases we are targeting with this system?<br>
+<strong>Interviewer:</strong> We are targeting name suggestions to designers when they upload their assets.</p>
+<p><strong>Candidate:</strong> Since the image captioner will be used for asset name suggestions, the captions should not be too long and detailed. Is this a fair assumption?<br>
+<strong>Interviewer:</strong> Makes sense. The captions should be short, but descriptive and clear.</p>
+<p><strong>Candidate:</strong> Should the system support multiple languages, or will it focus only on English?<br>
+<strong>Interviewer:</strong> Let’s focus on English only.</p>
+<p><strong>Candidate:</strong> What is the estimated size and diversity of the dataset?<br>
+<strong>Interviewer:</strong> We have access to a large dataset with 400 million image–caption pairs focused on everyday images.</p>
+<p><strong>Candidate:</strong> Does the dataset consist solely of English captions?<br>
+<strong>Interviewer:</strong> The dataset is not preprocessed. There might be captions in different languages, and some captions might be noisy or inaccurate. Additionally, captions for some images may be missing.</p>
+<p><strong>Candidate:</strong> Is real-time captioning required?<br>
+<strong>Interviewer:</strong> The system should generate a caption quickly, though real-time speed is not necessary. A latency of 1–2 seconds is acceptable.</p>
+<p><strong>Candidate:</strong> How should the system handle images with ambiguous content or unclear focus?<br>
+<strong>Interviewer:</strong> In such cases, the system should skip suggesting a caption.</p>
+<p><strong>Candidate:</strong> I assume the system should avoid generating biased captions or captions with offensive words. Is that a fair assumption?<br>
+<strong>Interviewer:</strong> Great point. Yes, it is crucial to ensure our system remains fair and safe for users.</p>
+<p><strong>Candidate:</strong> What are the typical image dimensions? Very small images can be unclear, leading to incorrect captions.<br>
+<strong>Interviewer:</strong> Let's assume the system only suggests names for images with a minimum resolution of 256 x 256 pixels.</p>
+<h2 id="frame-the-problem-as-an-ml-task">Frame the Problem as an ML Task</h2>
+<h3 id="specifying-the-systems-input-and-output">Specifying the system’s input and output</h3>
+<p>The input to an image captioning system is an image. This image is processed by the model to generate a descriptive caption. The output, therefore, is a text that accurately describes the content of the image.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple data flow diagram illustrating an image captioning process.  The diagram begins with a square box labeled 'Input image' containing a line drawing of mountains and a sun.  A solid arrow points from this box to a rectangular, light orange box labeled 'Image Captioning...'. This second box represents the image captioning model or process.  Another solid arrow extends from the 'Image Captioning...' box to the text 'A simple drawing of mountains...', which is the output caption generated by the system. The overall flow shows the input image being processed by the image captioning system to produce a textual description of the image's content." loading="lazy" width="492" height="93" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-2-RT2QA3RI.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Input and output of an image captioning system</figcaption></div></figure>
+<h3 id="choosing-a-suitable-ml-approach">Choosing a suitable ML approach</h3>
+<p>The image captioning problem introduces a unique challenge: an ML model requires visual understanding to process the input image, language understanding to generate a caption, and the ability to bridge the gap between visual and textual modalities. This requires developing a multi-modal system.</p>
+<p>A common approach to building multi-modal systems is to use an encoder-decoder framework. Similar to language translation—where we utilized an encoder-decoder architecture—we treat the image as a new "language" in this context. Specifically, we employ two main components, each handling one modality:</p>
+<ul>
+<li>Image encoder</li>
+<li>Text decoder</li>
+</ul>
+<h4 id="image-encoder">Image encoder</h4>
+<p>The image encoder is responsible for understanding the visual content of the image and encoding the image into a lower-dimensional representation.</p>
+<h4 id="text-decoder">Text decoder</h4>
+<p>The text decoder uses the encoded visual information from the image encoder to generate a descriptive caption.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram of an image captioning system.  At the bottom, an 'Input image' (depicted as a simple drawing of mountains and a sun) is fed into an 'Image Encoder' (a light green rectangle). The Image Encoder processes the image and outputs 'Encoded information' (textual representation of the image's content). This encoded information is then passed to a 'Text Decoder' (a light orange rectangle), which generates a textual description of the image.  The entire process is enclosed within a dashed-line box, and a thick upward-pointing arrow indicates the final output of the Text Decoder, which is presumably the generated caption ('A simple drawing of mountains w...').  The arrows illustrate the unidirectional flow of information from the input image through the encoder and decoder to the final text output." loading="lazy" width="208" height="381" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-3-6LGP5UXW.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: Image captioning components</figcaption></div></figure>
+<p>We will explore the architecture of these components in detail in the model development section. It's important to note that there are various approaches to tackling the image captioning problem. While we focus on the encoder-decoder framework here, alternative models such as BLIP-2 [1], BLIP-3 [2], and InternVL [3] offer different techniques and architectures for generating captions. If you're interested in these other methods, you can refer to [1] [2] [3] for a broader understanding of the image captioning landscape.</p>
+<h2 id="data-preparation">Data Preparation</h2>
+<p>In this section, we prepare the dataset to train our image captioning system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table with two columns: 'Image' and 'Caption'.  The table has at least three rows.  Each row in the 'Image' column is intended to hold an image, but these are not displayed due to the image format being unsupported.  The 'Caption' column provides textual descriptions for the corresponding images. The first row's caption is partially visible as 'A simple drawing of mounta...', suggesting an image of a mountain is intended. The second row's caption reads 'A minimalistic flower ic...', indicating a minimalist flower image. The third row has ellipses (...) in both columns, implying the table continues with more image-caption pairs.  There are no visible connections or information flow between the rows; each row functions independently as an image-caption pair." loading="lazy" width="281" height="197" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-4-OIYUOHX7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: Example of image–caption dataset</figcaption></div></figure>
+<p>The dataset comprises 400 million pairs of images and captions. However, not all images or captions are suitable for training. Let’s examine data preparation for captions and images separately.</p>
+<h3 id="caption-preparation">Caption preparation</h3>
+<p>Raw captions are often noisy and not in a format that is usable by the ML model. During caption preparation, we remove inappropriate captions and ensure the remaining ones are consistent and tokenized. In particular, we perform the following steps:</p>
+<ul>
+<li><strong>Remove pairs with a non-English caption:</strong> We remove image–caption pairs where the caption is not in English, as this model’s focus will be on English.</li>
+<li><strong>Remove duplicate images or captions:</strong> To ensure the diversity and quality of the training data, we eliminate duplicate images and captions. Duplicate images are identified using perceptual hashing techniques or image similarity models (e.g., CLIP image encoder), while duplicate captions are detected by exact match or semantic similarity checks (e.g., CLIP text encoder). Removing duplicates prevents the model from overfitting to redundant data and helps it learn a broader range of associations between images and text.</li>
+<li><strong>Remove irrelevant captions:</strong> We use a pretrained vision–language model (e.g., CLIP) to assess the relevance between images and their corresponding captions. A higher score usually indicates greater semantic relevance between the image and the text. We remove pairs with scores below a specific threshold, such as 0.25. This ensures our model learns from high-quality, relevant pairs. For more information on how CLIP scores the relevance between text and images, refer to Chapter 9.</li>
+<li><strong>Summarize long captions:</strong> Captions are often long and detailed. Training the model with these captions leads to the generation of similarly long captions, which doesn't suit our use case. To address this, we summarize the captions using a large language model such as Llama [4] to create brief, concise descriptions that meet our requirements.</li>
+<li><strong>Normalize captions:</strong> We apply standard text normalization techniques including lowercasing and trimming whitespaces to maintain consistency between captions.</li>
+<li><strong>Tokenize captions:</strong> We use a subword-level tokenization algorithm such as Byte-Pair Encoding (BPE) [5] to tokenize captions into a sequence of IDs. For a detailed review of text tokenization methods and the BPE algorithm, refer to Chapter 2 and Chapter 3.</li>
+</ul>
+<h3 id="image-preparation">Image preparation</h3>
+<p>As is the case for captions, not all images are useful. We remove images that might hurt training and ensure the remaining images are consistent and suitable for the model training. In particular, we perform the following steps:</p>
+<ul>
+<li><strong>Remove low-resolution images:</strong> We remove image–caption pairs in which the image resolution is less than 256<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord">×</span></span></span></span>256 because such low-resolution images might not provide enough detail for accurate caption generation.</li>
+<li><strong>Normalize images:</strong> We scale the pixel values to a normalized range, such as 0 to 1. This normalization makes the training process more stable.</li>
+<li><strong>Remove low-quality images:</strong> To maintain high-quality training data, we filter images that exhibit conditions such as blurriness, overexposure, underexposure, or other defects that degrade visual clarity. Image quality assessment methods, such as the LAION Aesthetics Predictor [6], help identify and remove subpar images by scoring them on factors such as sharpness, contrast, and lighting.</li>
+<li><strong>Adjust image dimensions:</strong> Images typically have a range of sizes and aspect ratios. We resize all images to a uniform size. This is critical since ML models require fixed-size inputs during training. When adjusting image dimensions to a uniform size, it is important to preserve their original aspect ratios. To do so, we often follow two steps:</li>
+</ul>
+<ol>
+<li><strong>Resizing:</strong> First, we resize the image so that the smaller dimension matches the target size. For instance, if our target size is 256<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord">×</span></span></span></span>256 and our original image is 512<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord">×</span></span></span></span>768, we resize it to 256<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord">×</span></span></span></span>384.</li>
+<li><strong>Center-cropping:</strong> Next, we center-crop the resized image to the target dimensions. From our previous example, we center-crop the 256<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord">×</span></span></span></span>384 image to 256<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>×</mo></mrow><annotation encoding="application/x-tex">\times</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6667em; vertical-align: -0.0833em;"></span><span class="mord">×</span></span></span></span>256.</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for image preprocessing.  It begins with an 'Original image' rectangle, labeled with dimensions 512 x 768 pixels, depicted in light blue. A solid arrow points from this rectangle to a second, light blue rectangle labeled '256' on its left side and '384' on its bottom, representing the image after '1. Resizing'.  This resizing step changes the image's aspect ratio. A thick black line within this second rectangle indicates the area selected for the next step. A curved arrow then connects this selected area to a third rectangle, colored light red, labeled '256' on both its sides, representing the final image after '2. Center-cropping'. This final rectangle shows the resulting 256 x 256 pixel image obtained by cropping the center of the resized image.  The entire diagram illustrates a two-step image transformation process: resizing to a non-square aspect ratio, followed by center cropping to a square image of the specified dimensions." loading="lazy" width="512" height="157" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-5-WURWWF6C.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Resizing followed by center-cropping</figcaption></div></figure>
+<p>This two-step method ensures our images maintain their aspect ratios and fit the required size for our ML model.</p>
+<h2 id="model-development">Model Development</h2>
+<h3 id="architecture">Architecture</h3>
+<p>We framed image captioning as a multi-modal language generation task where the image encoder processes an input image, and the text decoder generates a descriptive caption. In this section, we explore the architecture of the image encoder and text decoder.</p>
+<h4 id="image-encoder-1">Image encoder</h4>
+<p>The image encoder is responsible for processing an image and encoding the information within it.</p>
+<p>The output of the encoder plays a pivotal role in determining the quality and specificity of the generated captions. The encoder’s output can be either a single token, representing the entire image as a single feature vector, or a sequence of tokens, where each token corresponds to a specific region or aspect of the image. The choice between these two approaches has significant implications for how effectively the system captures and represents the visual content, and research has explored both options to understand their strengths and limitations.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of single-image and multi-image encoding processes.  On the left, a single 'Input image' icon, depicting a landscape photograph, feeds into a light-green rectangular box labeled 'Image Encoder.' The encoder processes the image and outputs a vertical array of several rectangular boxes representing a feature vector.  On the right, a similar setup is shown, but multiple 'Input image' icons are fed into the 'Image Encoder.'  The encoder's output is a horizontal array of multiple vertical arrays of rectangular boxes, indicating multiple feature vectors, with an ellipsis (...) suggesting the continuation of this pattern beyond the displayed number of images.  Arrows indicate the direction of data flow, from the input image to the encoder and then to the resulting feature vector(s).  The overall comparison highlights the difference in input and output when processing a single image versus multiple images using the same image encoder." loading="lazy" width="336" height="392" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-6-7N3VS4OS.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: Image encoder outputting single token vs. sequence of tokens</figcaption></div></figure>
+<p>When the encoder produces a single token as its output, it effectively compresses the entire image into one vector. This vector serves as a summary of the image, encapsulating its global features and overall context. The primary advantage of this approach lies in its simplicity; the architecture remains straightforward, with reduced computational complexity and lower resource requirements. A single vector emphasizes the overall content of the image, which can be particularly beneficial for generating concise and high-level captions that capture the general essence of the scene. However, this approach also has notable downsides. Condensing all visual information into one vector often means the loss of local details and specific nuances, which are crucial for generating descriptive and contextually rich captions. As a result, captions generated from single-token outputs may lean toward being more generic and may struggle with complex images that require detailed representation.</p>
+<p>On the other hand, producing a sequence of tokens from the encoder allows the system to capture a more granular view of the image. Each token in the sequence corresponds to a distinct part or patch of the image, resulting in a richer and more comprehensive representation that includes both global and local features. This approach aligns particularly well with the attention mechanism, which is a cornerstone of modern generative models such as Transformers. The attention mechanism works best with sequence inputs, as it enables the decoder to focus dynamically on different regions of the image during caption generation. This capability of selectively attending to various parts of the image leads to more accurate, relevant, and detailed captions. By using a sequence of tokens, the model can generate captions that are not only more descriptive but also better aligned with the specific objects, actions, and contexts present in the image.</p>
+<p>The image encoder architectures can be divided into the following:</p>
+<ul>
+<li>CNN-based</li>
+<li>Transformer-based</li>
+</ul>
+<h5 id="cnn-based">CNN-based</h5>
+<p>Convolutional Neural Networks (CNNs) are traditionally used for image-encoding tasks. CNNs excel at capturing spatial hierarchies in images through the use of convolutional filters. These filters detect patterns such as edges, textures, and objects at different scales.</p>
+<p>CNN-based encoders process the input image and output a grid of feature vectors. For example, as shown in Figure 7, an input image passes through the CNN, producing a feature vector of size 3 x 3 x c. Here, c represents the channel size, which depends on the CNN architecture. While the CNN produces a 3 x 3 x c output, the Transformer in the text decoder needs a sequence of features (i.e., 9 x c). To achieve this, we use a flattening or reshaping operation that reorganizes the features from each of the nine positions in the 3 x 3 grid into a sequential format.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for image embedding.  At the top, a sequence of nine embedding vectors is shown, represented as columns of cells labeled 1 through 9, with an ellipsis (...) indicating that there are more than the three explicitly shown.  Each column, labeled 'c', represents a single embedding vector with multiple elements (the cells within the column).  These embedding vectors are collectively described as a 'Sequence of embeddings'.  An arrow labeled 'flatten' points downwards, indicating that this sequence is flattened into a single, three-dimensional tensor. This tensor, also labeled 'c', is shown as a cuboid structure, representing the combined embedding vectors.  This flattened tensor is then fed as input into a 'CNN-based...' module (represented by an orange rectangle), which presumably is a Convolutional Neural Network performing further processing. Finally, an upward arrow connects this CNN module to an 'Input image' symbol (a picture of a landscape), indicating that the entire pipeline starts with an input image which is processed by the CNN to generate the sequence of embeddings." loading="lazy" width="172" height="441" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-7-AVX546B7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7: A CNN-based image encoding</figcaption></div></figure>
+<h5 id="transformer-based">Transformer-based</h5>
+<p>Transformer models, originally developed for natural language processing, have recently been adapted for image encoding with significant success. In this architecture, a Transformer analyzes images, extracts features, and encodes them into a sequence of embeddings. Specifically, a Transformer-based image encoder consists of:</p>
+<ul>
+<li>Patchify</li>
+<li>Positional encoding</li>
+<li>Transformer</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture for processing an image using a transformer-based model.  At the bottom, an 'Input image' (represented by an image icon) is fed into a processing pipeline. This pipeline consists of three stacked layers: a 'Patchify' layer (light green), a 'Positional...' layer (light red), and a 'Transformer' layer (light orange).  The Patchify layer likely divides the input image into patches. These patches are then processed by the Positional... layer, which probably adds positional information to the patches to maintain spatial context. The output of the Positional... layer is then fed into the Transformer layer, a core component of many modern image processing models, which processes the sequence of patches. The output of the Transformer is a 'Sequence of embeddings' represented as a series of 'c' vertically stacked rectangles labeled '1', '2', '3', ..., 's'.  Each rectangle represents an embedding vector, and the entire sequence captures the image's features.  The arrow indicates the flow of information from the input image through the processing layers to the final sequence of embeddings." loading="lazy" width="176" height="485" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-8-T4CBTZF2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8: Transformer-based image encoding</figcaption></div></figure>
+<h6 id="patchify">Patchify</h6>
+<p>Since Transformers work with sequences, the image should first be converted into a sequence. This process involves three steps:</p>
+<ol>
+<li>Divide the image into fixed-size patches</li>
+<li>Flatten each patch</li>
+<li>Linearly project each patch</li>
+</ol>
+<p>For example, a 256 x 256 input image is divided into patches of 64 x 64. These patches are flattened into 4096-sized vectors and linearly projected into embedding vectors of size c, where c is the desired embedding size.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline, specifically a 'Patchify' operation, within a larger system.  The process begins with a 256x256 input image. This image is then fed into the Patchify module, which is depicted as a light green box containing three sub-processes: Projection, Flatten, and Divide.  Before entering Patchify, the input image is first processed by a block that transforms a 64x64 input into a 4096-element vector. The Patchify module takes this 4096-element vector and performs the three operations.  The output of the Patchify module is shown as a grid of smaller squares, representing patches of the original image.  Above the Patchify module, a diagram shows the arrangement of these patches: sixteen columns (numbered 1 through 16) each containing 'c' number of rows, representing the division of the processed image into patches.  The arrows indicate the flow of data through the pipeline, from the input image to the Patchify module and finally to the resulting patch arrangement." loading="lazy" width="408" height="417" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-9-33ML3PMZ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9: Patchification process</figcaption></div></figure>
+<h5 id="positional-encoding">Positional encoding</h5>
+<p>Positional encoding assigns position information to each patch, specifying where each patch was located in the original image. This helps Transformers understand positions within the sequence.</p>
+<p>Positional encoding can be implemented in various ways. Let’s briefly explore the following variations:</p>
+<ul>
+<li>1D vs. 2D positional encoding</li>
+<li>Learnable vs. fixed positional encoding</li>
+</ul>
+<h6 id="1d-vs-2d-positional-encoding">1D vs. 2D positional encoding</h6>
+<p>1D positional encoding employs a function that maps an integer (position in the sequence) to a c-dimensional vector, where c is usually the Transformer’s hidden dimension. This is commonly used in text sequences, with each token receiving a positional vector based on its place. When applied to images, 1D positional encoding encodes the position of each patch in a flattened sequence, which might not capture the two-dimensional spatial relationships in images.</p>
+<p>2D positional encoding, on the other hand, maps two integers—representing the row and column positions in the image grid—into a c-dimensional vector. This encoding method is more suitable for images as it preserves the spatial structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of 2D and 1D positional embeddings in the context of image processing.  The left side depicts a 2D approach, showing a set of three (with ellipsis indicating more) vertical rectangular blocks labeled '$PE_...', representing 2D positional embeddings.  These blocks are connected via an upward-pointing arrow to a 3x3 grid labeled 'Image patches,' where each cell contains the repeating sequence '1...', '2...', '3...' respectively, suggesting that each patch receives the same 2D positional embedding.  Red lines divide the grid into the patches. A grey, curved line suggests a relationship between the patches. The right side mirrors this structure but uses a 1D approach.  Three vertical rectangular blocks labeled '$PE_...' (again, with ellipsis implying more) represent 1D positional embeddings.  These are similarly connected via an upward-pointing arrow to a 3x3 grid labeled 'Image patches,' but here, the cells are numbered sequentially from 1 to 9, indicating a linear, 1D positional embedding assignment to each patch.  The red lines again delineate the patches, and a grey, curved line shows the relationship between the patches.  The overall diagram contrasts how positional information is encoded in 2D versus 1D for image patches, highlighting the difference in how spatial relationships are represented." loading="lazy" width="408" height="325" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-10-YMPDHZND.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10: 1D vs. 2D positional encoding</figcaption></div></figure>
+<h6 id="learnable-vs-fixed-positional-encoding">Learnable vs. fixed positional encoding</h6>
+<p>In learnable positional encoding, the model learns positional encodings during training. A neural network maps positions (1D or 2D) to a c-dimensional vector. In the fixed approach, positional encodings are determined by a fixed function such as sine–cosine. For more details, refer to Chapter 2.</p>
+<p>There is often no best solution when choosing between 1D vs. 2D and learnable vs. fixed positional encoding. While Vision Transformer (ViT) [7] uses learnable 1D positional encoding, in practice, we often test different combinations to see which works best for a specific task.</p>
+<h5 id="which-architecture-is-suitable-for-our-image-encoder">Which architecture is suitable for our image encoder?</h5>
+<p>CNNs are effective at capturing local patterns in images but they struggle with long-range dependencies between distant regions of the image. In contrast, Transformers capture both local and global relationships in the image using a self-attention mechanism. This allows Transformers to model complex dependencies, making them ideal for tasks that require detailed, context-aware image understanding, for example, generating descriptive captions. For these reasons, we follow the ViT [7] and choose Transformer-based architecture as our image encoder.</p>
+<h4 id="text-decoder-1">Text decoder</h4>
+<p>The text decoder is responsible for generating the caption. As we saw in previous chapters, a decoder-only Transformer is the standard choice for text generation. The input to the decoder-only Transformer is a sequence of vectors corresponding to the input image. Its output is the caption, generated one token at a time.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture diagram of a text-to-image generation model.  At the top, four input boxes labeled 'A,' 'flower,' 'icon,' and '.' represent individual text tokens or prompts.  Arrows point upwards from these boxes, indicating data flow into a larger, light-orange rectangular block labeled 'Text Decoder...'. This block presumably processes the text inputs.  Below the 'Text Decoder...', three vertical stacks of smaller rectangular boxes (with an ellipsis '...' indicating more such stacks exist) represent the encoded image features. Arrows point upwards from these stacks into the 'Text Decoder...', suggesting that the decoder uses these features.  These stacks are connected to a light-green rectangular block at the bottom labeled 'Image Encoder,' indicating that this block processes the image data into the feature vectors.  An upward-pointing arrow connects the 'Image Encoder' to the feature vector stacks, showing the flow of encoded image information.  The overall structure depicts a process where text prompts are decoded and used in conjunction with encoded image features to generate an image." loading="lazy" width="336" height="400" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-11-QDIFTUU3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11: Providing image as a sequence of embeddings</figcaption></div></figure>
+<h3 id="training">Training</h3>
+<p>The training approach for the image captioning model is similar to the strategies discussed in previous chapters. We follow a two-stage training strategy:</p>
+<ol>
+<li>Unsupervised pretraining</li>
+<li>Supervised finetuning</li>
+</ol>
+<h4 id="1-unsupervised-pretraining">1. Unsupervised pretraining</h4>
+<p>During this stage, the text decoder – which is a decoder-only Transformer – is trained on general data. The purpose of this stage is to develop a base model that has a broad understanding of language structure and is capable of generating coherent text. This knowledge is crucial for the model to perform well when it is later finetuned on a more specific task such as caption generation.</p>
+<p>The pretraining stage is computationally expensive. It is common practice to use existing pretrained models to bypass this stage and, thus, significantly reduce computational costs. In this chapter, we use a pretrained decoder-only Transformer such as GPT-2 [8] or Llama [4].</p>
+<p>Similarly, the image encoder can also be derived from pretrained models. Instead of training an image encoder from scratch, we can leverage powerful pretrained vision models such as CLIP [9] or ViT [7].</p>
+<h4 id="2-supervised-finetuning">2. Supervised finetuning</h4>
+<p>In this stage, we train both the image encoder and the text decoder on 400 million image–caption pairs. The image encoder improves its ability to encode image information effectively, and the text decoder learns to understand the sequence of image embeddings and generate a descriptive caption.</p>
+<h5 id="ml-objective-and-loss-function">ML objective and loss function</h5>
+<p>The text decoder generates the caption one token at a time. Consistent with previous chapters, we use next-token prediction as our ML objective and employ cross-entropy loss [10] to guide the training process.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence-to-sequence model for image captioning.  At the bottom, a green rectangle labeled 'Image Encoder' processes an image, producing a vector representation. This representation is then fed into a beige rectangle labeled 'Text Decoder.' The decoder processes this image embedding and generates a sequence of words as a caption.  The decoder's output consists of multiple vertical blocks, each representing a word embedding (e.g., 'A,' 'flower,' 'icon,' '.' and '&lt;EOS&gt;'). Arrows indicate the flow of information.  Above the decoder's output, another set of identical vertical blocks represents the 'Correct next...' word embeddings for each position in the caption.  These are compared to the decoder's 'Predicted...' word embeddings using 'Cross-entropy loss,' a metric that quantifies the difference between the predicted and actual word sequences, guiding the model's training to minimize this loss and improve caption accuracy.  The ellipses ('...') indicate that the sequence can be longer than what's explicitly shown." loading="lazy" width="355" height="568" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-12-7FFVFP3N.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12: Loss calculation over the predicted probabilities</figcaption></div></figure>
+<h3 id="sampling">Sampling</h3>
+<p>During sampling, the caption tokens are generated one at a time.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a neural network architecture for image captioning.  At the bottom, a green box labeled 'Image Encoder' processes an image, producing a vector representation. This vector is then fed upwards as input to a beige box labeled 'Text Decoder.' The Text Decoder processes this image embedding and generates a sequence of words.  Above the Text Decoder, multiple vertical stacks of boxes represent the predicted word embeddings at each time step of the decoding process.  These predicted embeddings are connected to individual word boxes ('A,' 'nice,' 'bloom,' '.') at the top, representing the selected tokens for the caption.  Dashed lines indicate the flow of information between the predicted word embeddings and the selected words, suggesting a process of iterative refinement or prediction.  The labels 'Selected t...' and 'Predicted...' indicate the selected tokens and the predicted embeddings, respectively.  The ellipses ('...') signify that the number of predicted word embeddings and selected tokens can extend beyond what's explicitly shown." loading="lazy" width="352" height="472" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-13-PWX2J4TY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13: Generating a caption given an input image</figcaption></div></figure>
+<p>While stochastic sampling methods can create creative captions, beam search ensures predictability. We use beam search for our image captioning system for the following reasons:</p>
+<ul>
+<li><strong>Quality:</strong> Beam search typically generates higher-quality captions, which is critical for accurately describing image content.</li>
+<li><strong>Consistency:</strong> The deterministic nature of beam search ensures that the model always produces the same caption for the same image. This consistency is crucial for image captioning.</li>
+<li><strong>Coherence:</strong> Beam search typically produces coherent captions, which is important for image captioning. This avoids sudden topic changes or contradictions such as "A person is walking house" or "A dog is reading a person."</li>
+</ul>
+<h2 id="evaluation">Evaluation</h2>
+<h3 id="offline-evaluation-metrics">Offline evaluation metrics</h3>
+<p>During offline evaluation, we assess the performance of the trained model on a validation dataset. This is achieved by comparing generated captions with reference (i.e., correct) captions and measuring their similarity.</p>
+<p>Before exploring common metrics, let’s review validation data. Validation data contains examples not seen by the model during training. Each example includes an image and a set of reference captions. These captions are typically collected by having multiple human annotators describe each image.</p>
+<p>In image captioning systems, it's common to have multiple reference captions for each image. This benefits both training and evaluation for the following reasons:</p>
+<ul>
+<li><strong>Robust training:</strong> Different people describe the same image in different ways. Multiple references allow the model to learn different ways of describing an image. This leads to a more robust model that is capable of describing images more accurately.</li>
+<li><strong>Comprehensive evaluation:</strong> Multiple captions provide a more thorough assessment of a model's performance. Comparing the generated caption to several correct reference captions leads to a fairer evaluation.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table with two columns. The left column is labeled 'Image' and is left blank, presumably intended to hold an image. The right column is labeled 'Reference captions' and contains three rows, each providing a textual description that could correspond to the image in the left column.  The first row describes 'Blooming tulip with green leaves,' the second row says 'Close-up of a blooming tulip.', and the third row, which is truncated, begins with 'Single tulip with leave...'.  The table structure implies a relationship where each caption in the right column offers an alternative or more specific description of the same image in the left column." loading="lazy" width="408" height="144" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-14-L4TOS7KF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14: An example of validation data</figcaption></div></figure>
+<p>The following metrics are commonly used in the offline evaluation of image captioning models:</p>
+<ul>
+<li>BLEU</li>
+<li>ROUGE</li>
+<li>METEOR</li>
+<li>CIDEr</li>
+</ul>
+<p>The first three metrics on the list are explored extensively in Chapter 3. In this chapter, we focus on CIDEr, which has been designed specifically to evaluate image captioning models.</p>
+<h4 id="cider">CIDEr</h4>
+<p>CIDEr [11] is a popular metric for evaluating image captioning models. It uses consensus to evaluate the similarity of a generated caption to a set of reference captions. CIDEr gives higher scores to captions that are similar to multiple reference captions rather than just one. For a single example, CIDEr is calculated in three steps:</p>
+<ol>
+<li>Represent captions using <strong>T</strong>erm <strong>F</strong>requency–<strong>I</strong>nverse <strong>D</strong>ocument <strong>F</strong>requency (TF-IDF)</li>
+<li>Calculate similarities</li>
+<li>Aggregate the similarity scores</li>
+</ol>
+<h5 id="1-represent-captions-using-tf-idf">1. Represent captions using TF-IDF</h5>
+<p>In the first step, we convert the generated caption and each reference caption into numerical representations using TF-IDF. TF-IDF evaluates a word's importance to a document by considering how frequently it appears in that document and how common or rare it is across the entire corpus. These importance scores are used to represent a sentence numerically. To learn more about TF-IDF, refer to [12][13].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram of a caption generation system.  The diagram shows three reference captions ('1. Blooming tulip with leaves', '2. A blooming tulip.', '3. Single tulip with leaves.') contained within a rectangular box labeled 'Reference captions'.  A second rectangular box labeled 'Generated caption' displays the output 'Tulip with leaves.'.  Both the reference and generated captions are connected via downward-pointing arrows to a central, peach-colored rectangular box labeled 'TF-IDF,' representing a term frequency-inverse document frequency algorithm.  Finally, an arrow points down from the TF-IDF box to a line of text showing a string of words ('abloomingleavessingletulipleaves') followed by reference numbers and associated weighted values (e.g., 'Ref 1: 'Blooming tulip with leaves'0.000.520.430.000.360.43'). This suggests the TF-IDF process transforms the reference captions into a weighted representation of their constituent words, which is then used to generate the final caption." loading="lazy" width="556" height="416" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-15-7DYEL2DJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15: TF-IDF converting captions to numerical representations</figcaption></div></figure>
+<h5 id="2-calculate-similarity">2. Calculate similarity</h5>
+<p>Next, we calculate the similarity between the generated caption and each reference caption. We do this by computing the cosine similarity between their TF-IDF representations.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart illustrating a similarity calculation process.  At the top, a partially visible text string suggests input references, possibly image captions like 'Blooming tulip with leaves' and 'A blooming...'. A light peach-colored rounded rectangle labeled 'Similarity...' acts as a central processing block.  An arrow points downwards from this block to a grey table. This table has two columns: 'Pair,' listing three rows of text starting with '&lt;Reference 1, Generat...', '&lt;Reference 2, Generat...', and '&lt;Reference 3, Generat...',  and 'Cosine similarity sco...', showing corresponding numerical values (0.688, 0.257, and 0.766 respectively). These values likely represent cosine similarity scores calculated between the input references and generated text (indicated by '...'). The arrows indicate the flow of data: the input references are implicitly processed within the 'Similarity...' block, resulting in the cosine similarity scores displayed in the table." loading="lazy" width="544" height="384" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-16-H5NFZ353.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16: Calculation of cosine similarity between generated and reference captions</figcaption></div></figure>
+<p>A higher cosine similarity score (i.e., a score closer to 1) indicates greater similarity, while a lower value (closer to 0) indicates lesser similarity.</p>
+<h5 id="3-aggregate-the-similarity-scores">3. Aggregate the similarity scores</h5>
+<p>Once we have the cosine similarity scores between the generated caption and each of the reference captions, we take an average of these scores. This average score reflects the overall similarity between the generated caption and the reference captions.</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>C</mi><mi>I</mi><mi>D</mi><mi>E</mi><msub><mi>R</mi><mi>i</mi></msub><mo>=</mo><mfrac><mrow><mn>0.688</mn><mo>+</mo><mn>0.257</mn><mo>+</mo><mn>0.766</mn></mrow><mn>3</mn></mfrac><mo>=</mo><mn>0.570</mn></mrow><annotation encoding="application/x-tex">C I D E R_i=\frac{0.688+0.257+0.766}{3}=0.570</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8333em; vertical-align: -0.15em;"></span><span class="mord mathnormal" style="margin-right: 0.07153em;">C</span><span class="mord mathnormal" style="margin-right: 0.07847em;">I</span><span class="mord mathnormal" style="margin-right: 0.02778em;">D</span><span class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.3117em;"><span style="top: -2.55em; margin-left: -0.0077em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 2.0074em; vertical-align: -0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 1.3214em;"><span style="top: -2.314em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord">3</span></span></span><span style="top: -3.23em;"><span class="pstrut" style="height: 3em;"></span><span class="frac-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3.677em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord">0.688</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mord">0.257</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mord">0.766</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.570</span></span></span></span></span>
+<p>The final CIDEr score is calculated by averaging the similarity scores for all generated captions in the validation dataset. This provides a single metric to evaluate the model's overall performance.</p>
+<p>Let’s see some of the pros and cons of the CIDEr metric.</p>
+<h5 id="pros">Pros:</h5>
+<ul>
+<li><strong>Consensus-based:</strong> CIDEr emphasizes consensus by rewarding captions that are similar to multiple reference captions. This leads to a more reliable evaluation of a model's performance.</li>
+<li><strong>Sensitive to important words</strong>: TF-IDF assigns more weight to unique words in their representation. This ensures that the CIDEr score reflects the importance of words and rewards captions that use those words.</li>
+<li><strong>Robust to different caption variations:</strong> CIDEr is robust to different variations of generations since it is calculated based on multiple reference captions.</li>
+</ul>
+<h5 id="cons">Cons:</h5>
+<ul>
+<li><strong>Computationally complex:</strong> Calculating TF-IDF representations in large datasets can be computationally expensive.</li>
+<li><strong>Sensitive to the quality of reference captions:</strong> The quality and diversity of reference captions impact the CIDEr score. Poor references can lead to misleading evaluations.</li>
+<li><strong>Penalizes novel yet accurate captions:</strong> CIDEr may penalize creative or novel phrases that are still accurate but are not present in the reference set.</li>
+<li><strong>Lack of semantic understanding:</strong> CIDEr relies on TF-IDF to measure the similarity between two sentences. This might not always capture the semantic similarity when captions are textually similar but semantically different. For example, "Coffee on top of the table" and "Table on top of the coffee" might have similar TF-IDF representations due to similar words, but they are not semantically similar.</li>
+</ul>
+<h3 id="online-evaluation-metrics">Online evaluation metrics</h3>
+<p>Online evaluation metrics are important for assessing the performance of ML systems. However, they are often not the primary focus in image captioning systems for two main reasons. First, image captioning systems are usually part of a bigger system, making it harder to collect user interaction data. Second, collecting feedback from users is challenging. Unlike tasks where we can easily measure user satisfaction, evaluating image caption quality requires subjective judgment, which, by definition, varies between users. For example, a caption might be acceptable to one user but not to another, depending on their personal interpretation of the image.</p>
+<p>In summary, standard offline metrics remain the primary method for evaluating our image captioning system. For the few use cases where image captioning impacts user experience directly, engagement metrics and user feedback can provide valuable insights into the system's performance.</p>
+<h2 id="overall-ml-system-design">Overall ML System Design</h2>
+<p>Building an image captioning system is more than just training a model. It requires various components working together. In this section, we discuss the following key components essential for building an image captioning system:</p>
+<ul>
+<li>Image preprocessing</li>
+<li>Caption generator</li>
+<li>Post-processing</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating an image captioning system.  An 'Input image' is fed into a light-blue rectangular box labeled 'Image...', which presumably performs initial image processing.  The output flows into a light-orange rectangular box labeled 'Caption Generat...', representing the core caption generation model.  This model receives input from a light-green cloud-shaped box labeled 'Trained...', indicating a pre-trained model, via a downward-pointing arrow labeled 'Beam search,' suggesting a beam search algorithm is used for caption selection. The output from 'Caption Generat...' then goes into a light-purple rectangular box labeled 'Post-processing,' likely for tasks like grammar correction or formatting. Finally, the processed caption is outputted as 'Mountains wi...', implying the generated caption related to mountains.  The entire process is depicted as a linear flow from input image to final caption, with the trained model influencing the caption generation through the beam search process." loading="lazy" width="608" height="193" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/image-captioning/figure-5-17-TGQDQHK5.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17: Image captioning overall design</figcaption></div></figure>
+<p>Let’s briefly explore each component and understand its role.</p>
+<h3 id="image-preprocessing">Image preprocessing</h3>
+<p>Image preprocessing is the initial step that prepares an input image for the trained model. This involves resizing images to a standard size, converting them into a consistent format, and standardizing pixel values. This step ensures that images are consistent with what the model expects as input.</p>
+<h3 id="caption-generator">Caption generator</h3>
+<p>The caption generator is the core component that produces captions based on the prepared image. This component interacts with the trained model and employs beam search to generate a coherent caption. If the cumulative probability of the generated caption falls below a predefined confidence threshold, the name suggestion is disabled; otherwise, the caption is passed to the post-processing component. This ensures that the system avoids producing irrelevant captions for ambiguous images.</p>
+<h3 id="post-processing">Post-processing</h3>
+<p>The post-processing component identifies biased terms or phrases in the caption and replaces them with neutral alternatives. This ensures fairness and inclusivity in generated captions. Additionally, it checks for the presence of offensive words and disables the name suggestion service if any are found.</p>
+<h2 id="other-talking-points">Other Talking Points</h2>
+<p>If the interview finishes early, you might want to bring up the following topics:</p>
+<ul>
+<li>Extending the image captioner to support other tasks, such as visual question answering (VQA) [14].</li>
+<li>Adapting models to caption images from various domains [15].</li>
+<li>Generating captions in multiple languages using multilingual datasets and cross-lingual transfer learning [16].</li>
+<li>Optimization techniques for caption generation on edge devices [17].</li>
+<li>Generating and ranking multiple plausible captions based on relevance [18].</li>
+<li>Details of BLIP-2 and BLIP-3 methods and additional loss functions utilized for improving captioning [1] [2].</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mind map summarizing the design of a Generative AI system for image captioning.  The central node is labeled 'Summary,' branching into seven main categories: Clarifying Requirements, Specifying Input and Output, Data Preparation (divided into Text and Image preprocessing steps, including tasks like removing duplicates, normalizing captions, and adjusting image dimensions), Model Development (covering Architecture choices like CNN-based vs. Transformer-based models, including details on positional encoding and 1D vs. 2D approaches, and training methods such as unsupervised pre-training and supervised fine-tuning), Evaluation (with offline metrics like ROUGE, METEOR, and CIDEr, and online metrics implied), Overall System Components (including image preprocessing, caption generation, and post-processing), and Other Talking Points.  Each branch further subdivides into more specific tasks and design choices, illustrating the hierarchical structure of the system's development process.  The connections between nodes represent the sequential or hierarchical relationships between different stages and components of the system.  For example, Data Preparation precedes Model Development, and Evaluation follows Training.  The color-coding of branches helps visually distinguish between different aspects of the system design." loading="lazy" width="746" height="857" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(746px, 100vw), (max-width: 1200px) min(746px, 80vw), min(746px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fimage-captioning%2Fimage-5-2-OTKWQ6M6.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></figure>
+<h2 id="reference-material">Reference Material</h2>
+<p>[1] BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models. <a href="https://arxiv.org/abs/2301.12597" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2301.12597</a>.<br>
+[2] xGen-MM (BLIP-3): A Family of Open Large Multimodal Models. ​​<a href="https://www.arxiv.org/abs/2408.08872" target="_blank" rel="noopener noreferrer">https://www.arxiv.org/abs/2408.08872</a>.<br>
+[3] InternVL: Scaling up Vision Foundation Models and Aligning for Generic Visual-Linguistic Tasks. <a href="https://arxiv.org/abs/2312.14238" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2312.14238</a>.<br>
+[4] Meta’s Llama. <a href="https://llama.meta.com/" target="_blank" rel="noopener noreferrer">https://llama.meta.com/</a>.<br>
+[5] Byte-pair encoding tokenization. <a href="https://huggingface.co/learn/nlp-course/en/chapter6/5" target="_blank" rel="noopener noreferrer">https://huggingface.co/learn/nlp-course/en/chapter6/5</a>.<br>
+[6] LAION-5B: An open large-scale dataset for training next generation image-text models. <a href="https://arxiv.org/abs/2210.08402" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.08402</a>.<br>
+[7] An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale. <a href="https://arxiv.org/abs/2010.11929" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2010.11929</a>.<br>
+[8] Language Models are Unsupervised Multitask Learners. <a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf" target="_blank" rel="noopener noreferrer">https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf</a>.<br>
+[9] Learning Transferable Visual Models From Natural Language Supervision. <a href="https://arxiv.org/abs/2103.00020" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2103.00020</a>.<br>
+[10] Cross-entropy. <a href="https://en.wikipedia.org/wiki/Cross-entropy" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Cross-entropy</a>.<br>
+[11] CIDEr: Consensus-based Image Description Evaluation. <a href="https://arxiv.org/abs/1411.5726" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1411.5726</a>.<br>
+[12] TF-IDF introduction. <a href="https://web.stanford.edu/class/cs276/19handouts/lecture6-tfidf-1per.pdf" target="_blank" rel="noopener noreferrer">https://web.stanford.edu/class/cs276/19handouts/lecture6-tfidf-1per.pdf</a>.<br>
+[13] TF-IDF. <a href="https://en.wikipedia.org/wiki/Tf%E2%80%93idf" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Tf%E2%80%93idf</a>.<br>
+[14] Visual question answering introduction. <a href="https://huggingface.co/tasks/visual-question-answering" target="_blank" rel="noopener noreferrer">https://huggingface.co/tasks/visual-question-answering</a>.<br>
+[15] Cross-Domain Image Captioning with Discriminative Finetuning. <a href="https://arxiv.org/abs/2304.01662" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.01662</a>.<br>
+[16] Crossmodal-3600 — Multilingual Reference Captions for Geographically Diverse Images. <a href="https://research.google/blog/crossmodal-3600-multilingual-reference-captions-for-geographically-diverse-images/" target="_blank" rel="noopener noreferrer">https://research.google/blog/crossmodal-3600-multilingual-reference-captions-for-geographically-diverse-images/</a>.<br>
+[17] Efficient Image Captioning for Edge Devices. <a href="https://arxiv.org/abs/2212.08985" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2212.08985</a>.<br>
+[18] Ensemble model using an image captioning and ranking example. <a href="https://cloud.google.com/dataflow/docs/notebooks/run_inference_multi_model" target="_blank" rel="noopener noreferrer">https://cloud.google.com/dataflow/docs/notebooks/run_inference_multi_model</a>.</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../genai-system-design-interview.html">← Course Contents</a>
+        <a href="chatgpt-personal-assistant-chatbot.html">← Previous</a>
+        <a href="retrieval-augmented-generation.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

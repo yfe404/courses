@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14 - Design A Search Autocomplete System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="design-a-chat-system.html">← Previous</a>
+        <a href="design-youtube.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">14</span> Design A Search Autocomplete System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/design-a-search-autocomplete-system" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">14</strong><h1>Design A Search Autocomplete System</h1></header><p>When searching on Google or shopping at Amazon, as you type in the search box, one or more matches for the search term are presented to you. This feature is referred to as autocomplete, typeahead, search-as-you-type, or incremental search. Figure 1 presents an example of a Google search showing a list of autocompleted results when “dinner” is typed into the search box. Search autocomplete is an important feature of many products. This leads us to the interview question: design a search autocomplete system, also called “design top k” or “design top k most searched queries”.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a Google search results page.  At the top, the Google logo is prominently displayed. Below it, a search bar contains the partial search query '[dinner|'.  Beneath the search bar, a list of auto-suggested search queries appears, each prefixed with a magnifying glass icon: 'dinner ideas,' 'dinner recipes,' 'dinner near me,' 'dinner,' 'dinnerly,' 'dinner in spanish,' 'dinner nearby,' 'dinner tonight,' 'dinner rolls,' and 'dinnerware sets.'  At the bottom of the search results box are two buttons: 'Google Search' and 'I'm Feeling Lucky.' A small microphone icon is present in the top right corner of the search bar, suggesting voice search functionality. Finally, a small text link at the very bottom reads 'Report inappropriate predictions,' providing a mechanism for user feedback.  No information flows visibly between components; the image depicts a static snapshot of the search interface before a search is initiated." width="600" height="543" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-1-KCZCT7DP.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1</figcaption></div></figure>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the problem and establish design scope</h2>
+<p>The first step to tackle any system design interview question is to ask enough questions to clarify requirements. Here is an example of candidate-interviewer interaction:</p>
+<p><strong>Candidate</strong>: Is the matching only supported at the beginning of a search query or in the middle as well?<br>
+<strong>Interviewer</strong>: Only at the beginning of a search query.</p>
+<p><strong>Candidate</strong>: How many autocomplete suggestions should the system return?<br>
+<strong>Interviewer</strong>: 5</p>
+<p><strong>Candidate</strong>: How does the system know which 5 suggestions to return?<br>
+<strong>Interviewer</strong>: This is determined by popularity, decided by the historical query frequency.</p>
+<p><strong>Candidate</strong>: Does the system support spell check?<br>
+<strong>Interviewer</strong>: No, spell check or autocorrect is not supported.</p>
+<p><strong>Candidate</strong>: Are search queries in English?<br>
+<strong>Interviewer</strong>: Yes. If time allows at the end, we can discuss multi-language support.</p>
+
+<p><strong>Candidate</strong>: Do we allow capitalization and special characters?<br>
+<strong>Interviewer</strong>: No, we assume all search queries have lowercase alphabetic characters.</p>
+<p><strong>Candidate</strong>: How many users use the product?<br>
+<strong>Interviewer</strong>: 10 million DAU.</p>
+<p><strong>Requirements</strong></p>
+<p>Here is a summary of the requirements:</p>
+<ul>
+<li>
+<p>Fast response time: As a user types a search query, autocomplete suggestions must show up fast enough. An article about Facebook’s autocomplete system [1] reveals that the system needs to return results within 100 milliseconds. Otherwise it will cause stuttering.</p>
+</li>
+<li>
+<p>Relevant: Autocomplete suggestions should be relevant to the search term.</p>
+</li>
+<li>
+<p>Sorted: Results returned by the system must be sorted by popularity or other ranking models.</p>
+</li>
+<li>
+<p>Scalable: The system can handle high traffic volume.</p>
+</li>
+<li>
+<p>Highly available: The system should remain available and accessible when part of the system is offline, slows down, or experiences unexpected network errors.</p>
+</li>
+</ul>
+<h3 id="back-of-the-envelope-estimation">Back of the envelope estimation</h3>
+<ul>
+<li>
+<p>Assume 10 million daily active users (DAU).</p>
+</li>
+<li>
+<p>An average person performs 10 searches per day.</p>
+</li>
+<li>
+<p>20 bytes of data per query string:</p>
+</li>
+<li>
+<p>Assume we use ASCII character encoding. 1 character = 1 byte</p>
+</li>
+<li>
+<p>Assume a query contains 4 words, and each word contains 5 characters on average.</p>
+</li>
+<li>
+<p>That is 4 x 5 = 20 bytes per query.</p>
+</li>
+<li>
+<p>For every character entered into the search box, a client sends a request to the backend for autocomplete suggestions. On average, 20 requests are sent for each search query. For example, the following 6 requests are sent to the backend by the time you finish typing “dinner”.</p>
+<p>search?q=d</p>
+<p>search?q=di</p>
+<p>search?q=din</p>
+<p>search?q=dinn</p>
+<p>search?q=dinne</p>
+<p>search?q=dinner</p>
+</li>
+<li>
+<p>~24,000 query per second (QPS) = 10,000,000 users * 10 queries / day * 20 characters / 24 hours / 3600 seconds.</p>
+</li>
+<li>
+<p>Peak QPS = QPS * 2 = ~48,000</p>
+</li>
+<li>
+<p>Assume 20% of the daily queries are new. 10 million * 10 queries / day * 20 byte per query * 20% = 0.4 GB. This means 0.4GB of new data is added to storage daily.</p>
+</li>
+</ul>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose high-level design and get buy-in</h2>
+<p>At the high-level, the system is broken down into two:</p>
+<ul>
+<li>
+<p>Data gathering service: It gathers user input queries and aggregates them in real-time. Real-time processing is not practical for large data sets; however, it is a good starting point. We will explore a more realistic solution in deep dive.</p>
+</li>
+<li>
+<p>Query service: Given a search query or prefix, return 5 most frequently searched terms.</p>
+</li>
+</ul>
+<h3 id="data-gathering-service">Data gathering service</h3>
+<p>Let us use a simplified example to see how data gathering service works. Assume we have a frequency table that stores the query string and its frequency as shown in Figure 2. In the beginning, the frequency table is empty. Later, users enter queries “twitch”, “twitter”, “twitter,” and “twillo” sequentially. Figure 2 shows how the frequency table is updated.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a high-level system design diagram illustrating data partitioning or sharding based on query parameters.  The diagram shows five vertical sections separated by dashed lines. The leftmost section is labeled 'QueryFrequency,' representing a source or input of queries. The remaining four sections represent different partitions or shards, each labeled with 'query: [platform]' where the platform is either 'twitch,' 'twitter' (appearing twice), or 'twillo.'  Each of these platform-specific sections contains a label 'QueryFrequency[platform]1...' suggesting that each shard stores query frequency data related to a specific platform.  There are no explicit connections drawn between the sections, implying that the data is independently managed within each shard based on the query parameter (platform).  The 'QueryFrequency' section on the left likely represents the initial query input, which is then routed or distributed to the appropriate shard based on the platform specified in the query.  The ellipsis ('...') in the shard labels suggests that there might be more partitions than those shown." loading="lazy" width="700" height="216" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-2-5FQ3SDWF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2</figcaption></div></figure>
+<h3 id="query-service">Query service</h3>
+<p>Assume we have a frequency table as shown in Table 1. It has two fields.</p>
+<ul>
+<li>
+<p>Query: it stores the query string.</p>
+</li>
+<li>
+<p>Frequency: it represents the number of times a query has been searched.</p>
+</li>
+</ul>
+<table><thead><tr><th><strong>Query</strong></th><th><strong>Frequency</strong></th></tr></thead><tbody><tr><td>twitter</td><td>35</td></tr><tr><td>twitch</td><td>29</td></tr><tr><td>twilight</td><td>25</td></tr><tr><td>twin peak</td><td>21</td></tr><tr><td>twitch prime</td><td>18</td></tr><tr><td>twitter search</td><td>14</td></tr><tr><td>twillo</td><td>10</td></tr><tr><td>twin peak sf</td><td>8</td></tr></tbody></table>
+<p class="tableCaption">Table 1</p>
+<p>When a user types “tw” in the search box, the following top 5 searched queries are displayed (Figure 3), assuming the frequency table is based on Table 1.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="The image represents a simple autocomplete suggestion box.  At the top, a light gray rectangular text box displays 'tw|' as the user's partial input. Below this input box is a table with five rows, each containing a potential autocomplete suggestion.  These suggestions are: 'twitter', 'twitch', 'twilight', 'twin peak', and 'twitch prime'.  There are no visible connections or information flow besides the implied relationship that the suggestions in the table are related to the partial input 'tw|' in the text box above.  The suggestions are presented as a list, implying a ranking or order of relevance, though no explicit ranking mechanism is shown." loading="lazy" width="300" height="249" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(300px, 100vw), (max-width: 1200px) min(300px, 80vw), min(300px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-3-P3IEBIJH.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3</figcaption></div></figure>
+<p>To get top 5 frequently searched queries, execute the following SQL query:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a SQL query.  The query selects all columns (`SELECT *`) from a table named `frequency_table`.  A `WHERE` clause filters the results to include only rows where the `query` column starts with the string 'prefix' (using the `LIKE 'prefix%'` operator). The results are then `ORDER`ed in descending order (`DESC`) based on the `frequency` column. Finally, the `LIMIT` clause restricts the output to the top 5 rows, effectively returning the 5 most frequent queries starting with 'prefix'.  The keywords `SELECT`, `FROM`, `WHERE`, `LIKE`, `ORDER BY`, `DESC`, and `LIMIT` are highlighted in blue, indicating their significance as SQL commands." loading="lazy" width="300" height="111" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-4-QFNBMQOX.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4</figcaption></div></figure>
+<p>This is an acceptable solution when the data set is small. When it is large, accessing the database becomes a bottleneck. We will explore optimizations in deep dive.</p>
+<h2 id="step-3---design-deep-dive">Step 3 - Design deep dive</h2>
+<p>In the high-level design, we discussed data gathering service and query service. The high-level design is not optimal, but it serves as a good starting point. In this section, we will dive deep into a few components and explore optimizations as follows:</p>
+<ul>
+<li>
+<p>Trie data structure</p>
+</li>
+<li>
+<p>Data gathering service</p>
+</li>
+<li>
+<p>Query service</p>
+</li>
+<li>
+<p>Scale the storage</p>
+</li>
+<li>
+<p>Trie operations</p>
+</li>
+</ul>
+<h3 id="trie-data-structure">Trie data structure</h3>
+<p>Relational databases are used for storage in the high-level design. However, fetching the top 5 search queries from a relational database is inefficient. The data structure trie (prefix tree) is used to overcome the problem. As trie data structure is crucial for the system, we will dedicate significant time to design a customized trie. Please note that some of the ideas are from articles [2] and [3].</p>
+<p>Understanding the basic trie data structure is essential for this interview question. However, this is more of a data structure question than a system design question. Besides, many online materials explain this concept. In this chapter, we will only discuss an overview of the trie data structure and focus on how to optimize the basic trie to improve response time.</p>
+<p>Trie (pronounced “try”) is a tree-like data structure that can compactly store strings. The name comes from the word re<strong>trie</strong>val, which indicates it is designed for string retrieval operations. The main idea of trie consists of the following:</p>
+<ul>
+<li>
+<p>A trie is a tree-like data structure.</p>
+</li>
+<li>
+<p>The root represents an empty string.</p>
+</li>
+<li>
+<p>Each node stores a character and has 26 children, one for each possible character. To save space, we do not draw empty links.</p>
+</li>
+<li>
+<p>Each tree node represents a single word or a prefix string.</p>
+</li>
+</ul>
+<p>Figure 5 shows a trie with search queries “tree”, “try”, “true”, “toy”, “wish”, “win”. Search queries are highlighted with a thicker border.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a directed acyclic graph (DAG) structured as a tree.  A root node, labeled 'root,' points to two child nodes, 't' and 'w.' Node 't' further branches into 'tr' and 'to,' while 'w' leads to 'wi.'  Node 'tr' has three children: 'tre,' 'tru,' and 'try.'  'tre' points to a leaf node 'tree,' and 'tru' points to a leaf node 'true.'  Both 'tree' and 'true' are highlighted with a teal border. Similarly, 'to' has two children: 'toy' (teal bordered) and an unlabeled node. Node 'wi' branches into 'wis' and 'win,' with 'win' having a teal border.  'wis' points to a leaf node 'wish' (teal bordered).  All arrows indicate the direction of flow from parent to child node.  The teal-bordered leaf nodes suggest a possible categorization or highlighting of specific terminal nodes within the overall tree structure." loading="lazy" width="681" height="402" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-5-6HIZZOES.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5</figcaption></div></figure>
+<p>Basic trie data structure stores characters in nodes. To support sorting by frequency, frequency info needs to be included in nodes. Assume we have the following frequency table.</p>
+<table><thead><tr><th><strong>Query</strong></th><th><strong>Frequency</strong></th></tr></thead><tbody><tr><td>tree</td><td>10</td></tr><tr><td>try</td><td>29</td></tr><tr><td>true</td><td>35</td></tr><tr><td>toy</td><td>14</td></tr><tr><td>wish</td><td>25</td></tr><tr><td>win</td><td>50</td></tr></tbody></table>
+<p class="tableCaption">Table 2</p>
+<p>After adding frequency info to nodes, updated trie data structure is shown in Figure 6.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a directed acyclic graph (DAG) or tree structure, labeled 'root' at its apex.  The root node points to two child nodes, 't' and 'w'. Node 't' further branches into 'tr', 'to'. Node 'tr' has three children: 'tre', 'tru', and 'try:29'.  'tre' points to 'tree:10', 'tru' points to 'true:35', and 'try:29' is a leaf node. Node 'to' has one child, 'toy:14', which is also a leaf node. Node 'w' points to 'wi', which branches into 'wis' and 'win:50'. 'wis' points to 'wish:25', while 'win:50' is a leaf node.  The leaf nodes ('tree:10', 'true:35', 'try:29', 'toy:14', 'wish:25', 'win:50') contain alphanumeric data, suggesting a hierarchical data structure where values are associated with the leaf nodes.  All connections are represented by arrows indicating the direction of flow from parent to child nodes.  The nodes are rectangular boxes, with leaf nodes having a sea-green border to distinguish them from internal nodes." loading="lazy" width="681" height="402" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-6-M5EZD5SL.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6</figcaption></div></figure>
+<p>How does autocomplete work with trie? Before diving into the algorithm, let us define some terms.</p>
+<ul>
+<li>
+<p><em>p</em>: length of a prefix</p>
+</li>
+<li>
+<p><em>n:</em> total number of nodes in a trie</p>
+</li>
+<li>
+<p>c: number of children of a given node</p>
+</li>
+</ul>
+<p>Steps to get top <em>k</em> most searched queries are listed below:</p>
+<p>1. Find the prefix. Time complexity: <em>O(p)</em>.</p>
+<p>2. Traverse the subtree from the prefix node to get all valid children. A child is valid if it can form a valid query string. Time complexity: <em>O(c)</em></p>
+<p>3. Sort the children and get top <em>k</em>. Time complexity: <em>O(clogc)</em></p>
+<p>Let us use an example as shown in Figure 7 to explain the algorithm. Assume <em>k</em> equals to 2 and a user types “tr” in the search box. The algorithm works as follows:</p>
+<ul>
+<li>
+<p>Step 1: Find the prefix node “tr”.</p>
+</li>
+<li>
+<p>Step 2: Traverse the subtree to get all valid children. In this case, nodes [tree: 10], [true: 35], [try: 29] are valid.</p>
+</li>
+<li>
+<p>Step 3: Sort the children and get top 2. [true: 35] and [try: 29] are the top 2 queries with prefix “tr”.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a tree-like data structure, possibly a Trie or a similar hierarchical data organization.  The topmost node is labeled 'root' and points to two child nodes, 't' and 'w'.  Node 't' further branches into 'tr' and 'to'.  'tr' has three children: 'tre', 'tru', and 'try: 29' (the ': 29' suggests a value associated with the node).  'tre' has a child 'tree: 10', and 'tru' has a child 'true: 35'.  Nodes 'try: 29', 'tree: 10', and 'true: 35' are enclosed within a dashed, teal-colored boundary, labeled with '2'.  Below this boundary, 'Top 2: [true: 35, try: 29]' indicates these two nodes are selected as top 2.  Node 'to' has a child 'toy: 14'.  Node 'w' branches into 'wi', which further branches into 'wis' and 'win: 50'.  'wis' has a child 'wish: 25'.  Thick blue arrows highlight a path from 'root' to 't' and then to 'tr', numbered '1'.  A purple arrow points from 'true: 35' to the 'Top 2' label, numbered '3'.  The overall structure depicts a hierarchical relationship between nodes, with leaf nodes containing numerical values." loading="lazy" width="690" height="472" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-7-KXYAA5K3.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7</figcaption></div></figure>
+<p>The time complexity of this algorithm is the sum of time spent on each step mentioned above: <strong><em>O(p) + O(c) + O(clogc)</em></strong></p>
+<p>The above algorithm is straightforward. However, it is too slow because we need to traverse the entire trie to get top <em>k</em> results in the worst-case scenario. Below are two optimizations:</p>
+<p>1. Limit the max length of a prefix</p>
+<p>2. Cache top search queries at each node</p>
+<p>Let us look at these optimizations one by one.</p>
+<h4 id="limit-the-max-length-of-a-prefix">Limit the max length of a prefix</h4>
+<p>Users rarely type a long search query into the search box. Thus, it is safe to say <em>p</em> is a small integer number, say 50. If we limit the length of a prefix, the time complexity for “Find the prefix” can be reduced from <em>O(p)</em> to <em>O(small constant),</em> aka <em>O(1)</em>.</p>
+<h4 id="cache-top-search-queries-at-each-node">Cache top search queries at each node</h4>
+<p>To avoid traversing the whole trie, we store top <em>k</em> most frequently used queries at each node. Since 5 to 10 autocomplete suggestions are enough for users, <em>k</em> is a relatively small number. In our specific case, only the top 5 search queries are cached.</p>
+<p>By caching top search queries at every node, we significantly reduce the time complexity to retrieve the top 5 queries. However, this design requires a lot of space to store top queries at every node. Trading space for time is well worth it as fast response time is very important.</p>
+<p>Figure 8 shows the updated trie data structure. Top 5 queries are stored on each node. For example, the node with prefix “be” stores the following: [best: 35, bet: 29, bee: 20, be: 15, beer: 10].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a tree-like data structure, possibly a decision tree or a representation of hierarchical data.  A root node, labeled 'root,' sits at the top, branching down into two main nodes: 'b' and 'w'. Node 'b' contains the text '[best: 35, bet: 29, bee: 20, be...]' and branches further into 'be: 15', and '[buy: 14]'. Node 'w' contains the text '[win: 11]' and branches into 'wi' which also contains '[win: 11]'.  Node 'be: 15' further branches into '[bee: 20, beer: 10]', 'bee: 20', '[best: 35]', and 'bet: 29'.  'bee: 20' has a child node 'beer: 10'. 'bes' has a child node 'best: 35'.  'bu' has a child node 'buy: 14'. 'wi' has a child node 'win: 11'. Dashed teal boxes enclose groups of related nodes, suggesting logical groupings within the data.  The text within the nodes and boxes appears to represent key-value pairs or data attributes, possibly related to betting or a similar context.  The bottom-most node, 'best: 35', includes a message indicating the viewer's inability to fully render the SVG format." loading="lazy" width="700" height="354" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-8-4HDDZCTY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8</figcaption></div></figure>
+<p>Let us revisit the time complexity of the algorithm after applying those two optimizations:</p>
+<p>1. Find the prefix node. Time complexity: <em>O(1)</em></p>
+<p>2. Return top <em>k</em>. Since top <em>k</em> queries are cached, the time complexity for this step is <em>O(1)</em>.</p>
+<p>As the time complexity for each of the steps is reduced to <em>O(1)</em>, our algorithm takes only <em>O(1)</em> to fetch top <em>k</em> queries.</p>
+<h3 id="data-gathering-service-1">Data gathering service</h3>
+<p>In our previous design, whenever a user types a search query, data is updated in real-time. This approach is not practical for the following two reasons:</p>
+<ul>
+<li>
+<p>Users may enter billions of queries per day. Updating the trie on every query significantly slows down the query service.</p>
+</li>
+<li>
+<p>Top suggestions may not change much once the trie is built. Thus, it is unnecessary to update the trie frequently.</p>
+</li>
+</ul>
+<p>To design a scalable data gathering service, we examine where data comes from and how data is used. Real-time applications like Twitter require up to date autocomplete suggestions. However, autocomplete suggestions for many Google keywords might not change much on a daily basis.</p>
+<p>Despite the differences in use cases, the underlying foundation for data gathering service remains the same because data used to build the trie is usually from analytics or logging services.</p>
+<p>Figure 9 shows the redesigned data gathering service. Each component is examined one by one.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline.  It begins with 'Analytics Logs,' depicted as a file icon labeled 'LOG,' which feeds into 'Aggregators,' represented by three vertically stacked green boxes symbolizing multiple aggregator units.  The aggregated data from the aggregators is then stored in 'Aggregated Data,' shown as three blue database icons.  This aggregated data is subsequently processed by 'Workers,' also represented by three green boxes, which update a 'Trie DB' (three blue database icons) weekly.  Finally, a 'Trie Cache' (three stacked blue boxes labeled 'CACHE') receives a weekly snapshot of the data from the 'Trie DB.'  The arrows indicate the direction of data flow, showing how raw logs are processed, aggregated, stored, further processed by workers, and finally cached for faster access.  The text 'Update weekly' explicitly labels the weekly update process from the workers to the Trie DB." loading="lazy" width="700" height="236" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-9-O7NXHK4L.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9</figcaption></div></figure>
+<p><strong>Analytics Logs.</strong> It stores raw data about search queries. Logs are append-only and are not indexed. Table 3 shows an example of the log file.</p>
+<table><thead><tr><th><strong>query</strong></th><th><strong>time</strong></th></tr></thead><tbody><tr><td>tree</td><td>2019-10-01 22:01:01</td></tr><tr><td>try</td><td>2019-10-01 22:01:05</td></tr><tr><td>tree</td><td>2019-10-01 22:01:30</td></tr><tr><td>toy</td><td>2019-10-01 22:02:22</td></tr><tr><td>tree</td><td>2019-10-02 22:02:42</td></tr><tr><td>try</td><td>2019-10-03 22:03:03</td></tr></tbody></table>
+<p class="tableCaption">Table 3</p>
+<p><strong>Aggregators.</strong> The size of analytics logs is usually very large, and data is not in the right format. We need to aggregate data so it can be easily processed by our system.</p>
+<p>Depending on the use case, we may aggregate data differently. For real-time applications such as Twitter, we aggregate data in a shorter time interval as real-time results are important. On the other hand, aggregating data less frequently, say once per week, might be good enough for many use cases. During an interview session, verify whether real-time results are important. We assume trie is rebuilt weekly.</p>
+<h4 id="aggregated-data">Aggregated Data.</h4>
+<p>Table 4 shows an example of aggregated weekly data. “time” field represents the start time of a week. “frequency” field is the sum of the occurrences for the corresponding query in that week.</p>
+<table><thead><tr><th><strong>query</strong></th><th><strong>time</strong></th><th><strong>frequency</strong></th></tr></thead><tbody><tr><td>tree</td><td>2019-10-01</td><td>12000</td></tr><tr><td>tree</td><td>2019-10-08</td><td>15000</td></tr><tr><td>tree</td><td>2019-10-15</td><td>9000</td></tr><tr><td>toy</td><td>2019-10-01</td><td>8500</td></tr><tr><td>toy</td><td>2019-10-08</td><td>6256</td></tr><tr><td>toy</td><td>2019-10-15</td><td>8866</td></tr></tbody></table>
+<p class="tableCaption">Table 4</p>
+<p><strong>Workers.</strong> Workers are a set of servers that perform asynchronous jobs at regular intervals. They build the trie data structure and store it in Trie DB.</p>
+<p><strong>Trie Cache.</strong> Trie Cache is a distributed cache system that keeps trie in memory for fast read. It takes a weekly snapshot of the DB.</p>
+<p><strong>Trie DB.</strong> Trie DB is the persistent storage. Two options are available to store the data:</p>
+<p>1. Document store: Since a new trie is built weekly, we can periodically take a snapshot of it, serialize it, and store the serialized data in the database. Document stores like MongoDB [4] are good fits for serialized data.</p>
+<p>2. Key-value store: A trie can be represented in a hash table form [4] by applying the following logic:</p>
+<ul>
+<li>
+<p>Every prefix in the trie is mapped to a key in a hash table.</p>
+</li>
+<li>
+<p>Data on each trie node is mapped to a value in a hash table.</p>
+</li>
+</ul>
+<p>Figure 10 shows the mapping between the trie and hash table.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical tree-like structure, possibly depicting a data structure or algorithm.  A root node (an empty rectangle labeled 'root') points downwards to a node labeled 'b', enclosed in a dashed teal rectangle containing the text '[be: 15, bee: 20,...]'.  Node 'b' points to a node 'be: 15', also within a dashed teal rectangle with similar content '[be: 15, bee: 20,...]'.  'be: 15' connects to two lower nodes: 'bee: 20' (within a dashed teal rectangle '[bee: 20, beer: 10]') and 'bes' (within a dashed teal rectangle '[best: 35]').  'bee: 20' points to a leaf node 'beer: 10', and 'bes' points to a leaf node 'best: 35'.  Dashed arrows extend from each leaf node and from 'be: 15' and 'b' to the right, suggesting data output or further processing.  The top right corner displays 'KeyValueb[be: 15, bee: 20, beer: 10, bes...]', possibly indicating the overall data set.  The bottom right corner shows a browser compatibility message: 'Viewer does not support full SVG 1.1'.  The structure suggests a key-value store or a similar data organization where keys ('be', 'bee', 'bes') map to values (numerical data)." loading="lazy" width="700" height="381" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-10-JX4JXRHK.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10</figcaption></div></figure>
+<p>In Figure 10, each trie node on the left is mapped to the <em>&lt;key, value&gt;</em> pair on the right. If you are unclear how key-value stores work, refer to the "Design a key-value store" chapter.</p>
+<h3 id="query-service-1">Query service</h3>
+<p>In the high-level design, query service calls the database directly to fetch the top 5 results. Figure 11 shows the improved design as previous design is inefficient.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating the flow of requests from a user to a database.  The diagram begins with a 'User' block containing icons for a 'Web browser' and a 'Mobile app,' both of which send requests (labeled '1') to a 'Load balancer.' The load balancer distributes these requests (labeled '2') to a cluster of 'API servers.'  These API servers then access a 'Trie Cache' (labeled '3'), which consists of three individual cache units. If the requested data is not found in the Trie Cache, the API servers access a 'Trie DB' (labeled '4') to retrieve it.  The numbered arrows indicate the sequential flow of requests and data retrieval, showing how the system manages user requests through load balancing, caching, and database access." loading="lazy" width="400" height="571" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(400px, 100vw), (max-width: 1200px) min(400px, 80vw), min(400px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-11-S7BTGS2A.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11</figcaption></div></figure>
+<p>1. A search query is sent to the load balancer.</p>
+<p>2. The load balancer routes the request to API servers.</p>
+<p>3. API servers get trie data from Trie Cache and construct autocomplete suggestions for the client.</p>
+<p>4. In case the data is not in Trie Cache, we replenish data back to the cache. This way, all subsequent requests for the same prefix are returned from the cache. A cache miss can happen when a cache server is out of memory or offline.</p>
+<p>Query service requires lightning-fast speed. We propose the following optimizations:</p>
+<ul>
+<li>
+<p>AJAX request. For web applications, browsers usually send AJAX requests to fetch autocomplete results. The main benefit of AJAX is that sending/receiving a request/response does not refresh the whole web page.</p>
+</li>
+<li>
+<p>Browser caching. For many applications, autocomplete search suggestions may not change much within a short time. Thus, autocomplete suggestions can be saved in browser cache to allow subsequent requests to get results from the cache directly. Google search engine uses the same cache mechanism. Figure 12 shows the response header when you type “system design interview” on the Google search engine. As you can see, Google caches the results in the browser for 1 hour. Please note: “private” in cache-control means results are intended for a single user and must not be cached by a shared cache. “max-age=3600” means the cache is valid for 3600 seconds, aka, an hour.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a screenshot of a network request and response within a developer tool, likely from a browser.  The top section displays the request details: the URL `https://www.google.com/complete/search?q&amp;cp=0&amp;client=psy-ab&amp;xssi-t&amp;gs_ri-gws-wiz&amp;hl=en&amp;authuser=0&amp;pq-system design interview` indicates a GET request to Google's autocomplete search API, with various parameters specifying the client, language, and potentially a query related to 'system design interview'. The request method is GET, the remote address is `[2607:f8b0:4005:807::2004]:443` (an IPv6 address and port), and the status code is 200 (OK), indicating a successful request.  The HTTP version is 2.0. Below, the 'Response headers' section shows metadata about the response, including `cache-control` (private, max-age 3600 seconds), `content-disposition` (attachment, filename 'f.txt'), `content-encoding` (br - Brotli compression), `content-type` (application/json; charset=UTF-8), date and expiry timestamps, the server ('gws'), security headers (`strict-transport-security`), and other headers like `X-Firefox-Spdy`, `x-frame-options`, and `x-xss-protection`.  The size of the response is indicated as 615 bytes.  The `alt-svc` header suggests alternative service options, specifically QUIC." loading="lazy" width="700" height="324" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-12-IKMFWP5J.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12</figcaption></div></figure>
+<ul>
+<li>Data sampling: For a large-scale system, logging every search query requires a lot of processing power and storage. Data sampling is important. For instance, only 1 out of every <em>N</em> requests is logged by the system.</li>
+</ul>
+<h3 id="trie-operations">Trie operations</h3>
+<p>Trie is a core component of the autocomplete system. Let us look at how trie operations (create, update, and delete) work.</p>
+<h4 id="create">Create</h4>
+<p>Trie is created by workers using aggregated data. The source of data is from Analytics Log/DB.</p>
+<h4 id="update">Update</h4>
+<p>There are two ways to update the trie.</p>
+<p>Option 1: Update the trie weekly. Once a new trie is created, the new trie replaces the old one.</p>
+<p>Option 2: Update individual trie node directly. We try to avoid this operation because it is slow. However, if the size of the trie is small, it is an acceptable solution. When we update a trie node, its ancestors all the way up to the root must be updated because ancestors store top queries of children. Figure 13 shows an example of how the update operation works. On the left side, the search query “beer” has the original value 10. On the right side, it is updated to 30. As you can see, the node and its ancestors have the “beer” value updated to 30.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two identical tree-like structures, each depicting a hierarchical data structure.  Both structures originate from a root node labeled 'root' and branch down. The first level below the root contains a node labeled 'b' enclosed within a dashed teal rectangle annotated with '[best: 35, beer: 20,...]'.  This node points to a second-level node labeled 'be: 15', also within a similar dashed teal rectangle with the same annotation.  From 'be: 15', three branches extend to third-level nodes. One node is labeled 'bee: 20' and is enclosed in a dashed teal rectangle annotated with '[bee: 20, beer, 10]'. This node further points to a leaf node 'beer: 10'. Another branch from 'be: 15' leads to a node labeled 'bes' within a dashed teal rectangle annotated with '[best: 35]', which points to a leaf node 'best: 35'. The final branch from 'be: 15' connects to a node labeled 'bee: 20' within a dashed teal rectangle annotated with '[best: 35]'. The second tree structure mirrors the first, with identical labels, annotations, and connections.  The annotations within the dashed rectangles appear to represent data associated with each node, possibly key-value pairs." loading="lazy" width="700" height="323" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-13-IHQGNBZV.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13</figcaption></div></figure>
+<h4 id="delete">Delete</h4>
+<p>We have to remove hateful, violent, sexually explicit, or dangerous autocomplete suggestions. We add a filter layer (Figure 14) in front of the Trie Cache to filter out unwanted suggestions. Having a filter layer gives us the flexibility of removing results based on different filter rules. Unwanted suggestions are removed physically from the database asynchronically so the correct data set will be used to build trie in the next update cycle.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating data flow from API servers through a filter layer to a Trie cache.  On the left, a dashed-line box labeled 'API servers' contains three vertically stacked, light-green rectangular icons representing multiple API servers. A solid blue arrow points right from this box to a central, black, funnel-shaped icon labeled 'Filter Layer,' indicating data is passed from the API servers to this filtering stage.  Another solid blue arrow extends right from the filter layer to a blue, rounded-rectangle box labeled 'Trie Cache.' Inside the Trie Cache box, three stacked, smaller blue rectangles, each labeled 'CACHE,' represent multiple cache instances. The overall flow depicts data originating from the API servers, undergoing filtering, and finally being stored in the distributed Trie cache for efficient retrieval." loading="lazy" width="500" height="108" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-a-search-autocomplete-system%2Ffigure-13-14-TDM2D22J.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14</figcaption></div></figure>
+<h3 id="scale-the-storage">Scale the storage</h3>
+<p>Now that we have developed a system to bring autocomplete queries to users, it is time to solve the scalability issue when the trie grows too large to fit in one server.</p>
+<p>Since English is the only supported language, a naive way to shard is based on the first character. Here are some examples.</p>
+<ul>
+<li>
+<p>If we need two servers for storage, we can store queries starting with ‘<em>a</em>’ to ‘<em>m</em>’ on the first server, and ‘<em>n</em>’ to ‘<em>z</em>’ on the second server.</p>
+</li>
+<li>
+<p>If we need three servers, we can split queries into ‘<em>a</em>’ to ‘<em>i</em>’, ‘<em>j</em>’ to ‘<em>r</em>’ and ‘<em>s</em>’ to ‘<em>z</em>’.</p>
+</li>
+</ul>
+<p>Following this logic, we can split queries up to 26 servers because there are 26 alphabetic characters in English. Let us define sharding based on the first character as first level sharding. To store data beyond 26 servers, we can shard on the second or even at the third level. For example, data queries that start with ‘<em>a</em>’ can be split into 4 servers: ‘<em>aa-ag</em>’, ‘<em>ah-an</em>’, ‘<em>ao-au</em>’, and ‘<em>av-az’</em>.</p>
+<p>At the first glance this approach seems reasonable, until you realize that there are a lot more words that start with the letter ‘<em>c</em>’ than ‘<em>x</em>’. This creates uneven distribution.</p>
+<p>To mitigate the data imbalance problem, we analyze historical data distribution pattern and apply smarter sharding logic as shown in Figure 15. The shard map manager maintains a lookup database for identifying where rows should be stored. For example, if there are a similar number of historical queries for ‘<em>s</em>’ and for ‘<em>u</em>’, ‘<em>v</em>’, ‘<em>w</em>’, ‘<em>x</em>’, ‘<em>y</em>’ and ‘<em>z</em>’ combined, we can maintain two shards: one for ‘s’ and one for ‘u’ to ‘z’.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified database sharding architecture.  The diagram shows three main components: a group of 'Web servers' (represented by three green vertical rectangles within a dashed box), a 'Shard map manager' (a single blue cylinder in a rounded rectangle), and a set of 'Databases' (three blue cylinders labeled 'Shard 1', 'Shard 2', and 'Shard ...', also within a rounded rectangle).  The web servers initiate the process by sending a request ('What shard is it?') labeled '1' to the Shard map manager. This manager determines which database shard contains the requested data.  Then, the web servers receive a response from the Shard map manager and send a second request ('Retrieve data from shard') labeled '2' to the appropriate database shard to retrieve the data.  The arrows indicate the direction of information flow between these components." loading="lazy" width="500" height="344" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-a-search-autocomplete-system/figure-13-15-6H4WZOA6.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15</figcaption></div></figure>
+<h2 id="step-4---wrap-up">Step 4 - Wrap up</h2>
+<p>After you finish the deep dive, your interviewer might ask you some follow up questions.</p>
+<p>Interviewer: How do you extend your design to support multiple languages?</p>
+<p>To support other non-English queries, we store Unicode characters in trie nodes. If you are not familiar with Unicode, here is the definition: “an encoding standard covers all the characters for all the writing systems of the world, modern and ancient” [5].</p>
+<p>Interviewer: What if top search queries in one country are different from others?</p>
+<p>In this case, we might build different tries for different countries. To improve the response time, we can store tries in CDNs.</p>
+<p>Interviewer: How can we support the trending (real-time) search queries?</p>
+<p>Assuming a news event breaks out, a search query suddenly becomes popular. Our original design will not work because:</p>
+<ul>
+<li>
+<p>Offline workers are not scheduled to update the trie yet because this is scheduled to run on weekly basis.</p>
+</li>
+<li>
+<p>Even if it is scheduled, it takes too long to build the trie.</p>
+</li>
+</ul>
+<p>Building a real-time search autocomplete is complicated and is beyond the scope of this course so we will only give a few ideas:</p>
+<ul>
+<li>
+<p>Reduce the working data set by sharding.</p>
+</li>
+<li>
+<p>Change the ranking model and assign more weight to recent search queries.</p>
+</li>
+<li>
+<p>Data may come as streams, so we do not have access to all the data at once. Streaming data means data is generated continuously. Stream processing requires a different set of systems: Apache Hadoop MapReduce [6], Apache Spark Streaming [7], Apache Storm [8], Apache Kafka [9], etc. Because all those topics require specific domain knowledge, we are not going into detail here.</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="reference-materials">Reference materials</h2>
+<p>[1] The Life of a Typeahead Query:<br>
+<a href="https://www.facebook.com/notes/facebook-engineering/the-life-of-a-typeahead-query/389105248919/" target="_blank" rel="noopener noreferrer"><u>https://www.facebook.com/notes/facebook-engineering/the-life-of-a-typeahead-query/389105248919/</u></a></p>
+<p>[2] How We Built Prefixy: A Scalable Prefix Search Service for Powering Autocomplete:<br>
+<a href="https://medium.com/@prefixyteam/how-we-built-prefixy-a-scalable-prefix-search-service-for-powering-autocomplete-c20f98e2eff1" target="_blank" rel="noopener noreferrer"><u>https://medium.com/@prefixyteam/how-we-built-prefixy-a-scalable-prefix-search-service-for-powering-autocomplete-c20f98e2eff1</u></a></p>
+<p>[3] Prefix Hash Tree An Indexing Data Structure over Distributed Hash Tables:<br>
+<a href="https://people.eecs.berkeley.edu/~sylvia/papers/pht.pdf" target="_blank" rel="noopener noreferrer"><u>https://people.eecs.berkeley.edu/~sylvia/papers/pht.pdf</u></a></p>
+<p>[4] MongoDB wikipedia: <a href="https://en.wikipedia.org/wiki/MongoDB" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/MongoDB</u></a></p>
+<p>[5] Unicode frequently asked questions: <a href="https://www.unicode.org/faq/basic_q.html" target="_blank" rel="noopener noreferrer"><u>https://www.unicode.org/faq/basic_q.html</u></a></p>
+<p>[6] Apache hadoop: <a href="https://hadoop.apache.org/" target="_blank" rel="noopener noreferrer"><u>https://hadoop.apache.org/</u></a></p>
+<p>[7] Spark streaming: <a href="https://spark.apache.org/streaming/" target="_blank" rel="noopener noreferrer"><u>https://spark.apache.org/streaming/</u></a></p>
+<p>[8] Apache storm: <a href="https://storm.apache.org/" target="_blank" rel="noopener noreferrer"><u>https://storm.apache.org/</u></a></p>
+<p>[9] Apache kafka: <a href="https://kafka.apache.org/documentation/" target="_blank" rel="noopener noreferrer"><u>https://kafka.apache.org/documentation/</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="design-a-chat-system.html">← Previous</a>
+        <a href="design-youtube.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

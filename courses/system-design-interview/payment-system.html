@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment System - System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../system-design-interview.html">System Design Interview</a> /
+        Payment System
+    </div>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="real-time-gaming-leaderboard.html">← Previous</a>
+        <a href="digital-wallet.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">27</span> Payment System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/payment-system" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">27</strong><h1>Payment System</h1></header><p>In this chapter, we design a payment system. E-commerce has exploded in popularity across the world in recent years. What makes every transaction possible is a payment system running behind the scenes. A reliable, scalable, and flexible payment system is essential.</p>
+<p>What is a payment system? According to Wikipedia, “a payment system is any system used to settle financial transactions through the transfer of monetary value. This includes the institutions, instruments, people, rules, procedures, standards, and technologies that make its exchange possible” [1].</p>
+<p>A payment system is easy to understand on the surface but is also intimidating for many developers to work on. A small slip could potentially cause significant revenue loss and destroy credibility among users. But fear not! In this chapter, we demystify payment systems.</p>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the Problem and Establish Design Scope</h2>
+<p>A payment system can mean very different things to different people. Some may think it’s a digital wallet like Apple Pay or Google Pay. Others may think it’s a backend system that handles payments such as PayPal or Stripe. It is very important to determine the exact requirements at the beginning of the interview. These are some questions you can ask the interviewer:</p>
+<p><strong>Candidate</strong>: What kind of payment system are we building?<br>
+<strong>Interviewer</strong>: Assume you are building a payment backend for an e-commerce application like Amazon.com. When a customer places an order on Amazon.com, the payment system handles everything related to money movement.</p>
+<p><strong>Candidate</strong>: What payment options are supported? Credit cards, PayPal, bank cards, etc?<br>
+<strong>Interviewer</strong>: The payment system should support all of these options in real life. However, in this interview, we can use credit card payment as an example.</p>
+<p><strong>Candidate</strong>: Do we handle credit card payment processing ourselves?<br>
+<strong>Interviewer</strong>: No, we use third-party payment processors, such as Stripe, Braintree, Square, etc.</p>
+<p><strong>Candidate:</strong> Do we store credit card data in our system?<br>
+<strong>Interviewer:</strong> Due to extremely high security and compliance requirements, we do not store card numbers directly in our system. We rely on third-party payment processors to handle sensitive credit card data.</p>
+<p><strong>Candidate</strong>: Is the application global? Do we need to support different currencies and international payments?<br>
+<strong>Interviewer</strong>: Great question. Yes, the application would be global but we assume only one currency is used in this interview.</p>
+<p><strong>Candidate</strong>: How many payment transactions per day?<br>
+<strong>Interviewer</strong>: 1 million transactions per day.</p>
+
+<p><strong>Candidate</strong>: Do we need to support the pay-out flow, which an e-commerce site like Amazon uses to pay sellers every month?<br>
+<strong>Interviewer</strong>: Yes, we need to support that.</p>
+<p><strong>Candidate</strong>: I think I have gathered all the requirements. Is there anything else I should pay attention to?<br>
+<strong>Interviewer</strong>: Yes. A payment system interacts with a lot of internal services (accounting, analytics, etc.) and external services (payment service providers). When a service fails, we may see inconsistent states among services. Therefore, we need to perform reconciliation and fix any inconsistencies. This is also a requirement.</p>
+<p>With these questions, we get a clear picture of both the functional and non-functional requirements. In this interview, we focus on designing a payment system that supports the following.</p>
+<h3 id="functional-requirements">Functional requirements</h3>
+<ul>
+<li>
+<p>Pay-in flow: payment system receives money from customers on behalf of sellers.</p>
+</li>
+<li>
+<p>Pay-out flow: payment system sends money to sellers around the world.</p>
+</li>
+</ul>
+<h3 id="non-functional-requirements">Non-functional requirements</h3>
+<ul>
+<li>
+<p>Reliability and fault tolerance. Failed payments need to be carefully handled.</p>
+</li>
+<li>
+<p>A reconciliation process between internal services (payment systems, accounting systems) and external services (payment service providers) is required. The process asynchronously verifies that the payment information across these systems is consistent.</p>
+</li>
+</ul>
+<h3 id="back-of-the-envelope-estimation">Back-of-the-envelope estimation</h3>
+<p>The system needs to process 1 million transactions per day, which is 1,000,000 transactions / 10^5 seconds = 10 transactions per second (TPS). 10 TPS is not a big number for a typical database, which means the focus of this system design interview is on how to correctly handle payment transactions, rather than aiming for high throughput.</p>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose High-Level Design and Get Buy-In</h2>
+<p>At a high level, the payment flow is broken down into two steps to reflect how money flows:</p>
+<ul>
+<li>
+<p>Pay-in flow</p>
+</li>
+<li>
+<p>Pay-out flow</p>
+</li>
+</ul>
+<p>Take the e-commerce site, Amazon, as an example. After a buyer places an order, the money flows into Amazon’s bank account, which is the pay-in flow. Although the money is in Amazon's bank account, Amazon does not own all of the money. The seller owns a substantial part of it and Amazon only works as the money custodian for a fee. Later, when the products are delivered and money is released, the balance after fees then flows from Amazon’s bank account to the seller's bank account. This is the pay-out flow. The simplified pay-in and pay-out flows are shown in Figure 1.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified model of an online transaction on an e-commerce website.  The diagram shows a buyer represented by a person icon connected via a dashed line to a 'Credit Card' box.  A solid arrow labeled 'Pay-in' connects the 'Credit Card' box to a 'Bank Account' box, which is centrally located and represents the intermediary bank account used for the transaction.  Above the 'Bank Account' box is a shopping cart icon labeled 'E-commerce Website,' indicating the platform facilitating the purchase.  A solid arrow labeled 'Pay-out' connects the 'Bank Account' box to a 'Bank Account' box associated with the seller, also represented by a person icon connected via a dashed line.  The dashed lines represent indirect connections, while the solid arrows indicate the flow of funds: the buyer's payment ('Pay-in') from their credit card to the bank account, and the seller's receipt ('Pay-out') from the bank account to their own account." loading="lazy" width="487" height="164" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/payment-system/figure-1-simplified-pay-in-and-pay-out-flow-3FEH6LGJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1 Simplified pay-in and pay-out flow</figcaption></div></figure>
+<h3 id="pay-in-flow">Pay-in flow</h3>
+<p>The high-level design diagram for the pay-in flow is shown in Figure 2. Let’s take a look at each component of the system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture of a payment system.  A 'Payment event' (1) initiates the process, triggering data flow from a database (unlabeled) to a 'Payment Service' (2). The 'Payment Service' (2) processes the event, generating a 'Payment Order' (3) which is then sent to a 'Payment Executor' (4). The 'Payment Executor' (4) interacts with a database (unlabeled) to execute the payment.  The 'Payment Service' (2) also interacts with a 'Ledger' (8) and a 'Wallet' (6), updating respective databases (unlabeled, 9 and 7) with transaction details.  The 'Payment Executor' (4) connects to external payment gateways (5) represented by the logos of PayPal, Stripe, and Adyen, suggesting integration with various payment processors.  Finally, the logos of Visa and MasterCard indicate support for these specific credit card networks.  The numbered arrows (2-9) illustrate the sequential flow of information and actions within the system." loading="lazy" width="650" height="361" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(650px, 100vw), (max-width: 1200px) min(650px, 80vw), min(650px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-2-pay-in-flow-5S6II6AU.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2 Pay-in flow</figcaption></div></figure>
+<p><strong>Payment service</strong></p>
+<p>The payment service accepts payment events from users and coordinates the payment process. The first thing it usually does is a risk check, assessing for compliance with regulations such as AML/CFT [2], and for evidence of criminal activity such as money laundering or financing of terrorism. The payment service only processes payments that pass this risk check. Usually, the risk check service uses a third-party provider because it is very complicated and highly specialized.</p>
+<p><strong>Payment executor</strong></p>
+<p>The payment executor executes a single payment order via a Payment Service Provider (PSP). A payment event may contain several payment orders.</p>
+<p><strong>Payment Service Provider (PSP)</strong></p>
+<p>A PSP moves money from account A to account B. In this simplified example, the PSP moves the money out of the buyer’s credit card account.</p>
+<p><strong>Card schemes</strong></p>
+<p>Card schemes are the organizations that process credit card operations. Well known card schemes are Visa, MasterCard, Discovery, etc. The card scheme ecosystem is very complex [3].</p>
+<p><strong>Ledger</strong></p>
+<p>The ledger keeps a financial record of the payment transaction. For example, when a user pays the seller <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo separator="true">,</mo><mi>w</mi><mi>e</mi><mi>r</mi><mi>e</mi><mi>c</mi><mi>o</mi><mi>r</mi><mi>d</mi><mi>i</mi><mi>t</mi><mi>a</mi><mi>s</mi><mi>d</mi><mi>e</mi><mi>b</mi><mi>i</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">1, we record it as debit </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.8889em; vertical-align: -0.1944em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mord mathnormal" style="margin-right: 0.02691em;">w</span><span class="mord mathnormal" style="margin-right: 0.02778em;">erecor</span><span class="mord mathnormal">d</span><span class="mord mathnormal">i</span><span class="mord mathnormal">t</span><span class="mord mathnormal">a</span><span class="mord mathnormal">s</span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mord mathnormal">bi</span><span class="mord mathnormal">t</span></span></span></span>1 from a user and credit $1 to the seller. The ledger system is very important in post-payment analysis, such as calculating the total revenue of the e-commerce website or forecasting future revenue.</p>
+<p><strong>Wallet</strong></p>
+<p>The wallet keeps the account balance of the merchant. It may also record how much a given user has paid in total.</p>
+<p>As shown in Figure 2, a typical pay-in flow works like this:</p>
+<ol>
+<li>
+<p>When a user clicks the “place order” button, a payment event is generated and sent to the payment service.</p>
+</li>
+<li>
+<p>The payment service stores the payment event in the database.</p>
+</li>
+<li>
+<p>Sometimes, a single payment event may contain several payment orders. For example, you may select products from multiple sellers in a single checkout process. If the e-commerce website splits the checkout into multiple payment orders, the payment service calls the payment executor for each payment order.</p>
+</li>
+<li>
+<p>The payment executor stores the payment order in the database.</p>
+</li>
+<li>
+<p>The payment executor calls an external PSP to process the credit card payment.</p>
+</li>
+<li>
+<p>After the payment executor has successfully processed the payment, the payment service updates the wallet to record how much money a given seller has.</p>
+</li>
+<li>
+<p>The wallet server stores the updated balance information in the database.</p>
+</li>
+<li>
+<p>After the wallet service has successfully updated the seller’s balance information, the payment service calls the ledger to update it.</p>
+</li>
+<li>
+<p>The ledger service appends the new ledger information to the database.</p>
+</li>
+</ol>
+<h4 id="apis-for-payment-service">APIs for payment service</h4>
+<p>We use the RESTful API design convention for the payment service.</p>
+<p><strong>POST /v1/payments</strong></p>
+<p>This endpoint executes a payment event. As mentioned above, a single payment event may contain multiple payment orders. The request parameters are listed below:</p>
+<div class="table-wrap" style="--table-min-width: 500px;"><table><thead><tr><th><strong>Field</strong></th><th><strong>Description</strong></th><th><strong>Type</strong></th></tr></thead><tbody><tr><td>buyer_info</td><td>The information of the buyer</td><td>json</td></tr><tr><td>checkout_id</td><td>A globally unique ID for this checkout</td><td>string</td></tr><tr><td>credit_card_info</td><td>This could be encrypted credit card information or a payment token. The value is PSP-specific.</td><td>json</td></tr><tr><td>payment_orders</td><td>A list of the payment orders</td><td>list</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 1 API request parameters (execute a payment event)</p></p>
+<p>The <em>payment_orders</em> look like this:</p>
+<div class="table-wrap" style="--table-min-width: 500px;"><table><thead><tr><th><strong>Field</strong></th><th><strong>Description</strong></th><th><strong>Type</strong></th></tr></thead><tbody><tr><td>seller_account</td><td>Which seller will receive the money</td><td>string</td></tr><tr><td>amount</td><td>The transaction amount for the order</td><td>string</td></tr><tr><td>currency</td><td>The currency for the order</td><td>string (ISO 4217 [4])</td></tr><tr><td>payment_order_id</td><td>A globally unique ID for this payment</td><td>string</td></tr></tbody></table></div>
+<p class="tableCaption">Table 2 payment_orders</p>
+<p>Note that the <em>payment_order_id</em> is globally unique. When the payment executor sends a payment request to a third-party PSP, the <em>payment_order_id</em> is used by the PSP as the deduplication ID, also called the idempotency key.</p>
+<p>You may have noticed that the data type of the “amount” field is “string,” rather than “double”. Double is not a good choice because:</p>
+<ol>
+<li>
+<p>Different protocols, software, and hardware may support different numeric precisions in serialization and deserialization. This difference might cause unintended rounding errors.</p>
+</li>
+<li>
+<p>The number could be extremely big (for example, Japan’s GDP is around 5x10<sup>14</sup> yen for the calendar year 2020), or extremely small (for example, a satoshi of Bitcoin is 10<sup>-8</sup>).</p>
+</li>
+</ol>
+<p>It is recommended to keep numbers in string format during transmission and storage. They are only parsed to numbers when used for display or calculation.</p>
+<p><strong>GET /v1/payments/{:id}</strong></p>
+<p>This endpoint returns the execution status of a single payment order based on <em>payment_order_id</em>.</p>
+<p>The payment API mentioned above is similar to the API of some well-known PSPs. If you are interested in a more comprehensive view of payment APIs, check out Stripe’s API documentation [5].</p>
+<h4 id="the-data-model-for-payment-service">The data model for payment service</h4>
+<p>We need two tables for the payment service: payment event and payment order. When we select a storage solution for a payment system, performance is usually not the most important factor. Instead, we focus on the following:</p>
+<ol>
+<li>
+<p>Proven stability. Whether the storage system has been used by other big financial firms for many years (for example more than 5 years) with positive feedback.</p>
+</li>
+<li>
+<p>The richness of supporting tools, such as monitoring and investigation tools.</p>
+</li>
+<li>
+<p>Maturity of the database administrator (DBA) job market. Whether we can recruit experienced DBAs is a very important factor to consider.</p>
+</li>
+</ol>
+<p>Usually, we prefer a traditional relational database with ACID transaction support over NoSQL/NewSQL.</p>
+<p>The payment event table contains detailed payment event information. This is what it looks like:</p>
+<table><thead><tr><th><strong>Name</strong></th><th><strong>Type</strong></th></tr></thead><tbody><tr><td>checkout_id</td><td>string <strong>PK</strong></td></tr><tr><td>buyer_info</td><td>string</td></tr><tr><td>seller_info</td><td>string</td></tr><tr><td>credit_card_info</td><td>depends on the card provider</td></tr><tr><td>is_payment_done</td><td>boolean</td></tr></tbody></table>
+<p class="tableCaption">Table 3 Payment event</p>
+<p>The payment order table stores the execution status of each payment order. This is what it looks like:</p>
+<table><thead><tr><th><strong>Name</strong></th><th><strong>Type</strong></th></tr></thead><tbody><tr><td>payment_order_id</td><td>String <strong>PK</strong></td></tr><tr><td>buyer_account</td><td>string</td></tr><tr><td>amount</td><td>string</td></tr><tr><td>currency</td><td>string</td></tr><tr><td>checkout_id</td><td>string <strong>FK</strong></td></tr><tr><td>payment_order_status</td><td>string</td></tr><tr><td>ledger_updated</td><td>boolean</td></tr><tr><td>wallet_updated</td><td>boolean</td></tr></tbody></table>
+<p class="tableCaption">Table 4 Payment order</p>
+<p>Before we dive into the tables, let’s take a look at some background information.</p>
+<ul>
+<li>
+<p>The <em>checkout_id</em> is the foreign key. A single checkout creates a payment event that may contain several payment orders.</p>
+</li>
+<li>
+<p>When we call a third-party PSP to deduct money from the buyer's credit card, the money is not directly transferred to the seller. Instead, the money is transferred to the e-commerce website’s bank account. This process is called pay-in. When the pay-out condition is satisfied, such as when the products are delivered, the seller initiates a pay-out. Only then is the money transferred from the e-commerce website’s bank account to the seller's bank account. Therefore, during the pay-in flow, we only need the buyer’s card information, not the seller’s bank account information.</p>
+</li>
+</ul>
+<p>In the payment order table (Table 4), <em>payment_order_status</em> is an enumerated type (enum) that keeps the execution status of the payment order. Execution status includes <em>NOT_STARTED, EXECUTING, SUCCESS, FAILED</em>. The update logic is:</p>
+<ol>
+<li>
+<p>The initial status of <em>payment_order_status</em> is <em>NOT_STARTED</em>.</p>
+</li>
+<li>
+<p>When the payment service sends the payment order to the payment executor, the <em>payment_order_status</em> is <em>EXECUTING</em>.</p>
+</li>
+<li>
+<p>The payment service updates the <em>payment_order_status</em> to <em>SUCCESS</em> or <em>FAILED</em> depending on the response of the payment executor.</p>
+</li>
+</ol>
+<p>Once the <em>payment_order_status</em> is <em>SUCCESS</em>, the payment service calls the wallet service to update the seller balance and update the <em>wallet_updated</em> field to <em>TRUE</em>. Here we simplify the design by assuming wallet updates always succeed.</p>
+<p>Once it is done, the next step for the payment service is to call the ledger service to update the ledger database by updating the <em>ledger_updated</em> field to <em>TRUE</em>.</p>
+<p>When all payment orders under the same <em>checkout_id</em> are processed successfully, the payment service updates the <em>is_payment_done</em> to TRUE in the payment event table. A scheduled job usually runs at a fixed interval to monitor the status of the in-flight payment orders. It sends an alert when a payment order does not finish within a threshold so that engineers can investigate it.</p>
+<h4 id="double-entry-ledger-system">Double-entry ledger system</h4>
+<p>There is a very important design principle in the ledger system: the double-entry principle (also called double-entry accounting/bookkeeping [6]). Double-entry system is fundamental to any payment system and is key to accurate bookkeeping. It records every payment transaction into two separate ledger accounts with the same amount. One account is debited and the other is credited with the same amount (Table 5).</p>
+<table><thead><tr><th>Account</th><th>Debit</th><th>Credit</th></tr></thead><tbody><tr><td>buyer</td><td>$1</td><td></td></tr><tr><td>seller</td><td></td><td>$1</td></tr></tbody></table>
+<p class="tableCaption">Table 5 Double-entry system</p>
+<p>The double-entry system states that the sum of all the transaction entries must be 0. One cent lost means someone else gains a cent. It provides end-to-end traceability and ensures consistency throughout the payment cycle. To find out more about implementing the double-entry system, see Square’s engineering blog about immutable double-entry accounting database service [7].</p>
+<h4 id="hosted-payment-page">Hosted payment page</h4>
+<p>Most companies prefer not to store credit card information internally because if they do, they have to deal with complex regulations such as Payment Card Industry Data Security Standard (PCI DSS) [8] in the United States. To avoid handling credit card information, companies use hosted credit card pages provided by PSPs. For websites, it is a widget or an iframe, while for mobile applications, it may be a pre-built page from the payment SDK. Figure 3 illustrates an example of the checkout experience with PayPal integration. The key point here is that the PSP provides a hosted payment page that captures the customer card information directly, rather than relying on our payment service.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a PayPal login page.  At the top, the PayPal logo is displayed prominently. Below the logo, the header 'Pay with PayPal' is shown, followed by a subtitle explaining the benefits of using a PayPal account, including free return shipping and Purchase Protection.  The main body of the page contains two input fields: one for 'Email or mobile number' and another for 'Password.'  A checkbox labeled 'Stay logged in for faster purchases' is positioned below the password field, accompanied by a question mark icon likely linking to a help page. A blue 'Log In' button initiates the login process.  Below the login button, a hyperlink 'Having trouble logging in?' provides access to troubleshooting resources.  Finally, an 'or' separator precedes a button labeled 'Pay with Debit or Credit Card,' offering an alternative payment method.  No data flows are explicitly shown; the interaction is implied through user input into the fields and clicking the buttons." loading="lazy" width="500" height="596" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-3-hosted-pay-with-paypal-page-EZOP6LZ2.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3 Hosted pay with PayPal page</figcaption></div></figure>
+<h3 id="pay-out-flow">Pay-out flow</h3>
+<p>The components of the pay-out flow are very similar to the pay-in flow. One difference is that instead of using PSP to move money from the buyer’s credit card to the e-commerce website’s bank account, the pay-out flow uses a third-party pay-out provider to move money from the e-commerce website’s bank account to the seller’s bank account.</p>
+<p>Usually, the payment system uses third-party account payable providers like Tipalti [9] to handle pay-outs. There are a lot of bookkeeping and regulatory requirements with pay-outs as well.</p>
+<h2 id="step-3---design-deep-dive">Step 3 - Design Deep Dive</h2>
+<p>In this section, we focus on making the system faster, more robust, and secure. In a distributed system, errors and failures are not only inevitable but common. For example, what happens if a customer pressed the “pay” button multiple times? Will they be charged multiple times? How do we handle payment failures caused by poor network connections? In this section, we dive deep into several key topics.</p>
+<ul>
+<li>
+<p>PSP integration</p>
+</li>
+<li>
+<p>Reconciliation</p>
+</li>
+<li>
+<p>Handling payment processing delays</p>
+</li>
+<li>
+<p>Communication among internal services</p>
+</li>
+<li>
+<p>Handling failed payments</p>
+</li>
+<li>
+<p>Exact-once delivery</p>
+</li>
+<li>
+<p>Consistency</p>
+</li>
+<li>
+<p>Security</p>
+</li>
+</ul>
+<h3 id="psp-integration">PSP integration</h3>
+<p>If the payment system can directly connect to banks or card schemes such as Visa or MasterCard, payment can be made without a PSP. These direct connections are uncommon and highly specialized. They are usually reserved for really large companies that can justify such an investment. For most companies, the payment system integrates with a PSP instead, in one of two ways:</p>
+<ol>
+<li>
+<p>If a company can safely store sensitive payment information and chooses to do so, PSP can be integrated using API. The company is responsible for developing the payment web pages, collecting and storing sensitive payment information. PSP is responsible for connecting to banks or card schemes.</p>
+</li>
+<li>
+<p>If a company chooses not to store sensitive payment information due to complex regulations and security concerns, PSP provides a hosted payment page to collect card payment details and securely store them in PSP. This is the approach most companies take.</p>
+</li>
+</ol>
+<p>We use Figure 4 to explain how the hosted payment page works in detail.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system diagram illustrating an online payment process.  The process begins at a 'Checkout Page' within a 'Client Browser,' which initiates a 'Checkout' action (1). This triggers the 'Payment Service' (within a 'Payment System' containing a database for 'Store token' (4)). The 'Payment Service' creates a payment using a nonce (2) and returns a payment token (3). This token is then used to display the 'PSP's Payment page' (5) within a 'Hosted Payment Page' in the client's browser. The user interacts with this page to 'Start payment' (6), resulting in a 'Payment result' (7) which redirects the user to a 'Payment Completion Page' (8). Finally, a webhook (9) sends the completion result back to the system.  The entire process involves interaction between the client browser, the payment service, a database storing tokens, and a Payment Service Provider (PSP).  The numbered annotations (1-9) indicate the sequential flow of actions and data." loading="lazy" width="700" height="414" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-4-hosted-payment-flow-EL5HSZY6.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4 Hosted payment flow</figcaption></div></figure>
+<p>We omitted the payment executor, ledger, and wallet in Figure 4 for simplicity. The payment service orchestrates the whole payment process.</p>
+<ol>
+<li>
+<p>The user clicks the “checkout” button in the client browser. The client calls the payment service with the payment order information.</p>
+</li>
+<li>
+<p>After receiving the payment order information, the payment service sends a payment registration request to the PSP. This registration request contains payment information, such as the amount, currency, expiration date of the payment request, and the redirect URL. Because a payment order should be registered only once, there is a UUID field to ensure the exactly-once registration. This UUID is also called nonce [10]. Usually, this UUID is the ID of the payment order.</p>
+</li>
+<li>
+<p>The PSP returns a token back to the payment service. A token is a UUID on the PSP side that uniquely identifies the payment registration. We can examine the payment registration and the payment execution status later using this token.</p>
+</li>
+<li>
+<p>The payment service stores the token in the database before calling the PSP-hosted payment page.</p>
+</li>
+<li>
+<p>Once the token is persisted, the client displays a PSP-hosted payment page. Mobile applications usually use the PSP’s SDK integration for this functionality. Here we use Stripe’s web integration as an example (Figure 5). Stripe provides a JavaScript library that displays the payment UI, collects sensitive payment information, and calls the PSP directly to complete the payment. Sensitive payment information is collected by Stripe. It never reaches our payment system. The hosted payment page usually needs two pieces of information:</p>
+<ul>
+<li>
+<p>The token we received in step 4. The PSP’s javascript code uses the token to retrieve detailed information about the payment request from the PSP’s backend. One important piece of information is how much money to collect.</p>
+</li>
+<li>
+<p>Another important piece of information is the redirect URL. This is the web page URL that is called when the payment is complete. When the PSP’s JavaScript finishes the payment, it redirects the browser to the redirect URL. Usually, the redirect URL is an e-commerce web page that shows the status of the checkout. Note that the redirect URL is different from the webhook [11] URL in step 9.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a web page displaying an online checkout process for a purchase from a store named 'Powdur'.  The left side shows the order summary, listing 'Pure set' (quantity 1, $65.00) and 'Pure glow cream' (quantity 2, $32.00 each, totaling $64.00). The total amount due is $129.00.  The bottom left corner displays 'Powered by Stripe,' indicating the payment processing service used.  'Terms' and 'Privacy' links are also present. The right side contains the payment information section.  It offers two payment options: Apple Pay (a button labeled 'Pay' with the Apple Pay logo) and payment by card.  The card payment option requires entering the email address, card number (partially shown as '1234 1234 1234 1234'), expiry date (MM/YY), CVC code, name on the card, country/region (with 'United States' selected), and ZIP code.  Various card logos (Visa, Mastercard, American Express, Discover, and UnionPay) are displayed, indicating accepted card types.  Two 'Pay' buttons are present, one for Apple Pay and another for card payments.  The top left corner shows a back arrow and the 'Powdur' logo, along with a 'TEST MODE' indicator.  No explicit data flow is visually represented, but the implied flow is that the order summary data is sent to the payment gateway (Stripe) upon clicking either 'Pay' button, along with the payment information entered by the user." loading="lazy" width="750" height="432" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-5-hosted-payment-page-by-stripe-A4FT5636.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5 Hosted payment page by Stripe</figcaption></div></figure>
+</li>
+<li>
+<p>The user fills in the payment details on the PSP’s web page, such as the credit card number, holder’s name, expiration date, etc, then clicks the pay button. The PSP starts the payment processing.</p>
+</li>
+<li>
+<p>The PSP returns the payment status.</p>
+</li>
+<li>
+<p>The web page is now redirected to the redirect URL. The payment status that is received in step 7 is typically appended to the URL. For example, the full redirect URL could be [12]: <code>https://your-company.com/?tokenID=JIOUIQ123NSF&amp;payResult=X324FSa</code></p>
+</li>
+<li>
+<p>Asynchronously, the PSP calls the payment service with the payment status via a webhook. The webhook is an URL on the payment system side that was registered with the PSP during the initial setup with the PSP. When the payment system receives payment events through the webhook, it extracts the payment status and updates the <em>payment_order_status</em> field in the Payment Order database table.</p>
+</li>
+</ol>
+<p>So far, we explained the happy path of the hosted payment page. In reality, the network connection could be unreliable and all 9 steps above could fail. Is there any systematic way to handle failure cases? The answer is reconciliation.</p>
+<h3 id="reconciliation">Reconciliation</h3>
+<p>When system components communicate asynchronously, there is no guarantee that a message will be delivered, or a response will be returned. This is very common in the payment business, which often uses asynchronous communication to increase system performance. External systems, such as PSPs or banks, prefer asynchronous communication as well. So how can we ensure correctness in this case?</p>
+<p>The answer is reconciliation. This is a practice that periodically compares the states among related services in order to verify that they are in agreement. It is usually the last line of defense in the payment system.</p>
+<p>Every night the PSP or banks send a settlement file to their clients. The settlement file contains the balance of the bank account, together with all the transactions that took place on this bank account during the day. The reconciliation system parses the settlement file and compares the details with the ledger system. Figure 6 below shows where the reconciliation process fits in the system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified payment processing system architecture.  A 'Payment event' initiates the process, triggering the 'Payment Service.'  The Payment Service interacts with a 'Ledger' and a 'Wallet,' represented as databases, likely storing transaction and user balance information respectively.  The Payment Service then passes the payment request to a 'Payment Executor,' which interacts with external payment gateways (PayPal, Stripe, and Adyen are explicitly shown, along with VISA and MasterCard logos suggesting supported card types).  A database is shown as receiving data from the Payment Executor.  A document icon represents a payment system report, which feeds into a 'Reconciliation' module (shown in pink), suggesting a process for verifying and matching transactions across different systems.  Finally, a curved arrow connects the Ledger and Wallet databases to the Reconciliation module via the document icon, indicating that data from these databases is used in the reconciliation process." loading="lazy" width="650" height="351" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(650px, 100vw), (max-width: 1200px) min(650px, 80vw), min(650px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Ffigure-6-reconciliation-HZKEQ3KA.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6 Reconciliation</figcaption></div></figure>
+<p>Reconciliation is also used to verify that the payment system is internally consistent. For example, the states in the ledger and wallet might diverge and we could use the reconciliation system to detect any discrepancy.</p>
+<p>To fix mismatches found during reconciliation, we usually rely on the finance team to perform manual adjustments. The mismatches and adjustments are usually classified into three categories:</p>
+<ol>
+<li>
+<p>The mismatch is classifiable and the adjustment can be automated. In this case, we know the cause of the mismatch, how to fix it, and it is cost-effective to write a program to automate the adjustment. Engineers can automate both the mismatch classification and adjustment.</p>
+</li>
+<li>
+<p>The mismatch is classifiable, but we are unable to automate the adjustment. In this case, we know the cause of the mismatch and how to fix it, but the cost of writing an auto adjustment program is too high. The mismatch is put into a job queue and the finance team fixes the mismatch manually.</p>
+</li>
+<li>
+<p>The mismatch is unclassifiable. In this case, we do not know how the mismatch happens. The mismatch is put into a special job queue. The finance team investigates it manually.</p>
+</li>
+</ol>
+<h3 id="handling-payment-processing-delays">Handling payment processing delays</h3>
+<p>As discussed previously, an end-to-end payment request flows through many components and involves both internal and external parties. While in most cases a payment request would complete in seconds, there are situations where a payment request would stall and sometimes take hours or days before it is completed or rejected. Here are some examples where a payment request could take longer than usual:</p>
+<ul>
+<li>
+<p>The PSP deems a payment request high risk and requires a human to review it.</p>
+</li>
+<li>
+<p>A credit card requires extra protection like 3D Secure Authentication [13] which requires extra details from a card holder to verify a purchase.</p>
+</li>
+</ul>
+<p>The payment service must be able to handle these payment requests that take a long time to process. If the buy page is hosted by an external PSP, which is quite common these days, the PSP would handle these long-running payment requests in the following ways:</p>
+<ul>
+<li>
+<p>The PSP would return a pending status to our client. Our client would display that to the user. Our client would also provide a page for the customer to check the current payment status.</p>
+</li>
+<li>
+<p>The PSP tracks the pending payment on our behalf, and notifies the payment service of any status update via the webhook the payment service registered with the PSP.</p>
+</li>
+</ul>
+<p>When the payment request is finally completed, the PSP calls the registered webhook mentioned above. The payment service updates its internal system and completes the shipment to the customer.</p>
+<p>Alternatively, instead of updating the payment service via a webhook, some PSP would put the burden on the payment service to poll the PSP for status updates on any pending payment requests.</p>
+<h3 id="communication-among-internal-services">Communication among internal services</h3>
+<p>There are two types of communication patterns that internal services use to communicate: synchronous vs asynchronous. Both are explained below.</p>
+<p><strong>Synchronous communication</strong></p>
+<p>Synchronous communication like HTTP works well for small-scale systems, but its shortcomings become obvious as the scale increases. It creates a long request and response cycle that depends on many services. The drawbacks of this approach are:</p>
+<ul>
+<li>
+<p>Low performance. If any one of the services in the chain doesn’t perform well, the whole system is impacted.</p>
+</li>
+<li>
+<p>Poor failure isolation. If PSPs or any other services fail, the client will no longer receive a response.</p>
+</li>
+<li>
+<p>Tight coupling. The request sender needs to know the recipient.</p>
+</li>
+<li>
+<p>Hard to scale. Without using a queue to act as a buffer, it’s not easy to scale the system to support a sudden increase in traffic.</p>
+</li>
+</ul>
+<p><strong>Asynchronous communication</strong></p>
+<p>Asynchronous communication can be divided into two categories:</p>
+<ul>
+<li>Single receiver: each request (message) is processed by one receiver or service. It’s usually implemented via a shared message queue. The message queue can have multiple subscribers, but once a message is processed, it gets removed from the queue. Let’s take a look at a concrete example. In Figure 7, service A and service B both subscribe to a shared message queue. When m1 and m2 are consumed by service A and service B respectively, both messages are removed from the queue as shown in Figure 8.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram showing a message queue distributing messages to two services.  A cylindrical message queue is depicted containing four messages labeled m1, m2, m3, and m4, each represented by an envelope icon.  Arrows emanate from the message queue, indicating the flow of messages. One arrow points to a rectangular box labeled 'Service A,' and another arrow points to a rectangular box labeled 'Service B.'  This illustrates that messages from the queue are being routed to both Service A and Service B, suggesting a publish-subscribe or fan-out message distribution pattern.  The diagram does not specify the message content or the nature of the services, only their interaction with the central message queue." loading="lazy" width="394" height="210" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/payment-system/figure-7-message-queue-7BXIY252.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7 Message queue</figcaption></div></figure>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram showing data distribution from a central source to two separate services.  A cylindrical component, representing a message queue or similar data store, contains two messages labeled 'm3' and 'm4', depicted as envelope icons.  This central component is connected to two rectangular boxes labeled 'Service A' and 'Service B', representing independent services.  A message labeled 'm1' (also an envelope icon) flows from the central component to 'Service A', indicating data transmission. Similarly, a message labeled 'm2' flows from the central component to 'Service B', showing another data transmission.  The diagram illustrates a publish-subscribe or message-broker pattern where the central component acts as a distributor, sending messages to different services based on their subscriptions or routing rules." loading="lazy" width="394" height="210" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/payment-system/figure-8-single-receiver-for-each-message-OZR5UDDF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8 Single receiver for each message</figcaption></div></figure>
+<ul>
+<li>Multiple receivers: each request (message) is processed by multiple receivers or services. Kafka works well here. When consumers receive messages, they are not removed from Kafka. The same message can be processed by different services. This model maps well to the payment system, as the same request might trigger multiple side effects such as sending push notifications, updating financial reporting, analytics, etc. An example is illustrated in Figure 9. Payment events are published to Kafka and consumed by different services such as the payment system, analytics service, and billing service.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating event processing and distribution.  A circular 'Events' node on the left generates events, which are then processed by a cylindrical 'Message Queue' containing four messages labeled m1, m2, m3, and m4, indicating a potential ordering or prioritization.  From the message queue, messages are routed to three different downstream systems.  Message m1 is duplicated and sent to three separate systems: 'Payment System,' 'Analytics,' and 'Billing.'  The arrows depict the flow of messages (m1, m2, m3, m4) from the Events node to the message queue and then from the message queue to the respective systems.  The diagram shows a one-to-many relationship where a single event stream is processed and distributed to multiple systems for different purposes." loading="lazy" width="500" height="194" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/payment-system/figure-9-multiple-receivers-for-the-same-message-FKQDW57G.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9 Multiple receivers for the same message</figcaption></div></figure>
+<p>Generally speaking, synchronous communication is simpler in design, but it doesn’t allow services to be autonomous. As the dependency graph grows, the overall performance suffers. Asynchronous communication trades design simplicity and consistency for scalability and failure resilience. For a large-scale payment system with complex business logic and a large number of third-party dependencies, asynchronous communication is a better choice.</p>
+<h3 id="handling-failed-payments">Handling failed payments</h3>
+<p>Every payment system has to handle failed transactions. Reliability and fault tolerance are key requirements. We review some of the techniques for tackling those challenges.</p>
+<h4 id="tracking-payment-state">Tracking payment state</h4>
+<p>Having a definitive payment state at any stage of the payment cycle is crucial. Whenever a failure happens, we can determine the current state of a payment transaction and decide whether a retry or refund is needed. The payment state can be persisted in an append-only database table.</p>
+<h4 id="retry-queue-and-dead-letter-queue">Retry queue and dead letter queue</h4>
+<p>To gracefully handle failures, we utilize the retry queue and dead letter queue, as shown in Figure 10.</p>
+<ul>
+<li>
+<p>Retry queue: retryable errors such as transient errors are routed to a retry queue.</p>
+</li>
+<li>
+<p>Dead letter queue [14]: if a message fails repeatedly, it eventually lands in the dead letter queue. A dead letter queue is useful for debugging and isolating problematic messages for inspection to determine why they were not processed successfully.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart depicting a system's handling of failures during payment processing.  The process begins with a 'Failure' circle representing an initial error.  A decision diamond labeled '?' checks if the failure is 'Retryable?'. If yes (labeled '1a) Yes'), the process proceeds to a 'Retry Queue' cylinder, numbered '2', which then feeds into a 'Payment System' box.  After the payment system, another 'Failure' circle indicates potential issues.  A second decision diamond checks 'Retryable?' again. If yes (labeled '3a) Yes'), the cycle potentially repeats. If no (labeled '3b) No'), the process moves to a 'Dead Letter Queue' cylinder. If the initial failure is deemed not retryable (labeled '1b) No'), the process branches to a 'Database' cylinder for logging or further processing.  The entire diagram illustrates a retry mechanism with a dead-letter queue for handling irrecoverable errors and a database for recording non-retryable failures." loading="lazy" width="750" height="329" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/payment-system/figure-10-handle-failed-payments-ZFR5VAJK.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10 Handle failed payments</figcaption></div></figure>
+<ol>
+<li>
+<p>Check whether the failure is retryable.</p>
+<p>1a. Retryable failures are routed to a retry queue.</p>
+<p>1b. For non-retryable failures such as invalid input, errors are stored in a database.</p>
+</li>
+<li>
+<p>The payment system consumes events from the retry queue and retries failed payment transactions.</p>
+</li>
+<li>
+<p>If the payment transaction fails again:</p>
+<p>3a. If the retry count doesn’t exceed the threshold, the event is routed to the retry queue.</p>
+<p>3b. If the retry count exceeds the threshold, the event is put in the dead letter queue. Those failed events might need to be investigated.</p>
+</li>
+</ol>
+<p>If you are interested in a real-world example of using those queues, take a look at Uber’s payment system that utilizes Kafka to meet the reliability and fault-tolerance requirements [16].</p>
+<h3 id="exactly-once-delivery">Exactly-once delivery</h3>
+<p>One of the most serious problems a payment system can have is to double charge a customer. It is important to guarantee in our design that the payment system executes a payment order exactly-once [16].</p>
+<p>At first glance, exactly-once delivery seems very hard to tackle, but if we divide the problem into two parts, it is much easier to solve. Mathematically, an operation is executed exactly-once if:</p>
+<ol>
+<li>
+<p>It is executed at-least-once.</p>
+</li>
+<li>
+<p>At the same time, it is executed at-most-once.</p>
+</li>
+</ol>
+<p>We will explain how to implement at-least-once using retry, and at-most-once using idempotency check.</p>
+<h4 id="retry">Retry</h4>
+<p>Occasionally, we need to retry a payment transaction due to network errors or timeout. Retry provides the at-least-once guarantee. For example, as shown in Figure 11, where the client tries to make a $10 payment, but the payment request keeps failing due to a poor network connection. In this example, the network eventually recovered and the request succeeded at the fourth attempt.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence diagram illustrating a client's interaction with a payment system. Two vertical lines represent the Client and the Payment System. Horizontal arrows show the flow of information. The client initiates four payment attempts of $10 each, represented by arrows moving from the Client to the Payment System labeled 'Pay $10'. The first three attempts result in payment failures, indicated by a red 'X' and the message 'Payment failed' sent back to the client from the Payment System. The client retries each time, as indicated by 'Retry' labels. The fourth attempt succeeds, shown by a blue checkmark next to 'Pay $10' and the message 'Payment succeeded' returned to the client. The diagram visually depicts the retry mechanism until successful payment processing." loading="lazy" width="500" height="322" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/payment-system/figure-11-retry-SUMHMG67.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11 Retry</figcaption></div></figure>
+<p>Deciding the appropriate time intervals between retries is important. Here are a few common retry strategies.</p>
+<ul>
+<li>
+<p>Immediate retry: client immediately resends a request.</p>
+</li>
+<li>
+<p>Fixed intervals: wait a fixed amount of time between the time of the failed payment and a new retry attempt.</p>
+</li>
+<li>
+<p>Incremental intervals: client waits for a short time for the first retry, and then incrementally increases the time for subsequent retries.</p>
+</li>
+<li>
+<p>Exponential backoff [17]: double the waiting time between retries after each failed retry. For example, when a request fails for the first time, we retry after 1 second; if it fails a second time, we wait 2 seconds before the next retry; if it fails a third time, we wait 4 seconds before another retry.</p>
+</li>
+<li>
+<p>Cancel: the client can cancel the request. This is a common practice when the failure is permanent or repeated requests are unlikely to be successful.</p>
+</li>
+</ul>
+<p>Determining the appropriate retry strategy is difficult. There is no “one size fits all” solution. As a general guideline, use exponential backoff if the network issue is unlikely to be resolved in a short amount of time. Overly aggressive retry strategies waste computing resources and can cause service overload. A good practice is to provide an error code with a Retry-After header.</p>
+<p>A potential problem of retrying is double payments. Let us take a look at two scenarios.</p>
+<p><strong>Scenario 1</strong>: The payment system integrates with PSP using a hosted payment page, and the client clicks the pay button twice.</p>
+<p><strong>Scenario 2</strong>: The payment is successfully processed by the PSP, but the response fails to reach our payment system due to network errors. The user clicks the “pay” button again or the client retries the payment.</p>
+<p>In order to avoid double payment, the payment has to be executed at-most-once. This at-most-once guarantee is also called idempotency.</p>
+<h4 id="idempotency">Idempotency</h4>
+<p>Idempotency is key to ensuring the at-most-once guarantee. According to Wikipedia, “idempotence is the property of certain operations in mathematics and computer science whereby they can be applied multiple times without changing the result beyond the initial application” [18]. From an API standpoint, idempotency means clients can make the same call repeatedly and produce the same result.</p>
+<p>For communication between clients (web and mobile applications) and servers, an idempotency key is usually a unique value that is generated by the client and expires after a certain period of time. A UUID is commonly used as an idempotency key and it is recommended by many tech companies such as Stripe [19] and PayPal [20]. To perform an idempotent payment request, an idempotency key is added to the HTTP header: <em>&lt;idempotency-key: key_value&gt;</em>.</p>
+<p>Now that we understand the basics of idempotency, let’s take a look at how it helps to solve the double payment issues mentioned above.</p>
+<p><strong>Scenario 1: what if a customer clicks the “pay” button quickly twice?</strong></p>
+<p>In Figure 12, when a user clicks “pay,” an idempotency key is sent to the payment system as part of the HTTP request. In an e-commerce website, the idempotency key is usually the ID of the shopping cart right before the checkout.</p>
+<p>For the second request, it’s treated as a retry because the payment system has already seen the idempotency key. When we include a previously specified idempotency key in the request header, the payment system returns the latest status of the previous request.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sequence diagram illustrating idempotency in a payment system.  The diagram is divided into two parts by a dashed line representing a retry scenario. The top part shows a client making a 'First request' to the 'Payment System' via a POST request with an idempotency key (a UUID). The Payment System processes the request and sends back a 'Charge succeeded' message to the client. The bottom part depicts a retry scenario.  The client, labeled 'Retry,' sends another POST request with the same idempotency key to the 'Payment System.'  This time, the Payment System, recognizing the idempotency key, returns a 'Return previous message' indicating that the request has already been processed and avoids duplicate processing.  The Payment System includes a note explaining that it has already seen the idempotency key and will not process the request again.  Arrows indicate the direction of information flow between the client and the payment system." loading="lazy" width="500" height="348" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/payment-system/figure-12-idempotency-DC3RCILB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12 Idempotency</figcaption></div></figure>
+<p>If multiple concurrent requests are detected with the same idempotency key, only one request is processed and the others receive the <em>“429 Too Many Requests”</em> status code.</p>
+<p>To support idempotency, we can use the database's unique key constraint. For example, the primary key of the database table is served as the idempotency key. Here is how it works:</p>
+<ol>
+<li>
+<p>When the payment system receives a payment, it tries to insert a row into the database table.</p>
+</li>
+<li>
+<p>A successful insertion means we have not seen this payment request before.</p>
+</li>
+<li>
+<p>If the insertion fails because the same primary key already exists, it means we have seen this payment request before. The second request will not be processed.</p>
+</li>
+</ol>
+<p><strong>Scenario 2: The payment is successfully processed by the PSP, but the response fails to reach our payment system due to network errors. Then the user clicks the “pay” again.</strong></p>
+<p>As shown in Figure 4 (step 2 and step 3), the payment service sends the PSP a nonce and the PSP returns a corresponding token. The nonce uniquely represents the payment order, and the token uniquely maps to the nonce. Therefore, the token uniquely maps to the payment order.</p>
+<p>When the user clicks the “pay” button again, the payment order is the same, so the token sent to the PSP is the same. Because the token is used as the idempotency key on the PSP side, it is able to identify the double payment and return the status of the previous execution.</p>
+<h3 id="consistency">Consistency</h3>
+<p>Several stateful services are called in a payment execution:</p>
+<ol>
+<li>
+<p>The payment service keeps payment-related data such as nonce, token, payment order, execution status, etc.</p>
+</li>
+<li>
+<p>The ledger keeps all accounting data.</p>
+</li>
+<li>
+<p>The wallet keeps the account balance of the merchant.</p>
+</li>
+<li>
+<p>The PSP keeps the payment execution status.</p>
+</li>
+<li>
+<p>Data might be replicated among different database replicas to increase reliability.</p>
+</li>
+</ol>
+<p>In a distributed environment, the communication between any two services can fail, causing data inconsistency. Let’s take a look at some techniques to resolve data inconsistency in a payment system.</p>
+<p>To maintain data consistency between internal services, ensuring exactly-once processing is very important.</p>
+<p>To maintain data consistency between the internal service and external service (PSP), we usually rely on idempotency and reconciliation. If the external service supports idempotency, we should use the same idempotency key for payment retry operations. Even if an external service supports idempotent API, reconciliation is still needed because we shouldn’t assume the external system is always right.</p>
+<p>If data is replicated, replication lag could cause inconsistent data between the primary database and the replicas. There are generally two options to solve this:</p>
+<ol>
+<li>
+<p>Serve both reads and writes from the primary database only. This approach is easy to set up, but the obvious drawback is scalability. Replicas are used to ensure data reliability, but they don’t serve any traffic, which wastes resources.</p>
+</li>
+<li>
+<p>Ensure all replicas are always in-sync. We could use consensus algorithms such as Paxos [21] and Raft [22], or use consensus-based distributed databases such as YugabyteDB [23] or CockroachDB [24].</p>
+</li>
+</ol>
+<h3 id="payment-security">Payment security</h3>
+<p>Payment security is very important. In the final part of this system design, we briefly cover a few techniques for combating cyberattacks and card thefts.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th><strong>Problem</strong></th><th><strong>Solution</strong></th></tr></thead><tbody><tr><td>Request/response eavesdropping</td><td>Use HTTPS</td></tr><tr><td>Data tampering</td><td>Enforce encryption and integrity monitoring</td></tr><tr><td>Man-in-the-middle attack</td><td>Use SSL with certificate pinning</td></tr><tr><td>Data loss</td><td>Database replication across multiple regions and take snapshots of data</td></tr><tr><td>Distributed denial-of-service attack (DDoS)</td><td>Rate limiting and firewall [25]</td></tr><tr><td>Card theft</td><td>Tokenization. Instead of using real card numbers, tokens are stored and used for payment</td></tr><tr><td>PCI compliance</td><td>PCI DSS is an information security standard for organizations that handle branded credit cards</td></tr><tr><td>Fraud</td><td>Address verification, card verification value (CVV), user behavior analysis, etc. [26] [27]</td></tr></tbody></table></div>
+<p class="tableCaption">Table 6 Payment security</p>
+<h2 id="step-4---wrap-up">Step 4 - Wrap Up</h2>
+<p>In this chapter, we investigated the pay-in flow and pay-out flow. We went into great depth about retry, idempotency, and consistency. Payment error handling and security are also covered at the end of the chapter.</p>
+<p>A payment system is extremely complex. Even though we have covered many topics, there are still more worth mentioning. The following is a representative but not an exhaustive list of relevant topics.</p>
+<ul>
+<li>
+<p>Monitoring. Monitoring key metrics is a critical part of any modern application. With extensive monitoring, we can answer questions like “What is the average acceptance rate for a specific payment method?”, “What is the CPU usage of our servers?”, etc. We can create and display those metrics on a dashboard.</p>
+</li>
+<li>
+<p>Alerting. When something abnormal occurs, it is important to alert on-call developers so they respond promptly.</p>
+</li>
+<li>
+<p>Debugging tools. “Why does a payment fail?” is a common question. To make debugging easier for engineers and for customer support, it is important to develop tools that allow staff to review the transaction status, processing server history, PSP records, etc. of a payment transaction.</p>
+</li>
+<li>
+<p>Currency exchange. Currency exchange is an important consideration when designing a payment system for an international user base.</p>
+</li>
+<li>
+<p>Geography. Different regions might have completely different sets of payment methods.</p>
+</li>
+<li>
+<p>Cash payment. Cash payment is very common in India, Brazil, and some other countries. Uber [28] and Airbnb [29] wrote detailed engineering blogs about how they handled cash-based payment.</p>
+</li>
+<li>
+<p>Google/Apple pay integration. Please read [30] if interested.</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="chapter-summary">Chapter Summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical tree diagram outlining the design of a Payment Service.  The root node is 'Payment Service,' branching into four main steps (step 1, step 2, step 3, step 4). Step 1 focuses on requirements, splitting into 'functional req' (with sub-branches 'pay-in flow' and 'pay-out flow') and 'non-functional req' (with sub-branches 'reliability: handle failed payments' and 'reconciliation').  Step 1 also includes an 'estimation' branch connected to '10 TPS' indicating a throughput target. Step 2 details the 'pay-in flow' and 'pay-out flow' components, further breaking down 'pay-in flow' into 'payment service,' 'payment executor,' 'payment service provider,' 'card scheme,' 'ledger,' and 'wallet,' and 'pay-out flow' connecting to a 'third-party service' for PSP integration. Step 3 addresses aspects like 'reconciliation,' 'handling payment processing delays,' 'communication among internal services,' and 'handle failed payments,' the latter branching into 'keep payment safe' (with sub-branches 'retry queue and dead letter queue') and 'retry.'  Finally, Step 3 also includes 'exactly-once delivery,' 'consistency,' and 'payment security.' Step 4 simply concludes with 'wrap up,' suggesting finalization or deployment considerations.  The entire diagram illustrates a top-down breakdown of the Payment Service design, from high-level requirements and flows to detailed implementation considerations and error handling mechanisms." loading="lazy" width="650" height="816" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(650px, 100vw), (max-width: 1200px) min(650px, 80vw), min(650px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fpayment-system%2Fchapter-summary-IBDWNX6M.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></figure>
+<h2 id="reference-materials">Reference Materials</h2>
+<p>[1] Payment system: <a href="https://en.wikipedia.org/wiki/Payment_system" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Payment_system</u></a></p>
+<p>[2] AML/CFT: <a href="https://en.wikipedia.org/wiki/Money_laundering" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Money_laundering</u></a></p>
+<p>[3] Card scheme: <a href="https://en.wikipedia.org/wiki/Card_scheme" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Card_scheme</u></a></p>
+<p>[4] ISO 4217: <a href="https://en.wikipedia.org/wiki/ISO_4217" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/ISO_4217</u></a></p>
+<p>[5] Stripe API Reference: <a href="https://stripe.com/docs/api" target="_blank" rel="noopener noreferrer"><u>https://stripe.com/docs/api</u></a></p>
+<p>[6] Double-entry bookkeeping: <a href="https://en.wikipedia.org/wiki/Double-entry_bookkeeping" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Double-entry_bookkeeping</u></a></p>
+<p>[7] Books, an immutable double-entry accounting database service:<br>
+<a href="https://developer.squareup.com/blog/books-an-immutable-double-entry-accounting-database-service/" target="_blank" rel="noopener noreferrer"><u>https://developer.squareup.com/blog/books-an-immutable-double-entry-accounting-database-service/</u></a></p>
+<p>[8] Payment Card Industry Data Security Standard:<br>
+<a href="https://en.wikipedia.org/wiki/Payment_Card_Industry_Data_Security_Standard" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Payment_Card_Industry_Data_Security_Standard</u></a></p>
+<p>[9] Tipalti: <a href="https://tipalti.com/" target="_blank" rel="noopener noreferrer"><u>https://tipalti.com/</u></a></p>
+<p>[10] Nonce: <a href="https://en.wikipedia.org/wiki/Cryptographic_nonce" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Cryptographic_nonce</u></a></p>
+<p>[11] Webhooks: <a href="https://stripe.com/docs/webhooks" target="_blank" rel="noopener noreferrer"><u>https://stripe.com/docs/webhooks</u></a></p>
+<p>[12] Customize your success page: <a href="https://stripe.com/docs/payments/checkout/custom-success-page" target="_blank" rel="noopener noreferrer"><u>https://stripe.com/docs/payments/checkout/custom-success-page</u></a></p>
+<p>[13] 3D Secure: <a href="https://en.wikipedia.org/wiki/3-D_Secure" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/3-D_Secure</u></a></p>
+<p>[14] Kafka Connect Deep Dive – Error Handling and Dead Letter Queues:<br>
+<a href="https://www.confluent.io/blog/kafka-connect-deep-dive-error-handling-dead-letter-queues/" target="_blank" rel="noopener noreferrer"><u>https://www.confluent.io/blog/kafka-connect-deep-dive-error-handling-dead-letter-queues/</u></a></p>
+<p>[15] Reliable Processing in a Streaming Payment System:<br>
+<a href="https://www.youtube.com/watch?v=5TD8m7w1xE0&amp;list=PLLEUtp5eGr7Dz3fWGUpiSiG3d_WgJe-KJ" target="_blank" rel="noopener noreferrer"><u>https://www.youtube.com/watch?v=5TD8m7w1xE0&amp;list=PLLEUtp5eGr7Dz3fWGUpiSiG3d_WgJe-KJ</u></a></p>
+<p>[16] Chain Services with Exactly-Once Guarantees:<br>
+<a href="https://www.confluent.io/blog/chain-services-exactly-guarantees/" target="_blank" rel="noopener noreferrer"><u>https://www.confluent.io/blog/chain-services-exactly-guarantees/</u></a></p>
+<p>[17] Exponential backoff: <a href="https://en.wikipedia.org/wiki/Exponential_backoff" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Exponential_backoff</u></a></p>
+<p>[18] Idempotence: <a href="https://en.wikipedia.org/wiki/Idempotence" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Idempotence</u></a></p>
+<p>[19] Stripe idempotent requests: <a href="https://stripe.com/docs/api/idempotent_requests" target="_blank" rel="noopener noreferrer"><u>https://stripe.com/docs/api/idempotent_requests</u></a></p>
+<p>[20] Idempotency: <a href="https://developer.paypal.com/docs/platforms/develop/idempotency/" target="_blank" rel="noopener noreferrer"><u>https://developer.paypal.com/docs/platforms/develop/idempotency/</u></a></p>
+<p>[21] Paxos: <a href="https://en.wikipedia.org/wiki/Paxos_(computer_science)" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Paxos_(computer_science)</u></a></p>
+<p>[22] Raft: <a href="https://raft.github.io/" target="_blank" rel="noopener noreferrer"><u>https://raft.github.io/</u></a></p>
+<p>[23] YugabyteDB: <a href="https://www.yugabyte.com/" target="_blank" rel="noopener noreferrer"><u>https://www.yugabyte.com/</u></a></p>
+<p>[24] Cockroachdb:<a href="https://www.cockroachlabs.com/" target="_blank" rel="noopener noreferrer"><u>https://www.cockroachlabs.com/</u></a></p>
+<p>[25] What is DDoS attack: <a href="https://www.cloudflare.com/learning/ddos/what-is-a-ddos-attack/" target="_blank" rel="noopener noreferrer"><u>https://www.cloudflare.com/learning/ddos/what-is-a-ddos-attack/</u></a></p>
+<p>[26] How Payment Gateways Can Detect and Prevent Online Fraud:<br>
+<a href="https://www.chargebee.com/blog/optimize-online-billing-stop-online-fraud/" target="_blank" rel="noopener noreferrer"><u>https://www.chargebee.com/blog/optimize-online-billing-stop-online-fraud/</u></a></p>
+<p>[27] Advanced Technologies for Detecting and Preventing Fraud at Uber:<br>
+<a href="https://www.uber.com/en-PK/blog/project-radar-intelligent-early-fraud-detection/" target="_blank" rel="noopener noreferrer"><u>https://www.uber.com/en-PK/blog/project-radar-intelligent-early-fraud-detection/</u></a></p>
+<p>[28] Re-Architecting Cash and Digital Wallet Payments for India with Uber Engineering:<br>
+<a href="https://eng.uber.com/india-payments/" target="_blank" rel="noopener noreferrer"><u>https://eng.uber.com/india-payments/</u></a></p>
+<p>[29] Scaling Airbnb’s Payment Platform:<br>
+<a href="https://medium.com/airbnb-engineering/scaling-airbnbs-payment-platform-43ebfc99b324" target="_blank" rel="noopener noreferrer"><u>https://medium.com/airbnb-engineering/scaling-airbnbs-payment-platform-43ebfc99b324</u></a></p>
+<p>[30] Payments Integration at Uber: A Case Study:<br>
+<a href="https://www.youtube.com/watch?v=yooCE5B0SRA" target="_blank" rel="noopener noreferrer"><u>https://www.youtube.com/watch?v=yooCE5B0SRA</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="real-time-gaming-leaderboard.html">← Previous</a>
+        <a href="digital-wallet.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

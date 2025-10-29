@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design YouTube - System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../system-design-interview.html">System Design Interview</a> /
+        Design YouTube
+    </div>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="design-a-search-autocomplete-system.html">← Previous</a>
+        <a href="design-google-drive.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">15</span> Design YouTube
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/design-youtube" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">15</strong><h1>Design YouTube</h1></header><p>In this chapter, you are asked to design YouTube. The solution to this question can be applied to other interview questions like designing a video sharing platform such as Netflix and Hulu. Figure 1 shows the YouTube homepage.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a screenshot of the YouTube website's homepage.  The left side displays a vertical menu bar with options for 'Sports,' 'Gaming,' 'Movies,' 'TV Shows,' 'News,' 'Live,' 'Fashion,' 'Spotlight,' '360° Video,' 'Browse channels,' and further options under 'MORE FROM YOUTUBE,' including 'YouTube Premium,' 'Live,' 'Settings,' 'Report history,' 'Help,' and 'Send feedback.'  The main area shows a grid of video thumbnails, each with a title, creator's name (often with a verified checkmark), view count, and upload date.  Examples include 'I edited a peppa pig episode cause I didn't know what else to post (part 2)' by Steph Inc., '14-year-old Alysa Liu makes history again at 2020 Nationals | NBC Sports' by NBC Sports, 'Building A Large Post Frame Garage Full Time-lapse Construction: NEVER...' by RR Buildings, and '3 Cool Gadgets - You Can Only Pick One.' by Unbox Therapy.  Each thumbnail displays a video duration.  At the top, a search bar is present with a search icon, and the user's profile icon is visible in the upper right corner, along with other settings icons.  The videos are arranged in a grid format, and no explicit connections are shown between them beyond their shared presence on the homepage.  Information flow is implicit; the user interacts with the menu and thumbnails to select and view videos." width="750" height="336" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-1-POM4N7ME.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1</figcaption></div></figure>
+<p>YouTube looks simple: content creators upload videos and viewers click play. Is it really that simple? Not really. There are lots of complex technologies underneath the simplicity. Let us look at some impressive statistics, demographics, and fun facts of YouTube in 2020 [1] [2].</p>
+<ul>
+<li>
+<p>Total number of monthly active users: 2 billion.</p>
+</li>
+<li>
+<p>Number of videos watched per day: 5 billion.</p>
+</li>
+<li>
+<p>73% of US adults use YouTube.</p>
+</li>
+<li>
+<p>50 million creators on YouTube</p>
+</li>
+<li>
+<p>YouTube’s Ad revenue was $15.1 billion for the full year 2019, up 36% from 2018.</p>
+</li>
+<li>
+<p>YouTube is responsible for 37% of all mobile internet traffic.</p>
+</li>
+<li>
+<p>YouTube is available in 80 different languages.</p>
+</li>
+</ul>
+<p>From these statistics, we know YouTube is enormous, global and makes a lot of money.</p>
+<h2 id="step-1---understand-the-problem-and-establish-design-scope">Step 1 - Understand the problem and establish design scope</h2>
+<p>As revealed in Figure 1, besides watching a video, you can do a lot more on YouTube. For example, comment, share, or like a video, save a video to playlists, subscribe to a channel, etc. It is impossible to design everything within a 45- or 60-minute interview. Thus, it is important to ask questions to narrow down the scope.</p>
+<p><strong>Candidate</strong>: What features are important?<br>
+<strong>Interviewer</strong>: Ability to upload a video and watch a video.</p>
+<p><strong>Candidate</strong>: What clients do we need to support?<br>
+<strong>Interviewer</strong>: Mobile apps, web browsers, and smart TV.</p>
+<p><strong>Candidate</strong>: How many daily active users do we have?<br>
+<strong>Interviewer</strong>: 5 million</p>
+<p><strong>Candidate</strong>: What is the average daily time spent on the product?<br>
+<strong>Interviewer</strong>: 30 minutes.</p>
+<p><strong>Candidate</strong>: Do we need to support international users?<br>
+<strong>Interviewer</strong>: Yes, a large percentage of users are international users.</p>
+<p><strong>Candidate</strong>: What are the supported video resolutions?<br>
+<strong>Interviewer</strong>: The system accepts most of the video resolutions and formats.</p>
+
+<p><strong>Candidate</strong>: Is encryption required?<br>
+<strong>Interviewer</strong>: Yes</p>
+<p><strong>Candidate</strong>: Any file size requirement for videos?<br>
+<strong>Interviewer</strong>: Our platform focuses on small and medium-sized videos. The maximum allowed video size is 1GB.</p>
+<p><strong>Candidate</strong>: Can we leverage some of the existing cloud infrastructures provided by Amazon, Google, or Microsoft?<br>
+<strong>Interviewer</strong>: That is a great question. Building everything from scratch is unrealistic for most companies, it is recommended to leverage some of the existing cloud services.</p>
+<p>In the chapter, we focus on designing a video streaming service with the following features:</p>
+<ul>
+<li>
+<p>Ability to upload videos fast</p>
+</li>
+<li>
+<p>Smooth video streaming</p>
+</li>
+<li>
+<p>Ability to change video quality</p>
+</li>
+<li>
+<p>Low infrastructure cost</p>
+</li>
+<li>
+<p>High availability, scalability, and reliability requirements</p>
+</li>
+<li>
+<p>Clients supported: mobile apps, web browser, and smart TV</p>
+</li>
+</ul>
+<h3 id="back-of-the-envelope-estimation">Back of the envelope estimation</h3>
+<p>The following estimations are based on many assumptions, so it is important to communicate with the interviewer to make sure she is on the same page.</p>
+<ul>
+<li>
+<p>Assume the product has 5 million daily active users (DAU).</p>
+</li>
+<li>
+<p>Users watch 5 videos per day.</p>
+</li>
+<li>
+<p>10% of users upload 1 video per day.</p>
+</li>
+<li>
+<p>Assume the average video size is 300 MB.</p>
+</li>
+<li>
+<p>Total daily storage space needed: 5 million * 10% * 300 MB = 150TB</p>
+</li>
+<li>
+<p>CDN cost.</p>
+</li>
+<li>
+<p>When cloud CDN serves a video, you are charged for data transferred out of the CDN.</p>
+</li>
+<li>
+<p>Let us use Amazon’s CDN CloudFront for cost estimation (Figure 2) [3]. Assume 100% of traffic is served from the United States. The average cost per GB is $0.02. For simplicity, we only calculate the cost of video streaming.</p>
+</li>
+<li>
+<p>5 million * 5 videos * 0.3GB * <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0.02</mn><mo>=</mo></mrow><annotation encoding="application/x-tex">0.02 = </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6444em;"></span><span class="mord">0.02</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span></span></span></span>150,000 per day.</p>
+</li>
+</ul>
+<p>From the rough cost estimation, we know serving videos from the CDN costs lots of money. Even though cloud providers are willing to lower the CDN costs significantly for big customers, the cost is still substantial. We will discuss ways to reduce CDN costs in deep dive.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a table displaying pricing for cloud storage, differentiated by geographic region and data volume tiers.  The first column, 'Per Month,' indicates the pricing is per month. Subsequent columns represent different geographic regions: 'United States &amp; Canada,' 'Europe &amp; Israel,' 'South Africa, Kenya, &amp; Middle East,' 'South America,' 'Japan,' 'Australia,' 'Singapore, South Korea, Taiwan, Hong Kong, &amp; Philippines,' and 'India.'  Rows represent tiered data storage volumes: 'First 10TB,' 'Next 40TB,' 'Next 100TB,' 'Next 350TB,' 'Next 524TB,' 'Next 4PB,' and 'Over 5PB.' Each cell at the intersection of a region and volume tier shows the price (in USD) for that specific tier in that region.  For example, the price for the 'First 10TB' in 'United States &amp; Canada' is $0.085, while the price for 'Next 4PB' in 'India' is $0.100.  The table clearly shows that pricing varies significantly across regions, with prices generally higher in Asia and lower in the Americas and Europe." loading="lazy" width="750" height="260" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(750px, 100vw), (max-width: 1200px) min(750px, 80vw), min(750px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-2-DVJHFDA4.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2</figcaption></div></figure>
+<h2 id="step-2---propose-high-level-design-and-get-buy-in">Step 2 - Propose high-level design and get buy-in</h2>
+<p>As discussed previously, the interviewer recommended leveraging existing cloud services instead of building everything from scratch. CDN and blob storage are the cloud services we will leverage. Some readers might ask why not building everything by ourselves? Reasons are listed below:</p>
+<ul>
+<li>
+<p>System design interviews are not about building everything from scratch. Within the limited time frame, choosing the right technology to do a job right is more important than explaining how the technology works in detail. For instance, mentioning blob storage for storing source videos is enough for the interview. Talking about the detailed design for blob storage could be an overkill.</p>
+</li>
+<li>
+<p>Building scalable blob storage or CDN is extremely complex and costly. Even large companies like Netflix or Facebook do not build everything themselves. Netflix leverages Amazon’s cloud services [4], and Facebook uses Akamai’s CDN [5].</p>
+</li>
+</ul>
+<p>At the high-level, the system comprises three components (Figure 3).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram.  A light-blue rectangular box labeled 'Client' contains icons representing a laptop, a smartphone, and a TV set, indicating various client devices accessing the system.  From this 'Client' box, two arrows extend downwards. The left arrow, labeled 'streaming video,' points to a light-blue cloud icon with a lightning bolt inside, labeled 'CDN' (Content Delivery Network), suggesting that video content is delivered via a CDN. The right arrow, labeled 'everything else,' points to a light-green box containing three stacked server icons, labeled 'API servers,' indicating that all other requests are handled by application programming interfaces hosted on these servers.  The dashed lines around the CDN and API servers suggest these are separate components or clusters within the overall system.  The diagram illustrates a client-server architecture where video streaming is optimized through a CDN, while other functionalities are managed by the API servers." loading="lazy" width="400" height="274" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(400px, 100vw), (max-width: 1200px) min(400px, 80vw), min(400px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-3-S2A555CM.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3</figcaption></div></figure>
+<p><strong>Client</strong>: You can watch YouTube on your computer, mobile phone, and smartTV.</p>
+<p><strong>CDN</strong>: Videos are stored in CDN. When you press play, a video is streamed from the CDN.</p>
+<p><strong>API servers</strong>: Everything else except video streaming goes through API servers. This includes feed recommendation, generating video upload URL, updating metadata database and cache, user signup, etc.</p>
+<p>In the question/answer session, the interviewer showed interests in two flows:</p>
+<ul>
+<li>
+<p>Video uploading flow</p>
+</li>
+<li>
+<p>Video streaming flow</p>
+</li>
+</ul>
+<p>We will explore the high-level design for each of them.</p>
+<h3 id="video-uploading-flow">Video uploading flow</h3>
+<p>Figure 4 shows the high-level design for the video uploading.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for video transcoding.  The process begins with a user (represented by icons for TV, laptop, and mobile phone) accessing the system through a load balancer that distributes requests to multiple API servers.  These servers interact with a Metadata Cache (containing three CACHE blocks) and a Metadata DB for video information.  The original video is fetched from an 'Original storage' (depicted as a bucket with shapes inside).  The API servers then direct the transcoding process to 'Transcoding servers' (three server icons). Upon completion of transcoding, signaled by a 'transcoding complete' message, the information is added to a 'Completion queue' (three mail icons). A 'Completion handler' (three document icons) processes this queue, and the transcoded video is stored in 'Transcoded storage' (another bucket icon), finally being delivered to users via a CDN (cloud icon with a lightning bolt).  The entire flow is depicted using boxes and arrows, showing the data flow and interactions between different components." loading="lazy" width="600" height="764" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-4-ADSJBRI3.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4</figcaption></div></figure>
+<p>It consists of the following components:</p>
+<ul>
+<li>
+<p>User: A user watches YouTube on devices such as a computer, mobile phone, or smart TV.</p>
+</li>
+<li>
+<p>Load balancer: A load balancer evenly distributes requests among API servers.</p>
+</li>
+<li>
+<p>API servers: All user requests go through API servers except video streaming.</p>
+</li>
+<li>
+<p>Metadata DB: Video metadata are stored in Metadata DB. It is sharded and replicated to meet performance and high availability requirements.</p>
+</li>
+<li>
+<p>Metadata cache: For better performance, video metadata and user objects are cached.</p>
+</li>
+<li>
+<p>Original storage: A blob storage system is used to store original videos. A quotation in Wikipedia regarding blob storage shows that: “A Binary Large Object (BLOB) is a collection of binary data stored as a single entity in a database management system” [6].</p>
+</li>
+<li>
+<p>Transcoding servers: Video transcoding is also called video encoding. It is the process of converting a video format to other formats (MPEG, HLS, etc), which provide the best video streams possible for different devices and bandwidth capabilities.</p>
+</li>
+<li>
+<p>Transcoded storage: It is a blob storage that stores transcoded video files.</p>
+</li>
+<li>
+<p>CDN: Videos are cached in CDN. When you click the play button, a video is streamed from the CDN.</p>
+</li>
+<li>
+<p>Completion queue: It is a message queue that stores information about video transcoding completion events.</p>
+</li>
+<li>
+<p>Completion handler: This consists of a list of workers that pull event data from the completion queue and update metadata cache and database.</p>
+</li>
+</ul>
+<p>Now that we understand each component individually, let us examine how the video uploading flow works. The flow is broken down into two processes running in parallel.</p>
+<p>a. Upload the actual video.</p>
+<p>b. Update video metadata. Metadata contains information about video URL, size, resolution, format, user info, etc.</p>
+<h4 id="flow-a-upload-the-actual-video">Flow a: upload the actual video</h4>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for video transcoding and delivery.  A user (accessing via TV, laptop, or mobile) initiates a request (1) to retrieve a video from the original storage (represented by a bucket icon). This request goes through a load balancer (4) which distributes the traffic to API servers. The API servers interact with a Metadata Cache and a Metadata DB to retrieve video information. The original video is then fetched (2) and sent to transcoding servers (3) which process the video. Upon completion (3b), a 'transcoding complete' message is sent to a Completion queue.  The Completion handler (3b.1) processes this message, updating the Metadata DB (3b.1.a and 3b.1.b). Finally, the transcoded video (3a) is stored in transcoded storage (another bucket icon) and then pushed to a CDN (3a.1) for efficient content delivery to the user.  The Metadata Cache improves performance by caching frequently accessed metadata.  The numbered arrows indicate the flow of information and requests between components." loading="lazy" width="600" height="760" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-5-PWL5A5PM.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5</figcaption></div></figure>
+<p>Figure 5 shows how to upload the actual video. The explanation is shown below:</p>
+<p>1. Videos are uploaded to the original storage.</p>
+<p>2. Transcoding servers fetch videos from the original storage and start transcoding.</p>
+<p>3. Once transcoding is complete, the following two steps are executed in parallel:</p>
+<ul>
+<li>
+<p>3a. Transcoded videos are sent to transcoded storage.</p>
+</li>
+<li>
+<p>3b. Transcoding completion events are queued in the completion queue.</p>
+<p>3a.1. Transcoded videos are distributed to CDN.</p>
+<p>3b.1. Completion handler contains a bunch of workers that continuously pull event data from the queue.</p>
+<p>3b.1.a. and 3b.1.b. Completion handler updates the metadata database and cache when video transcoding is complete.</p>
+</li>
+</ul>
+<p>4. API servers inform the client that the video is successfully uploaded and is ready for streaming.</p>
+<h4 id="flow-b-update-the-metadata">Flow b: update the metadata</h4>
+<p>While a file is being uploaded to the original storage, the client in parallel sends a request to update the video metadata as shown in Figure 6. The request contains video metadata, including file name, size, format, etc. API servers update the metadata cache and database.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture for managing metadata.  Users (represented by icons for TV, laptop, and mobile phone) initiate requests to update metadata. These requests are sent to a load balancer, which distributes the traffic across multiple API servers.  The API servers are responsible for processing the metadata updates.  To improve performance, the system incorporates a Metadata Cache, which stores frequently accessed metadata.  If the API servers cannot find the requested metadata in the cache, they retrieve it from the Metadata DB, a database storing all metadata.  The arrows indicate the flow of information, showing how user requests travel through the load balancer to the API servers, which then interact with the cache and database as needed.  The dashed line around the API servers highlights them as a cluster." loading="lazy" width="335" height="606" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(335px, 100vw), (max-width: 1200px) min(335px, 80vw), min(335px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-6-IK5S43FH.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6</figcaption></div></figure>
+<h3 id="video-streaming-flow">Video streaming flow</h3>
+<p>Whenever you watch a video on YouTube, it usually starts streaming immediately and you do not wait until the whole video is downloaded. Downloading means the whole video is copied to your device, while streaming means your device continuously receives video streams from remote source videos. When you watch streaming videos, your client loads a little bit of data at a time so you can watch videos immediately and continuously.</p>
+<p>Before we discuss video streaming flow, let us look at an important concept: streaming protocol. This is a standardized way to control data transfer for video streaming. Popular streaming protocols are:</p>
+<ul>
+<li>
+<p>MPEG–DASH. MPEG stands for “Moving Picture Experts Group” and DASH stands for "Dynamic Adaptive Streaming over HTTP".</p>
+</li>
+<li>
+<p>Apple HLS. HLS stands for “HTTP Live Streaming”.</p>
+</li>
+<li>
+<p>Microsoft Smooth Streaming.</p>
+</li>
+<li>
+<p>Adobe HTTP Dynamic Streaming (HDS).</p>
+</li>
+</ul>
+<p>You do not need to fully understand or even remember those streaming protocol names as they are low-level details that require specific domain knowledge. The important thing here is to understand that different streaming protocols support different video encodings and playback players. When we design a video streaming service, we have to choose the right streaming protocol to support our use cases. To learn more about streaming protocols, here is an excellent article [7].</p>
+<p>Videos are streamed from CDN directly. The edge server closest to you will deliver the video. Thus, there is very little latency. Figure 7 shows a high level of design for video streaming.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple client-server architecture for streaming video.  A light-blue rectangular box labeled 'Client' contains icons representing a laptop, a smartphone, and a smart TV, indicating that these devices can all access the service. A downward-pointing arrow, labeled 'streaming video,' connects the Client box to a dashed-line box representing a Content Delivery Network (CDN). This CDN box is light-blue and depicts a cloud with a lightning bolt inside, symbolizing fast data delivery. The overall diagram illustrates how multiple client devices request and receive streaming video content from a CDN, which is optimized for fast content distribution." loading="lazy" width="320" height="391" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(320px, 100vw), (max-width: 1200px) min(320px, 80vw), min(320px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-7-25E4UND4.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7</figcaption></div></figure>
+<h2 id="step-3---design-deep-dive">Step 3 - Design deep dive</h2>
+<p>In the high-level design, the entire system is broken down in two parts: video uploading flow and video streaming flow. In this section, we will refine both flows with important optimizations and introduce error handling mechanisms.</p>
+<h3 id="video-transcoding">Video transcoding</h3>
+<p>When you record a video, the device (usually a phone or camera) gives the video file a certain format. If you want the video to be played smoothly on other devices, the video must be encoded into compatible bitrates and formats. Bitrate is the rate at which bits are processed over time. A higher bitrate generally means higher video quality. High bitrate streams need more processing power and fast internet speed.</p>
+<p>Video transcoding is important for the following reasons:</p>
+<ul>
+<li>
+<p>Raw video consumes large amounts of storage space. An hour-long high definition video recorded at 60 frames per second can take up a few hundred GB of space.</p>
+</li>
+<li>
+<p>Many devices and browsers only support certain types of video formats. Thus, it is important to encode a video to different formats for compatibility reasons.</p>
+</li>
+<li>
+<p>To ensure users watch high-quality videos while maintaining smooth playback, it is a good idea to deliver higher resolution video to users who have high network bandwidth and lower resolution video to users who have low bandwidth.</p>
+</li>
+<li>
+<p>Network conditions can change, especially on mobile devices. To ensure a video is played continuously, switching video quality automatically or manually based on network conditions is essential for smooth user experience.</p>
+</li>
+</ul>
+<p>Many types of encoding formats are available; however, most of them contain two parts:</p>
+<ul>
+<li>
+<p>Container: This is like a basket that contains the video file, audio, and metadata. You can tell the container format by the file extension, such as .avi, .mov, or .mp4.</p>
+</li>
+<li>
+<p>Codecs: These are compression and decompression algorithms aim to reduce the video size while preserving the video quality. The most used video codecs are H.264, VP9, and HEVC.</p>
+</li>
+</ul>
+<h3 id="directed-acyclic-graph-dag-model">Directed acyclic graph (DAG) model</h3>
+<p>Transcoding a video is computationally expensive and time-consuming. Besides, different content creators may have different video processing requirements. For instance, some content creators require watermarks on top of their videos, some provide thumbnail images themselves, and some upload high definition videos, whereas others do not.</p>
+<p>To support different video processing pipelines and maintain high parallelism, it is important to add some level of abstraction and let client programmers define what tasks to execute. For example, Facebook’s streaming video engine uses a directed acyclic graph (DAG) programming model, which defines tasks in stages so they can be executed sequentially or parallelly [8]. In our design, we adopt a similar DAG model to achieve flexibility and parallelism. Figure 8 represents a DAG for video transcoding.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video production.  An 'Original video' block feeds into two parallel processing paths. The first path extracts the 'Video' stream, which then feeds into a 'Tasks' group. This group contains several sequential processing steps: 'Inspection', 'Video...' (suggesting further video processing), 'Thumbnail' generation, and finally 'Watermark' addition.  The second path extracts the 'Audio' stream, which undergoes processing in an 'Audio...' block.  The 'Metadata' from the original video is also extracted separately.  Finally, the processed 'Video...' stream from the 'Tasks' group, the processed 'Audio...' stream, and the 'Metadata' are all combined in an 'Assemble' block to create the final output video.  The connections between blocks are represented by arrows indicating the flow of data.  The 'Tasks' group is visually separated by a dashed line." loading="lazy" width="700" height="486" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-8-6TUJKWRP.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8</figcaption></div></figure>
+<p>In Figure 8, the original video is split into video, audio, and metadata. Here are some of the tasks that can be applied on a video file:</p>
+<ul>
+<li>
+<p>Inspection: Make sure videos have good quality and are not malformed.</p>
+</li>
+<li>
+<p>Video encodings: Videos are converted to support different resolutions, codec, bitrates, etc. Figure 9 shows an example of video encoded files.</p>
+</li>
+<li>
+<p>Thumbnail. Thumbnails can either be uploaded by a user or automatically generated by the system.</p>
+</li>
+<li>
+<p>Watermark: An image overlay on top of your video contains identifying information about your video.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram of a video delivery system.  A central rectangular box labeled 'Video...' acts as the source, representing a video file needing to be delivered in various resolutions.  From this source, five horizontal lines extend to the right, each connecting to a separate rectangular box representing different video quality levels. These boxes are labeled '360p.mp4', '480p.mp4', '720p.mp4', '1080p.mp4', and '4k.mp4', indicating the resolution of each video file.  The arrows on the lines indicate the direction of data flow, showing that the source provides the video file in multiple resolutions.  At the bottom of the diagram, a small text note reads 'Viewer does not support full SVG 1.1', suggesting a limitation of the video player that might affect the display of certain video metadata or formats." loading="lazy" width="401" height="386" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-9-363XWSRP.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9</figcaption></div></figure>
+<h3 id="video-transcoding-architecture">Video transcoding architecture</h3>
+<p>The proposed video transcoding architecture that leverages the cloud services, is shown in Figure 10.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video encoding.  The pipeline begins with a 'Preprocessor' component, which feeds data into a 'DAG scheduler'. The scheduler then passes the processed data to a 'Resource manager', which allocates resources for the next stage.  The 'Resource manager' outputs data to 'Task workers', which perform the actual video encoding. The encoded video is then outputted as 'Encoded video'.  Separately, a direct connection exists from the 'Preprocessor' to a 'Temporary...' storage component, suggesting intermediate results or data are stored temporarily. Finally, the 'Task workers' send their output back to the 'Temporary...' storage, implying that the encoded video might be stored there before final delivery.  The arrows indicate the direction of data flow between components.  A note at the bottom indicates that the viewer does not fully support the SVG format of the diagram." loading="lazy" width="700" height="246" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-10-YWOCJMVV.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10</figcaption></div></figure>
+<p>The architecture has six main components: preprocessor, DAG scheduler, resource manager, task workers, temporary storage, and encoded video as the output. Let us take a close look at each component.</p>
+<h4 id="preprocessor">Preprocessor</h4>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video encoding.  The pipeline begins with a `Preprocessor` (light blue box) which feeds data into a `DAG scheduler` (light teal box). The scheduler then passes the data to a `Resource manager` (light teal box), which in turn sends tasks to `Task workers` (light teal box).  The `Task workers` process the data and produce an `Encoded video` (light teal box).  Separately, a direct connection exists from the `Preprocessor` to a `Temporary...` storage (light teal box), suggesting intermediate data is stored there. Finally, a vertical connection shows data flowing from the `Task workers` back to the `Temporary...` storage, implying that the results of the task workers are also stored temporarily.  The text 'Viewer does not support full SVG 1.1' is present below the diagram, indicating a limitation of the viewer used to display the image." loading="lazy" width="700" height="246" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-11-VKQRKCM2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11</figcaption></div></figure>
+<p>The preprocessor has 4 responsibilities:</p>
+<p>1. Video splitting. Video stream is split or further split into smaller Group of Pictures (GOP) alignment. GOP is a group/chunk of frames arranged in a specific order. Each chunk is an independently playable unit, usually a few seconds in length.</p>
+<p>2. Some old mobile devices or browsers might not support video splitting. Preprocessor split videos by GOP alignment for old clients.</p>
+<p>3. DAG generation. The processor generates DAG based on configuration files client programmers write. Figure 12 is a simplified DAG representation which has 2 nodes and 1 edge:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified data flow diagram showing a two-stage process.  The diagram consists of two rectangular boxes with rounded corners, connected by a directed arrow. The first box is labeled 'Download,' indicating a stage where data is retrieved.  Below this label, smaller text reads 'Viewer does not support full SVG 1.1,' suggesting a constraint or limitation on the input data's format. The second box is labeled 'Transcode,' signifying a subsequent stage where the downloaded data is converted or processed into a different format.  A solid blue arrow points from the 'Download' box to the 'Transcode' box, illustrating the unidirectional flow of data from the download stage to the transcoding stage.  The overall diagram depicts a sequence where data is first downloaded and then undergoes a transcoding process, likely due to compatibility issues as indicated by the text under the 'Download' box." loading="lazy" width="277" height="48" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-12-FKWX3DRN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12</figcaption></div></figure>
+<p>This DAG representation is generated from the two configuration files below (Figure 13):</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a pair of code snippets, likely depicting two sequential tasks within a workflow, possibly for video processing.  Each snippet defines a 'task' with attributes 'name' and 'type'. The left snippet defines a 'download-input' task of type 'Download', taking a URL from 'config.url' as input and assigning the downloaded file (it.file) to 'context.inputVideo' in the output.  The 'next' attribute specifies 'transcode' as the subsequent task. The right snippet defines a 'transcode' task of type 'Transcode', taking 'context.inputVideo' and 'config.transConfig' as input and assigning the transcoded video (it.outputVideo) to 'context.file' in the output.  Both snippets include a three-color indicator (red, yellow, green) at the top, possibly representing task status (e.g., failed, running, success). The overall structure suggests a data flow where the output of the 'download-input' task feeds into the input of the 'transcode' task, forming a pipeline." loading="lazy" width="700" height="263" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-13-LRTFEHXK.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13 (source: [9])</figcaption></div></figure>
+<p>4. Cache data. The preprocessor is a cache for segmented videos. For better reliability, the preprocessor stores GOPs and metadata in temporary storage. If video encoding fails, the system could use persisted data for retry operations.</p>
+<h4 id="dag-scheduler">DAG scheduler</h4>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video encoding.  The pipeline begins with a 'Preprocessor' component, which feeds data into a 'DAG scheduler'.  The DAG scheduler, depicted in light blue, then passes the scheduled tasks to a 'Resource manager' component.  The resource manager allocates resources and sends the tasks to 'Task workers'.  The task workers perform the video encoding, and the results are sent to an 'Encoded video' component.  Separately, a direct connection exists from the 'Preprocessor' to a 'Temporary...' component, suggesting temporary storage or intermediate processing steps. Finally, the 'Task workers' send their output to the 'Temporary...' component, indicating that the encoded video might be temporarily stored before reaching the final 'Encoded video' destination.  The text 'Viewer does not support full SVG 1.1' is present below the diagram, indicating a limitation of the viewer used to display the image." loading="lazy" width="700" height="246" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-14-TZNQCING.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14</figcaption></div></figure>
+<p>The DAG scheduler splits a DAG graph into stages of tasks and puts them in the task queue in the resource manager. Figure 15 shows an example of how the DAG scheduler works.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline managed by a DAG (Directed Acyclic Graph) scheduler.  The pipeline is divided into two stages.  The process begins with an 'Original...' input (presumably a raw media file) which is fed into Stage 1.  In Stage 1, the original input is processed into three separate streams: 'Video,' 'Audio,' and 'Metadata.'  These streams are then passed to Stage 2. In Stage 2, the 'Video' stream is further processed into a 'Video...' output (likely a processed or encoded video file).  The 'Audio' stream is processed into an 'Audio...' output (likely a processed or encoded audio file).  Additionally, a 'Thumbnail' is generated from the 'Video' stream in Stage 2.  The dashed vertical lines separate the stages, illustrating the flow of data from one stage to the next.  The entire pipeline is enclosed within a rounded rectangle labeled 'DAG scheduler,' indicating the overall management of the workflow." loading="lazy" width="677" height="400" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-15-DBQMPINY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15</figcaption></div></figure>
+<p>As shown in Figure 15, the original video is split into three stages: Stage 1: video, audio, and metadata. The video file is further split into two tasks in stage 2: video encoding and thumbnail. The audio file requires audio encoding as part of the stage 2 tasks.</p>
+<h4 id="resource-manager">Resource manager</h4>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video encoding.  The pipeline begins with a `Preprocessor` which feeds data into a `DAG scheduler`. The scheduler, in turn, interacts with a `Resource manager` to allocate resources for the encoding tasks.  The `Resource manager` then sends tasks to `Task workers`, which perform the actual video encoding. The output of the `Task workers` is an `Encoded video`.  A separate connection runs from the `Preprocessor` directly to a `Temporary...` storage (the ellipsis suggests a truncated label, possibly indicating a temporary storage location or file system). Finally, there's a vertical connection from the `Task workers` back to the `Temporary...` storage, implying that intermediate or final results are stored there.  The text 'Viewer does not support full SVG 1.1' at the bottom indicates a limitation of the viewer used to display the diagram, not a component of the pipeline itself.  All connections are represented by arrows indicating the direction of data flow." loading="lazy" width="700" height="246" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-16-D65ZJKSR.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16</figcaption></div></figure>
+<p>The resource manager is responsible for managing the efficiency of resource allocation. It contains 3 queues and a task scheduler as shown in Figure 17.</p>
+<ul>
+<li>
+<p>Task queue: It is a priority queue that contains tasks to be executed.</p>
+</li>
+<li>
+<p>Worker queue: It is a priority queue that contains worker utilization info.</p>
+</li>
+<li>
+<p>Running queue: It contains info about the currently running tasks and workers running the tasks.</p>
+</li>
+</ul>
+<p>•Task scheduler: It picks the optimal task/worker, and instructs the chosen task worker to execute the job.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for task scheduling and execution.  The system is composed of three main components: a Resource Manager, a Task Scheduler, and a set of Task Workers.  Three queues—Task queue, Worker queue, and Running queue—are depicted as sources of tasks and worker information. The Resource Manager interacts with these queues, selecting the highest priority task from the Task queue and the optimal worker from the Worker queue.  This information is then passed to the Task Scheduler, which, in turn, sends the selected task to an appropriate Task Worker ('run task'). The Task Scheduler also receives task/worker information from the Running queue. The Task Workers are represented as four distinct units: Watermark, Encoder, Thumbnail, and Merger, suggesting different processing functions.  The dashed lines around the Task Scheduler and Task Workers indicate logical groupings.  The arrows show the flow of information and tasks between components." loading="lazy" width="750" height="237" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-17-RHMGJC6L.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17</figcaption></div></figure>
+<p>The resource manager works as follows:</p>
+<ul>
+<li>
+<p>The task scheduler gets the highest priority task from the task queue.</p>
+</li>
+<li>
+<p>The task scheduler gets the optimal task worker to run the task from the worker queue.</p>
+</li>
+<li>
+<p>The task scheduler instructs the chosen task worker to run the task.</p>
+</li>
+<li>
+<p>The task scheduler binds the task/worker info and puts it in the running queue.</p>
+</li>
+<li>
+<p>The task scheduler removes the job from the running queue once the job is done.</p>
+</li>
+</ul>
+<h4 id="task-workers">Task workers</h4>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video encoding.  The pipeline begins with a 'Preprocessor' component, which feeds data into a 'DAG scheduler'. The scheduler then passes the data to a 'Resource manager', which in turn sends it to 'Task workers'.  These workers process the data, and the results are sent to a 'Temporary...' storage location (the exact name is truncated).  Finally, the processed data, representing the 'Encoded video', is output from the 'Task workers'.  The 'Preprocessor' is connected to the 'Temporary...' storage via a separate, direct connection, suggesting a possible bypass or alternative data path.  The entire flow is depicted using rectangular boxes representing components and arrows indicating the direction of data flow.  A note at the bottom indicates that the viewer does not fully support the SVG format of the image." loading="lazy" width="700" height="246" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-18-24OH4P2W.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18</figcaption></div></figure>
+<p>Task workers run the tasks which are defined in the DAG. Different task workers may run different tasks as shown in Figure 19.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified architecture diagram of a task worker system, likely within a larger media processing pipeline.  The diagram is enclosed by a dashed-line box labeled 'Task workers'. Inside, four identical-looking green boxes, each representing a specific task worker, are arranged in a 2x2 grid.  Each box contains a stacked icon suggesting multiple processing units within each worker.  The top-left box is labeled 'Watermark', the top-right 'Encoder', the bottom-left 'Thumbnail', and the bottom-right 'Merger'.  An ellipsis ('...') between the top and bottom rows indicates that more task workers of similar design might exist beyond those shown.  The diagram's caption, 'Viewer does not support full SVG 1.1', suggests a limitation in the visualization tool used to create the diagram, not a limitation within the system itself.  No explicit data flow is shown between the workers, implying that the interaction is implicit or handled by a higher-level orchestrator not depicted in this simplified view." loading="lazy" width="230" height="242" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-19-Y5ZPZAJT.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19</figcaption></div></figure>
+<h4 id="temporary-storage">Temporary storage</h4>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video encoding.  The pipeline begins with a 'Preprocessor' component, which feeds data into a 'DAG scheduler'. The scheduler then passes the data to a 'Resource manager', which allocates resources for the next stage.  The 'Resource manager' outputs data to 'Task workers', which perform the actual video encoding. The encoded video is then outputted as 'Encoded video'.  Separately, a line connects the 'Preprocessor' to a 'Temporary...' storage component, suggesting intermediate results or data are stored temporarily before proceeding to the next stages.  Finally, an upward arrow indicates that the 'Task workers' send data back to the 'Temporary...' storage, possibly for aggregation or further processing.  The flow is unidirectional between each component except for the feedback loop between 'Task workers' and 'Temporary...'." loading="lazy" width="700" height="246" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-20-VAG7ZAYZ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20</figcaption></div></figure>
+<p>Multiple storage systems are used here. The choice of storage system depends on factors like data type, data size, access frequency, data life span, etc. For instance, metadata is frequently accessed by workers, and the data size is usually small. Thus, caching metadata in memory is a good idea. For video or audio data, we put them in blob storage. Data in temporary storage is freed up once the corresponding video processing is complete.</p>
+<h4 id="encoded-video">Encoded video</h4>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data processing pipeline for video encoding.  The pipeline begins with a 'Preprocessor' component, which processes the raw video data.  The output of the preprocessor feeds into a 'DAG scheduler', responsible for orchestrating the subsequent tasks according to a directed acyclic graph (DAG). The DAG scheduler then passes the scheduled tasks to a 'Resource manager' component, which allocates resources (e.g., computing power) to the tasks.  The resource manager's output is sent to 'Task workers', which perform the actual video encoding operations.  The encoded video segments are then sent to a 'Temporary...' storage (likely a temporary storage location), and finally, the fully encoded video is outputted as 'Encoded video'.  A single line connects the 'Preprocessor' directly to the 'Temporary...' storage, suggesting a possible alternative or parallel processing path.  The text 'Viewer does not support full SVG 1.1' indicates a limitation of the viewer used to display the diagram, not a component of the pipeline itself." loading="lazy" width="700" height="246" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-21-AZ4TQFF2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21</figcaption></div></figure>
+<p>Encoded video is the final output of the encoding pipeline. Here is an example of the output: funny_720p.mp4.</p>
+<h3 id="system-optimizations">System optimizations</h3>
+<p>At this point, you ought to have good understanding about the video uploading flow, video streaming flow and video transcoding. Next, we will refine the system with optimizations, including speed, safety, and cost-saving.</p>
+<h4 id="speed-optimization-parallelize-video-uploading">Speed optimization: parallelize video uploading</h4>
+<p>Uploading a video as a whole unit is inefficient. We can split a video into smaller chunks by GOP alignment as shown in Figure 22.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a process of splitting a video into smaller segments.  A rectangular box labeled 'Original video' containing a blue video camera icon represents the input video. A thin, blue arrow connects this box to another rectangular area divided into multiple smaller, equal-sized rectangles.  Each smaller rectangle is labeled sequentially as 'GOP 1,' 'GOP 2,' ..., 'GOP N,' representing individual Group of Pictures (GOPs). The text 'Split by GOP alignme...' above the arrow indicates that the original video is being split based on GOP alignment. Below the arrow, the text 'Viewer does not support full SVG 1.1' suggests a limitation in the visualization tool.  The overall diagram illustrates the process of segmenting a video stream into manageable GOP units for processing or transmission." loading="lazy" width="691" height="91" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-22-3EM25VLA.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 22</figcaption></div></figure>
+<p>This allows fast resumable uploads when the previous upload failed. The job of splitting a video file by GOP can be implemented by the client to improve the upload speed as shown in Figure 23.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating data distribution from an original storage to multiple clients.  A green bucket icon labeled 'Original storage' contains various geometric shapes, symbolizing data.  Three rectangular boxes labeled 'GOP1,' 'GOP2,' and 'GOP3' represent three separate data distribution points or servers.  Data flows unidirectionally from the 'Original storage' to each of these GOPs, indicated by arrows pointing left.  A light-blue rounded rectangle labeled 'Client' contains icons representing a TV, a laptop, and a smartphone, indicating different client devices.  Data flows unidirectionally from each GOP to the 'Client' block, also shown with arrows pointing left.  The overall structure shows a replication or distribution strategy where the original data is copied to multiple GOPs, which then serve the data to various client devices." loading="lazy" width="500" height="143" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-23-YQDZDVEV.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 23</figcaption></div></figure>
+<h4 id="speed-optimization-place-upload-centers-close-to-users">Speed optimization: place upload centers close to users</h4>
+<p>Another way to improve the upload speed is by setting up multiple upload centers across the globe (Figure 24). People in the United States can upload videos to the North America upload center, and people in China can upload videos to the Asian upload center. To achieve this, we use CDN as upload centers.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a world map illustrating a distributed upload center architecture.  The map shows four colored regions representing geographical locations: the United States (purple), Brazil (light green), China (red), and a region encompassing most of Europe (dark blue).  Each region contains a black dot indicating the location of an upload center.  Four blue circles, labeled 'North America upload center,' 'Asian upload center,' 'Europe upload center,' and 'South America upload center,' are positioned outside the map's boundaries.  Straight blue lines connect each of these labeled upload centers to the corresponding black dot on the map, visually representing a connection or data flow between the geographical location and its designated upload center.  The overall diagram suggests a system where data from various geographical regions is uploaded to geographically distributed centers for processing or storage, likely to improve latency and availability." loading="lazy" width="750" height="532" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-24-LIPZPHHR.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 24</figcaption></div></figure>
+<h4 id="speed-optimization-parallelism-everywhere">Speed optimization: parallelism everywhere</h4>
+<p>Achieving low latency requires serious efforts. Another optimization is to build a loosely coupled system and enable high parallelism.</p>
+<p>Our design needs some modifications to achieve high parallelism. Let us zoom in to the flow of how a video is transferred from original storage to the CDN. The flow is shown in Figure 25, revealing that the output depends on the input of the previous step. This dependency makes parallelism difficult.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a video processing and distribution pipeline.  The process begins with an 'Original storage' block (a green bucket icon), representing the initial storage location of original videos.  These videos are downloaded ('download original se...') by a 'Download...' block (depicted as a stack of green files), which then segments the video ('original segmented v...') and sends the segments to an 'Encoding...' block (a stack of blue files). This block processes the video segments, creating encoded versions ('encoded videos'). The encoded videos are then uploaded ('upload...') to an 'Upload...' block (a stack of orange files), which finally uploads them to a 'CDN' (Content Delivery Network) block (a light blue cloud with a lightning bolt), for efficient distribution to viewers.  Separately, a lower path shows encoded videos being uploaded directly to the 'Encoded...' block (a green bucket icon), suggesting an alternative upload method for already encoded videos.  All blocks are outlined with dashed lines except for the 'Original storage' and 'Encoded...' blocks.  The text labels clearly indicate the data flow and the function of each component." loading="lazy" width="750" height="244" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-25-4VSMBFLW.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 25</figcaption></div></figure>
+<p>To make the system more loosely coupled, we introduced message queues as shown in Figure 26. Let us use an example to explain how message queues make the system more loosely coupled.</p>
+<ul>
+<li>
+<p>Before the message queue is introduced, the encoding module must wait for the output of the download module.</p>
+</li>
+<li>
+<p>After the message queue is introduced, the encoding module does not need to wait for the output of the download module anymore. If there are events in the message queue, the encoding module can execute those jobs in parallel.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating a media processing pipeline.  The process begins with 'Original storage,' depicted as a bucket icon, containing the original media files.  These files are then placed into a 'Message queue' (represented by a series of email icons), triggering the 'Download...' process, a block representing a server cluster that retrieves the files.  After downloading, the files are sent to another 'Message queue,' which feeds into the 'Encoding...' process, another server cluster that encodes the media.  Encoded files are then placed into a third 'Message queue,' leading to the 'Encoded...' storage, another bucket icon representing storage for the processed files.  Finally, the 'Encoded...' files are uploaded to a 'CDN' (Content Delivery Network), represented by a cloud icon with a lightning bolt, via an 'upload...' step.  A separate branch shows a similar process, but instead of encoding, the files are directly uploaded to the CDN after being placed in a message queue and processed by the 'Upload...' server cluster.  The entire system relies on message queues to manage the flow of data between different processing stages." loading="lazy" width="750" height="437" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/design-youtube/figure-14-26-DQ2B7KIJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 26</figcaption></div></figure>
+<h4 id="safety-optimization-pre-signed-upload-url">Safety optimization: pre-signed upload URL</h4>
+<p>Safety is one of the most important aspects of any product. To ensure only authorized users upload videos to the right location, we introduce pre-signed URLs as shown in Figure 27.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture for video uploading.  A user, represented by icons for a TV, laptop, and smartphone, initiates a video upload (labeled '3. upload video'). This action sends a request to a set of 'API servers,' depicted as three stacked green rectangles within a dashed-line box.  The API servers respond with a 'pre-signed URL' (labeled '2. &lt;pre-signed URL&gt;') which the user then uses to upload the video directly to the 'Original storage,' represented by a bucket icon labeled 'Original storage' and connected by an arrow labeled '3. upload video'. The initial user request to the API servers is labeled '1. POST /upload,' indicating a POST HTTP request is used to initiate the upload process.  The overall flow shows a two-step process:  first, obtaining a pre-signed URL from the API servers, and second, using that URL to upload the video to the designated storage location." loading="lazy" width="500" height="287" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-27-GVQ6JW3A.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 27</figcaption></div></figure>
+<p>The upload flow is updated as follows:</p>
+<p>1. The client makes a HTTP request to API servers to fetch the pre-signed URL, which gives the access permission to the object identified in the URL. The term pre-signed URL is used by uploading files to Amazon S3. Other cloud service providers might use a different name. For instance, Microsoft Azure blob storage supports the same feature, but call it “Shared Access Signature” [10].</p>
+<p>2. API servers respond with a pre-signed URL.</p>
+<p>3. Once the client receives the response, it uploads the video using the pre-signed URL.</p>
+<h4 id="safety-optimization-protect-your-videos">Safety optimization: protect your videos</h4>
+<p>Many content makers are reluctant to post videos online because they fear their original videos will be stolen. To protect copyrighted videos, we can adopt one of the following three safety options:</p>
+<ul>
+<li>
+<p>Digital rights management (DRM) systems: Three major DRM systems are Apple FairPlay, Google Widevine, and Microsoft PlayReady.</p>
+</li>
+<li>
+<p>AES encryption: You can encrypt a video and configure an authorization policy. The encrypted video will be decrypted upon playback. This ensures that only authorized users can watch an encrypted video.</p>
+</li>
+<li>
+<p>Visual watermarking: This is an image overlay on top of your video that contains identifying information for your video. It can be your company logo or company name.</p>
+</li>
+</ul>
+<h4 id="cost-saving-optimization">Cost-saving optimization</h4>
+<p>CDN is a crucial component of our system. It ensures fast video delivery on a global scale. However, from the back of the envelope calculation, we know CDN is expensive, especially when the data size is large. How can we reduce the cost?</p>
+<p>Previous research shows that YouTube video streams follow long-tail distribution [11] [12]. It means a few popular videos are accessed frequently but many others have few or no viewers. Based on this observation, we implement a few optimizations:</p>
+<p>1. Only serve the most popular videos from CDN and other videos from our high capacity storage video servers (Figure 28).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture for video streaming.  A central 'User' block depicts a user accessing videos through various devices: a TV set-top box, a laptop, and a smartphone.  This User block connects to two other components.  One connection, labeled 'most popular videos,' points to a dashed-line box labeled 'CDN' (Content Delivery Network), represented as a cloud with a lightning bolt, symbolizing fast content delivery. The other connection, labeled 'other videos,' points to another dashed-line box labeled 'Video servers,' depicted as a cluster of three vertically stacked servers, suggesting a more traditional video storage and delivery system.  The architecture implies that highly popular videos are served from the CDN for faster access, while less popular videos are retrieved directly from the video servers.  The arrows indicate the direction of video data flow from the servers and CDN to the user's devices." loading="lazy" width="450" height="363" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(450px, 100vw), (max-width: 1200px) min(450px, 80vw), min(450px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fdesign-youtube%2Ffigure-14-28-Q7VI7TYL.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 28</figcaption></div></figure>
+<p>2. For less popular content, we may not need to store many encoded video versions. Short videos can be encoded on-demand.</p>
+<p>3. Some videos are popular only in certain regions. There is no need to distribute these videos to other regions.</p>
+<p>4. Build your own CDN like Netflix and partner with Internet Service Providers (ISPs). Building your CDN is a giant project; however, this could make sense for large streaming companies. An ISP can be Comcast, AT&amp;T, Verizon, or other internet providers. ISPs are located all around the world and are close to users. By partnering with ISPs, you can improve the viewing experience and reduce the bandwidth charges.</p>
+<p>All those optimizations are based on content popularity, user access pattern, video size, etc. It is important to analyze historical viewing patterns before doing any optimization. Here are some of the interesting articles on this topic: [12] [13].</p>
+<h3 id="error-handling">Error handling</h3>
+<p>For a large-scale system, system errors are unavoidable. To build a highly fault-tolerant system, we must handle errors gracefully and recover from them fast. Two types of errors exist:</p>
+<ul>
+<li>
+<p>Recoverable error. For recoverable errors such as video segment fails to transcode, the general idea is to retry the operation a few times. If the task continues to fail and the system believes it is not recoverable, it returns a proper error code to the client.</p>
+</li>
+<li>
+<p>Non-recoverable error. For non-recoverable errors such as malformed video format, the system stops the running tasks associated with the video and returns the proper error code to the client.</p>
+</li>
+</ul>
+<p>Typical errors for each system component are covered by the following playbook:</p>
+<ul>
+<li>
+<p>Upload error: retry a few times.</p>
+</li>
+<li>
+<p>Split video error: if older versions of clients cannot split videos by GOP alignment, the entire video is passed to the server. The job of splitting videos is done on the server-side.</p>
+</li>
+<li>
+<p>Transcoding error: retry.</p>
+</li>
+<li>
+<p>Preprocessor error: regenerate DAG diagram.</p>
+</li>
+<li>
+<p>DAG scheduler error: reschedule a task.</p>
+</li>
+<li>
+<p>Resource manager queue down: use a replica.</p>
+</li>
+<li>
+<p>Task worker down: retry the task on a new worker.</p>
+</li>
+<li>
+<p>API server down: API servers are stateless so requests will be directed to a different API server.</p>
+</li>
+<li>
+<p>Metadata cache server down: data is replicated multiple times. If one node goes down, you can still access other nodes to fetch data. We can bring up a new cache server to replace the dead one.</p>
+</li>
+<li>
+<p>Metadata DB server down:</p>
+</li>
+<li>
+<p>Master is down. If the master is down, promote one of the slaves to act as the new master.</p>
+</li>
+<li>
+<p>Slave is down. If a slave goes down, you can use another slave for reads and bring up another database server to replace the dead one.</p>
+</li>
+</ul>
+<h2 id="step-4---wrap-up">Step 4 - Wrap up</h2>
+<p>In this chapter, we presented the architecture design for video streaming services like YouTube. If there is extra time at the end of the interview, here are a few additional points:</p>
+<ul>
+<li>
+<p>Scale the API tier: Because API servers are stateless, it is easy to scale API tier horizontally.</p>
+</li>
+<li>
+<p>Scale the database: You can talk about database replication and sharding.</p>
+</li>
+<li>
+<p>Live streaming: It refers to the process of how a video is recorded and broadcasted in real time. Although our system is not designed specifically for live streaming, live streaming and non-live streaming have some similarities: both require uploading, encoding, and streaming. The notable differences are:</p>
+</li>
+<li>
+<p>Live streaming has a higher latency requirement, so it might need a different streaming protocol.</p>
+</li>
+<li>
+<p>Live streaming has a lower requirement for parallelism because small chunks of data are already processed in real-time.</p>
+</li>
+<li>
+<p>Live streaming requires different sets of error handling. Any error handling that takes too much time is not acceptable.</p>
+</li>
+<li>
+<p>Video takedowns: Videos that violate copyrights, pornography, or other illegal acts shall be removed. Some can be discovered by the system during the upload process, while others might be discovered through user flagging.</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="reference-materials">Reference materials</h2>
+<p>[1] YouTube by the numbers:<br>
+<a href="https://www.omnicoreagency.com/youtube-statistics/" target="_blank" rel="noopener noreferrer"><u>https://www.omnicoreagency.com/youtube-statistics/</u></a></p>
+<p>[2] 2019 YouTube Demographics:</p>
+<p><a href="https://blog.hubspot.com/marketing/youtube-demographics" target="_blank" rel="noopener noreferrer"><u>https://blog.hubspot.com/marketing/youtube-demographics</u></a></p>
+<p>[3] Cloudfront Pricing:<br>
+<a href="https://aws.amazon.com/cloudfront/pricing/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/cloudfront/pricing/</u></a></p>
+<p>[4] Netflix on AWS: <a href="https://aws.amazon.com/solutions/case-studies/netflix/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/solutions/case-studies/netflix/</u></a></p>
+<p>[5] Akamai homepage: <a href="https://www.akamai.com/" target="_blank" rel="noopener noreferrer"><u>https://www.akamai.com/</u></a></p>
+<p>[6] Binary large object:<br>
+<a href="https://en.wikipedia.org/wiki/Binary_large_object" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Binary_large_object</u></a></p>
+<p>[7] Here’s What You Need to Know About Streaming Protocols:<br>
+<a href="https://www.dacast.com/blog/streaming-protocols/" target="_blank" rel="noopener noreferrer"><u>https://www.dacast.com/blog/streaming-protocols/</u></a></p>
+<p>[8] SVE: Distributed Video Processing at Facebook Scale:<br>
+<a href="https://www.cs.princeton.edu/~wlloyd/papers/sve-sosp17.pdf" target="_blank" rel="noopener noreferrer"><u>https://www.cs.princeton.edu/~wlloyd/papers/sve-sosp17.pdf</u></a></p>
+<p>[9] Weibo video processing architecture (in Chinese):<br>
+<a href="https://www.upyun.com/opentalk/399.html" target="_blank" rel="noopener noreferrer"><u>https://www.upyun.com/opentalk/399.html</u></a></p>
+<p>[10] Delegate access with a shared access signature:<br>
+<a href="https://docs.microsoft.com/en-us/rest/api/storageservices/delegate-access-with-shared-access-signature" target="_blank" rel="noopener noreferrer"><u>https://docs.microsoft.com/en-us/rest/api/storageservices/delegate-access-with-shared-access-signature</u></a></p>
+<p>[11] YouTube scalability talk by early YouTube employee:<br>
+<a href="https://www.youtube.com/watch?v=w5WVu624fY8" target="_blank" rel="noopener noreferrer"><u>https://www.youtube.com/watch?v=w5WVu624fY8</u></a></p>
+<p>[12] Understanding the characteristics of internet short video sharing: A youtube-based measurement study.<br>
+<a href="https://arxiv.org/pdf/0707.3670.pdf" target="_blank" rel="noopener noreferrer"><u>https://arxiv.org/pdf/0707.3670.pdf</u></a></p>
+<p>[13] Content Popularity for Open Connect:<br>
+<a href="https://netflixtechblog.com/content-popularity-for-open-connect-b86d56f613b" target="_blank" rel="noopener noreferrer"><u>https://netflixtechblog.com/content-popularity-for-open-connect-b86d56f613b</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="design-a-search-autocomplete-system.html">← Previous</a>
+        <a href="design-google-drive.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

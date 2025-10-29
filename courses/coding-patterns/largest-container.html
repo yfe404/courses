@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Largest Container - Coding Patterns</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../coding-patterns.html">Coding Patterns</a> /
+        Largest Container
+    </div>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="is-palindrome-valid.html">← Previous</a>
+        <a href="next-lexicographical-sequence.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">largest container</span> Largest Container
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/coding-patterns/two-pointers/largest-container" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><h1>Largest Container</h1></header><div class="style_problemDescription__T4cPe"><p>You are given an array of numbers, each representing the height of a vertical line on a graph. A container can be formed with any pair of these lines, along with the x-axis of the graph. Return the amount of water which the <strong>largest container</strong> can hold.</p><h4 id="example">Example:</h4><figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a bar chart or histogram with a horizontal x-axis ranging from 0 to 5 and a vertical y-axis ranging from 0 to 8.  The y-axis represents frequency or count, while the x-axis likely represents categories or data points.  The chart displays several vertical bars of varying heights. A bar at x=0 has a height of 2.  Bars at x=1, x=2, x=4, and x=5 all reach a height of 6, forming a plateau of light-blue filled area.  A shorter bar at x=3 reaches a height of 3.  The bars are represented by vertical black lines extending from the x-axis to their respective heights on the y-axis.  The area under the bars from y=0 to y=6 between x=1 and x=5 is filled with light blue, visually highlighting the consistent frequency across those data points." width="450" height="120" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/largest-container-PA3WJKJH.svg" style="color: transparent;"></div></figure><pre><code class="hljs language-python">Input: heights = [<span class="hljs-number">2</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">3</span>, <span class="hljs-number">7</span>, <span class="hljs-number">6</span>]
+Output: <span class="hljs-number">24</span>
+</code></pre></div>
+<h2 id="intuition">Intuition</h2>
+<p>If we have two vertical lines, <code>heights[i]</code> and <code>heights[j]</code>, the amount of water that can be contained between these two lines is <code>min(heights[i], heights[j]) * (j - i)</code>, where <code>j - i</code> represents the width of the container. We take the minimum height because filling water above this height would result in overflow.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a graphical illustration of a calculation alongside its formula and result.  The left side shows a 2D Cartesian coordinate system with a light-blue rectangle representing a volume of water. The rectangle's base extends from x=0 to x=2 on the x-axis and its height is 3 units along the y-axis, reaching from y=0 to y=3.  A vertical line segment at x=1 is also present within the rectangle.  A curved grey arrow originates from the top-right corner of the rectangle and points to the right, indicating the direction of the calculation's result. To the right of the graph, the formula 'water = min(4, 3) ⋅ (2 - 0)' is displayed, calculating the volume of water.  'min(4, 3)' finds the minimum value between 4 and 3 (which is 3), and this is multiplied by the base length (2 - 0 = 2). The subsequent lines show the calculation steps: '3 ⋅ 2' and the final result '6', representing the total volume of water (likely in some arbitrary units)." loading="lazy" width="388" height="143" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/image-01-04-1-T7WVY3OS.svg" style="color: transparent;"></div></figure>
+<p>In other words, the area of the container depends on two things:</p>
+<ul>
+<li>The <strong>width</strong> of the rectangle.</li>
+<li>The <strong>height</strong> of the rectangle, as dictated by the shorter of the two lines.</li>
+</ul>
+<p>The brute force approach to this problem involves checking all pairs of lines, and returning the largest area found between each pair:</p>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-0-tab-0" aria-controls="rc-tabs-0-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-1" aria-controls="rc-tabs-0-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-2" aria-controls="rc-tabs-0-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-0-more-popup" id="rc-tabs-0-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-0-panel-0" aria-labelledby="rc-tabs-0-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span>
+    
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">largest_container_brute_force</span>(<span class="hljs-params">heights: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]</span>) -&gt; <span class="hljs-built_in">int</span>:
+   n = <span class="hljs-built_in">len</span>(heights)
+   max_water = <span class="hljs-number">0</span>
+   <span class="hljs-comment"># Find the maximum amount of water stored between all pairs of lines.</span>
+   <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):
+       <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i + <span class="hljs-number">1</span>, n):
+           water = <span class="hljs-built_in">min</span>(heights[i], heights[j]) * (j - i)
+           max_water = <span class="hljs-built_in">max</span>(max_water, water)
+   <span class="hljs-keyword">return</span> max_water
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<p>Searching through all possible pairs of values takes <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> time, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> denotes the length of the array. Let's look for a more efficient solution.</p>
+<p>We would like both the height and width to be as large as possible to have the largest container.</p>
+<p>It’s not immediately obvious how to find the container with the largest height, as the heights of the lines in the array don’t follow a clear pattern. However, we do know the container with the maximum width: the one starting at index 0 and ending at index <code>n - 1</code>.</p>
+<p>So, we could start by maximizing the width by setting a pointer at each end of the array. Then, we can gradually reduce the width by moving these two pointers inward, hoping to find a container with a larger height that potentially yields a larger area. This suggests we can use the <strong>two-pointer</strong> pattern to solve the problem.</p>
+<blockquote>
+<p>Moving a pointer inward means shifting either the left pointer to the right, or the right pointer to the left, effectively narrowing the gap between them.</p>
+</blockquote>
+<p>Consider the following example:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a bar chart visualizing the data contained within the Python list `heights = [2, 7, 8, 3, 7, 6]`.  The horizontal axis represents the index of each element in the list (0 through 5), while the vertical axis represents the value of each element, ranging from 0 to 8.  Each vertical bar corresponds to an element in the list; its height corresponds to the element's value. For example, the first bar at index 0 has a height of 2, the second bar at index 1 has a height of 7, and so on. The vertical axis is marked with numerical labels (0 through 8) indicating the height of the bars, and the horizontal axis is implicitly marked by the position of the bars, corresponding to the list indices.  The arrowheads on the axes indicate the direction of increasing values." loading="lazy" width="314" height="225" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/image-01-04-2-2GSU2V4T.svg" style="color: transparent;"></div></figure>
+<p>The widest container can store an area of water equal to 10. Since this is the largest container we’ve found so far, let’s set <code>max_water</code> to 10.</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a calculation of maximum trapped water.  The left side shows a bar chart with a horizontal axis labeled from 0 to 5 and a vertical axis representing height from 0 to 8.  Vertical bars of varying heights (2, 7, 8, 3, 6) are plotted at each integer position on the horizontal axis. A light-blue area represents the trapped water, extending horizontally between the bars and reaching a height of 2 units.  Arrows point upwards from the labels 'left' and 'right' below the horizontal axis, indicating the direction of calculation. On the right, a light-grey box displays a calculation: 'water = min(2, 6) . (5 - 0) = 10' and 'max_water = 10', showing the minimum height between the leftmost (height 2) and rightmost (height 6) bars multiplied by the width (5-0) to determine the total trapped water, which is 10 units." loading="lazy" width="578" height="230" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/image-01-04-3-PY4WBGRL.svg" style="color: transparent;"></div></figure>
+<p>How should we proceed? Moving either pointer inward yields a container with a shorter width. This leaves height as the determining factor. In this case, the left line is shorter than the right line, which means that the left line limits the water's height. Therefore, to find a larger container, let's move the left pointer inward:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual explanation of a coding pattern, likely related to algorithms operating on arrays or lists.  The left side shows a bar chart with a horizontal axis labeled from 0 to 5 and a vertical axis representing height from 0 to 8.  Several bars of varying heights are displayed; the heights are implicitly represented by the vertical extent of the bars. A light-blue rectangle fills the area below the height of the bars, representing a water level.  An orange box labeled 'left' points to the leftmost bar, and another orange box labeled 'right' points to the rightmost bar.  These labels 'left' and 'right' likely represent index pointers within an array. On the right side, a light-grey dashed-bordered box contains a conditional statement in code-like notation:  `heights[left] &lt; heights[right] → left += 1`. This indicates that if the height at the index `left` is less than the height at the index `right`, then the `left` index is incremented by 1.  The arrow implies a flow of information or control; the condition's evaluation dictates the update of the `left` pointer. The overall diagram illustrates a step within an algorithm, possibly for finding the largest rectangular area in a histogram or a similar problem involving array traversal and comparison." loading="lazy" width="578" height="229" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/image-01-04-4-HYLGZML2.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>The current container can hold 24 units of water, the largest amount so far. So, let’s update <code>max_water</code> to 24. Here, the right line is shorter, limiting the water's height. To find a larger container, move the right pointer inward:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a bar chart illustrating a coding pattern, likely related to finding the maximum area of water trapped between vertical bars.  The horizontal axis shows indices (0 to 5), and the vertical axis represents heights.  Vertical bars of varying heights are drawn at each index; their heights are 2, 6, 6, 3, 6, and 0 respectively. A light-blue area is filled between the bars at indices 1, 2, 3, and 4, representing the trapped water.  Arrows labeled 'left' and 'right' point towards the x-axis, indicating the direction of traversal in an algorithm. A separate box contains code snippets: `water = min(7, 6) * (5 - 1) = 24` calculates the water trapped between specific bars (likely using the minimum height as the limiting factor and the distance between them), `max_water = 24` stores the maximum water found so far, and `heights[left] &gt; heights[right] → right -= 1` shows a conditional statement, suggesting an algorithm iterates from left and right, moving the right pointer inwards if the left bar is taller.  The overall diagram visually explains a two-pointer approach to solving a 'trapping rain water' problem." loading="lazy" width="577" height="230" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/image-01-04-5-RVU2TMEL.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>After this, we encounter a situation where <strong>the height of the left and right lines are equal</strong>. In this situation, which pointer should we move inward? Well, regardless of which one, the next container is guaranteed to store less water than the current one. Let’s try to understand why.</p>
+<p>Moving either pointer inward yields a container of shorter width, leaving height as the determining factor. However, regardless of which pointer we move inward, the other pointer remains at the same line. So, even if a pointer is moved to a taller line, the other pointer will restrict the height of the water, as we take the minimum of the two lines.</p>
+<p>Therefore, since we can’t increase height by moving just one pointer, we can just move both pointers inward:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a bar chart illustrating a 'two-pointer' approach to finding the maximum area that can be contained between vertical bars. The horizontal axis shows indices (0 to 5), and the vertical axis represents height.  Several vertical bars of varying heights are depicted; one bar at index 0 has a height of 2, a group of bars from index 1 to 3 have a height of 7, and a bar at index 3 has a height of 6. The area between the bars at indices 1 and 3 is shaded light blue, representing the calculated water trapped between them.  Two orange rectangular boxes labeled 'left' and 'right' point to the indices 1 and 4 respectively, indicating the pointers used in the algorithm. A separate box displays calculation details: `water = min(7, 7) * (4 - 1) = 21`, showing the calculation of the water trapped between the pointers; `max_water = 24` indicates the maximum water trapped found so far; and `heights[left] == heights[right] =&gt; left += 1 and right -= 1` describes the algorithm's logic: if the heights at the left and right pointers are equal, both pointers move inwards." loading="lazy" width="574" height="229" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/image-01-04-6-POJJUDHN.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>Now, the right line is limiting the height of the water. So, we move the right pointer inward:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, likely related to finding the maximum trapped rainwater between vertical bars.  The left side shows a bar chart with vertical bars of varying heights (1, 7, 3, 7, 6) at positions 0, 1, 2, 3, 4, 5 respectively on the x-axis and heights on the y-axis. A light-blue rectangle is filled between bars of height 3 and 7 at positions 2 and 3, representing trapped water.  Below the chart, orange rectangular boxes labeled 'left' and 'right' indicate pointers or indices used to iterate through the bars.  An arrow points upwards from 'left' to the bar at position 2 and another from 'right' to the bar at position 3. The right side contains a light-grey box with code-like annotations.  These annotations show a calculation: `water = min(8, 3) * (3 - 2) = 3`, indicating the calculation of water trapped between two bars; `max_water = 24`, representing the maximum trapped water; and `heights[left] &gt; heights[right] =&gt; right -= 1`, suggesting a conditional statement controlling the movement of the 'right' pointer based on the heights of the bars at the 'left' and 'right' indices.  The overall diagram visually explains an algorithm for calculating maximum trapped rainwater using two pointers." loading="lazy" width="569" height="229" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/image-01-04-7-M2EWX37E.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>Finally, the left and right pointers meet. We can conclude our search here and return <code>max_water</code>:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, likely within a search or sorting algorithm.  The left side shows a bar chart with the x-axis ranging from 0 to 5 and the y-axis representing a value, with bars of varying heights at different x-axis positions (0, 1, 2, 3, 4, and 5).  Below the chart, two rectangular boxes labeled 'left' and 'right' are shown, with arrows pointing upwards towards the x-axis, suggesting these labels represent index pointers or boundaries within a data structure. On the right side, a dashed-line rectangle contains the condition 'left == right' with a solid arrow pointing to the word 'break,' indicating that when the condition 'left' equals 'right' is met, the algorithm terminates or exits the loop using a 'break' statement.  The overall diagram visually depicts the process of a binary search or similar algorithm where two pointers converge until a condition is met, resulting in the termination of the process." loading="lazy" width="541" height="238" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/largest-container/image-01-04-8-3RGGE6AS.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>Based on the decisions taken in the example, we can summarize the logic:</p>
+<ol>
+<li>
+<p>If the left line is smaller, move the left pointer inward.</p>
+</li>
+<li>
+<p>If the right line is smaller, move the right pointer inward.</p>
+</li>
+<li>
+<p>If both lines have the same height, move both pointers inward.</p>
+</li>
+</ol>
+<div class="style_tryBanner__WFMKc"><div><div class="style_tryTitle__dVqce">Try it yourself</div><div class="style_tryDesc___lKzS">Write your solution to the problem before checking the reference implementation.</div></div><a target="_blank" href="/exercises/coding-patterns/two-pointers/largest-container"><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_openBtn__F_m3N"><span>Open Code Editor</span></button></a></div>
+<h2 id="implementation">Implementation</h2>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-1-tab-0" aria-controls="rc-tabs-1-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-1-tab-1" aria-controls="rc-tabs-1-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-1-tab-2" aria-controls="rc-tabs-1-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-1-more-popup" id="rc-tabs-1-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-1-panel-0" aria-labelledby="rc-tabs-1-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span>
+  
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">largest_container</span>(<span class="hljs-params">heights: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]</span>) -&gt; <span class="hljs-built_in">int</span>:
+    max_water = <span class="hljs-number">0</span>
+    left, right = <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(heights) - <span class="hljs-number">1</span>
+    <span class="hljs-keyword">while</span> (left &lt; right):
+        <span class="hljs-comment"># Calculate the water contained between the current pair of lines.</span>
+        water = <span class="hljs-built_in">min</span>(heights[left], heights[right]) * (right - left)
+        max_water = <span class="hljs-built_in">max</span>(max_water, water)
+        <span class="hljs-comment"># Move the pointers inward, always moving the pointer at the shorter line. If</span>
+        <span class="hljs-comment"># both lines have the same height, move both pointers inward.</span>
+        <span class="hljs-keyword">if</span> (heights[left] &lt; heights[right]):
+            left += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">elif</span> (heights[left] &gt; heights[right]):
+            right -= <span class="hljs-number">1</span>
+        <span class="hljs-keyword">else</span>:
+            left += <span class="hljs-number">1</span>
+            right -= <span class="hljs-number">1</span>
+    <span class="hljs-keyword">return</span> max_water
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<h3 id="complexity-analysis">Complexity Analysis</h3>
+<p><strong>Time complexity:</strong> The time complexity of <code>largest_container</code> is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> because we perform approximately <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> iterations using the two-pointer technique.</p>
+<p><strong>Space complexity:</strong> We only allocated a constant number of variables, so the space complexity is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>.</p>
+<h3 id="test-cases">Test Cases</h3>
+<p>In addition to the examples discussed throughout this explanation, below are some other examples to consider when testing your code.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Input</th><th style="text-align: left;">Expected output</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code>heights = []</code></td><td style="text-align: left;"><code>0</code></td><td style="text-align: left;">Tests an empty array.</td></tr><tr><td style="text-align: left;"><code>heights = [1]</code></td><td style="text-align: left;"><code>0</code></td><td style="text-align: left;">Tests an array with just one element.</td></tr><tr><td style="text-align: left;"><code>heights = [0, 1, 0]</code></td><td style="text-align: left;"><code>0</code></td><td style="text-align: left;">Tests an array with no containers that can contain water.</td></tr><tr><td style="text-align: left;"><code>heights = [3, 3, 3, 3]</code></td><td style="text-align: left;"><code>9</code></td><td style="text-align: left;">Tests an array where all heights are the same.</td></tr><tr><td style="text-align: left;"><code>heights = [1, 2, 3]</code></td><td style="text-align: left;"><code>2</code></td><td style="text-align: left;">Tests an array with strictly increasing heights.</td></tr><tr><td style="text-align: left;"><code>heights = [3, 2, 1]</code></td><td style="text-align: left;"><code>2</code></td><td style="text-align: left;">Tests an array with strictly decreasing heights.</td></tr></tbody></table></div>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="is-palindrome-valid.html">← Previous</a>
+        <a href="next-lexicographical-sequence.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

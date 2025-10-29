@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrieval-Augmented Generation - Genai System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../genai-system-design-interview.html">Genai System Design Interview</a> /
+        Retrieval-Augmented Generation
+    </div>
+
+    <div class="nav">
+        <a href="../genai-system-design-interview.html">← Course Contents</a>
+        <a href="image-captioning.html">← Previous</a>
+        <a href="realistic-face-generation.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">06</span> Retrieval-Augmented Generation
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/genai-system-design-interview/retrieval-augmented-generation" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">06</strong><h1>Retrieval-Augmented Generation</h1></header><h2 id="introduction">Introduction</h2>
+<p>In Chapter 4, we developed a chatbot capable of answering open-domain questions. However, many applications need access to additional information, such as company databases (e.g., internal documentation), real-time data (e.g., sports scores), or user-provided files (e.g., uploaded PDFs).</p>
+<p>Allowing chatbots to access this information improves the accuracy and relevance of their responses, especially for fact-based or specialized tasks. A real-world example of such a system is <em>Perplexity.ai</em> [1], an AI-powered conversational search engine that uses web-based information to respond to user queries.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system diagram illustrating a query-response process for finding upcoming concerts.  The top section shows a user's query: 'Upcoming concerts around me in San Francisco with dates.' This query is then fed into a 'Sources' section, which lists three different data sources: Bandsintown (bandsintown. 1), SeatGeek (seatgeek. 2), and Eventbrite (eventbrite. 3), each indicated by their logo and a numerical identifier.  These sources are visually connected to the query with a curved arrow indicating data retrieval.  The 'Retrieved extern...' label highlights this data acquisition. The next section, 'Perplexity,' acts as a processing layer, taking the retrieved data and synthesizing it into a concise summary: 'Here are some upcoming concerts in San Francisco with dates:'.  Below this, the system outputs a list of 'Major Upcoming Concerts' and 'Notable Upcoming Shows,' each with artist names, dates, and venues, some entries marked with a small '2' suggesting a secondary source or verification.  A 'Ask follow-up' button is present, along with a 'Pro' toggle, suggesting a paid feature.  The entire output is labeled 'Produced...', connected to the 'Perplexity' section by a curved arrow, showing the information flow from processing to the final result.  The logos of various music streaming services are also present in the 'Sources' section, suggesting potential integration with these platforms." loading="lazy" width="580" height="421" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-1-J3KSB6TL.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: *Perplexity’s* output based on real-time information (Credit: [1])</figcaption></div></figure>
+<p>In this chapter, we build a system similar to ChatPDF [2] that answers employee questions using internal company documents. Instead of reading FAQs, employees can ask the chatbot directly and receive answers based on those documents.</p>
+<h2 id="clarifying-requirements">Clarifying Requirements</h2>
+<p>Here is a typical interaction between a candidate and an interviewer:</p>
+<p><strong>Candidate:</strong> What does the external knowledge base consist of? Does it change over time?<br>
+<strong>Interviewer:</strong> The knowledge base includes company Wiki pages and a company-wide “Stack Overflow”–style forum. The documentation does change, but at a slower pace compared to real-time updates.</p>
+<p><strong>Candidate</strong>: Do the Wiki pages and forums contain text, images, and other modalities?<br>
+<strong>Interviewer</strong>: Assume each page is in PDF format and contains text, tables, and diagrams. For simplicity, other modalities do not need to be considered.</p>
+<p><strong>Candidate</strong>: Do the pages follow a fixed format or template?<br>
+<strong>Interviewer</strong>: No, the formats vary. Some are double-column, some are single-column, and others are mixed.</p>
+<p><strong>Candidate</strong>: How many pages are there in total?<br>
+<strong>Interviewer</strong>: We have around 5 million pages.</p>
+<p><strong>Candidate</strong>: Is it necessary for the system to include document references?<br>
+<strong>Interviewer</strong>: Yes.</p>
+<p><strong>Candidate:</strong> Should the system respond in real time?<br>
+<strong>Interviewer:</strong> Users can tolerate a slight delay of a few seconds.</p>
+<p><strong>Candidate</strong>: Does the system need to support multiple languages?<br>
+<strong>Interviewer</strong>: To keep things simple, let’s stick to English.</p>
+<p><strong>Candidate</strong>: Should the system support user feedback or follow-up questions?<br>
+<strong>Interviewer</strong>: Not initially. However, your design should be flexible enough to add support for feedback loops or follow-up questions.</p>
+<p><strong>Candidate</strong>: What is the expected growth in documents?<br>
+<strong>Interviewer</strong>: The document base is expected to grow by twenty percent annually.</p>
+<p><strong>Candidate</strong>: Do we need to address safety concerns, such as preventing harmful, biased, or misleading outputs?<br>
+<strong>Interviewer</strong>: Safety matters, but let's prioritize data handling, architecture, and performance efficiency.</p>
+<h2 id="frame-the-problem-as-an-ml-task">Frame the Problem as an ML Task</h2>
+<h3 id="specifying-the-systems-input-and-output">Specifying the system’s input and output</h3>
+<p>The input to the ChatPDF system is a text prompt provided by the user. The model processes this prompt alongside a continuously updated document database containing both text and images. The output is a text-based response that accurately addresses the user's query.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram for a ChatPDF system.  The diagram shows a user query, 'How do I submit an...', entering from the left, which is labeled 'User query'. This query is fed into a centrally located, peach-colored rectangle labeled 'ChatPDF System'.  The ChatPDF System interacts with a dashed-line-bordered box labeled 'Document databases,' containing icons representing multiple database servers, stacked documents, and an image, suggesting the system accesses various document types (PDFs and images) stored within these databases.  Two-way arrows connect the ChatPDF System and the Document databases, indicating data flow in both directions. Finally, a response, 'To submit an expense report, log into...', is shown in a rectangle labeled 'Response' on the right, representing the system's output generated after processing the user's query and accessing the relevant information from the document databases.  The overall flow is left-to-right, showing the user query's progression through the system to produce a final response." loading="lazy" width="596" height="268" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-2-DHPD6AD7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Input and output of a ChatPDF system</figcaption></div></figure>
+<h3 id="choosing-a-suitable-ml-approach">Choosing a suitable ML approach</h3>
+<p>Given the nature of the task, large language models (LLMs) are well-suited for text generation and are often the default choice. However, general-purpose LLMs may struggle with specific domains and, therefore, may need customization to handle external data sources. To enable an LLM to answer queries based on company-specific data, there are three main approaches:</p>
+<ul>
+<li>Finetuning</li>
+<li>Prompt engineering</li>
+<li>Retrieval-augmented generation (RAG)</li>
+</ul>
+<p>Let's explore each one in detail and discuss their trade-offs.</p>
+<h4 id="finetuning">Finetuning</h4>
+<p>In this approach, a pretrained general-purpose LLM is finetuned on company-specific data, such as internal documents. By updating its weights, the LLM adapts to better understand the company's unique terminology, processes, and FAQs. Chapter 10 will explore advanced finetuning techniques such as LoRA [3] to adapt large models to specific data.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a three-stage process for creating a specialized AI model.  The process begins with a 'General-purpose...' (light gray rectangle) model, which is then fed into a 'Finetuning' (light orange rectangle) stage.  The input for the finetuning stage is a 'Company-specific...' (labeled above a stack of three light yellow cylindrical database icons), suggesting that company-specific data is used to refine the general-purpose model.  The output of the finetuning stage is then passed to create a 'Specialized...' (light green rectangle) model.  Arrows indicate the unidirectional flow of information between these stages, showing the transformation of a general-purpose model into a company-specific, specialized model through a finetuning process." loading="lazy" width="496" height="241" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-3-VENBLRSG.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: Finetuning approach</figcaption></div></figure>
+<h5 id="pros">Pros:</h5>
+<ul>
+<li><strong>Customizable:</strong> Finetuning allows the model to generate responses tailored to specific domains.</li>
+<li><strong>Enhanced accuracy:</strong> By finetuning the model on specialized data, it becomes more accurate and better able to handle niche topics.</li>
+</ul>
+<h5 id="cons">Cons:</h5>
+<ul>
+<li><strong>Computationally expensive:</strong> Updating the entire model’s parameters requires a lot of computational resources, which can be expensive.</li>
+<li><strong>Frequent retraining:</strong> This approach requires frequent finetuning to continuously incorporate up-to-date data into the model.</li>
+<li><strong>Requires technical expertise:</strong> This approach requires an understanding of ML principles and language model architectures, which can be a barrier for those without specialized knowledge.</li>
+<li><strong>Extensive data requirement:</strong> Finetuning requires a substantial, high-quality dataset, which can be difficult and time-consuming to collect.</li>
+<li><strong>Lack of references:</strong> Finetuned models usually can’t provide references for their answers, making it hard to verify or trace information back to its source.</li>
+</ul>
+<h4 id="prompt-engineering">Prompt Engineering</h4>
+<p>Prompt engineering guides a general-purpose LLM to produce specific outputs through carefully designed prompts. Unlike finetuning, this method keeps the underlying LLM unchanged and includes relevant information, such as company data or instructions, directly in the prompts to control the model’s behavior. For example, a prompt might include information such as the summary of company policies, as shown in Figure 4. Later in this chapter, we will explore more advanced prompt engineering techniques, such as few-shot and chain-of-thought prompting.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified flowchart illustrating a system's response to a user query.  The process begins with a user input, 'What is the company's r...', which is fed into a 'Prompt Engine...'. This engine processes the input and generates a refined query, 'Read the following company policy and r...', which is then directed to a data source (represented by a dashed box).  Separately, a second path originates from the same 'Prompt Engine...', connecting to a 'General-purpose...' component. This component processes information and produces an output, 'The company reimburses employees for t...', which is also directed to a separate data source (represented by another dashed box).  The arrows indicate the flow of information between components, showing how the initial user query is processed through different stages to generate two distinct outputs, potentially from different data sources." loading="lazy" width="595" height="280" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-4-DUKQCLCL.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: Prompt engineering approach</figcaption></div></figure>
+<h5 id="pros-1">Pros:</h5>
+<ul>
+<li><strong>Ease of use:</strong> The prompt engineering is simple to use and requires no technical skills, which makes it suitable for a wide range of users.</li>
+<li><strong>Cost-effectiveness:</strong> By leveraging a pretrained LLM, prompting incurs minimal computational costs compared to finetuning.</li>
+<li><strong>Flexibility:</strong> Prompts can be easily modified to experiment with different outputs without having to retrain the model.</li>
+</ul>
+<h5 id="cons-1">Cons:</h5>
+<ul>
+<li><strong>Inconsistency:</strong> The quality and relevance of responses can vary greatly depending on how the prompt is phrased.</li>
+<li><strong>Limited customization:</strong> The ability to tailor responses is limited to the effectiveness and creativity of the prompt design. Prompt engineering lacks the depth of customization that finetuning provides.</li>
+<li><strong>Limited to LLM’s existing knowledge:</strong> Outputs are confined to the information the LLM was initially trained on, making it less effective for highly specialized domains or providing responses based on the most current information.</li>
+</ul>
+<h4 id="rag">RAG</h4>
+<p>RAG is an advanced method that combines the capabilities of a general-purpose LLM with a real-time retrieval system. Instead of relying solely on the LLM’s pretrained knowledge, RAG retrieves relevant information from external sources, such as a company’s internal documents, and feeds it into the LLM during inference. This approach ensures the LLM generates responses that are both relevant and accurate based on the available information.</p>
+<p>A RAG system, as shown in Figure 5, has two components:</p>
+<ul>
+<li><strong>Retrieval:</strong> The retrieval component takes the user’s original prompt, finds the most relevant information from external sources, and returns it as context.</li>
+<li><strong>Generation:</strong> Typically, a general-purpose LLM uses the user's prompt and the retrieved information to generate a response.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for generating text based on information retrieved from a document database.  A rectangular box labeled 'Document databases' contains icons representing document files and database tables, indicating storage of various document types.  A downward-pointing arrow connects this box to a light orange rectangular box labeled 'Retrieval,' signifying the process of fetching relevant data from the databases.  A dashed-line box below 'Retrieval' shows '[retrieved 1]...', representing the retrieved data.  A horizontal arrow connects a dashed-line box containing the prompt 'What is the company's rei...' to the 'Retrieval' box, indicating that the retrieval process is initiated by a user query.  The 'Retrieval' box is connected via a downward-pointing arrow to a light blue rectangular box labeled 'Generation,' which represents the text generation process using the retrieved data. Finally, a right-pointing arrow connects the 'Generation' box to a dashed-line box containing the output text 'The company reimburses employees for t...', showing the generated response based on the input query and retrieved information.  The overall flow depicts a query-driven retrieval and generation pipeline." loading="lazy" width="576" height="404" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-5-K74IWALY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Components of a RAG system</figcaption></div></figure>
+<h5 id="pros-2">Pros:</h5>
+<ul>
+<li><strong>Access to most current information:</strong> RAG can provide up-to-date responses by pulling data from external sources, thus improving the relevance and accuracy of the answers.</li>
+<li><strong>Contextual relevance:</strong> By retrieving information from external sources, RAG can add context to the model’s answers, making responses more detailed and relevant.</li>
+</ul>
+<h5 id="cons-2">Cons:</h5>
+<ul>
+<li><strong>Implementation complexity:</strong> Implementing RAG can be technically challenging, as it requires two components (retrieval and generation) to work together smoothly.</li>
+<li><strong>Dependence on retrieval quality:</strong> The quality of the responses is highly dependent on the relevance and accuracy of the retrieved information, which can impact the overall performance of the system.</li>
+</ul>
+<h4 id="which-approach-is-more-suitable-for-chatpdf">Which approach is more suitable for ChatPDF?</h4>
+<p>Finetuning allows the LLM to generate more specialized responses but is computationally expensive and does not reference original documents, making it unsuitable for our needs. While prompt engineering provides a simple and flexible way to guide a general-purpose LLM without finetuning, it’s not scalable. This is because including the information from all external sources in the prompt typically exceeds LLM’s context window.</p>
+<p>RAG offers a balanced solution in terms of ease of setup, cost, and scalability, making it ideal for handling large, evolving datasets and providing up-to-date information. This approach is particularly effective for internal query chatbots in corporate environments. Therefore, we choose RAG to build our ChatPDF system. In the model development section, we delve into prompt engineering and discuss how we combine it with RAG to further enhance the system.</p>
+<h2 id="data-preparation">Data Preparation</h2>
+<p>The performance of the RAG system relies on the quality of the knowledge database and the way it is indexed. When the knowledge base is sourced from websites, data-cleaning strategies such as removing inappropriate content or anonymizing sensitive information should be applied, as discussed in Chapter 4.</p>
+<p>In this section, we focus on preparing data from a collection of PDF pages. This involves a three-step process:</p>
+<ul>
+<li>Document parsing</li>
+<li>Document chunking</li>
+<li>Indexing</li>
+</ul>
+<h3 id="document-parsing">Document parsing</h3>
+<p>PDFs are one of the most widely used document formats. It is important to properly extract their content to prepare the data for LLM training and to ensure that the LLM can correctly answer questions based on the PDF’s content.</p>
+<p>Parsing a PDF means converting its text, images, and other elements into a structured format that a language model can understand. There are two primary approaches for parsing PDFs:</p>
+<ul>
+<li>Rule-based document parser</li>
+<li>AI-based document parser</li>
+</ul>
+<h4 id="rule-based-document-parser">Rule-based document parser</h4>
+<p>The rule-based approach relies on predefined rules and patterns that are based on the layout and structure of the document. It attempts to “calculate” the layout and extract content accordingly, making it easy to implement when the document format is consistent and predictable.</p>
+<p>However, rule-based methods struggle to handle a wide range of PDF types and formats because PDFs can vary considerably in design. The rigid nature of this method means that if the document does not match the expected format, it can result in mistakes when extracting the content. This makes rule-based parsing less useful when dealing with differing or complex document layouts.</p>
+<h4 id="ai-based-document-parser">AI-based document parser</h4>
+<p>AI-based methods take a different approach. They use advanced techniques such as object detection and OCR (Optical Character Recognition) [4] to identify and extract various elements from a document, for example, text, tables, and diagrams. These methods can handle a wide range of document layouts, making them better suited for dealing with complex documents.</p>
+<p>There are various tools available for AI-based document parsing. For example, <em>Dedoc</em> [5] supports parsing a wide range of document formats and standardizing content into a consistent structure. Similarly, Layout-Parser [6] uses high-precision models to accurately detect different parts of a document, though the size of these models can slow down the process. To better understand AI-based document parsers, let’s take a closer look at how Layout-Parser works.</p>
+<p>Layout-Parser takes a document image as input and generates a structured output using the following steps:</p>
+<ol>
+<li><strong>Layout detection:</strong> The parser uses advanced object detection models to detect and generate rectangular boxes around different content regions. These regions can include elements such as paragraphs, tables, images, or headers.</li>
+<li><strong>Text extraction:</strong> The content inside each rectangular box is processed using OCR to extract the text. The bounding box coordinates ensure the text is recognized in the correct order and format, maintaining the document's original structure.</li>
+<li><strong>Structured output generation:</strong> The parser produces a structured output containing two types of data:
+<ol>
+<li><strong>Text blocks:</strong> Includes the block’s coordinates, extracted text, reading order, and meta information.</li>
+<li><strong>Non-text blocks:</strong> Includes the coordinates of figures or images.</li>
+</ol>
+</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for extracting structured data from a PDF document.  A PDF page, labeled 'PDF (Page...', is depicted on the left.  This page's layout is shown as a rectangular box containing several colored boxes representing different elements: a large blue box labeled 'Title' at the top, smaller blue boxes labeled 'Title' in the middle and bottom, and several orange boxes labeled 'Text' throughout.  A yellow box labeled 'Figure' is also present.  An arrow labeled 'Layout...' connects the PDF page to this layout representation.  This layout representation is then connected via an arrow to a box labeled 'OCR'. The OCR processes the layout information, extracting text from the orange and blue boxes, and representing the extracted text as an array of text blocks within a dashed-line box labeled 'Structured output' with the content '[textblock 1, textblock 2,...]'.  The overall flow is from the PDF page, through a visual representation of its layout, to an OCR process that outputs structured text blocks." loading="lazy" width="616" height="276" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-6-TJFPBXFD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: Converting a PDF page to a structured output for LLM</figcaption></div></figure>
+<p>Several online services provide document parsing services, for example, Google Cloud Document AI [7] and PDF.co [8]. These services allow users to upload their documents and have them parsed without needing to set up and maintain the parsing system themselves.</p>
+<h3 id="document-chunking">Document chunking</h3>
+<p>Once we have identified the blocks of text, images, or tables in a document, the next step is to index them into a searchable database. For long text blocks such as those found in reports or books, indexing the entire content as a single item is ineffective. This is because the embedding vector representing an entire book or report might capture the general context but miss important details, which can result in less-accurate or incomplete retrieval results. Additionally, if we retrieve the entire book or report, it would exceed the token limit of most models, such as the 128K token limit for the GPT-4o model.<sup><a id="user-content-fnref-1" data-footnote-ref="true" aria-describedby="footnote-label" href="/courses/genai-system-design-interview/retrieval-augmented-generation#user-content-fn-1">1</a></sup></p>
+<p>Document chunking addresses these challenges by breaking the text into smaller, manageable pieces or ‘chunks.’ Chunking helps improve the quality and precision of the retrieval and ensures that each chunk fits within the model's input limit.</p>
+<p>Some common strategies for chunking are:</p>
+<ul>
+<li><strong>Length-based chunking:</strong> This simple approach splits the text into chunks based on a specified length. While it's easy to implement, it can sometimes split sentences or logical sections in the middle, leading to fragmented or less-meaningful chunks. Tools like LangChain [9] provide text splitters, such as the <em>CharacterTextSplitter</em> and <em>RecursiveCharacterTextSplitter</em>, which allow for adjustable chunk sizes and overlap settings. These splitters can handle different separators and help maintain coherence across chunks.</li>
+<li><strong>Regular expression-based chunking:</strong> This approach uses regular expressions to split the text based on specific punctuation marks, such as periods, question marks, or exclamation points. It allows for better sentence-level chunking by keeping logical breaks intact, although it may still lack a deeper semantic understanding of the text.</li>
+<li><strong>HTML, markdown, or code splitters:</strong> For documents in structured formats like HTML or Markdown, specialized splitters are used. These tools split the text at element boundaries such as headers, list items, or code blocks, while preserving the document’s overall structure. For example, LangChain has <em>MarkdownHeaderTextSplitter</em>, <em>HTMLHeaderTextSplitter,</em> and <em>PythonCodeTextSplitter</em>, respectively. These splitters are useful for web pages or technical documentation, where maintaining the hierarchical structure is important.
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a data flow diagram illustrating text chunking within a LangChain system.  A dashed-line box on the left, labeled 'Character splitting is the most basic for...', acts as an input source.  A solid arrow connects this box to a central, light orange rectangle labeled 'LangChain,' representing the core processing unit.  A curved dashed arrow points from 'LangChain' to the top, indicating the input of a parameter, 'chunk_size=35,...'.  From 'LangChain,' four solid arrows extend to a dashed-line box on the right, containing four horizontally stacked text boxes. These boxes describe the output:  the first states '\nCharacter splitting is the most...', the second explains 'form of splitting up your text. \n...', the third details 'process of simply dividing your te...', and the fourth describes 'sized chunks regardless of their c...'.  The overall diagram shows how character splitting, as a basic method, is used by LangChain with a specified chunk size to divide input text into smaller, processed chunks." loading="lazy" width="605" height="249" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-7-6V3YN7BY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7: Length-based text chunking with LangChain</figcaption></div></figure>
+</li>
+</ul>
+<h3 id="indexing">Indexing</h3>
+<p>After preparing the data through document parsing and chunking, the final critical step in the RAG system is indexing. Indexing is the process of organizing the chunked data into a structure that enables efficient and accurate retrieval. This step plays a key role in ensuring that the system can quickly locate relevant chunks of information when a query is made.</p>
+<p>To determine the indexing process, it is crucial to understand various retrieval techniques and choose the one that best suits the task. Popular retrieval techniques include:</p>
+<ul>
+<li>Keyword-based</li>
+<li>Full-text search</li>
+<li>Knowledge graph–based</li>
+<li>Vector-based</li>
+</ul>
+<p>Let’s first explore each technique, and then index our data to enable efficient retrieval.</p>
+<h4 id="keyword-based">Keyword-based</h4>
+<p>Traditional keyword-based retrieval relies on matching exact query terms with the content of documents. It is fast and simple but cannot understand the meaning of the query. For example, it may struggle with synonyms, leading to incomplete or irrelevant results. This approach is ineffective when dealing with large-scale datasets or when the goal is to retrieve information based on semantic similarity rather than exact word matches.</p>
+<h4 id="full-text-search">Full-text search</h4>
+<p>Full-text search engines such as Elasticsearch [10] offer a more advanced approach by scanning entire documents for relevant matches. This method allows for a comprehensive analysis of the document’s content, including partial matches and phrase searches. However, full-text search comes with higher computational overhead, especially when dealing with large datasets containing, for example, millions of PDF documents. Although effective for finding specific text, this approach is less efficient when it comes to semantic retrieval.</p>
+<h4 id="knowledge-graphbased">Knowledge graph–based</h4>
+<p>Knowledge graph–based retrieval is a sophisticated technique that leverages structured relationships between entities (e.g., people, places, or concepts) to retrieve information based on the connections between these entities. This method is excellent for answering complex queries and understanding relationships within the data. However, building and maintaining a knowledge graph requires significant effort, and it is not always practical for large, unstructured datasets such as PDF collections or Wiki pages. To learn more about knowledge graph–based retrieval, refer to [11].</p>
+<h4 id="vector-based">Vector-based</h4>
+<p>Instead of relying on text-based matches, this method uses high-dimensional embeddings—numerical representations of the text and images—to measure the similarity between a query and the stored chunks of data. This technique enables the retrieval of relevant information even when the exact words in the query do not match the document content, making it more flexible and powerful for large-scale datasets.</p>
+<h4 id="which-retrieval-technique-is-suitable-for-the-chatpdf">Which retrieval technique is suitable for the ChatPDF?</h4>
+<p>To select an appropriate retrieval method, let’s first understand the scale of our system and estimate the number of data chunks involved. In this case, the company manages a large dataset of around 5 million pages. Suppose each page contains roughly 1,500 characters and includes three images. Using length-based chunking with a chunk size of 500 characters and a 200-character overlap, each page will generate 5 text chunks and 3 image chunks. Therefore, the total number of chunks the RAG system is dealing with is 5M(1500 / (500-200) + 3)=40M. This figure is expected to grow by roughly 20 percent each year, as indicated in the requirements section.</p>
+<p>With around 40 million data chunks and a projected 20 percent annual increase, it's essential to select a retrieval technique that is scalable and can handle this growing volume efficiently.</p>
+<p>Traditional retrieval methods [12] [13] such as keyword-based and full-text search have been widely used, but they face limitations in speed, scalability, and the ability to understand the semantic meaning of queries. Knowledge graph–based retrieval requires significant effort to build and maintain such graphs, making them a costly choice.</p>
+<p>Vector-based retrieval, on the other hand, is the primary technique used in modern RAG systems due to the following advantages:</p>
+<ul>
+<li><strong>Semantic understanding:</strong> It can capture the semantic meaning of a query, allowing for more accurate retrieval even when the exact query terms are not present in the document.</li>
+<li><strong>Scalability:</strong> Using embedding vectors makes this method highly scalable and able to handle large datasets efficiently.</li>
+<li><strong>Efficiency:</strong> Once the data is indexed as embedding vectors, the system can efficiently retrieve the relevant chunks.</li>
+</ul>
+<p>Due to these advantages, we choose vector-based retrieval and index our data accordingly.</p>
+<h4 id="indexing-data-for-vector-based-retrieval">Indexing data for vector-based retrieval</h4>
+<p>In a vector-based retrieval system, each chunk of data is converted into an embedding vector representing the content in a numerical format. When indexing, ML models are employed to compute the embeddings and store them in a vector database. This makes it easy for the RAG system to quickly compare them to the query’s embedding and retrieve the most relevant information without unnecessary processing at inference time. We'll dive into the architecture of these ML models and examine the retrieval process in more detail in the model development section.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a document processing and indexing pipeline.  The process begins with 'Document databases', depicted as a box containing icons representing various document types (text files and images).  These databases feed into 'Document parsing', a beige rectangle, which processes the documents. The output of parsing flows into 'Document chunking', another beige rectangle, dividing the parsed document into smaller chunks.  A table labeled 'Chunk' and 'Chunk data' shows the resulting chunks numbered 1 to M, each with its corresponding 'chunk output'.  The chunks then proceed to 'Indexing', a beige rectangle, which generates embeddings for each chunk.  A table labeled '#' and 'Embedding' illustrates this, showing M rows, each representing a chunk with its corresponding embedding vector (represented by empty boxes). Finally, the indexed chunks are stored in two databases labeled 'Index...', representing the final indexed data.  A separate table, connected via a dashed line to 'Document parsing', shows the structured output of the entire process, mapping page numbers (1 to N) to their corresponding textual outputs." loading="lazy" width="576" height="548" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-8-MIPYBY3B.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8: Data preparation steps from PDFs to indexed embeddings</figcaption></div></figure>
+<p>In summary, we use a three-step approach to prepare PDFs for the RAG system. First, we apply document parsing techniques to convert the PDF into a structured format, breaking it down into text, tables, and images. Then, we use document chunking to split long text into smaller, manageable chunks. Finally, each chunk is converted to an embedding vector and indexed individually to improve retrieval accuracy.</p>
+<h2 id="model-development">Model Development</h2>
+<h3 id="architecture">Architecture</h3>
+<p>This section explores the architecture of a RAG system, focusing on the ML models used in the indexing, retrieval, and generation components.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a three-stage process for a multimodal system. The first stage, labeled 'Indexing,' contains a light-green box labeled 'Text encoder' above a light-blue box labeled 'Image encoder.'  These encoders process textual and image data respectively, presumably generating embeddings.  The second stage, 'Retrieval,' shows only a light-green box labeled 'Text encoder,' suggesting that a text-based query is processed to generate an embedding for searching the indexed data.  The third stage, 'Generati...' (likely 'Generation'), contains a light-grey box labeled 'LLM' (Large Language Model).  The flow is sequential: the 'Indexing' stage creates embeddings from text and images; the 'Retrieval' stage uses a text encoder to find relevant embeddings from the index; and finally, the 'Generation' stage uses the retrieved information (implicitly passed from the retrieval stage) as input to the LLM to generate an output.  The dashed lines around each stage suggest distinct processing phases." loading="lazy" width="520" height="147" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-9-WBRZICUN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9: Various ML models in a RAG system</figcaption></div></figure>
+<h4 id="indexing-1">Indexing</h4>
+<p>As discussed in the data preparation section, we use ML models to convert data chunks (e.g., text or images) into embeddings. This process involves two ML models: a text encoder and an image encoder.</p>
+<h5 id="text-encoder">Text encoder</h5>
+<p>The text encoder is a neural network that converts input text into dense vector representations, or "embeddings." These embeddings capture the semantic meaning of the text, allowing for the assessment of the similarity of texts. During the indexing process, the text encoder converts each text chunk into an embedding, which is then stored in a database for efficient retrieval.</p>
+<p>The architecture of the text encoder is typically based on an encoder-only Transformer, similar to what we covered in Chapter 3.</p>
+<h5 id="image-encoder">Image encoder</h5>
+<p>The image encoder transforms image data into embeddings. Its architecture can be either CNN-based or Transformer-based, as we covered in Chapter 5.</p>
+<p>For effective retrieval, it is important to align the image embeddings with text embeddings. For example, if the query is “How many cats are in the company?” the system needs to ensure that the encoded query is close to the embeddings of relevant images, such as those featuring cats. There are two primary approaches to achieving this alignment:</p>
+<ol>
+<li><strong>Shared embedding space:</strong> Use image and text encoders that generate embeddings in a shared embedding space. CLIP [14] provides pretrained encoders with a shared embedding space, enabling cross-modal retrieval.</li>
+<li><strong>Image captioning:</strong> First, generate a textual description of the image using an image captioning model. The generated caption can then be encoded using a text encoder, ensuring that both image and text data exist in the same embedding space. This approach is helpful when using separate models for text and image encoders or when training a joint model is resource-intensive. To learn more about building an image captioning system from scratch, refer to Chapter 5.</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two approaches to image captioning.  Approach 1 depicts a CLIP model, consisting of an Image Encoder (light blue) and a Text Encoder (light green), processing an image and generating a text embedding.  The output of both encoders is then fed into an index (represented by a database cylinder), presumably for storage or retrieval. Approach 2 shows a simpler system where an image is first processed by an 'Image Captioning' module (grey), generating a caption like 'The image shows a cat sitting...'. This caption is then fed into a Text Encoder (light green), and the resulting text embedding is stored in an index (database cylinder).  The dashed lines in Approach 2 indicate a potential feedback loop or further processing of the generated caption.  Both approaches ultimately aim to store image-text embeddings within an index for later use, but they differ in their initial processing steps and the type of information indexed." loading="lazy" width="593" height="343" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-10-26RWTBMB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10: Two approaches for achieving text–image alignment</figcaption></div></figure>
+<p>In summary, the indexing process uses a text encoder and an image encoder to convert data chunks into embeddings. These models are often pretrained, meaning they can be directly applied without additional training. For the purposes of this chapter, we use a pretrained CLIP model as both the text and image encoder.</p>
+<h4 id="retrieval">Retrieval</h4>
+<p>The retrieval process involves converting the user’s query into the same embedding space as the indexed data. This is done using the same text encoder employed during the indexing process. Once the query embedding is computed, it is compared with the stored embeddings to retrieve the most relevant data chunks.</p>
+<h4 id="generation">Generation</h4>
+<p>The generation component is responsible for producing the final response based on the user query and the retrieved context. This task is typically handled by an LLM, which generates contextually relevant text.</p>
+<p>RAG systems can work with various types of LLMs irrespective of their architecture, including decoder-only Transformers (see Chapter 4 for details) or cloud-hosted models that support finetuning via APIs [15] [16].</p>
+<h3 id="training">Training</h3>
+<p>Most of the components in a RAG system start with pretrained models, so finetuning the LLM is not typically the first step in optimizing performance. In many cases, a well-designed retrieval process combined with effective prompt engineering can yield satisfactory results. Finetuning should be considered when the system consistently fails to provide accurate or relevant answers, even after adjusting retrieval parameters and crafting prompts. For instance, if the retrieved documents are relevant but the LLM is not generating high-quality responses, finetuning could help the LLM better understand the context and nuances of the retrieved data.</p>
+<p>One promising approach to finetuning LLMs in RAG systems is Retrieval-Augmented Fine-Tuning (RAFT). Let’s briefly examine RAFT.</p>
+<h4 id="raft">RAFT</h4>
+<p>RAFT [17] introduces a novel training method to enhance the LLM’s ability to handle both relevant and irrelevant information within retrieved documents.</p>
+<p>In traditional RAG systems, the LLM’s output depends heavily on the quality of the retrieved documents. However, irrelevant documents might be included in the retrieval results. These irrelevant documents can mislead the LLM, causing it to generate suboptimal responses. RAFT addresses this issue by incorporating a distinction between relevant and irrelevant documents during the finetuning process. This process involves two key steps:</p>
+<ol>
+<li><strong>Document labeling:</strong> Retrieved documents are labeled as either relevant (golden) or irrelevant (distractors). This provides the LLM with clear signals about the documents on which they should focus.</li>
+<li><strong>Joint training:</strong> During finetuning, the LLM is trained to generate responses based on the relevant documents while minimizing the influence of irrelevant documents. This requires adjusting the model’s loss function to penalize the use of irrelevant documents during response generation.</li>
+</ol>
+<p>By training the model to prioritize relevant content and ignore distractors, RAFT improves the LLM’s ability to handle noisy retrieval results and generate accurate and relevant responses. This ability is crucial in real-world applications, where retrieval systems may not always be perfect. To learn more about RAFT, refer to [17].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of two training methods for a question-answering system, along with a testing methodology.  The top half depicts the 'Train: RAFT' method, which uses three sampled negative documents labeled 'Adam,' 'GloVe,' and 'ResNet' (marked with red 'X's), alongside a positive document ('Attention is all you need,' marked with a green checkmark) and a user query ('query,' represented as a cloud). These are combined to train a model (represented by a robot). The bottom half shows the 'Train: Golden Only' method, using only a single positive document ('Attention is all you need') and the same query to train a separate model.  A vertical line separates the training sections from the testing section ('Test: RAG Top-k'). The testing section shows three different models (LLaMa2, Sliding Window, and Mistral 7B), each receiving the same query and producing an output document (represented by a question mark).  These outputs are then fed into a final model (another robot) which is also labeled with 'What attention is used in Mistral,' indicating the testing focuses on the attention mechanism used in the Mistral 7B model. The 'top-k...' label suggests a top-k selection process is used to choose the best output from the three models before feeding it to the final model." loading="lazy" width="642" height="240" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-11-TQX7R6LT.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11: RAFT training method (Image taken from [17])</figcaption></div></figure>
+<h3 id="sampling">Sampling</h3>
+<p>Sampling typically involves generating new data with a generative model. In a RAG system, however, multiple components work together to produce a response to a user’s query. In this section, we explore these components and highlight techniques for improving performance in the retrieval and generation stages of a RAG system.</p>
+<h4 id="retrieval-1">Retrieval</h4>
+<p>The retrieval process occurs in two main steps:</p>
+<ol>
+<li>Computing the query embedding</li>
+<li>Performing a nearest neighbor search</li>
+</ol>
+<h5 id="1-computing-the-query-embedding">1. Computing the query embedding</h5>
+<p>The first step involves converting the user’s query into an embedding using the text encoder. This embedding captures the semantic meaning of the query, allowing the system to compare it to the indexed embeddings of data chunks.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified data flow diagram illustrating a text encoding process.  A user query, 'How do I submit an...', is presented as input within a rectangular box labeled 'User query'.  This query is then passed as input, via a directed arrow, to a light green rectangular box labeled 'Text encoder'. The text encoder processes the user's query. The output of the text encoder is a vector of numerical values (0.1, 0.9, 0.3, 0.4) represented as a column of cells, suggesting a numerical embedding of the text.  Below this vector, '$E_...' indicates that this is a part of a larger embedding vector, with the ellipsis suggesting further values not shown in the image. The arrows indicate the unidirectional flow of data from the user query through the text encoder to the resulting numerical embedding." loading="lazy" width="408" height="120" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-12-HIOMXOQX.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12: User query converted to embedding</figcaption></div></figure>
+<h5 id="2-performing-a-nearest-neighbor-search">2. Performing a nearest neighbor search</h5>
+<p>Once the query embedding is computed, the system performs a nearest neighbor search to find data chunks that are most similar to the query. Nearest neighbor search addresses the task of identifying data points in a dataset that are closest to a given query point, based on a chosen similarity measure. Common measures include Euclidean distance [18], cosine similarity [19], or other distance metrics that capture relationships between data points in an embedding space.</p>
+<p>Nearest neighbor search is a fundamental component of information retrieval, search engines, and recommendation systems. Even small improvements in its performance can lead to significant overall system gains. Given its importance, interviewers may want you to dive deeper into this topic.</p>
+<p>Nearest neighbor algorithms generally fall into two categories:</p>
+<ul>
+<li>Exact nearest neighbor</li>
+<li>Approximate nearest neighbor</li>
+</ul>
+<h6 id="exact-nearest-neighbor">Exact nearest neighbor</h6>
+<p>Exact nearest neighbor search, also called linear search, is the simplest and most accurate form of nearest neighbor search. It calculates the distance between the query embedding, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mi>q</mi></msub></mrow><annotation encoding="application/x-tex">E_q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.9694em; vertical-align: -0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right: 0.05764em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.1514em;"><span style="top: -2.55em; margin-left: -0.0576em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right: 0.03588em;">q</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.2861em;"><span></span></span></span></span></span></span></span></span></span>, and every item in the dataset, retrieving the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6944em;"></span><span class="mord mathnormal" style="margin-right: 0.03148em;">k</span></span></span></span> nearest neighbors.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a two-dimensional scatter plot with axes labeled X1 and X2.  The plot displays numerous data points marked as 'x' scattered across the plane. A subset of these data points, approximately five, are enclosed within a dashed elliptical boundary.  This ellipse is labeled with 'k=3' indicating a parameter likely related to the number of data points within the cluster or a clustering algorithm's parameter.  Within the ellipse, a short dashed line connects two 'x' points, and the text '$E_...' is positioned near this line, suggesting this might represent an error term or a distance calculation within the cluster. The remaining data points outside the ellipse are distributed across the plot, indicating potential separation into different clusters or groups.  The overall image suggests a visualization of a clustering algorithm's result, possibly k-means with k=3, showing the identified cluster and its centroid (or a similar representation implied by the ellipse and the '$E_...' notation)." loading="lazy" width="276" height="276" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-13-OMA3A656.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13: Top-3 nearest neighbors to query embedding</figcaption></div></figure>
+<p>While this method guarantees finding the true nearest neighbors, it has a time complexity of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo>×</mo><mi>D</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N\times D)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">D</span><span class="mclose">)</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span></span></span></span> is the number of items in the dataset and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi></mrow><annotation encoding="application/x-tex">D</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">D</span></span></span></span> is the embedding dimension. This linear complexity can make the process very slow when working with large-scale systems, such as a RAG system indexing tens of millions of items. For instance, performing an exact search across 40 million items for a single query would involve 40 million comparisons, leading to high computational costs and latency. Therefore, the exact nearest neighbor search is often too slow and computationally expensive to be employed in practice.</p>
+<h6 id="approximate-nearest-neighbor-ann">Approximate nearest neighbor (ANN)</h6>
+<p>In many applications, it's sufficient to retrieve items that are similar enough without needing to find the exact nearest neighbor. ANN algorithms use specialized data structures that allow the system to retrieve “close enough” neighbors without searching the entire dataset, thus reducing search time to sublinear complexity, for example, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo><mo>×</mo><mi>D</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log(N)\times D)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right: 0.10903em;">N</span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">D</span><span class="mclose">)</span></span></span></span>. While these algorithms typically require some preprocessing or extra storage, they offer considerable performance benefits.</p>
+<p>Various ANN algorithms can generally be divided into the following categories:</p>
+<ul>
+<li>Tree-based</li>
+<li>Locality-sensitive hashing</li>
+<li>Clustering-based</li>
+<li>Graph-based</li>
+</ul>
+<p>While the interviewer typically will not expect you to know every detail of these categories, it is generally helpful to have a high-level understanding of them. Let’s dive in.</p>
+<h6 id="tree-based">Tree-based</h6>
+<p>Tree-based algorithms partition the data space into multiple partitions. Then they leverage the characteristics of the tree to perform a faster search. For example, k-d tree [20] splits the space based on feature values, enabling faster searches by narrowing down relevant regions of the data. Other algorithms include R-trees [21] and Annoy (Approximate Nearest Neighbor Oh Yeah) [22].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visualization comparing a tree-like structure with a 2D scatter plot.  The left side shows a tree structure with a root node at the top, branching down to two child nodes, each of which further branches into two leaf nodes.  Each leaf node is labeled with '$R_...', suggesting a similar data structure or result at each leaf.  The right side displays a 2D scatter plot with axes labeled 'X1' and 'X2'.  Numerous data points marked with 'x' are scattered across the plot.  The plot is partitioned into regions by lines, with each region labeled with '$R_...', '$R_x.', or a similar variation, suggesting a classification or clustering of the data points based on their X1 and X2 coordinates. A double-headed arrow connects the tree and the scatter plot, indicating a mapping or transformation between the hierarchical representation of the tree and the spatial representation of the scatter plot.  The labels suggest that the tree structure might represent a decision tree or a similar hierarchical model used for classification, and the scatter plot shows the resulting classification regions in the feature space defined by X1 and X2." loading="lazy" width="620" height="224" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-14-CBVHEDIB.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14: Partitioned space created by a tree</figcaption></div></figure>
+<h6 id="locality-sensitive-hashing-lsh">Locality-sensitive hashing (LSH)</h6>
+<p>LSH groups similar points into buckets using specialized hash functions. These functions ensure that points close in space are hashed into the same bucket. This drastically reduces the search space because only points in the same bucket as the query need to be examined, making LSH highly efficient for large datasets. You can learn more about LSH by reading [23].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a Locality Sensitive Hashing (LSH) scheme for approximate nearest neighbor search.  The diagram shows several clusters of data points, each represented by a dashed oval containing several small circles.  These clusters represent groups of similar data points in a high-dimensional space.  A horizontal dashed line separates the high-dimensional data space from a lower-dimensional hash table.  The label 'LSH(x)' and a downward-pointing arrow indicate that the data points are transformed using an LSH function.  Lines connect each cluster to one or more specific locations (represented by circles) within the hash table.  These connections show how the LSH function maps similar data points to the same or nearby buckets in the hash table.  The hash table is depicted as a rectangular structure divided into several sections, each containing several circles representing hash buckets.  Each section likely corresponds to a different hash function used in the LSH scheme.  The arrangement demonstrates that similar data points (those within the same cluster) are likely to be hashed to the same or nearby buckets in the hash table, facilitating efficient approximate nearest neighbor search." loading="lazy" width="518" height="234" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-15-GQRMPJWD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15: LSH groups the data points into buckets</figcaption></div></figure>
+<h6 id="clustering-based">Clustering-based</h6>
+<p>Clustering-based algorithms organize data into clusters using distance metrics such as cosine similarity or Euclidean distance. This allows the search for the nearest neighbor to be limited to the cluster(s) most relevant to the query, reducing the number of comparisons required, as only data points within the selected cluster are considered. Specifically, once the indexed items are organized into clusters, nearest neighbors are retrieved in two steps:</p>
+<ol>
+<li><strong>Inter-cluster search:</strong> The query embedding is compared to the centroids of all clusters, and the clusters that are closer than a specified threshold are selected.</li>
+<li><strong>Intra-cluster search:</strong> The query embedding is compared to the items in selected clusters.</li>
+</ol>
+<p>This two-step process—first narrowing down the search to a cluster, then conducting a finer search within that cluster—significantly improves efficiency. This process is shown in Figure 16.</p>
+<h6 id="graph-based">Graph-based</h6>
+<p>Graph-based algorithms, such as HNSW (hierarchical navigable small world) [24], structure the data as a graph, where nodes represent data points and edges connect them based on proximity in the embedding space. HNSW operates by navigating through this graph in a hierarchical manner, beginning with a higher-level coarse graph and gradually moving down to finer levels. The search is refined at each level, exploring only nearby nodes, thus drastically reducing the search space.</p>
+<h6 id="which-nearest-neighbor-search-category-is-best-suited-for-a-rag-retrieval-system">Which nearest neighbor search category is best suited for a RAG retrieval system?</h6>
+<p>In RAG systems, the number of indexed items is typically massive and growing, often exceeding hundreds of millions of embeddings. The time complexity of the exact nearest neighbor search is too high, therefore, we rely on ANN algorithms to efficiently retrieve relevant data chunks.</p>
+<p>Various ANN algorithms have their own strengths. Choosing the right ANN algorithm usually depends on factors such as the dataset size, required speed, and accuracy trade-offs. For simplicity, we employ a clustering-based ANN approach in the retrieval component of the RAG system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for document retrieval.  The process begins with 'Document databases' containing various document types (text and images), undergoing 'Data preparation.' This prepared data is then indexed into two separate 'Index...' databases. These indices are subsequently clustered into three distinct 'Clusteri...' groups, visually represented as ovals containing differently colored dots representing documents. A user query, 'How many cats live i...', is input into a 'Text Encoder.'  The encoded query is then compared against the clusters.  The system uses an 'Inter-Cluste...' module to assess inter-cluster similarity, rejecting two clusters (indicated by red 'X' marks) and selecting one (indicated by a green checkmark).  The selected cluster is further processed by an 'Intra-Cluste...' module to refine the retrieval.  Finally, the system outputs a list of 'Retrieved...' documents (retrieved doc 1, retrieved doc 2,..., retrieved doc k) based on the intra-cluster similarity, effectively retrieving relevant documents based on the user's query." loading="lazy" width="556" height="552" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-16-2FNP3CKR.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16: Overall retrieval process</figcaption></div></figure>
+<p>Several modern frameworks provide out-of-the-box support for ANN, including:</p>
+<ul>
+<li><strong>Elasticsearch [10]:</strong> A widely used search engine that supports vector similarity search.</li>
+<li><strong>FAISS [25]:</strong> A popular library developed by Meta that enables efficient nearest neighbor search for large datasets.</li>
+<li><strong>ScaNN [26]:</strong> A library developed by Google, designed for fast and efficient nearest neighbor search on large datasets.</li>
+</ul>
+<p>These frameworks are commonly used in practice to make the retrieval components of large-scale systems both efficient and scalable.</p>
+<h4 id="generation-1">Generation</h4>
+<p>The generation component takes the user query and retrieved context as input and generates a response using top-p sampling. However, we can further improve the quality of the generated response by incorporating prompt engineering techniques, as shown in Figure 17.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified diagram of a text generation system.  A 'User query' enters the system from the left and flows into a rounded rectangular box labeled 'Generation'. Inside this box, the user query is first transformed into a 'Prompt...' (represented by a light purple rectangle), which is then fed into a light gray rectangle labeled 'LLM' (likely representing a Large Language Model).  A parameter, 'Top p...', is applied to the output of the LLM.  Finally, the processed output, labeled 'Response', exits the 'Generation' box on the right.  Above the 'Generation' box, a vertical arrow indicates that additional information, labeled 'Retrieved...', is incorporated into the 'Prompt...' before it's processed by the LLM.  The overall flow is linear, from user input to prompt creation, LLM processing with parameter application, and finally to the generated response." loading="lazy" width="497" height="196" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-17-IP6FUNRC.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17: Generation component overview</figcaption></div></figure>
+<p>In this section, we dive into prompt engineering and explore how it enhances response generation in a RAG system.</p>
+<h5 id="prompt-engineering-1">Prompt engineering</h5>
+<p>Prompt engineering is a powerful technique that optimizes input prompts to help LLMs generate more accurate and contextually relevant responses. By carefully designing prompts, we can guide the model’s output to better align with specific tasks, improving overall performance. While prompt engineering can be applied in both the retrieval (e.g., crafting better queries to optimize search) and generation, we focus on applying it to the generation for educational purposes. The same approach can also be used to improve retrieval performance.</p>
+<p>Let’s start this section with prompt design principles, followed by prompt engineering techniques.</p>
+<h5 id="prompt-design-principles">Prompt design principles</h5>
+<p>Effective prompt design is crucial for maximizing the performance of language models. By following key principles, we can enhance the quality of the generated output and reduce irrelevant or confusing responses. Below are some essential prompt engineering principles:</p>
+<ol>
+<li><strong>Start simple:</strong> Begin with straightforward prompts and gradually introduce more complexity. Iterative experimentation is key to refining prompts. Tools such as Cohere’s Playground [27] allow you to easily test and adjust prompts as needed.</li>
+<li><strong>Break down complex tasks:</strong> Break down tasks involving multiple subtasks into smaller, manageable steps. This avoids overwhelming the LLM and ensures better focus on individual subtasks.</li>
+<li><strong>Use clear instructions:</strong> Be explicit with instructions, using clear, action-oriented commands such as "Write," "Summarize," or "Translate." Experiment with different instructions to find what works best for your task. Placing instructions at the beginning of the prompt, separated by delimiters such as "###," can also help organize the prompt.</li>
+<li><strong>Be specific:</strong> Specificity leads to more accurate responses. Clearly describe what you expect in terms of format, style, or outcomes. However, avoid overloading the prompt with unnecessary details—include only what is relevant to the task.</li>
+<li><strong>Experiment with prompt length:</strong> Consider the length of the prompt. Too much unnecessary information can confuse the LLM, while too little may result in vague responses. Strike a balance by being concise yet detailed enough to guide the LLM effectively.</li>
+</ol>
+<h5 id="prompt-engineering-techniques">Prompt engineering techniques</h5>
+<p>Several prompt engineering techniques have been developed to improve the quality of LLM outputs. Some of the most effective ones include:</p>
+<ul>
+<li>Chain-of-thought prompting</li>
+<li>Few-shot prompting</li>
+<li>Role-specific prompting</li>
+<li>User-context prompting</li>
+</ul>
+<h6 id="chain-of-thought-prompting">Chain-of-thought prompting</h6>
+<p>Chain-of-thought (CoT) prompting [28] involves guiding the model through intermediate reasoning steps before arriving at a final answer. This is especially useful for complex queries requiring multi-hop reasoning, where the model must combine information from multiple documents to generate a complete response. CoT prompts guide the model to break down its reasoning into steps, leading to more accurate and insightful answers.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a rectangular box containing a single line of text: 'Given the following documents, explain the step-by-...'.  The text is centrally aligned within the box and is written in a simple, sans-serif font.  No other components, connections, or information flow are visible within the image; the box only serves as a container for the prompt, indicating that a subsequent part of the image (which is not displayed) would contain the 'following documents' referred to in the prompt.  The text 'Text is not SVG - cannot display' below the box indicates that the image originally contained additional visual information, likely a diagram or flowchart, which could not be rendered." loading="lazy" width="391" height="86" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-18-I3GSHFZ7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18: Example of CoT</figcaption></div></figure>
+<p>CoT has been further extended by techniques such as [29] that allow models to evaluate multiple reasoning paths before selecting the best response. OpenAI’s o1<sup><a id="user-content-fnref-2" data-footnote-ref="true" aria-describedby="footnote-label" href="/courses/genai-system-design-interview/retrieval-augmented-generation#user-content-fn-2">2</a></sup> [30] and [31] have shown that an LLM’s ability to handle more complex tasks can be improved by allocating more computational budget at inference time, also known as test-time compute scaling.</p>
+<h6 id="few-shot-prompting">Few-shot prompting</h6>
+<p>Few-shot prompting [32] involves providing the model with a few examples of input-output pairs before the actual query. This method helps the model understand the desired format and tone of the output, improving its ability to generate responses that align with the provided examples.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple, text-based illustration of a question-answering system.  The image contains a single line of text within a rectangular box.  This line presents an example labeled 'Example 1,' showing a user query: 'How do plants absorb sunlight?'  A right-pointing arrow ('→') acts as a connector, visually indicating the flow of information from the query to the system's response. The system's answer, partially shown as 'Plants...', follows the arrow.  There are no other components, connections, or visual elements besides the text and the arrow. The text 'Text is not SVG - cannot display' at the bottom indicates that a visual component was intended but not rendered." loading="lazy" width="501" height="155" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-19-7PCU4C6J.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19: Example of few-shot prompting</figcaption></div></figure>
+<h6 id="role-specific-prompting">Role-specific prompting</h6>
+<p>In some cases, the language model may need to adopt a specific "role" to generate an appropriate response. For example, in legal or medical domains, prompting the model to act as a subject-matter expert ensures that the response carries the necessary tone, accuracy, and authority.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple text-based prompt within a rectangular frame.  The only visible component is a single line of text reading 'You are an experienced contract lawyer with over 20 years of experience specializing in corp...', indicating a scenario or context for a problem to be solved.  The text is centrally aligned within the frame.  There are no other components, connections, or information flows depicted.  The bottom of the image contains the text 'Text is not SVG - cannot display,' suggesting that the image is a placeholder or a failed attempt to render a more complex diagram." loading="lazy" width="611" height="225" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-20-Q5DGMG2E.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20: Example of role-specific prompting</figcaption></div></figure>
+<h6 id="user-context-prompting">User-context prompting</h6>
+<p>User-context prompting tailors the model’s output based on specific user information included in the prompt. By incorporating user profiles, preferences, or locations into the queries, the model can generate personalized responses that are more relevant to the users.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a rectangular box with a gray border.  The only visible content within the box is the text '[Other prompts]...', located in the top-left corner.  This suggests the box represents a container or placeholder for additional input prompts, which are not explicitly shown in the image.  There are no other components, connections, or information flows depicted within the box or connected to it. The bottom of the image displays the text 'Text is not SVG - cannot display,' indicating that the image is a placeholder for a more complex diagram that could not be rendered." loading="lazy" width="623" height="139" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-21-HQ7KIOMJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21: Example of user-context prompting</figcaption></div></figure>
+<p>This method is particularly effective when user-specific information is crucial to shaping the response, such as in personalized recommendations or location-based queries.</p>
+<h5 id="putting-it-all-together-prompt-engineering-for-response-generation">Putting it all together: prompt engineering for response generation</h5>
+<p>Combining these techniques allows us to craft highly effective prompts for generating responses in a RAG system. Principles such as clarity and specificity can guide the model to produce more accurate outputs. Prompt engineering techniques can significantly enhance a RAG’s generation capabilities, resulting in more reliable and contextually appropriate outcomes.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating the processing flow of a user's query within a large language model (LLM) system.  The diagram shows a vertical stack of five horizontal rectangular boxes representing different stages of processing, arranged from top to bottom. The top two boxes, colored light red and pale yellow respectively, represent 'Retrieved Context...' and 'Role-Specific...', indicating the retrieval of relevant contextual information and role-specific knowledge. The third box, light blue, contains the user's initial query labeled '[INITIAL_QUERY]...', which is the input to the system. The fourth box, light green, represents the 'CoT' (Chain of Thought) reasoning process. The bottom box, light purple, represents 'User-Context...', indicating the user's historical interaction data.  Arrows point from each of these boxes to the right, connecting them to corresponding labeled rectangular boxes outside the main stack: 'Retrieved Context...', 'Role-Specific...', 'Few-Shot Prompt...', 'CoT', and 'User-Context...'. These external boxes represent the outputs or components used in each stage. The overall flow suggests that the system uses retrieved context, role-specific information, a few-shot prompt, chain-of-thought reasoning, and user context to process the user's initial query." loading="lazy" width="628" height="495" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-22-V4TZ5YMD.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 22: Example of final prompt for response generation</figcaption></div></figure>
+<h2 id="evaluation">Evaluation</h2>
+<p>Unlike traditional ML models, which are evaluated using well-defined quantitative metrics, evaluating RAG systems is more complex. This complexity arises because the quality of the final text response depends on the effectiveness of multiple components within the pipeline. To capture this multifaceted evaluation, we use a triad diagram to explain the relationship between different evaluation aspects.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified model of a query-response system, focusing on relevance and faithfulness.  Three main components are depicted as ovals: 'Query,' 'Results,' and 'Context.'  A directed arrow labeled 'Answer Relevance...' connects 'Results' to 'Query,' indicating that the results' relevance influences the initial query.  Another arrow labeled 'Context Relevance' points from 'Query' to 'Context,' showing how the query's context is determined.  Finally, a bidirectional arrow labeled 'Faithfulness' connects 'Results' and 'Context,' suggesting a feedback loop where the faithfulness of the results to the context is evaluated and potentially influences the results.  The overall structure illustrates how a query, its context, and the resulting answers are interconnected, with relevance and faithfulness acting as key evaluation criteria." loading="lazy" width="408" height="184" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-23-BKV4UTYR.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 23: Triad of RAG evaluation</figcaption></div></figure>
+<p>The evaluation of a RAG system focuses on four key aspects:</p>
+<ul>
+<li>Context relevance</li>
+<li>Faithfulness</li>
+<li>Answer relevance</li>
+<li>Answer correctness</li>
+</ul>
+<p>These aspects help assess how well the system retrieves, generates, and matches information relevant to the user’s query. Let’s examine each in more detail.</p>
+<h4 id="context-relevance">Context relevance</h4>
+<p>Context relevance measures how accurately and completely the retrieval component selects relevant documents based on the query. The goal is to ensure that all relevant content appears at the top of the retrieval results. This aspect directly evaluates the effectiveness of the retrieval mechanism. Common metrics used for context relevance include:</p>
+<ul>
+<li>Hit rate</li>
+<li>Mean reciprocal rank (MRR)</li>
+<li>Normalized discounted cumulative gain (NDCG)</li>
+<li>Precision@k</li>
+</ul>
+<p>To learn more about evaluation metrics in retrieval and ranking systems, refer to [33][34].</p>
+<h4 id="faithfulness">Faithfulness</h4>
+<p>Faithfulness assesses whether the generated response is factually aligned with the retrieved context. It checks if the generation component is hallucinating (i.e., introducing information not grounded in the context). This is crucial because the system should produce answers that strictly reflect the source material. By evaluating faithfulness, we reduce the risk of generating plausible-sounding yet factually unaligned responses, thereby enhancing the reliability and trustworthiness of the output.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system for generating different responses to a user's query using a Large Language Model (LLM).  A rectangular box labeled 'User's initial query: What are Marie Curie's main ac...' represents the user's input, which is a partial query about Marie Curie's accomplishments. This input, labeled 'Full prompt,' is fed into a central, light-green rectangular box labeled 'LLM,' representing the Large Language Model. The LLM processes the query and produces two different outputs, depending on a parameter seemingly related to the desired level of detail or confidence.  One output, labeled 'Marie Curie won Nobel Prizes in both Phys...', is associated with a 'High...' parameter, suggesting a more comprehensive or confident response. The other output, labeled 'Marie Curie only won a Nobel Prize in...', is associated with a 'Low...' parameter, indicating a less detailed or less confident response.  Arrows show the flow of information from the user's query to the LLM and then to the two different output boxes." loading="lazy" width="624" height="211" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-24-J77N24MH.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 24: Example of faithfulness</figcaption></div></figure>
+<p>Faithfulness can be assessed using the following methods:</p>
+<ul>
+<li><strong>Human evaluation:</strong> Experts manually review the generated responses to determine whether they are factually aligned and correctly referenced to the retrieved documents. This process involves cross-checking each claim against the source materials to ensure all information generated is substantiated.</li>
+<li><strong>Automated fact-checking tools:</strong> Tools such as [35] and [36] can automate the validation process by comparing the generated response against a database of verified facts. They offer a scalable solution for identifying inaccuracies, thus reducing the reliance on human evaluators.</li>
+<li><strong>Consistency checks:</strong> This method involves evaluating whether the LLM provides consistent factual information across multiple queries. Regular consistency checks ensure that the LLM does not produce contradictory information, which is essential for maintaining the reliability and coherence of the responses over time.</li>
+</ul>
+<h4 id="answer-relevance">Answer relevance</h4>
+<p>Answer relevance measures how closely the generated answer matches the original query in terms of completeness and lack of redundancy. If the response includes irrelevant or redundant information or lacks important details, it scores low in relevance. This aspect can be evaluated by comparing the question and the answer using another language model (e.g., ChatGPT).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified model of a Large Language Model (LLM) processing a user's query.  A rectangular box labeled 'User's initial query: What are the main cha...' represents the user's input, which is a truncated question about the main characteristics of something (likely a diet, based on the output). This 'Full prompt' is fed into a central, light-green rectangular box labeled 'LLM,' representing the core LLM processing unit. The LLM then outputs two responses, each in a separate rectangular box.  One box, connected to the LLM by a line labeled 'High relevance,' contains a response beginning 'A healthy diet should include a variet...', suggesting a high-relevance answer to the user's query. The other box, connected by a line labeled 'Low relevance,' displays a response starting 'A healthy diet is very important for o...', indicating a lower-relevance answer.  The diagram illustrates how an LLM processes an initial query and generates responses with varying degrees of relevance to the input." loading="lazy" width="616" height="187" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-25-JUGJGUPX.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 25: Example of answer relevance</figcaption></div></figure>
+<h4 id="answer-correctness">Answer correctness</h4>
+<p>Answer correctness focuses on how closely the generated answer matches the correct reference answer. It measures the similarity between the two using popular metrics including BLUE, ROGUE, and METEOR. To review these metrics, refer to Chapter 3.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified model of a Large Language Model (LLM) processing a user's query.  A rectangular box labeled 'Full prompt' contains the user's initial query, 'User's initial query: When and where was th...', indicating an incomplete question. This 'Full prompt' box sends this input as an arrow to a central, light-green rectangular box labeled 'LLM,' representing the core LLM processing unit.  The LLM then outputs two separate responses, each in a rectangular box.  One box, connected to the LLM by an arrow labeled 'High correctn...', displays the response 'The Eiffel Tower was completed in 1889...', suggesting a high-confidence, accurate answer. The other box, connected by an arrow labeled 'Low...', displays an identical response 'The Eiffel Tower was completed in 1889...', implying a lower confidence level in this particular output despite the identical factual content.  The diagram illustrates how an LLM processes an input and produces outputs with varying confidence levels, even if the outputs themselves are factually the same." loading="lazy" width="589" height="148" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-26-DKZP3XIH.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 26: Example of answer correctness</figcaption></div></figure>
+<h2 id="overall-ml-system-design">Overall ML System Design</h2>
+<p>A RAG system consists of several components that work together to retrieve and generate responses efficiently. In this section, we will explore the following key components:</p>
+<ul>
+<li>Indexing process</li>
+<li>Safety filtering</li>
+<li>Query expansion</li>
+<li>Retrieval</li>
+<li>Generation</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a generative AI system.  The diagram is divided into two main sections: an 'Indexing process' and a 'Generation' process. The indexing process begins with 'Document databases' containing both text and image data.  These documents are processed, separating text and image components.  The text components are indexed into an 'Index...' database, and the image components are indexed into an 'Index (ima...)' database.  The generation process starts with a 'User query' that first passes through a 'Safety...' filter.  The filtered query is then processed to create a 'Query...' which is used to retrieve relevant information from the previously created indices via a 'Nearest Neighbor...' search.  The retrieved 'Text...' is combined to form a 'Prompt...', which is fed into an 'LLM' (Large Language Model). The LLM's output then undergoes another 'Safety...' check before producing the final 'Response'.  The entire generation process is enclosed within a 'Generation' box, highlighting the core functionality of the system.  The flow of information is clearly depicted through arrows connecting each component, showing the sequential processing steps." loading="lazy" width="616" height="628" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/genai-system-design-interview/retrieval-augmented-generation/figure-6-27-E6AZI66X.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 27: RAG system overall design</figcaption></div></figure>
+<h3 id="indexing-process">Indexing process</h3>
+<p>The indexing process is responsible for converting the knowledge base into embeddings, which are then stored in an index table for efficient retrieval. This begins with document parsing and chunking, where the text and images in PDFs are broken down into meaningful data chunks. These data chunks are then converted into embeddings using a CLIP text and image encoder, ensuring that both text and image embeddings are mapped into a shared embedding space. Once the data chunks are embedded, they are stored in the index table, thus allowing for fast retrieval.</p>
+<h3 id="safety-filtering">Safety filtering</h3>
+<p>The safety filtering component ensures that user requests are safe and comply with the system's guidelines. This involves checking queries for inappropriate or harmful content before processing them further. To learn more about safety filtering and evaluation, refer to Chapter 4.</p>
+<h3 id="query-expansion">Query expansion</h3>
+<p>Query expansion enhances the quality of the retrieval process by expanding the user's query to have a better flow and be free of typos and grammatical errors. By broadening the scope of the search, query expansion helps the system identify additional relevant data that might not have been explicitly mentioned in the original query, thereby increasing the chances of retrieving more relevant results.</p>
+<p>To learn more about query expansion and its technical details, refer to [37].</p>
+<h3 id="retrieval-2">Retrieval</h3>
+<p>The retrieval component is responsible for finding the data chunks that are most relevant to the user's query. The user query is first converted into an embedding using the CLIP text encoder, and then an ANN algorithm is used to efficiently retrieve the most similar data chunks in the index table.</p>
+<h3 id="generation-2">Generation</h3>
+<p>Once the relevant data chunks are retrieved, the generation component produces the final output. This involves two main steps:</p>
+<ul>
+<li><strong>Prompt Engineering:</strong> The user query and retrieved context are combined into a prompt and then optimized using techniques such as CoT to structure the model’s reasoning process.</li>
+<li><strong>LLM:</strong> The LLM generates the final response using top-p sampling.</li>
+</ul>
+<h2 id="other-talking-points">Other Talking Points</h2>
+<p>If time permits at the end of the interview, consider discussing these additional topics:</p>
+<ul>
+<li>Tabular detection in document parsing [38] [39] [40].</li>
+<li>Details of approximate nearest neighbor algorithms [20] [21] [23] [24].</li>
+<li>Support user-uploaded documents [2].</li>
+<li>Dynamic retrieval strategy [41] [42].</li>
+<li>Query rewriting and expansion [43] [37].</li>
+<li>Inference time CoT and test-time scaling [30] [31].</li>
+</ul>
+<h2 id="summary">Summary</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mind map outlining the key considerations in designing a generative AI system.  The central node is labeled 'Summary,' branching into two main categories: 'Model development' and 'Evaluation.'  'Model development' further branches into 'Architecture,' 'Training,' and 'Sampling.'  'Architecture' details indexing methods (keyword-based, full-text search, knowledge graph-based, vector-based), retrieval techniques (ANN, LSH, tree-based, clustering-based, graph-based), and generation methods (LLM, text encoder, image encoder, prompt engineering techniques, Chain-of-Thought (CoT), few-shot learning, role-specific prompting, and user context). 'Training' includes the mention of 'Hall.' 'Sampling' is a leaf node. 'Evaluation' branches into 'Content relevance,' 'Faithfulness,' and 'Answer correctness.'  A separate branch from 'Summary' labeled 'Data preparation' details 'Clarifying requirements,' 'Specifying input and output,' 'Framing as ML,' 'Finetuning,' 'ML approach,' 'Prompt engineering,' 'RAG,' 'Rule-based,' 'Document parsing,' 'AI-based,' 'Length-based,' 'Document chunking,' 'Regex-based,' and 'Splitters.'  Finally, a branch labeled 'Overall system components' includes 'Indexing process,' 'Safety filtering,' 'Query expansion,' 'Retrieval,' and 'Generation.'  Another branch labeled 'Other talking points' is also present.  The entire mind map uses color-coded branches to visually group related concepts." loading="lazy" width="704" height="844" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(704px, 100vw), (max-width: 1200px) min(704px, 80vw), min(704px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fgenai-system-design-interview%2Fretrieval-augmented-generation%2Fimage-6-1-2ULWZOHW.png&amp;w=3840&amp;q=75" style="color: transparent;"></div></figure>
+<h2 id="reference-material">Reference Material</h2>
+<p>[1] Perplexity. <a href="https://www.perplexity.ai/" target="_blank" rel="noopener noreferrer">https://www.perplexity.ai/</a>.<br>
+[2] ChatPDF. <a href="https://www.chatpdf.com/" target="_blank" rel="noopener noreferrer">https://www.chatpdf.com/</a>.<br>
+[3] LoRA: Low-Rank Adaptation of Large Language Models. <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2106.09685</a>.<br>
+[4] Optical character recognition. <a href="https://en.wikipedia.org/wiki/Optical_character_recognition" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Optical_character_recognition</a>.<br>
+[5] Dedoc GitHub Repository. <a href="https://github.com/ispras/dedoc" target="_blank" rel="noopener noreferrer">https://github.com/ispras/dedoc</a>.<br>
+[6] LayoutParser: A Unified Toolkit for Deep Learning Based Document Image Analysis. <a href="https://arxiv.org/abs/2103.15348" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2103.15348</a>.<br>
+[7] Google Cloud document parser API. <a href="https://cloud.google.com/document-ai/docs/layout-parse-chunk" target="_blank" rel="noopener noreferrer">https://cloud.google.com/document-ai/docs/layout-parse-chunk</a>.<br>
+[8] PDF.CO document parser API. <a href="https://developer.pdf.co/api/document-parser/index.html" target="_blank" rel="noopener noreferrer">https://developer.pdf.co/api/document-parser/index.html</a>.<br>
+[9] Character text splitter in LangChain. <a href="https://python.langchain.com/v0.1/docs/modules/data_connection/document_transformers/character_text_splitter/" target="_blank" rel="noopener noreferrer">https://python.langchain.com/v0.1/docs/modules/data_connection/document_transformers/character_text_splitter/</a>.<br>
+[10] Elasticsearch. <a href="https://www.elastic.co/elasticsearch" target="_blank" rel="noopener noreferrer">https://www.elastic.co/elasticsearch</a>.<br>
+[11] A Survey on Knowledge Graphs: Representation, Acquisition, and Applications. <a href="https://ieeexplore.ieee.org/document/9416312" target="_blank" rel="noopener noreferrer">https://ieeexplore.ieee.org/document/9416312</a>.<br>
+[12] Manning, Christopher D. "Introduction to information retrieval." (2008). [<a href="https://nlp.stanford.edu/IR-book/information-retrieval-book.html" target="_blank" rel="noopener noreferrer">https://nlp.stanford.edu/IR-book/information-retrieval-book.html</a>] (<a href="https://nlp.stanford.edu/IR-book/information-retrieval-book.html" target="_blank" rel="noopener noreferrer">https://nlp.stanford.edu/IR-book/information-retrieval-book.html</a>)<br>
+[13] Modern information retrieval: A brief overview. <a href="http://singhal.info/ieee2001.pdf" target="_blank" rel="noopener noreferrer">http://singhal.info/ieee2001.pdf</a>.<br>
+[14] Learning Transferable Visual Models From Natural Language Supervision. <a href="https://arxiv.org/abs/2103.00020" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2103.00020</a>.<br>
+[15] OpenAI finetuning documentation. <a href="https://platform.openai.com/docs/guides/fine-tuning" target="_blank" rel="noopener noreferrer">https://platform.openai.com/docs/guides/fine-tuning</a>.<br>
+[16] Anthropic finetuning. <a href="https://www.anthropic.com/news/fine-tune-claude-3-haiku" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/fine-tune-claude-3-haiku</a>.<br>
+[17] RAFT: Adapting Language Model to Domain Specific RAG. <a href="https://arxiv.org/abs/2403.10131" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2403.10131</a>.<br>
+[18] Euclidean distance. <a href="https://en.wikipedia.org/wiki/Euclidean_distance" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Euclidean_distance</a>.<br>
+[19] Cosine similarity. <a href="https://en.wikipedia.org/wiki/Cosine_similarity" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Cosine_similarity</a>.<br>
+[20] Multidimensional binary search trees used for associative searching. <a href="https://dl.acm.org/doi/10.1145/361002.361007" target="_blank" rel="noopener noreferrer">https://dl.acm.org/doi/10.1145/361002.361007</a>.<br>
+[21] R-trees: A dynamic index structure for spatial searching. <a href="https://dl.acm.org/doi/10.1145/971697.602266" target="_blank" rel="noopener noreferrer">https://dl.acm.org/doi/10.1145/971697.602266</a>.<br>
+[22] Annoy library. <a href="https://github.com/spotify/annoy" target="_blank" rel="noopener noreferrer">https://github.com/spotify/annoy</a>.<br>
+[23] Similarity search in high dimensions via hashing. <a href="https://www.cs.princeton.edu/courses/archive/spring13/cos598C/Gionis.pdf" target="_blank" rel="noopener noreferrer">https://www.cs.princeton.edu/courses/archive/spring13/cos598C/Gionis.pdf</a>.<br>
+[24] Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs. <a href="https://arxiv.org/abs/1603.09320" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1603.09320</a>.<br>
+[25] Faiss Documentation. <a href="https://faiss.ai/" target="_blank" rel="noopener noreferrer">https://faiss.ai/</a>.<br>
+[26] ScaNN. <a href="https://research.google/blog/announcing-scann-efficient-vector-similarity-search/" target="_blank" rel="noopener noreferrer">https://research.google/blog/announcing-scann-efficient-vector-similarity-search/</a>.<br>
+[27] Developer Playground. <a href="https://docs.cohere.com/v2/docs/playground-overview" target="_blank" rel="noopener noreferrer">https://docs.cohere.com/v2/docs/playground-overview</a>.<br>
+[28] Chain-of-Thought Prompting Elicits Reasoning in Large Language Models. <a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2201.11903</a>.<br>
+[29] Tree of Thoughts: Deliberate Problem Solving with Large Language Models. <a href="https://arxiv.org/abs/2305.10601" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.10601</a>.<br>
+[30] OpenAI o1. <a href="https://openai.com/index/learning-to-reason-with-llms/" target="_blank" rel="noopener noreferrer">https://openai.com/index/learning-to-reason-with-llms/</a>.<br>
+[31] Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters. <a href="https://arxiv.org/abs/2408.03314" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2408.03314</a>.<br>
+[32] Language Models are Few-Shot Learners. <a href="https://arxiv.org/abs/2005.14165" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2005.14165</a>.<br>
+[33] Machine Learning System Design Interview. <a href="https://www.aliaminian.com/books" target="_blank" rel="noopener noreferrer">https://www.aliaminian.com/books</a>.<br>
+[34] Evaluation measure for information retrieval. <a href="https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Evaluation<em>measures</em>(information_retrieval)</a>.<br>
+[35] Ragas. <a href="https://docs.ragas.io/en/stable/" target="_blank" rel="noopener noreferrer">https://docs.ragas.io/en/stable/</a>.<br>
+[36] ARES: An Automated Evaluation Framework for Retrieval-Augmented Generation Systems. <a href="https://arxiv.org/abs/2311.09476" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.09476</a>.<br>
+[37] Query2doc: Query Expansion with Large Language Models. <a href="https://arxiv.org/abs/2303.07678" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.07678</a>.<br>
+[38] TableNet: Deep Learning model for end-to-end Table detection and Tabular data extraction from Scanned Document Images. <a href="https://arxiv.org/abs/2001.01469" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2001.01469</a>.<br>
+[39] CascadeTabNet: An approach for end to end table detection and structure recognition from image-based documents. <a href="https://arxiv.org/abs/2004.12629" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2004.12629</a>.<br>
+[40] Deepdesrt: Deep learning for detection and structure recognition of tables in document images. <a href="https://ieeexplore.ieee.org/document/8270123" target="_blank" rel="noopener noreferrer">https://ieeexplore.ieee.org/document/8270123</a>.<br>
+[41] Active Retrieval Augmented Generation. <a href="https://arxiv.org/abs/2305.06983" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.06983</a>.<br>
+[42] Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection. <a href="https://arxiv.org/abs/2310.11511" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.11511</a>.<br>
+[43] ​​Precise Zero-Shot Dense Retrieval without Relevance Labels. <a href="https://arxiv.org/abs/2212.10496" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2212.10496</a>.</p>
+<section data-footnotes="true" class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-1">
+<p>Accurate at the time of writing. <a data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref" href="/courses/genai-system-design-interview/retrieval-augmented-generation#user-content-fnref-1">↩</a></p>
+</li>
+<li id="user-content-fn-2">
+<p>Specifics are unknown to the public at the time of writing. <a data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref" href="/courses/genai-system-design-interview/retrieval-augmented-generation#user-content-fnref-2">↩</a></p>
+</li>
+</ol>
+</section>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../genai-system-design-interview.html">← Course Contents</a>
+        <a href="image-captioning.html">← Previous</a>
+        <a href="realistic-face-generation.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

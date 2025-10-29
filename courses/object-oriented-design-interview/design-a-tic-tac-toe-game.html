@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a Tic Tac Toe Game - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design a Tic Tac Toe Game
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-grocery-store-system.html">← Previous</a>
+        <a href="design-a-blackjack-game.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">10</span> Design a Tic Tac Toe Game
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/design-a-tic-tac-toe-game" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">10</strong><h1>Design a Tic Tac Toe Game</h1></header><p>In this chapter, we will explore the object-oriented design of a Tic-Tac-Toe game. We aim to create an interactive platform where two players alternate turns, placing their symbols on a virtual board. We’ll design key components such as the game board, player move tracking, outcome determination, and a score tracker for managing player ratings.</p>
+<p><strong>How Tic-Tac-Toe Works:</strong> Tic-Tac-Toe is a classic two-player game played on a 3x3 grid. Each player selects a symbol ("X" or "O") and takes turns placing it in an empty cell. The goal is to align three identical symbols horizontally, vertically, or diagonally. The game concludes with a win if a player achieves this alignment, or a draw if all nine cells are filled without a winner.</p>
+<p>Let’s gather the key requirements through a mock interview scenario.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a 3x3 tic-tac-toe board showing a completed game.  The board is composed of nine equal-sized squares arranged in a three-by-three grid, delineated by thick black lines. Each square contains either a bold, uppercase 'X' or a bold, uppercase 'O,' representing the moves of the two players. The arrangement of the symbols shows that 'X' has won the game, having three 'X's in a diagonal line from the top-left to the bottom-right.  There is no other information, such as URLs or parameters, present in the image; it solely depicts the final state of a tic-tac-toe game." loading="lazy" width="267" height="252" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(267px, 100vw), (max-width: 1200px) min(267px, 80vw), min(267px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fobject-oriented-design-interview%2Fdesign-a-tic-tac-toe-game%2Fimage-10-1-6GMZSEBF.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Tic-Tac-Toe</figcaption></div></figure>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>Here’s an example of a typical prompt an interviewer might present:</p>
+<p>“Imagine you and a friend are sitting down for a quick game of Tic-Tac-Toe. You each choose a symbol (e.g., “X” or “O”) and take turns placing your symbol on a board. After each move, the game checks if someone has won or if the board is full, signaling a draw. Behind the scenes, the game tracks your moves, updates a scoreboard to reflect wins, and maintains player rankings for future matches. Let’s design a Tic-Tac-Toe game system that handles all this.”</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate:</strong> Does the game support different board sizes?<br>
+<strong>Interviewer:</strong> No, let’s stick to the standard 3x3 board for simplicity.</p>
+<p><strong>Candidate:</strong> How should the game handle outcomes like wins, losses, and draws?<br>
+<strong>Interviewer:</strong> The system must detect winning patterns and notify players of the result: win, draw, or ongoing.</p>
+<p><strong>Candidate:</strong> Should the game track player ratings?<br>
+<strong>Interviewer:</strong> Yes, the game should maintain a score tracker that updates player ratings based on game outcomes (win, loss, or draw).</p>
+<p><strong>Candidate:</strong> How does the game handle invalid moves?<br>
+<strong>Interviewer:</strong> If a player attempts a move in an occupied or invalid position, notify them and prompt them for a new move.</p>
+<p>Based on this discussion, let’s nail down the key functional requirements.</p>
+<h3 id="requirements">Requirements</h3>
+<p>Here are the key functional requirements we’ve identified.</p>
+<ul>
+<li>The game is played on a 3x3 board.</li>
+<li>The system determines the game’s status:
+<ul>
+<li>a win (three identical symbols aligned in a row, column, or diagonal)</li>
+<li>a draw (a full board with no winner)</li>
+<li>In progress.</li>
+</ul>
+</li>
+<li>A score tracker records player performance, updates ratings based on wins, and supports queries like rankings or top players.</li>
+<li>Invalid moves (e.g., placing a symbol in an occupied cell) are rejected with feedback to the player.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>The user interface should be intuitive, providing clear feedback for invalid moves and game outcomes, with easily accessible gameplay instructions.</li>
+<li>The system should support future enhancements, such as different board sizes or game modes, without major architectural changes.</li>
+</ul>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>Before diving into the design, it’s important to identify the core objects.</p>
+<ul>
+<li><strong>Board:</strong> The Board class models the 3x3 game grid where players place their symbols (e.g., "X" or "O"). It handles updates to the grid, checks for a winner by examining rows, columns, and diagonals, and determines if the board is full.</li>
+<li><strong>Player:</strong> This class represents an individual playing the game.</li>
+<li><strong>Game:</strong> The central entity of the Tic-Tac-Toe game is the Game class. It coordinates turn-taking between players, validates moves (e.g., ensuring a cell isn’t occupied), and tracks the game’s status, whether it’s in progress or ended with a winner or draw.</li>
+</ul>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The Game class can become overloaded because it handles multiple
+operations. To keep it manageable, we delegate the Board to manage the grid and
+ScoreTracker to handle player ratings. This modularity enhances maintainability
+and scalability.</p></div>
+<ul>
+<li><strong>ScoreTracker:</strong> Tracks player ratings across games, updating them based on outcomes.</li>
+</ul>
+<p>Now that we’ve identified the core objects, let’s design their relationships in a class diagram.</p>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>In this section, we’ll define the class structure for a Tic-Tac-Toe game. The goal is to create a cohesive design that adheres to OOD principles, such as the Single Responsibility Principle (SRP), while remaining flexible for future extensions. We’ll also explain the reasoning behind design choices and consider alternatives to provide insight into the decision-making process.</p>
+<h3 id="game">Game</h3>
+<p>The Game class is the central coordinator of the Tic-Tac-Toe game. It manages the flow of gameplay, including initializing components, handling turns, and determining the outcome. To keep the design modular and manageable, certain responsibilities are delegated to other classes.</p>
+<p>For instance, the ScoreTracker class is solely responsible for tracking player performance, updating win counts based on game outcomes. The Board class manages the game grid, ensuring moves are valid by checking for empty spaces and staying within bounds. The Player class remains stateless. It does not store win counts directly. This separation allows the centralized ScoreTracker to monitor player performance across multiple games, setting the stage for a scalable ranking system, which we’ll explore in more depth later.</p>
+<p>Below is the representation of the Game class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Game` class in an object-oriented design.  The diagram shows the `Game` class, denoted by a 'C' in a circle, containing four private member variables: a `Board` object named `board`, a `ScoreTracker` object named `scoreTracker`, an array of `Player` objects named `players`, and an integer `currentPlayerIndex`.  Below these variables, the diagram lists five public member functions: `startNewGame()`, which takes two `Player` objects as input; `makeMove()`, which takes two integers and a `Player` object; `getGameStatus()`, which returns a `GameCondition` object; `getCurrentPlayer()`, which returns a `Player` object; and `getScoreTracker()`, which returns a `ScoreTracker` object.  The arrangement clearly defines the internal state (member variables) and behavior (member functions) of the `Game` class, illustrating how it manages the game board, player scores, players themselves, and the current player's turn.  No external connections or data flows are depicted; the diagram focuses solely on the internal structure of the `Game` class." loading="lazy" width="323" height="246" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-2-KKT34U5Z.svg" style="color: transparent;"></div></figure>
+<h3 id="board">Board</h3>
+<p>The Board class represents the 3x3 game grid, which is modeled as a two-dimensional array of Player objects. It is responsible for enforcing game rules at the board level, ensuring that moves are made within valid positions. It determines if a player has won by checking for three matching symbols in a row, column, or diagonal. Additionally, it provides functionality to reset the grid for a new game and allows retrieval of player symbols at specific grid positions.</p>
+<p>Here is the design of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Board` class in an object-oriented design.  The diagram shows the `Board` class, denoted by a 'C' in a circle, containing a private two-dimensional array `Player[][] grid` representing the game board's state.  The class further defines five public methods: `updateBoard(int colIndex, int rowIndex, Player player)`, which updates the board at a given location with a specified player; `Optional&lt;Player&gt; getWinner()`, which returns an optional Player object representing the winner (if any); `boolean isFull()`, which checks if the board is completely filled; `void reset()`, which resets the board to its initial state; and `Player getPlayerAt(int colIndex, int rowIndex)`, which retrieves the player at a given location on the board.  No connections to other classes are explicitly shown in this diagram; it solely focuses on the internal structure and functionality of the `Board` class itself." loading="lazy" width="484" height="187" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-3-P2D3SDD5.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The choice to include win-checking logic within the Board class,
+rather than the Game class, aligns with Single Responsibility Principle (SRP),
+as the Board is the owner of grid-related rules.</p></div>
+<h3 id="scoretracker">ScoreTracker</h3>
+<p>The ScoreTracker class is designed to monitor player performance across multiple games by maintaining a centralized scoreboard for a group of players. While real-world systems often employ complex methods that dynamically adjust scores based on performance distributions and other factors, a more straightforward approach suits an interview setting. Here, we can rate players based solely on their number of wins, keeping the logic straightforward yet effective.</p>
+<p>Instead of embedding ratings as an attribute within the Player class, we delegate this responsibility to ScoreTracker. This design choice stems from the nature of ratings: unlike a player’s name (an inherent trait), ratings are contextual, reflecting performance relative to others in a group. They shift as games are played, impacting multiple players simultaneously, and in advanced systems, they may even evolve over time. By isolating this logic in ScoreTracker, we also open the door to future enhancements, such as supporting players in multiple leagues with distinct ratings.</p>
+<p>To achieve this, ScoreTracker employs a HashMap&lt;Player, Integer&gt; named playerRatings to store win counts for all players. This centralized structure enables efficient management of the population’s ratings and supports key operations: updating scores after the game ends, identifying the top-ranked player, and determining any player’s rank. This modular approach not only encapsulates rating logic but also enhances maintainability and scalability.</p>
+<p>Here is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `ScoreTracker` class.  The diagram shows the class name `ScoreTracker` enclosed in a rectangular box with rounded corners. Inside the box, a private member variable `playerRatings` is declared as a `HashMap` that stores `Player` objects as keys and their corresponding `Integer` scores as values.  Below this, three public methods are defined: `reportGameResult`, which takes two `Player` objects (representing players in a game) and an optional `Player` object (the winning player) as input; `getTopPlayers`, which returns a `Map` of `Player` objects and their scores, presumably representing the top-ranked players; and `getRank`, which takes a `Player` object as input and returns an integer representing that player's rank.  The diagram illustrates the internal structure and functionality of the `ScoreTracker` class, showing how it manages player scores and provides methods for reporting game results and retrieving player rankings." loading="lazy" width="484" height="182" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-4-NLOLJLB2.svg" style="color: transparent;"></div></figure>
+<p>When a game ends, the reportGameResult method determines the winner and updates the score tracker. If the game results in a draw, no score changes are made.</p>
+<h3 id="move">Move</h3>
+<p>The Move class acts as a straightforward data structure designed to capture a player's move in the game. It stores the row and column indices where the player placed their symbol, along with a reference to the player who made the move.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a class named 'Move'.  The class is represented by a rectangular box with a large 'C' in a circle at the top-left corner, indicating it's a class.  To the right of the 'C', the name 'Move' is written, signifying the class's name. Inside the rectangular box, three attributes are listed, each prefixed with a square checkbox:  'int rowlndex', 'int collndex', and 'Player player'. These attributes represent integer variables storing row and column indices, and an object of a class named 'Player', respectively.  There are no methods shown in this diagram, only the attributes of the class.  The diagram shows the internal structure of the 'Move' class, illustrating its data members (attributes) but not its behavior (methods).  No connections or information flow to or from other classes are depicted." loading="lazy" width="203" height="172" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-5-VOHWWKQC.svg" style="color: transparent;"></div></figure>
+<p>By bundling these details (row, column, and player) into a single Move object, rather than passing them as separate parameters across various methods, the code becomes more readable and easier to maintain.</p>
+<h3 id="player">Player</h3>
+<p>The Player class encapsulates the core attributes of a player in the game: their name and assigned symbol (such as "X" or "O"). These attributes make it simple to identify which player is responsible for a given move.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a `Player` class.  The diagram is a rectangular box.  In the top-left corner, inside a shaded circle, is the letter 'C', indicating this is a class. To the right of the 'C' is the class name, 'Player'. Below this, within the rectangular box, are two lines representing the class's attributes. The first line shows a checkbox followed by 'String name', indicating a string variable named `name`. The second line similarly shows a checkbox followed by 'char symbol', indicating a character variable named `symbol`.  There are no methods or relationships shown in this diagram; it solely describes the attributes of the `Player` class." loading="lazy" width="210" height="152" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-6-MYLMDGQB.svg" style="color: transparent;"></div></figure>
+<p>While it might seem intuitive to include real-world actions like making moves or updating ratings within the Player class, this would violate the Single Responsibility Principle (SRP). In a well-designed system, responsibilities are clearly divided:</p>
+<ul>
+<li>The Board class is the sole source of truth for validating and placing moves on the grid.</li>
+<li>The ScoreTracker class tracks and updates player ratings, as ratings depend on the broader context of a group of players and require uniform updates across all players.</li>
+</ul>
+<h3 id="complete-class-diagram">Complete Class Diagram</h3>
+<p>Below is the complete class diagram of the Tic-Tac-Toe game:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the object-oriented design of a game.  The central class, `Game`, contains a `Board`, a `ScoreTracker`, an array of `Player` objects, and an integer `currentPlayerIndex`.  `Game` has methods to start a new game (`startNewGame`), make a move (`makeMove`), get the game status (`getGameStatus`), get the current player (`getCurrentPlayer`), and get the `ScoreTracker`. The `Board` class has a 2D array (`grid`) of `Player` objects, methods to update the board (`updateBoard`), get the winner (`getWinner`), check if the board is full (`isFull`), reset the board (`reset`), and get a player at a specific position (`getPlayerAt`). The `ScoreTracker` class maintains a `HashMap` called `playerRatings` mapping `Player` objects to their scores (integers). It includes methods to report game results (`reportGameResult`), get the top players (`getTopPlayers`), and get a player's rank (`getRank`).  The `Move` class stores information about a single move: the row and column indices (`rowIndex`, `colIndex`), and the player who made the move (`player`).  The `Player` class has a `name` (String) and a `symbol` (char).  The `Game` class has a composition relationship with `Board`, `ScoreTracker`, and `Move`, indicated by solid lines.  The `ScoreTracker` and `Move` classes have an association with the `Player` class, also shown with solid lines.  Finally, an enumeration `GameCondition` with states `IN_PROGRESS` and `ENDED` is used by the `Game` class to represent the game's state." loading="lazy" width="624" height="408" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-7-FD45RBK2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Class Diagram of Tic-Tac-Toe</figcaption></div></figure>
+<p>Let’s now bring our design to life with the code implementation!</p>
+<h2 id="code---tic-tac-toe-game">Code - Tic-Tac-Toe Game</h2>
+<p>In this section, we’ll implement the core functionalities of the Tic-Tac-Toe game, focusing on key areas such as managing the game board, handling player turns, determining the winner, and tracking player ratings through a score tracker.</p>
+<h3 id="game-1">Game</h3>
+<p>The Game class manages the flow of a Tic-Tac-Toe game. It manages the game board, player turns, and score tracker updates. After each move, the game checks for win conditions (three matching symbols in a row, column, or diagonal) and for a draw (when the board is full, but no winner exists).</p>
+<p>Check out the code implementation of the Game class below.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Game</span> {
+    <span class="hljs-comment">// Core game components</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Board board; <span class="hljs-comment">// Manages the game board state</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ScoreTracker scoreTracker; <span class="hljs-comment">// Keeps track of player scores</span>
+    <span class="hljs-keyword">private</span> Player[] players; <span class="hljs-comment">// Array of players in the game</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> currentPlayerIndex; <span class="hljs-comment">// Index of the current player's turn</span>
+
+    <span class="hljs-comment">// Constructor initializes game components and starts a new game</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Game</span><span class="hljs-params">(Player playerX, Player playerY)</span> {
+        board = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Board</span>();
+        scoreTracker = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ScoreTracker</span>();
+        startNewGame(playerX, playerY);
+    }
+
+    <span class="hljs-comment">// Resets the game state and initializes players for a new game</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startNewGame</span><span class="hljs-params">(Player playerX, Player playerY)</span> {
+        board.reset();
+        players = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Player</span>[] `{playerX, playerY}`;
+        currentPlayerIndex = <span class="hljs-number">0</span>;
+    }
+
+    <span class="hljs-comment">// Processes a player's move, validates it, and updates game state</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">makeMove</span><span class="hljs-params">(<span class="hljs-type">int</span> colIndex, <span class="hljs-type">int</span> rowIndex, Player player)</span> {
+        <span class="hljs-keyword">if</span> (getGameStatus().equals(GameCondition.ENDED)) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"game ended"</span>);
+        }
+        <span class="hljs-keyword">if</span> (players[currentPlayerIndex] != player) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">"not the current player"</span>);
+        }
+        <span class="hljs-keyword">if</span> (board.getPlayerAt(colIndex, rowIndex) != <span class="hljs-literal">null</span>) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">"board position is taken"</span>);
+        }
+        board.updateBoard(colIndex, rowIndex, player);
+        <span class="hljs-keyword">final</span> <span class="hljs-type">Move</span> <span class="hljs-variable">newMove</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Move</span>(colIndex, rowIndex, player);
+        currentPlayerIndex = (currentPlayerIndex + <span class="hljs-number">1</span>) % players.length;
+        <span class="hljs-keyword">if</span> (getGameStatus().equals(GameCondition.ENDED)) {
+            scoreTracker.reportGameResult(players[<span class="hljs-number">0</span>], players[<span class="hljs-number">1</span>], board.getWinner());
+        }
+    }
+
+    <span class="hljs-comment">// Determines if the game is in progress or has ended</span>
+    <span class="hljs-keyword">public</span> GameCondition <span class="hljs-title function_">getGameStatus</span><span class="hljs-params">()</span> {
+        Optional&lt;Player&gt; winner = board.getWinner();
+        <span class="hljs-keyword">if</span> (winner.isPresent()) {
+            <span class="hljs-keyword">return</span> GameCondition.ENDED;
+        }
+        <span class="hljs-keyword">return</span> board.isFull() ? GameCondition.ENDED : GameCondition.IN_PROGRESS;
+    }
+
+    <span class="hljs-comment">// Returns the player whose turn it is</span>
+    <span class="hljs-keyword">public</span> Player <span class="hljs-title function_">getCurrentPlayer</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> players[currentPlayerIndex];
+    }
+
+    <span class="hljs-comment">// Returns the score tracker for accessing game statistics</span>
+    <span class="hljs-keyword">public</span> ScoreTracker <span class="hljs-title function_">getScoreTracker</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> scoreTracker;
+    }
+}
+
+</code></pre>
+<ul>
+<li><strong>makeMove(int colIndex, int rowIndex, Player player)</strong>: This method handles the player’s move by checking if the game is still ongoing, whether the correct player is making a move, and if the selected board position is empty. If all checks pass, the board is updated, and the turn is passed to the next player. If the move results in a win or a draw, the score tracker is updated accordingly.</li>
+<li><strong>getGameStatus()</strong>: Determines the game’s status by checking for a winner or a full board. Returns GameCondition.ENDED if either condition is met, otherwise GameCondition.IN_PROGRESS.</li>
+</ul>
+<p><strong>Implementation choice:</strong> The Game class uses a state machine-like approach to manage game flow, tracking the current player and game status (INPROGRESS or ENDED) with an enum (GameCondition). This was chosen for its simplicity and clarity in handling turn-based logic, as it ensures only one player moves at a time and the game stops when a win or draw occurs.</p>
+<h3 id="board-1">Board</h3>
+<p>The Board class represents the game board for a two-player Tic-Tac-Toe game. It uses a 3x3 grid to encapsulate the state of play within a 3x3 grid, where each position holds either a Player object or null if it's empty. The definition of the Board class is given below.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Board</span> {
+    <span class="hljs-comment">// 3x3 grid to store player moves</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Player[][] grid = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Player</span>[<span class="hljs-number">3</span>][<span class="hljs-number">3</span>];
+
+    <span class="hljs-comment">// Updates the board with a player's move at the specified position</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateBoard</span><span class="hljs-params">(<span class="hljs-type">int</span> colIndex, <span class="hljs-type">int</span> rowIndex, Player player)</span> {
+        <span class="hljs-keyword">if</span> (grid[colIndex][rowIndex] == <span class="hljs-literal">null</span>) {
+            grid[colIndex][rowIndex] = player;
+        }
+    }
+
+    <span class="hljs-comment">// Checks for a winner by examining rows, columns, and diagonals</span>
+    <span class="hljs-keyword">public</span> Optional&lt;Player&gt; <span class="hljs-title function_">getWinner</span><span class="hljs-params">()</span> {
+        <span class="hljs-comment">// Check rows for three in a row</span>
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; grid.length; i++) {
+            <span class="hljs-type">Player</span> <span class="hljs-variable">first</span> <span class="hljs-operator">=</span> grid[i][<span class="hljs-number">0</span>];
+            <span class="hljs-keyword">if</span> (first != <span class="hljs-literal">null</span> &amp;&amp; Arrays.stream(grid[i]).allMatch(p -&gt; p == first)) {
+                <span class="hljs-keyword">return</span> Optional.of(first);
+            }
+        }
+
+        <span class="hljs-comment">// Check columns for three in a column</span>
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; j &lt; grid[<span class="hljs-number">0</span>].length; j++) {
+            <span class="hljs-keyword">final</span> <span class="hljs-type">Player</span> <span class="hljs-variable">first</span> <span class="hljs-operator">=</span> grid[<span class="hljs-number">0</span>][j];
+            <span class="hljs-type">int</span> <span class="hljs-variable">finalJ</span> <span class="hljs-operator">=</span> j; <span class="hljs-comment">// streams require a final object</span>
+            <span class="hljs-keyword">if</span> (first != <span class="hljs-literal">null</span> &amp;&amp; Arrays.stream(grid).allMatch(row -&gt; row[finalJ] == first)) {
+                <span class="hljs-keyword">return</span> Optional.of(first);
+            }
+        }
+
+        <span class="hljs-comment">// Check main diagonal (top-left to bottom-right)</span>
+        <span class="hljs-type">Player</span> <span class="hljs-variable">topLeft</span> <span class="hljs-operator">=</span> grid[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>];
+        <span class="hljs-keyword">if</span> (topLeft != <span class="hljs-literal">null</span>
+                &amp;&amp; IntStream.range(<span class="hljs-number">0</span>, grid.length).allMatch(i -&gt; grid[i][i] == topLeft)) {
+            <span class="hljs-keyword">return</span> Optional.of(topLeft);
+        }
+
+        <span class="hljs-comment">// Check anti-diagonal (top-right to bottom-left)</span>
+        <span class="hljs-type">Player</span> <span class="hljs-variable">topRight</span> <span class="hljs-operator">=</span> grid[<span class="hljs-number">0</span>][grid[<span class="hljs-number">0</span>].length - <span class="hljs-number">1</span>];
+        <span class="hljs-keyword">if</span> (topRight != <span class="hljs-literal">null</span>
+                &amp;&amp; IntStream.range(<span class="hljs-number">0</span>, grid.length)
+                        .allMatch(i -&gt; grid[i][grid[<span class="hljs-number">0</span>].length - <span class="hljs-number">1</span> - i] == topRight)) {
+            <span class="hljs-keyword">return</span> Optional.of(topRight);
+        }
+
+        <span class="hljs-comment">// No winner found</span>
+        <span class="hljs-keyword">return</span> Optional.empty();
+    }
+
+    <span class="hljs-comment">// Checks if all positions on the board are filled</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isFull</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Arrays.stream(grid).flatMap(Arrays::stream).noneMatch(Objects::isNull);
+    }
+
+    <span class="hljs-comment">// Resets the board by clearing all positions</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">reset</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">for</span> (Player[] players : grid) {
+            Arrays.fill(players, <span class="hljs-literal">null</span>);
+        }
+    }
+
+    <span class="hljs-comment">// Returns the player at the specified position, or null if empty</span>
+    <span class="hljs-keyword">public</span> Player <span class="hljs-title function_">getPlayerAt</span><span class="hljs-params">(<span class="hljs-type">int</span> colIndex, <span class="hljs-type">int</span> rowIndex)</span> {
+        <span class="hljs-keyword">return</span> grid[colIndex][rowIndex];
+    }
+}
+
+</code></pre>
+<p>The class provides several methods to manage the game, including:</p>
+<ul>
+<li>updateBoard(int colIndex, int rowIndex, Player player): Updates the board by placing the specified player's symbol at the given colIndex and rowIndex, provided the position is empty.</li>
+<li>Optional&lt;Player&gt; getWinner(): This method checks for a winner by looking at the rows, columns, and diagonals. If any row, column, or diagonal contains the same symbol, the player is declared the winner.</li>
+<li>Player getPlayerAt(int colIndex, int rowIndex): Returns the Player object at the specified board position, or null if the position is unoccupied.</li>
+</ul>
+<p><strong>Implementation choice:</strong> The Board uses a 2D array (Player[][]) to represent the 3x3 grid, chosen for its direct mapping to the game’s spatial structure and O(1) access time for reading or updating positions.</p>
+<h3 id="player-1">Player</h3>
+<p>The Player class represents a player in the game, with key attributes like their name and symbol. These attributes help identify the player and their move on the board.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Player</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">char</span> symbol;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Player</span><span class="hljs-params">(String name, <span class="hljs-type">char</span> symbol)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.symbol = symbol;
+    }
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> name;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">char</span> <span class="hljs-title function_">getSymbol</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> symbol;
+    }
+}
+
+</code></pre>
+<h3 id="scoretracker-1">ScoreTracker</h3>
+<p>The ScoreTracker class manages player rankings across multiple Tic-Tac-Toe games by tracking and updating scores for a group of players. It uses a HashMap&lt;Player, Integer&gt; to store player ratings, where each Player is mapped to an integer score based on a simple victory count system. Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ScoreTracker</span> {
+    <span class="hljs-comment">// Stores player ratings in a map where key is player and value is their score</span>
+    <span class="hljs-keyword">private</span> HashMap&lt;Player, Integer&gt; playerRatings = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-comment">// This logic is customizable and, in reality, will use a complex ranking algorithm. For the</span>
+    <span class="hljs-comment">// interview, we use a simple victory count system where the winner gets one point, the loser</span>
+    <span class="hljs-comment">// loses a point, and no changes occur for a draw.</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">reportGameResult</span><span class="hljs-params">(Player player1, Player player2, Optional&lt;Player&gt; winningPlayer)</span> {
+        <span class="hljs-keyword">if</span> (winningPlayer.isPresent()) {
+            <span class="hljs-type">Player</span> <span class="hljs-variable">winner</span> <span class="hljs-operator">=</span> winningPlayer.get();
+            <span class="hljs-type">Player</span> <span class="hljs-variable">loser</span> <span class="hljs-operator">=</span> player1 == winner ? player2 : player1;
+            playerRatings.putIfAbsent(winner, <span class="hljs-number">0</span>);
+            playerRatings.put(winner, playerRatings.get(winner) + <span class="hljs-number">1</span>);
+            playerRatings.putIfAbsent(loser, <span class="hljs-number">0</span>);
+            playerRatings.put(loser, playerRatings.get(loser) - <span class="hljs-number">1</span>);
+        }
+    }
+
+    <span class="hljs-comment">// Returns a map of players sorted by their ratings in descending order</span>
+    <span class="hljs-keyword">public</span> Map&lt;Player, Integer&gt; <span class="hljs-title function_">getTopPlayers</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> playerRatings.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toMap(player -&gt; player, player -&gt; playerRatings.get(player)));
+    }
+
+    <span class="hljs-comment">// Returns the rank of a player based on their rating</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getRank</span><span class="hljs-params">(Player player)</span> {
+        List&lt;Player&gt; sortedPlayers =
+                playerRatings.entrySet().stream()
+                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toList());
+        <span class="hljs-keyword">return</span> sortedPlayers.indexOf(player) + <span class="hljs-number">1</span>;
+    }
+
+    <span class="hljs-comment">// getters are omitted for brevity</span>
+}
+
+</code></pre>
+<p><strong>Implementation choice:</strong> The ScoreTracker uses a HashMap&lt;Player, Integer&gt; to store player ratings, which is chosen for its O(1) average-case lookup and update performance, making it ideal for frequent score updates and queries (e.g., top-ranked player).</p>
+<h2 id="deep-dive-topic">Deep Dive Topic</h2>
+<p>At this point, you have met the basic requirements of the question. In this section, we will explore some potential extensions in more detail.</p>
+<h3 id="implement-undo-functionality-in-tic-tac-toe">Implement undo functionality in Tic-Tac-Toe</h3>
+<p>Imagine you’re playing Tic-Tac-Toe, and you accidentally place your ‘X’ in the wrong spot. Wouldn’t it be great to hit an undo button and try again? Let’s dive into how we can implement undo functionality in a Tic-Tac-Toe game, step by step.</p>
+<p><strong>Step 1: Track move history</strong></p>
+<ul>
+<li>Every time a player makes a move, we store that move so it can be undone later.</li>
+<li>The Move class (which we've already designed as part of the main game logic) serves this purpose by capturing details such as rowIndex, colIndex, and the player.</li>
+</ul>
+<p>Below is the representation of the Move class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a class named 'Move'.  The class is represented by a rectangular box with a large 'C' in a circle at the top-left corner, indicating it's a class.  To the right of the 'C', the name 'Move' is written, signifying the class's name. Inside the rectangular box, three attributes are listed, each prefixed with a square checkbox:  'int rowlndex', 'int collndex', and 'Player player'. These attributes represent integer variables storing row and column indices, respectively, and an object of a class named 'Player'.  There are no methods shown in this diagram, only the attributes of the class.  The diagram shows the structure of the 'Move' class, indicating that each instance of this class will hold information about a move in a game, specifying its row and column coordinates and the player who made the move.  No connections or information flow to or from other classes is depicted in this specific diagram." loading="lazy" width="194" height="163" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-8-VOHWWKQC.svg" style="color: transparent;"></div></figure>
+<p><strong>Step 2: Store Moves with a Stack</strong></p>
+<ul>
+<li>Since moves occur in a last-in, first-out (LIFO) order (i.e., the last move is undone first), we can use a stack (ArrayDeque&lt;Move&gt;).</li>
+<li>When a move is made, we push it onto the stack.</li>
+<li>When undo is requested, we pop the most recent move from the stack and revert the board to its previous state.</li>
+</ul>
+<p>Below is the representation of the MoveHistory class, which records the move and implements the undo functionality.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `MoveHistory` class.  The diagram shows the class name 'MoveHistory' enclosed in a rectangular box, preceded by a 'C' symbol indicating it's a class. Inside the box, a private member variable `history` of type `ArrayDeque&lt;Move&gt;` is declared, suggesting it stores a sequence of 'Move' objects using an array deque data structure. Below this, three public methods are listed: `recordMove(Move)`, which presumably adds a new `Move` object to the `history`; `undoMove()`, which returns and removes the last `Move` object from the `history`; and `clearHistory()`, which likely empties the `history`.  No connections to other classes are shown, implying `MoveHistory` is self-contained, managing its internal `history` of `Move` objects through its defined methods." loading="lazy" width="312" height="169" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-9-ULAMN2MF.svg" style="color: transparent;"></div></figure>
+<p>Here’s the code for the MoveHistory class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MoveHistory</span> {
+    <span class="hljs-comment">// Stack-like structure to store moves in chronological order</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ArrayDeque&lt;Move&gt; history = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayDeque</span>&lt;&gt;();
+
+    <span class="hljs-comment">// Adds a new move to the history stack</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">recordMove</span><span class="hljs-params">(Move move)</span> {
+        history.push(move);
+    }
+
+    <span class="hljs-comment">// Removes and returns the most recent move from the history</span>
+    <span class="hljs-keyword">public</span> Move <span class="hljs-title function_">undoMove</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> history.pop();
+    }
+
+    <span class="hljs-comment">// Clears all moves from the history</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">clearHistory</span><span class="hljs-params">()</span> {
+        history.clear();
+    }
+}
+
+</code></pre>
+<p><strong>Step 3: Reverse the Board State</strong></p>
+<p>The final step is to clear that spot on the board, and switch the current player back to whoever’s turn it was before.</p>
+<p>Here’s the updated code from the Game class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">makeMove</span><span class="hljs-params">(<span class="hljs-type">int</span> colIndex, <span class="hljs-type">int</span> rowIndex, Player player)</span> {
+    <span class="hljs-comment">// Validate that game hasn't ended</span>
+    <span class="hljs-keyword">if</span> (getGameStatus().equals(GameCondition.ENDED)) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"game ended"</span>);
+    }
+    <span class="hljs-comment">// Validate that it's the correct player's turn</span>
+    <span class="hljs-keyword">if</span> (players[currentPlayerIndex] != player) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">"not the current player"</span>);
+    }
+    <span class="hljs-comment">// Validate that the position is not already taken</span>
+    <span class="hljs-keyword">if</span> (board.getPlayerAt(colIndex, rowIndex) != <span class="hljs-literal">null</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalArgumentException</span>(<span class="hljs-string">"board position is taken"</span>);
+    }
+    <span class="hljs-comment">// Update the board with the player's move</span>
+    board.updateBoard(colIndex, rowIndex, player);
+    <span class="hljs-comment">// Record the move in history</span>
+    <span class="hljs-keyword">final</span> <span class="hljs-type">Move</span> <span class="hljs-variable">newMove</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Move</span>(colIndex, rowIndex, player);
+    moveHistory.recordMove(newMove);
+    <span class="hljs-comment">// Switch to the next player</span>
+    currentPlayerIndex = (currentPlayerIndex + <span class="hljs-number">1</span>) % players.length;
+    <span class="hljs-comment">// If game has ended, update the score</span>
+    <span class="hljs-keyword">if</span> (getGameStatus().equals(GameCondition.ENDED)) {
+        scoreTracker.reportGameResult(players[<span class="hljs-number">0</span>], players[<span class="hljs-number">1</span>], board.getWinner());
+    }
+}
+
+<span class="hljs-comment">// Reverts the last move made in the game</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">undoMove</span><span class="hljs-params">()</span> {
+    <span class="hljs-comment">// Check if game has ended to prevent undoing after winner is reported</span>
+    <span class="hljs-keyword">if</span> (getGameStatus().equals(GameCondition.ENDED)) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"game ended and winner already reported"</span>);
+    }
+    <span class="hljs-comment">// Get the last move from history</span>
+    <span class="hljs-keyword">final</span> <span class="hljs-type">Move</span> <span class="hljs-variable">lastMove</span> <span class="hljs-operator">=</span> moveHistory.undoMove();
+
+    <span class="hljs-comment">// Update current player index to previous player</span>
+    <span class="hljs-keyword">if</span> (currentPlayerIndex == <span class="hljs-number">0</span>) {
+        currentPlayerIndex = players.length - <span class="hljs-number">1</span>;
+    } <span class="hljs-keyword">else</span> {
+        currentPlayerIndex--;
+    }
+
+    <span class="hljs-comment">// Clear the board position of the undone move</span>
+    board.updateBoard(lastMove.getColIndex(), lastMove.getRowIndex(), <span class="hljs-literal">null</span>);
+}
+</code></pre>
+<p>What we discussed above is the essence of a well-known software design pattern called the <strong>Memento Pattern</strong>.</p>
+<div class="info-box"><img alt="Definition" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/definition-YTAFYOVI.svg" style="color: transparent;"><p><strong>Definition:</strong> The Memento Pattern is a behavioral design pattern that allows
+an object to save and restore its previous state without exposing the details of
+its implementation. This pattern is useful in scenarios where undo or rollback
+functionality is needed, as it maintains a complete event history.</p></div>
+<p>In this pattern:</p>
+<ul>
+<li>The Memento is an object that stores the state of another object at a specific point in time, acting as a snapshot. In our design, the Move class served as the Memento, capturing the state of a single move in the Tic-Tac-Toe game.</li>
+<li>The Caretaker is responsible for storing and managing Memento objects, typically keeping them in a collection and providing mechanisms to save or retrieve them. The MoveHistory class played the role of the Caretaker, maintaining a stack of Move objects (Mementos) and offering an undoMove() method to retrieve the last move for reversal.</li>
+<li>The Originator is the object whose state is being captured and restored. It creates Memento objects to save its state and can use them to restore a previous state. The Game class acted as the Originator, creating Move objects during each makeMove() call to capture the move’s state and using the undoMove() method to restore the game state by clearing the board position of the last move.</li>
+</ul>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the design of a game using the Command and Memento design patterns.  The central class is `Game`, which contains a `Board`, a `MoveHistory`, an array of `Player` objects, and an integer representing the current player's index.  The `Game` class uses `makeMove` and `undoMove` methods to interact with the game state.  `MoveHistory` stores a history of `Move` objects using an `ArrayDeque`.  Each `Move` object contains the row and column index and the `Player` who made the move.  The `MoveHistory` class has methods to record moves, undo moves, and clear the history. The `Board` class has a 2D array of `Player` objects representing the game board and methods to update the board and retrieve players at specific positions.  The `Player` class has a name and a symbol.  A `Caretaker` (represented as a note) manages the `MoveHistory`, and a `Memento` (also a note) represents a snapshot of the game state.  The `Originator` (a note) is implied to be the `Game` class, responsible for creating and restoring game states.  Arrows indicate relationships between classes, showing how data flows and methods are called.  For example, `Game` uses `MoveHistory` and `Board`, and `MoveHistory` uses `Move`.  The `Move` class is linked to `Memento` suggesting it's used to store game state snapshots." loading="lazy" width="624" height="569" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/design-a-tic-tac-toe-game/image-10-10-4HHBD2NJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Undo functionality using the memento pattern</figcaption></div></figure>
+<p>However, one potential challenge of using the Memento Pattern is memory overhead. Every time a move is made, we store the entire move in the history. In Tic-Tac-Toe, this isn't much of a problem because the board is small, but in more complex games with larger states, the memory required to store each memento could become a bottleneck.</p>
+<p>With our Tic-Tac-Toe game designed and implemented, let’s wrap up with key takeaways.</p>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>In this chapter, we designed the Tic-Tac-Toe game. We started by gathering and clarifying the requirements through a series of questions and answers. Next, we identified the core objects involved, designed the class diagram, and implemented the key components of the game.</p>
+<p>A key takeaway from this design is the importance of modularity and clear separation of concerns. Each component, such as the Board, Game, Player, and ScoreTracker classes, focuses on a specific responsibility, ensuring the system is maintainable and easy to extend.</p>
+<p>In the deep dive section, we explored advanced topics, including using the Memento Pattern to handle undo functionality, enabling players to revert their moves while maintaining the integrity of the game state.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-grocery-store-system.html">← Previous</a>
+        <a href="design-a-blackjack-game.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

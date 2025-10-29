@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Learning Continues - System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../system-design-interview.html">System Design Interview</a> /
+        The Learning Continues
+    </div>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="stock-exchange.html">← Previous</a>
+        
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">30</span> The Learning Continues
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/the-learning-continues" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">30</strong><h1>The Learning Continues</h1></header><p>Designing good systems requires years of accumulation of knowledge. One shortcut is to dive into real-world system architectures. Below is a collection of helpful reading materials. We highly recommend you pay attention to both the shared principles and the underlying technologies. Researching each technology and understanding what problems it solves is a great way to strengthen your knowledge base and refine the design process.</p>
+<h2 id="real-world-systems">Real-world systems</h2>
+<p>The following materials can help you understand general design ideas of real system architectures behind different companies.</p>
+<p>Facebook Timeline: Brought To You By The Power Of Denormalization: <a href="https://goo.gl/FCNrbm" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/FCNrbm</u></a></p>
+<p>Scale at Facebook: <a href="https://goo.gl/NGTdCs" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/NGTdCs</u></a></p>
+<p>Building Timeline: Scaling up to hold your life story: <a href="https://goo.gl/8p5wDV" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/8p5wDV</u></a></p>
+<p>Erlang at Facebook (Facebook chat): <a href="https://goo.gl/zSLHrj" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/zSLHrj</u></a></p>
+<p>Facebook Chat: <a href="https://goo.gl/qzSiWC" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/qzSiWC</u></a></p>
+<p>Finding a needle in Haystack: Facebook’s photo storage: <a href="https://goo.gl/edj4FL" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/edj4FL</u></a></p>
+<p>Serving Facebook Multifeed: Efficiency, performance gains through redesign: <a href="https://goo.gl/adFVMQ" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/adFVMQ</u></a></p>
+<p>Scaling Memcache at Facebook: <a href="https://goo.gl/rZiAhX" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/rZiAhX</u></a></p>
+<p>TAO: Facebook’s Distributed Data Store for the Social Graph: <a href="https://goo.gl/Tk1DyH" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/Tk1DyH</u></a></p>
+<p>Amazon Architecture: <a href="https://goo.gl/k4feoW" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/k4feoW</u></a></p>
+<p>Dynamo: Amazon’s Highly Available Key-value Store: <a href="https://goo.gl/C7zxDL" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/C7zxDL</u></a></p>
+<p>A 360 Degree View Of The Entire Netflix Stack: <a href="https://goo.gl/rYSDTz" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/rYSDTz</u></a></p>
+<p>It’s All A/Bout Testing: The Netflix Experimentation Platform: <a href="https://goo.gl/agbA4K" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/agbA4K</u></a></p>
+<p>Netflix Recommendations: Beyond the 5 stars (Part 1): <a href="https://goo.gl/A4FkYi" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/A4FkYi</u></a></p>
+<p>Netflix Recommendations: Beyond the 5 stars (Part 2): <a href="https://goo.gl/XNPMXm" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/XNPMXm</u></a></p>
+<p>Google Architecture: <a href="https://goo.gl/dvkDiY" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/dvkDiY</u></a></p>
+<p>The Google File System (Google Docs): <a href="https://goo.gl/xj5n9R" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/xj5n9R</u></a></p>
+<p>Differential Synchronization (Google Docs): <a href="https://goo.gl/9zqG7x" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/9zqG7x</u></a></p>
+<p>YouTube Architecture: <a href="https://goo.gl/mCPRUF" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/mCPRUF</u></a></p>
+<p>Seattle Conference on Scalability: YouTube Scalability: <a href="https://goo.gl/dH3zYq" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/dH3zYq</u></a></p>
+<p>Bigtable: A Distributed Storage System for Structured Data: <a href="https://goo.gl/6NaZca" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/6NaZca</u></a></p>
+<p>Instagram Architecture: 14 Million Users, Terabytes Of Photos, 100s Of Instances, Dozens Of Technologies: <a href="https://goo.gl/s1VcW5" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/s1VcW5</u></a></p>
+<p>The Architecture Twitter Uses To Deal With 150M Active Users: <a href="https://goo.gl/EwvfRd" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/EwvfRd</u></a></p>
+<p>Scaling Twitter: Making Twitter 10000 Percent Faster: <a href="https://goo.gl/nYGC1k" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/nYGC1k</u></a></p>
+<p>Announcing Snowflake (Snowflake is a network service for generating unique ID numbers at high scale with some simple guarantees): <a href="https://goo.gl/GzVWYm" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/GzVWYm</u></a></p>
+<p>Timelines at Scale: <a href="https://goo.gl/8KbqTy" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/8KbqTy</u></a></p>
+<p>How Uber Scales Their Real-Time Market Platform: <a href="https://goo.gl/kGZuVy" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/kGZuVy</u></a></p>
+<p>Scaling Pinterest: <a href="https://goo.gl/KtmjW3" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/KtmjW3</u></a></p>
+<p>Pinterest Architecture Update: <a href="https://goo.gl/w6rRsf" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/w6rRsf</u></a></p>
+<p>A Brief History of Scaling LinkedIn: <a href="https://goo.gl/8A1Pi8" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/8A1Pi8</u></a></p>
+<p>Flickr Architecture: <a href="https://goo.gl/dWtgYa" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/dWtgYa</u></a></p>
+<p>How We've Scaled Dropbox: <a href="https://goo.gl/NjBDtC" target="_blank" rel="noopener noreferrer"><u>https://goo.gl/NjBDtC</u></a></p>
+<p>The WhatsApp Architecture Facebook Bought For $19 Billion: <a href="https://bit.ly/2AHJnFn" target="_blank" rel="noopener noreferrer"><u>https://bit.ly/2AHJnFn</u></a></p>
+<h2 id="company-engineering-blogs">Company engineering blogs</h2>
+<p>If you are going to interview with a company, it is a great idea to read their engineering blogs and get familiar with technologies and systems adopted and implemented there. Besides, engineering blogs provide invaluable insights about certain fields. Reading them regularly could help us become better engineers.</p>
+<p>Here is a list of engineering blogs of well-known large companies and startups.</p>
+<p>Airbnb: <a href="https://medium.com/airbnb-engineering" target="_blank" rel="noopener noreferrer"><u>https://medium.com/airbnb-engineering</u></a></p>
+<p>Amazon: <a href="https://developer.amazon.com/blogs" target="_blank" rel="noopener noreferrer"><u>https://developer.amazon.com/blogs</u></a></p>
+<p>Asana: <a href="https://blog.asana.com/category/eng" target="_blank" rel="noopener noreferrer"><u>https://blog.asana.com/category/eng</u></a></p>
+<p>Atlassian: <a href="https://developer.atlassian.com/blog" target="_blank" rel="noopener noreferrer"><u>https://developer.atlassian.com/blog</u></a></p>
+<p>Bittorrent: <a href="http://engineering.bittorrent.com" target="_blank" rel="noopener noreferrer"><u>http://engineering.bittorrent.com</u></a></p>
+<p>Cloudera: <a href="https://blog.cloudera.com" target="_blank" rel="noopener noreferrer"><u>https://blog.cloudera.com</u></a></p>
+<p>Docker: <a href="https://blog.docker.com" target="_blank" rel="noopener noreferrer"><u>https://blog.docker.com</u></a></p>
+<p>Dropbox: <a href="https://blogs.dropbox.com/tech" target="_blank" rel="noopener noreferrer"><u>https://blogs.dropbox.com/tech</u></a></p>
+<p>eBay: <a href="http://www.ebaytechblog.com" target="_blank" rel="noopener noreferrer"><u>http://www.ebaytechblog.com</u></a></p>
+<p>Facebook: <a href="https://code.facebook.com/posts" target="_blank" rel="noopener noreferrer"><u>https://code.facebook.com/posts</u></a></p>
+<p>GitHub: <a href="https://githubengineering.com" target="_blank" rel="noopener noreferrer"><u>https://githubengineering.com</u></a></p>
+<p>Google: <a href="https://developers.googleblog.com" target="_blank" rel="noopener noreferrer"><u>https://developers.googleblog.com</u></a></p>
+<p>Groupon: <a href="https://engineering.groupon.com" target="_blank" rel="noopener noreferrer"><u>https://engineering.groupon.com</u></a></p>
+<p>Highscalability: <a href="http://highscalability.com" target="_blank" rel="noopener noreferrer"><u>http://highscalability.com</u></a></p>
+<p>Instacart: <a href="https://tech.instacart.com" target="_blank" rel="noopener noreferrer"><u>https://tech.instacart.com</u></a></p>
+<p>Instagram: <a href="https://engineering.instagram.com" target="_blank" rel="noopener noreferrer"><u>https://engineering.instagram.com</u></a></p>
+<p>Linkedin: <a href="https://engineering.linkedin.com/blog" target="_blank" rel="noopener noreferrer"><u>https://engineering.linkedin.com/blog</u></a></p>
+<p>Mixpanel: <a href="https://mixpanel.com/blog" target="_blank" rel="noopener noreferrer"><u>https://mixpanel.com/blog</u></a></p>
+<p>Netflix: <a href="https://medium.com/netflix-techblog" target="_blank" rel="noopener noreferrer"><u>https://medium.com/netflix-techblog</u></a></p>
+<p>Nextdoor: <a href="https://engblog.nextdoor.com" target="_blank" rel="noopener noreferrer"><u>https://engblog.nextdoor.com</u></a></p>
+<p>PayPal: <a href="https://www.paypal-engineering.com" target="_blank" rel="noopener noreferrer"><u>https://www.paypal-engineering.com</u></a></p>
+<p>Pinterest: <a href="https://engineering.pinterest.com" target="_blank" rel="noopener noreferrer"><u>https://engineering.pinterest.com</u></a></p>
+<p>Quora: <a href="https://engineering.quora.com" target="_blank" rel="noopener noreferrer"><u>https://engineering.quora.com</u></a></p>
+<p>Reddit: <a href="https://redditblog.com" target="_blank" rel="noopener noreferrer"><u>https://redditblog.com</u></a></p>
+<p>Salesforce: <a href="https://engineering.salesforce.com/blog/" target="_blank" rel="noopener noreferrer"><u>https://engineering.salesforce.com/blog/</u></a></p>
+<p>Shopify: <a href="https://engineering.shopify.com" target="_blank" rel="noopener noreferrer"><u>https://engineering.shopify.com</u></a></p>
+<p>Slack: <a href="https://slack.engineering" target="_blank" rel="noopener noreferrer"><u>https://slack.engineering</u></a></p>
+<p>Soundcloud: <a href="https://developers.soundcloud.com/blog" target="_blank" rel="noopener noreferrer"><u>https://developers.soundcloud.com/blog</u></a></p>
+<p>Spotify: <a href="https://labs.spotify.com" target="_blank" rel="noopener noreferrer"><u>https://labs.spotify.com</u></a></p>
+<p>Stripe: <a href="https://stripe.com/blog/engineering" target="_blank" rel="noopener noreferrer"><u>https://stripe.com/blog/engineering</u></a></p>
+<p>System design primer: <a href="https://github.com/donnemartin/system-design-primer" target="_blank" rel="noopener noreferrer"><u>https://github.com/donnemartin/system-design-primer</u></a></p>
+<p>Twitter: <a href="https://blog.twitter.com/engineering/en_us.html" target="_blank" rel="noopener noreferrer"><u>https://blog.twitter.com/engineering/en_us.html</u></a></p>
+<p>Thumbtack: <a href="https://www.thumbtack.com/engineering" target="_blank" rel="noopener noreferrer"><u>https://www.thumbtack.com/engineering</u></a></p>
+<p>Uber: <a href="http://eng.uber.com" target="_blank" rel="noopener noreferrer"><u>http://eng.uber.com</u></a></p>
+<p>Yahoo: <a href="https://developer.yahoo.com/blogs/" target="_blank" rel="noopener noreferrer"><u>https://developer.yahoo.com/blogs/</u></a></p>
+<p>Yelp: <a href="https://engineeringblog.yelp.com" target="_blank" rel="noopener noreferrer"><u>https://engineeringblog.yelp.com</u></a></p>
+<p>Zoom: <a href="https://medium.com/zoom-developer-blog" target="_blank" rel="noopener noreferrer"><u>https://medium.com/zoom-developer-blog</u></a></p>
+<p>Congratulations! You are at the end of this interview guide. You have accumulated skills and knowledge to design systems. Not everyone has the discipline to learn what you have learned. Take a moment and pat yourself on the back. Your hard work will be paid off.</p>
+<p>Landing a dream job is a long journey and requires lots of time and effort. Practice makes perfect. Best luck!</p>
+<p>Thank you for buying and reading this course. Without readers like you, our work would not exist. We hope you have enjoyed the course!</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../system-design-interview.html">← Course Contents</a>
+        <a href="stock-exchange.html">← Previous</a>
+        
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

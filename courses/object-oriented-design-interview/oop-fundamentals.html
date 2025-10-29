@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OOP Fundamentals - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        OOP Fundamentals
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="a-framework-for-the-ood-interview.html">← Previous</a>
+        <a href="design-a-parking-lot.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">03</span> OOP Fundamentals
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/oop-fundamentals" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">03</strong><h1>OOP Fundamentals</h1></header><p>This chapter introduces OOP, a popular programming paradigm that organizes code and data into objects. These objects interact to perform tasks and model real-world entities, providing a structured approach to building flexible, maintainable software.</p>
+<h2 id="why-learn-oop">Why Learn OOP?</h2>
+<p>Understanding OOP fundamentals, including core principles such as encapsulation and advanced design guidelines like SOLID, is key to excelling in OOD interviews. OOP knowledge equips you with a clear mental model and foundational skills. It enables you to make design decisions aligned with widely accepted principles, articulate your reasoning to interviewers, and leverage established patterns to solve common problems efficiently.</p>
+<p>OOP interviews often mirror real-world business applications and technical components. Understanding OOP concepts and SOLID guidelines not only prepares you for interviews but also makes you a stronger developer once hired. While functional programming and other paradigms are gaining traction, OOP remains the backbone of general software development. To deepen your expertise, supplement this chapter’s essentials with additional resources on OOP principles.</p>
+<h2 id="cornerstones-of-object-oriented-programming">Cornerstones of Object-Oriented Programming</h2>
+<p>Object-oriented programming is built on four fundamental principles: Encapsulation, Abstraction, Inheritance, and Polymorphism.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a four-petal flower-like diagram illustrating the four fundamental principles of object-oriented programming. Each petal is a rounded rectangle with a bold black border, containing a single term describing one principle.  The top-left petal, shaded in a lighter gray, displays 'Encapsulation'. The top-right petal, shaded in white, shows 'Abstraction'. The bottom-left petal, shaded in a lighter gray, displays 'Inheritance'. Finally, the bottom-right petal, shaded in a darker gray, shows 'Polymorphism'. The petals are arranged symmetrically around a central point, with no explicit connections or information flow indicated between them; the shading differences might subtly suggest grouping or emphasis, but no direct relationships are visually depicted." loading="lazy" width="283" height="266" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-1-YUAJGV6O.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Cornerstones of OOP</figcaption></div></figure>
+<p>These principles guide how we organize code and design software. The other techniques and design patterns stem from these principles, and they are important for evaluating solutions. Let’s dive into each principle with practical examples.</p>
+<h3 id="encapsulation">Encapsulation</h3>
+<p>Encapsulation is the concept of bundling data as attributes and logic as methods, and then putting related attributes and methods within a single unit called an object. The object’s internal state is hidden from the outside world, and access to the data or state is controlled through well-defined interfaces available as public methods. A description of a type of object is a class, while a specific object is called an instance.</p>
+<p>To see how encapsulation works in practice, let’s explore the Person class, which bundles data like name and age with methods to manage them while controlling access to that data.</p>
+<h4 id="how-to-work-toward-encapsulation">How to work toward encapsulation?</h4>
+<p>To achieve encapsulation, follow these steps:</p>
+<ul>
+<li><strong>Define your classes</strong>: Identify objects in your requirements, think about the data they hold, and the functionality they support. For the Person class, the data includes name and age, and the functionality includes accessing and modifying these attributes.</li>
+<li><strong>Enforce encapsulation</strong>: Declare the class’s data members (attributes) as private to restrict direct access from outside the class. Provide public methods (getters and setters) to access and modify those attributes.</li>
+<li><strong>Use access modifiers</strong>: The private access modifier restricts direct access to the attributes outside the class. Only methods in the class have access to these private members. Public methods are the interface through which external code interacts with the object’s attributes, hiding internal implementation details and maintaining the object’s integrity.</li>
+</ul>
+<h4 id="implementing-encapsulation-in-java">Implementing encapsulation in Java</h4>
+<p>Let's demonstrate encapsulation in Java with a simple class representing a “Person”:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> {
+    <span class="hljs-comment">// Private data members (attributes)</span>
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;
+
+    <span class="hljs-comment">// Public constructor</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Person</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.age = age;
+    }
+
+    <span class="hljs-comment">// Public getter methods (accessors)</span>
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> name;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getAge</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> age;
+    }
+
+    <span class="hljs-comment">// Public setter methods (mutators)</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setAge</span><span class="hljs-params">(<span class="hljs-type">int</span> age)</span> {
+        <span class="hljs-keyword">if</span> (age &gt;= <span class="hljs-number">0</span>) {
+            <span class="hljs-built_in">this</span>.age = age;
+        }
+    }
+}
+
+</code></pre>
+<ul>
+<li>The Person class has private attributes name and age, which cannot be accessed directly from outside the class.</li>
+<li>Public getter methods, getName() and getAge(), allow external code to read (access) the private attributes.</li>
+<li>The setter methods, setName() and setAge(), are also public, allowing external code to modify (mutate) the private attributes.</li>
+</ul>
+<p>This implementation ensures that the Person object’s internal state is protected, and external code interacts with it only through controlled methods.</p>
+<h4 id="when-to-use-encapsulation">When to use encapsulation?</h4>
+<p>Encapsulation is particularly useful in the following scenarios:</p>
+<ul>
+<li><strong>Protecting data integrity</strong>: When you need to ensure an object’s data remains consistent and valid. For example, in the Person class, encapsulation hides name and age as private attributes, allowing the setAge() method to enforce rules like non-negative values, preventing invalid modifications, and ensuring the object’s state is reliable.</li>
+<li><strong>Controlling access and improving security:</strong> Encapsulation restricts direct access to sensitive data. While attributes like name and age in a Person class are not highly sensitive, encapsulation becomes essential for classes handling critical information such as passwords. Although encapsulation alone does not guarantee full security, it acts as a foundational layer by limiting unwanted access.</li>
+<li><strong>Modularity and reusability</strong>: When designing classes that can be reused across different applications. The Person class’s clear interface makes it modular and reusable in contexts like school management or social networking systems.</li>
+</ul>
+<h4 id="common-pitfalls">Common pitfalls</h4>
+<p>While encapsulation is powerful, avoid these common mistakes:</p>
+<ul>
+<li><strong>Over-encapsulation</strong>: Creating excessive getter and setter methods for every attribute can make code verbose and harder to maintain.</li>
+<li><strong>Under-encapsulation</strong>: Failing to hide internal details can lead to tight coupling and reduced modularity. For instance, if name and age in the Person class were public, other parts of the code could modify them directly, leading to potential inconsistencies.</li>
+</ul>
+<h3 id="abstraction">Abstraction</h3>
+<p>Abstraction can simplify complex systems by hiding unnecessary details. It separates the "what" an object does from the "how" it does it, enabling users to interact with objects through simplified interfaces. For example, the volume button on a television remote control provides a simple way to adjust sound without exposing the TV’s internal circuitry. In programming, abstraction is achieved using mechanisms like abstract classes and interfaces.</p>
+<p>To see how abstraction works in practice, let’s explore a Shape class and a Drawable interface, which define simplified behaviors for shapes like circles.</p>
+<h4 id="how-to-work-toward-abstraction">How to work toward abstraction?</h4>
+<p>To achieve abstraction, use <strong>abstract classes and interfaces</strong>: Define abstract classes or interfaces with abstract methods, which are declared without implementation and must be implemented by subclasses. These allow users to call methods without needing to know their internal details.</p>
+<h4 id="implementing-abstraction-in-java">Implementing Abstraction in Java</h4>
+<p>Let's demonstrate abstraction in Java with an abstract class representing a Shape and an interface representing a Drawable object:</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Abstract class</span>
+<span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Shape</span> {
+    <span class="hljs-keyword">protected</span> String color;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Shape</span><span class="hljs-params">(String color)</span> {
+        <span class="hljs-built_in">this</span>.color = color;
+    }
+
+    <span class="hljs-comment">// Abstract method</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-type">double</span> <span class="hljs-title function_">area</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-comment">// Concrete method</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">displayColor</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"This shape is "</span> + color + <span class="hljs-string">"."</span>);
+    }
+}
+
+<span class="hljs-comment">// Interface</span>
+<span class="hljs-keyword">interface</span> <span class="hljs-title class_">Drawable</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-comment">// Concrete class implementing Shape and Drawable</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Circle</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Shape</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Drawable</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> radius;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Circle</span><span class="hljs-params">(String color, <span class="hljs-type">double</span> radius)</span> {
+        <span class="hljs-built_in">super</span>(color);
+        <span class="hljs-built_in">this</span>.radius = radius;
+    }
+
+    <span class="hljs-comment">// Implementing abstract method from Shape</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">double</span> <span class="hljs-title function_">area</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Math.PI * radius * radius;
+    }
+
+    <span class="hljs-comment">// Implementing method from Drawable interface</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">draw</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Drawing a circle."</span>);
+    }
+}
+</code></pre>
+<p>The implementation demonstrates abstraction through:</p>
+<ul>
+<li>The Shape abstract class defines an abstract area() method that subclasses must implement and a concrete displayColor() method, which provides a default behavior.</li>
+<li>The Drawable interface, which declares a draw() method that implementing classes must define.</li>
+<li>The Circle class extends Shape and implements Drawable, providing specific implementations for area() (calculating the circle’s area) and draw() (describing the drawing action).</li>
+</ul>
+<p>This structure allows users to interact with shapes using high-level methods like area() and draw() without needing to know the underlying drawing logic.</p>
+<h4 id="when-to-use-abstraction">When to use abstraction?</h4>
+<p>Abstraction is particularly useful in the following scenarios:</p>
+<ul>
+<li><strong>Simplifying complex systems</strong>: Abstraction helps provide a clean and consistent interface for complex functionality. For example, in the Shape class, abstraction allows users to call area() without understanding the mathematical calculations, making the system easier to use.</li>
+<li><strong>Promoting code flexibility</strong>: When you anticipate that subclasses will provide specific implementations of generalized behavior, abstraction becomes essential. The Shape class’s abstract area() method ensures that shapes like circles or rectangles implement their area calculations, allowing flexibility in design.</li>
+<li><strong>Supporting extensibility</strong>: Abstraction makes it easier to extend systems without modifying existing code. For instance, adding a new shape like Triangle to the Shape hierarchy only requires implementing area(), without changing existing code that uses shapes.</li>
+</ul>
+<h4 id="abstraction-vs-encapsulation">Abstraction vs. Encapsulation</h4>
+<p>Abstraction and encapsulation are distinct but complementary OOP principles, often confused because both involve hiding details. Here’s how they differ:</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th>Characteristics</th><th>Abstraction</th><th>Encapsulation</th></tr></thead><tbody><tr><td><strong>Focus</strong></td><td>Hiding complexity by exposing only what an object does through simplified interfaces, without revealing how it does it.</td><td>Bundling data and methods into a single unit (a class) and protecting data by restricting direct access.</td></tr><tr><td><strong>Purpose</strong></td><td>Simplifies user interaction and promotes flexibility by defining high-level behaviors.</td><td>Ensures data integrity and maintainability by controlling access to an object’s data.</td></tr><tr><td><strong>Implementation</strong></td><td>Uses abstract classes and interfaces, e.g., the Shape abstract class with area() or the Drawable interface with draw().</td><td>Uses access modifiers (e.g., private, public) and methods, e.g., private radius in Circle with public getRadius() and setRadius().</td></tr></tbody></table></div>
+<p>By understanding these differences, you can apply abstraction to simplify interfaces and encapsulation to protect data, creating robust and user-friendly systems.</p>
+<h3 id="inheritance">Inheritance</h3>
+<p>Inheritance allows a class (subclass or derived class) to inherit properties and behaviors from another class (superclass or base class). It promotes code reuse and creates a hierarchical relationship between classes. Think of inheritance like a family tree, where children inherit traits from their parents, and grandchildren inherit traits from both their parents and grandparents. The subclass can extend and specialize the functionality of its superclass, reducing code duplication.</p>
+<h4 id="common-patterns-of-class-hierarchy">Common patterns of class hierarchy</h4>
+<p>Building on the concept of inheritance, we now explore common patterns for structuring class hierarchies in Java.</p>
+<h5 id="single-inheritance">Single inheritance</h5>
+<p>A subclass extends only one superclass. This is the standard type of inheritance supported in Java. Below is an example of single inheritance.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating inheritance in object-oriented programming.  The diagram shows two classes: 'Animal' and 'Dog'. The 'Animal' class, depicted as a rectangle with a shaded 'C' in a circle at the top-left corner, indicating it's a class, contains a single method labeled 'eat()'.  This method is represented by a small circle preceding its name, suggesting it's a method with default access.  A solid upward-pointing arrow connects the 'Dog' class to the 'Animal' class, labeled 'extends,' signifying that the 'Dog' class inherits from the 'Animal' class. The 'Dog' class, also a rectangle with a shaded 'C' in a circle at the top-left, has empty compartments below its name, implying it may contain additional attributes or methods not explicitly shown.  The arrow indicates that the 'Dog' class inherits the 'eat()' method from the 'Animal' class." loading="lazy" width="171" height="288" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-2-ZG4CMJB4.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Single inheritance</figcaption></div></figure>
+<p>In the above example, we demonstrate single inheritance by creating a Dog class that extends the Animal class. The Dog class inherits the eat() method from Animal.</p>
+<h5 id="multilevel-inheritance">Multilevel Inheritance</h5>
+<p>A subclass that inherits from another subclass, creating a chain of inheritance, is called multilevel inheritance. Consider a scenario with three classes: Animal, Mammal, and Dog, where Animal is the superclass of Mammal, and Mammal is the superclass of Dog.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating inheritance in object-oriented programming.  The diagram shows three classes: 'Animal,' 'Mammal,' and 'Dog.'  The 'Animal' class, at the top, contains a single method, `eat()`, represented by a filled circle indicating it's an instance method.  A solid upward-pointing arrow labeled 'extends' connects 'Animal' to 'Mammal,' signifying that 'Mammal' inherits from 'Animal.' The 'Mammal' class adds its own method, `run()`, also an instance method.  Similarly, another solid upward-pointing arrow labeled 'extends' connects 'Mammal' to 'Dog,' indicating inheritance.  The 'Dog' class introduces a unique method, `bark()`, which is also an instance method.  The overall structure depicts a hierarchical inheritance relationship, where 'Dog' inherits features from both 'Mammal' and 'Animal,' demonstrating the concept of inheritance in object-oriented design." loading="lazy" width="168" height="475" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-3-ZTAJU5CK.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Multilevel inheritance</figcaption></div></figure>
+<p>In the above example, the Dog class inherits behavior from the Animal and Mammal classes. Multilevel inheritance is useful when you have classes that exhibit a hierarchical relationship, with each subclass specializing and adding new behavior to the existing hierarchy.</p>
+<h5 id="hierarchical-inheritance">Hierarchical Inheritance</h5>
+<p>In hierarchical inheritance, multiple subclasses inherit from the same superclass, forming a hierarchical structure. In the example below, you can see two subclasses, Car and Motorcycle, both inherit from the Vehicle class, forming a hierarchical inheritance relationship.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating inheritance in object-oriented programming.  At the top is a class named 'Vehicle' containing two methods: `start()` and `stop()`, represented by filled circles indicating instance methods.  Two upward-pointing arrows labeled 'extends' connect 'Vehicle' to two lower classes: 'Car' and 'Motorcycle'. This signifies that 'Car' and 'Motorcycle' inherit from 'Vehicle,' inheriting the `start()` and `stop()` methods.  The 'Car' class adds a unique method `drive()`, and the 'Motorcycle' class adds a unique method `ride()`, both also represented by filled circles.  The overall structure shows a hierarchical relationship where 'Vehicle' is a parent class, and 'Car' and 'Motorcycle' are child classes, each extending the functionality of the parent class with their own specific methods." loading="lazy" width="337" height="317" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-4-MGBPZAQZ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Hierarchical inheritance</figcaption></div></figure>
+<p>Hierarchical inheritance is beneficial when multiple classes share common attributes or behaviors from a single superclass.</p>
+<h4 id="when-to-use-inheritance">When to use inheritance?</h4>
+<p>Inheritance is particularly useful in the following scenarios:</p>
+<ul>
+<li>Whenever we encounter an 'is-a' relationship between objects, we can use inheritance.</li>
+<li>When multiple classes share common attributes or methods, a superclass can define them once, allowing all subclasses to inherit them and avoid duplication.</li>
+<li>When classes form a natural hierarchy, such as Animal being a parent to Dog and Cat, inheritance organizes the structure clearly.</li>
+</ul>
+<h4 id="drawbacks-of-inheritance">Drawbacks of inheritance</h4>
+<p>While Inheritance promotes code reuse, its overuse can complicate designs. Here are the key drawbacks to consider:</p>
+<ul>
+<li><strong>Tight coupling</strong>: Subclasses depend heavily on their superclass. Changes to the superclass, such as modifying the Animal class’s eat() method, can break subclasses like Dog or Cat, making the code harder to maintain.</li>
+<li><strong>Inappropriate behavior inheritance</strong>: Inheritance can force subclasses to inherit behaviors that don’t apply. For example, adding a fly() method to the Animal superclass assumes all subclasses (e.g., Penguin) can fly, leading to errors or awkward workarounds like throwing exceptions.</li>
+<li><strong>Limited flexibility</strong>: Inheritance locks in relationships at design time. If you later need a RobotDog that barks but doesn’t eat, it can’t inherit from Animal without inheriting irrelevant methods.</li>
+</ul>
+<p>To address these issues, consider alternatives like composition (combining objects) or interfaces, which offer flexibility and loose coupling.</p>
+<h4 id="inheritance-vs-composition">Inheritance vs. Composition</h4>
+<p>Given inheritance’s limitations, it’s helpful to compare it with composition, another way to structure classes. Inheritance creates an “is-a” relationship, where a subclass is a type of its superclass (e.g., Dog is an Animal). Composition creates a “has-a” relationship, where a class contains other objects to provide its behavior, such as installing apps on a phone for specific tasks.</p>
+<p>Consider the Dog and RobotDog scenario. Using inheritance, RobotDog extends Animal to inherit bark(), but it also gets eat(), which doesn’t apply, causing issues like exceptions. Using composition, you define a BarkBehavior interface with a bark() method. Dog and RobotDog each have a BarkBehavior object, implemented differently (e.g., DogBark for “Woof!” and RobotBark for “Beep!”). This lets RobotDog bark without inheriting eat().</p>
+<p>Here’s a simple composition example in Java:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">BarkBehavior</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">bark</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">DogBark</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">BarkBehavior</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">bark</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Woof!"</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">RobotBark</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">BarkBehavior</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">bark</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Beep!"</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Dog</span> {
+    <span class="hljs-keyword">private</span> BarkBehavior barkBehavior;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Dog</span><span class="hljs-params">(BarkBehavior barkBehavior)</span> {
+        <span class="hljs-built_in">this</span>.barkBehavior = barkBehavior;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">bark</span><span class="hljs-params">()</span> {
+        barkBehavior.bark();
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">RobotDog</span> {
+    <span class="hljs-keyword">private</span> BarkBehavior barkBehavior;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">RobotDog</span><span class="hljs-params">(BarkBehavior barkBehavior)</span> {
+        <span class="hljs-built_in">this</span>.barkBehavior = barkBehavior;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">bark</span><span class="hljs-params">()</span> {
+        barkBehavior.bark();
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-type">Dog</span> <span class="hljs-variable">dog</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dog</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">DogBark</span>());
+        <span class="hljs-type">RobotDog</span> <span class="hljs-variable">robotDog</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RobotDog</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RobotBark</span>());
+        dog.bark(); <span class="hljs-comment">// Output: Woof!</span>
+        robotDog.bark(); <span class="hljs-comment">// Output: Beep!</span>
+    }
+}
+</code></pre>
+<h4 id="when-to-use-composition">When to use composition?</h4>
+<p>To choose between inheritance and composition, follow these guidelines:</p>
+<ul>
+<li><strong>Design Choice</strong>: Use inheritance for clear “is-a” relationships with stable, shared behaviors. Choose composition for “has-a” relationships or when you need flexible, swappable behaviors, as it’s easier to modify and maintain.</li>
+<li><strong>Interview Strategy</strong>: In OOD interviews, favor composition when flexibility or loose coupling is key, as it’s preferred in modern design. For example, explain how RobotDog uses BarkBehavior to avoid inheritance’s tight coupling. Highlight inheritance’s use for simple hierarchies, but note its drawbacks.</li>
+</ul>
+<p>These insights will help you design robust systems and justify your choices in interviews. With this comparison in mind, let’s explore how Polymorphism builds on these ideas to create flexible behaviors.</p>
+<h3 id="polymorphism">Polymorphism</h3>
+<p>Polymorphism is the concept of implementing objects that can take on multiple forms or behave differently depending on their context, all within a common interface. It provides the flexibility to add new behaviors without modifying existing code.</p>
+<p>Consider a media player as a real-world example. Different types of media, such as audio, video, and streaming content, would be played on the same rendering widget and controlled by the same “play” button. But they require different internal processing and rendering logic. The user only interacts with a uniform interface, while polymorphic behavior manages the varying objects.</p>
+<h4 id="types-of-polymorphism">Types of Polymorphism</h4>
+<p>Polymorphism in object-oriented programming is typically categorized into two main types: compile-time (static) and runtime (dynamic) polymorphism.</p>
+<h5 id="compile-time-polymorphism-via-method-overloading">Compile-Time polymorphism via method overloading</h5>
+<p>Method overloading allows a class to have multiple methods with the same name but different parameters. The compiler determines the appropriate method to call based on the number and type of arguments passed during compile time. Method overloading enhances code readability by using the same method name for similar operations with different parameters.</p>
+<p>Here’s an example of method overloading in Java:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MathOperations</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> {
+        <span class="hljs-keyword">return</span> a + b;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">double</span> <span class="hljs-title function_">add</span><span class="hljs-params">(<span class="hljs-type">double</span> a, <span class="hljs-type">double</span> b)</span> {
+        <span class="hljs-keyword">return</span> a + b;
+    }
+
+    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">add</span><span class="hljs-params">(String str1, String str2)</span> {
+        <span class="hljs-keyword">return</span> str1 + str2;
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-type">MathOperations</span> <span class="hljs-variable">math</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MathOperations</span>();
+
+        <span class="hljs-type">int</span> <span class="hljs-variable">sum1</span> <span class="hljs-operator">=</span> math.add(<span class="hljs-number">5</span>, <span class="hljs-number">10</span>);
+        <span class="hljs-type">double</span> <span class="hljs-variable">sum2</span> <span class="hljs-operator">=</span> math.add(<span class="hljs-number">3.5</span>, <span class="hljs-number">7.2</span>);
+        <span class="hljs-type">String</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> math.add(<span class="hljs-string">"Hello, "</span>, <span class="hljs-string">"World!"</span>);
+
+        System.out.println(<span class="hljs-string">"Sum of integers: "</span> + sum1);
+        System.out.println(<span class="hljs-string">"Sum of doubles: "</span> + sum2);
+        System.out.println(<span class="hljs-string">"Concatenated string: "</span> + result);
+    }
+}
+
+</code></pre>
+<p>In this example:</p>
+<ul>
+<li>The MathOperations class defines multiple add methods with different parameter types or counts.</li>
+<li>The compiler selects the appropriate add method based on the arguments passed, enhancing code readability by using a single method name for related operations.</li>
+</ul>
+<h5 id="runtime-polymorphism-via-method-overriding">Runtime polymorphism via method overriding</h5>
+<p>Method overriding occurs when a subclass provides a specific implementation for a method already defined in its superclass. The method to be executed is determined at runtime based on the actual type of the object, not the reference type. This is often referred to as dynamic dispatch, a hallmark of runtime polymorphism.</p>
+<p>Here’s an example of method overriding in Java:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Animal</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sound</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Animal makes a sound."</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Dog</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Animal</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sound</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Dog barks: Woof!"</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Cat</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Animal</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sound</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Cat meows: Meow!"</span>);
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> {
+        <span class="hljs-type">Animal</span> <span class="hljs-variable">animal1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Dog</span>();
+        <span class="hljs-type">Animal</span> <span class="hljs-variable">animal2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Cat</span>();
+
+        animal1.sound(); <span class="hljs-comment">// Dog's sound() method is called</span>
+        animal2.sound(); <span class="hljs-comment">// Cat's sound() method is called</span>
+    }
+}
+
+</code></pre>
+<p>In this example:</p>
+<ul>
+<li>The Animal class defines a generic sound method.</li>
+<li>The Dog and Cat subclasses override sound to provide specific implementations.</li>
+<li>At runtime, the JVM determines the actual type of the object (Dog or Cat) and calls the appropriate sound method, even though the reference type is Animal.</li>
+<li>The loop demonstrates polymorphic behavior by treating different objects uniformly through the Animal type.</li>
+</ul>
+<h4 id="when-to-use-polymorphism">When to use polymorphism?</h4>
+<p>Polymorphism is particularly valuable in the following scenarios:</p>
+<ul>
+<li><strong>Shared Interface</strong>: When multiple classes need to perform the same action in different ways, such as a play method for various media types (e.g., audio, video). Interfaces or superclasses ensure a consistent contract across implementations.</li>
+<li><strong>Extensibility</strong>: When designing systems that need to accommodate new classes without modifying existing code. For example, adding a new media type to a player only requires implementing the existing play interface, preserving system stability.</li>
+<li><strong>Customization</strong>: When subclasses need to tailor the behavior of inherited methods. For instance, a Dog barking differently from a Cat uses method overriding to provide specific implementations while adhering to the Animal interface.</li>
+</ul>
+<h2 id="solid-principle-of-good-design">SOLID Principle of Good Design</h2>
+<p>Aside from the core OOP principles (encapsulation, abstraction, inheritance, and polymorphism), you should also be familiar with the SOLID principles. SOLID offers guidelines to create software that is easy to understand, modify, and extend. These principles are particularly valuable in OOD interviews, where articulating design decisions and their rationale can help you stand out.</p>
+<p>The SOLID acronym stands for:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating the five SOLID principles of object-oriented design.  The diagram is vertically oriented, with five rectangular boxes stacked on top of each other. Each box represents a single principle, identified by its acronym (SRP, OCP, LSP, ISP, DIP) and a short description.  To the left of each box is a gray, stylized bookmark-shaped element containing the corresponding letter of the acronym (S, O, L, I, D), forming the word 'SOLID' vertically.  The boxes are uniformly sized and bordered with a thick black line.  Each box contains the principle's full name in bold text at the top, followed by a concise explanation of the principle's meaning and implications for software design.  For example, the 'Single Responsibility Principle (SRP)' box explains that a class should have only one reason to change, while the 'Dependency Inversion Principle (DIP)' box describes the decoupling of high-level and low-level modules through abstractions and interfaces.  The arrangement and labeling clearly show the five principles as distinct yet related concepts within the SOLID framework." loading="lazy" width="624" height="485" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-5-2GDZWMVJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">SOLID Principles</figcaption></div></figure>
+<p>This section explores each principle through practical examples.</p>
+<h3 id="single-responsibility-principle-srp">Single Responsibility Principle (SRP)</h3>
+<p>The “S” in the SOLID principles stands for the Single Responsibility Principle (SRP), which states that a class should have only one reason to change or, in other words, it should have a single, well-defined responsibility or task within a software system.</p>
+<h4 id="violation-of-srp">Violation of SRP</h4>
+<p>Here’s an example of a class that violates SRP by taking on multiple responsibilities:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Employee</span> {
+    <span class="hljs-keyword">private</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> salary;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Employee</span><span class="hljs-params">(String name, <span class="hljs-type">double</span> salary)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.salary = salary;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">double</span> <span class="hljs-title function_">calculateSalary</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> salary * <span class="hljs-number">12</span>; <span class="hljs-comment">// Annual salary</span>
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">generatePayrollReport</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Payroll Report for "</span> + name + <span class="hljs-string">": $"</span> + salary * <span class="hljs-number">12</span>);
+    }
+}
+
+</code></pre>
+<p>The Employee class above violates SRP because it has two responsibilities: calculating an employee’s salary and generating a payroll report. This means the class could change for two unrelated reasons, i.e., updates to salary logic or changes to report formatting, making it harder to maintain.</p>
+<h4 id="fixing-the-violation">Fixing the violation</h4>
+<p>To address the violation, let's refactor the code to separate concerns and ensure that each class has a single, well-defined responsibility. We'll create distinct classes for calculating an employee's salary and generating a payroll report:</p>
+<ul>
+<li>The Employee class manages employee data, such as name and salary, and calculates the annual salary based on the monthly salary.</li>
+<li>The PayrollReportGenerator class takes an employee’s data and produces payroll reports.</li>
+</ul>
+<p>This separation ensures that each class has a single task, and changes to salary calculations won’t affect reporting, and updates to report formats won’t impact employee data, making the system easier to maintain.</p>
+<p>Here is the visual representation of the classes and implementation of the single responsibility principle (SRP).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of two class diagrams illustrating different approaches to designing an `Employee` class and its interaction with a `PayrollReportGenerator`.  The left diagram, marked with a cross (X), shows an `Employee` class with private attributes `name` (String) and `salary` (double), and public methods `calculateSalary()` (void) and `generatePayrollReport()` (void). This design indicates that the `Employee` class is responsible for generating its own payroll report. The right diagram, marked with a checkmark (✓), presents a preferred alternative.  It also includes an `Employee` class with the same private attributes (`name` and `salary`) and a `calculateSalary()` method. However, the `generatePayrollReport()` method is removed from the `Employee` class and instead resides within a separate `PayrollReportGenerator` class.  The `PayrollReportGenerator` class has a single public method `generatePayrollReport(Employee employee)` (void), which accepts an `Employee` object as a parameter, suggesting a more modular and maintainable design by separating concerns.  No data flows directly between the classes; instead, the `PayrollReportGenerator` class uses the `Employee` object passed as an argument to generate the report." loading="lazy" width="624" height="189" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-6-M2IXKAEJ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Single Responsibility Principle (SRP)</figcaption></div></figure>
+<h4 id="best-practices">Best practices</h4>
+<p>To adhere to the SRP effectively, consider the following guidelines:</p>
+<ul>
+<li>Aim to define a clear role for each class, focusing on one specific task.</li>
+<li>If a class handles multiple tasks, refactor it into smaller, focused classes with single responsibilities.</li>
+<li>Design classes so that changes to one task don’t impact others.</li>
+</ul>
+<h3 id="openclosed-principle-ocp">Open/Closed Principle (OCP)</h3>
+<p>The Open/Closed Principle (OCP) states that software entities, such as classes, should be open for extension but closed for modification. This means you can add new functionality without altering existing code.</p>
+<h4 id="violation-of-ocp">Violation of OCP</h4>
+<p>Here’s an example of a class that violates OCP by requiring changes to support new shapes:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Rectangle</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> width;
+    <span class="hljs-keyword">private</span> <span class="hljs-type">double</span> height;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Rectangle</span><span class="hljs-params">(<span class="hljs-type">double</span> width, <span class="hljs-type">double</span> height)</span> {
+        <span class="hljs-built_in">this</span>.width = width;
+        <span class="hljs-built_in">this</span>.height = height;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">double</span> <span class="hljs-title function_">calculateArea</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> width * height;
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">AreaCalculator</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-type">double</span> <span class="hljs-title function_">calculateArea</span><span class="hljs-params">(Rectangle rectangle)</span> {
+        <span class="hljs-keyword">return</span> rectangle.calculateArea();
+    }
+}
+
+</code></pre>
+<p>In the above example, the AreaCalculator class works only with Rectangle objects. Adding support for new shapes, like circles or triangles, would require modifying its code. This makes the system harder to maintain and prone to errors, as each new shape requires altering the core logic.</p>
+<h4 id="fixing-the-violation-1">Fixing the violation</h4>
+<ul>
+<li>We can refactor this design to support new shapes without changes by introducing an abstract Shape class that defines a common behavior for all shapes: calculating their area.</li>
+<li>Specific shapes, like Rectangle and Circle, inherit from Shape and provide their area calculations.</li>
+</ul>
+<p>This design allows new shapes, such as triangles, to be added by creating new classes that inherit from Shape, without modifying AreaCalculator or existing shape classes.</p>
+<p>Below is the visual representation of the classes and implementation of OCP.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of two class diagrams illustrating different approaches to designing a `Shape` hierarchy.  The left diagram shows a `Rectangle` class with private member variables `width` and `height` (indicated by `-`), and public member functions `getWidth()`, `setWidth()`, `getHeight()`, `setHeight()`, and `calculateArea()` (indicated by `+`).  The `calculateArea()` function returns an integer representing the rectangle's area.  A large 'X' marks this diagram, suggesting it's an incorrect or less desirable approach. The right diagram presents an improved design. It features an abstract `Shape` class with an abstract `calculateArea()` method.  Two concrete classes, `Rectangle` and `Circle`, extend the `Shape` class.  `Rectangle` has private member variables `width` and `height` and a `calculateArea()` method, while `Circle` has a private member variable `radius` and its own `calculateArea()` method.  A checkmark ('✓') indicates this diagram represents a correct or preferred object-oriented design, showcasing the benefits of using abstract classes and inheritance for better code organization and extensibility.  The relationship between `Shape`, `Rectangle`, and `Circle` is explicitly labeled as 'Extends'." loading="lazy" width="624" height="256" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-7-ZA3FQC3Z.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Open/Closed Principle (OCP)</figcaption></div></figure>
+<h4 id="best-practices-1">Best practices</h4>
+<p>With this extensible design in place, here are guidelines to ensure OCP compliance:</p>
+<ul>
+<li>Consider introducing abstract classes or interfaces to create flexible blueprints that classes can extend with new functionality.</li>
+<li>Allow subclasses to override methods to provide specific behaviors, such as unique area calculations for different shapes.</li>
+<li>Use polymorphism to treat objects of different classes, like various shapes, uniformly through a common interface or base class.</li>
+</ul>
+<h3 id="liskov-substitution-principle-lsp">Liskov Substitution Principle (LSP)</h3>
+<p>The Liskov Substitution Principle (LSP) states that objects of a derived class should be able to replace objects of the base class without affecting the correctness of the program. In other words, if class A is a subtype of class B, then instances of class B should be replaceable with instances of class A without causing issues.</p>
+<h4 id="violation-of-lsp">Violation of LSP</h4>
+<p>Here’s an example of a design that violates LSP by assuming all birds can fly:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Bird</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fly</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Flying in the sky."</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Ostrich</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Bird</span> {
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">fly</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(<span class="hljs-string">"Ostriches cannot fly."</span>);
+    }
+}
+
+<span class="hljs-comment">// Program calls bird.fly() to test bird behavior</span>
+
+</code></pre>
+<p>In this code, the Ostrich class inherits from Bird but throws an exception for fly, as ostriches cannot fly. This breaks the expectation that any Bird can fly when a program tests this behavior. This violates the principle that derived classes should behave as expected when replacing their base class, making the design unreliable.</p>
+<h4 id="fixing-the-violation-2">Fixing the violation</h4>
+<p>To align with LSP, we can refactor this hierarchy to ensure substitutability:</p>
+<ul>
+<li>Instead of assuming all birds can fly, we redefine the Bird class as an abstract class with a more general behavior, such as moving, that all birds can perform.</li>
+<li>The Bird class defines a move method, which each bird implements according to its abilities. For example, a Sparrow might implement move by describing flying in the sky, while an Ostrich implements move by describing running on land.</li>
+</ul>
+<p>This design ensures that any derived class, like Ostrich, can replace Bird seamlessly, maintaining the program’s correctness.</p>
+<p>Here is the visual representation of the classes and implementation of LSP.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of two class diagrams illustrating inheritance in object-oriented programming.  The left diagram shows a `Bird` class with a `+ fly(): void` method, and an `Ostrich` class extending `Bird` and also containing a `+ fly(): void` method.  An upward arrow labeled 'Extends' connects `Ostrich` to `Bird`, indicating inheritance. This diagram is marked with a large 'X', signifying it's an incorrect or less desirable design. The right diagram presents an alternative design where the `Bird` class has a `+ move(): void` method, and the `Ostrich` class, extending `Bird`, also has a `+ move(): void` method.  The same 'Extends' arrow shows the inheritance relationship. This diagram is marked with a checkmark, indicating it's the correct or preferred approach.  The key difference lies in the method used: the left uses `fly()` which is inappropriate for an ostrich, while the right uses `move()`, a more general and applicable method for both birds and ostriches." loading="lazy" width="624" height="380" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-8-YU77YWEE.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Liskov Substitution Principle (LSP)</figcaption></div></figure>
+<h4 id="best-practices-2">Best practices</h4>
+<p>With this flexible design in place, here are the guidelines to ensure LSP compliance:</p>
+<ul>
+<li>Ensure that derived classes maintain the behavioral compatibility of their base classes. Methods in derived classes should follow the same contracts as the base class methods.</li>
+<li>When overriding methods, derived classes must respect the base class’s method contracts. Specifically:
+<ul>
+<li><strong>Preconditions</strong>: Derived class methods should require the same or weaker preconditions (e.g., input constraints) than the base class method. This ensures that the derived class does not impose stricter requirements that could break client expectations.</li>
+<li><strong>Postconditions</strong>: Derived class methods must provide the same or stronger postconditions (e.g., output guarantees) as the base class method, ensuring that the method’s results meet or exceed the base class’s promises.</li>
+<li><strong>Invariants</strong>: Derived classes must maintain all invariants defined by the base class, ensuring that the object’s state remains valid according to the base class’s rules.</li>
+</ul>
+</li>
+<li>Use polymorphism to allow derived class objects to replace base class objects, often by overriding methods to provide specialized behavior while maintaining the core functionality of the base class.</li>
+</ul>
+<h3 id="interface-segregation-principle-isp">Interface Segregation Principle (ISP)</h3>
+<p>The “I” in the SOLID acronym stands for the Interface Segregation Principle (ISP), which emphasizes that clients (classes or components that use interfaces) should not be forced to depend on interfaces they don't use. In other words, an interface should have a specific and focused set of methods that are relevant to the implementing classes.</p>
+<h4 id="violation-of-isp">Violation of ISP</h4>
+<p>Here’s an example of a design that violates ISP by including methods that not all implementing classes need:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">interface</span> <span class="hljs-title class_">Worker</span> {
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">work</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">eat</span><span class="hljs-params">()</span>;
+
+    <span class="hljs-keyword">void</span> <span class="hljs-title function_">sleep</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Robot</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Worker</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">work</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Performing tasks like welding."</span>);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">eat</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(<span class="hljs-string">"Robots don't eat."</span>);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sleep</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>(<span class="hljs-string">"Robots don't sleep."</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Human</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Worker</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">work</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Performing tasks like coding."</span>);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">eat</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Eating a meal."</span>);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sleep</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"Sleeping for rest."</span>);
+    }
+}
+</code></pre>
+<p>In this code, the Worker interface forces Robot to implement eat and sleep, which are irrelevant, leading to unsupported operations. This makes the code harder to maintain and prone to errors, as classes must handle methods that don’t apply to them.</p>
+<h4 id="fixing-the-violation-3">Fixing the violation</h4>
+<p>To align with ISP, we can refactor this interface to be more focused:</p>
+<ul>
+<li>Instead of a single Worker interface with unrelated methods, we split it into three smaller, tailored interfaces: Workable, Eatable, and Sleepable.</li>
+<li>The Workable interface includes only the work method, which all workers, like robots and humans, can implement.</li>
+<li>The Eatable interface includes the eat method, relevant to humans but not robots.</li>
+<li>The Sleepable interface includes the sleep method, which is also specific to humans.</li>
+</ul>
+<p>This design ensures classes implement only the methods they need, making the code cleaner and more maintainable.</p>
+<p>A visual representation of the refactored interfaces (Workable, Eatable, Sleepable) adhering to the ISP is shown below.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of interface implementations in object-oriented programming.  On the left, a gray box depicts an interface named 'Worker' with three methods: `+ work(): void`, `+ eat(): void`, and `+ sleep(): void`. A large 'X' is below it, indicating this interface is not considered a good design. To the right, three separate interfaces are shown: 'Workable' with `+ work(): void`, 'Eatable' with `+ eat(): void`, and 'Sleepable' with `+ sleep(): void`. A checkmark is placed below these interfaces, suggesting this is a preferred design. The arrangement highlights the principle of separating concerns, where instead of a single interface handling multiple functionalities, it's better to have distinct interfaces for each specific functionality (work, eat, sleep).  The `+` symbol before each method name indicates that these are public methods. The `void` return type signifies that these methods do not return any value." loading="lazy" width="624" height="196" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-9-DLVJ4PKF.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Interface Segregation Principle (ISP)</figcaption></div></figure>
+<h4 id="best-practices-3">Best Practices</h4>
+<p>Here are guidelines to ensure ISP compliance:</p>
+<ul>
+<li>Aim to design interfaces with a specific purpose, including only methods directly related to that purpose.</li>
+<li>Consider creating multiple smaller interfaces that classes can choose to implement, rather than a single large interface with unrelated methods.</li>
+<li>Think from the perspective of the classes implementing the interface, providing only the methods they require.</li>
+</ul>
+<h3 id="dependency-inversion-principle-dip">Dependency Inversion Principle (DIP)</h3>
+<p>The Dependency Inversion Principle (DIP) states that high-level modules (or classes) should not depend on low-level modules; both should depend on abstractions, such as interfaces. In simpler terms, the principle encourages the use of abstract interfaces to decouple higher-level components from lower-level details.</p>
+<h4 id="violation-of-dip">Violation of DIP</h4>
+<p>Here’s an example of a design that violates DIP by having a high-level class depend directly on a low-level class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">LightBulb</span> {
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">turnOn</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"LightBulb is on."</span>);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">turnOff</span><span class="hljs-params">()</span> {
+        System.out.println(<span class="hljs-string">"LightBulb is off."</span>);
+    }
+}
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Switch</span> {
+    <span class="hljs-keyword">private</span> LightBulb bulb;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Switch</span><span class="hljs-params">(LightBulb bulb)</span> {
+        <span class="hljs-built_in">this</span>.bulb = bulb;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">operate</span><span class="hljs-params">()</span> {
+        bulb.turnOn();
+    }
+}
+
+</code></pre>
+<p>The Switch class above violates DIP because it depends directly on the low-level LightBulb class, rather than an abstraction. This tight coupling means that changing the LightBulb class, such as modifying its methods, or replacing it with another device, like a Fan, requires altering the Switch class’s code. This makes the system less flexible and harder to maintain, as high-level modules should not be tied to low-level details.</p>
+<h4 id="fixing-the-violation-4">Fixing the violation</h4>
+<p>To align with DIP, we can refactor this design to use abstractions:</p>
+<ul>
+<li>We introduce a Switchable interface that defines standard methods, such as turnOn and turnOff, which any switchable device can implement.</li>
+<li>The Switch class is modified to depend only on the Switchable interface, not on specific devices.</li>
+<li>The LightBulb class implements the Switchable interface, providing its turnOn and turnOff behavior.</li>
+</ul>
+<p>Now, Switch can work with any device that implements Switchable, like a Fan or a Heater, without needing changes to its code. This design decouples Switch from low-level details, making the system more flexible and easier to extend.</p>
+<p>A visual representation of the dependency inversion is shown below.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison of two design approaches for a light bulb and switch system.  The left side shows a `LightBulb` class with a `turnOn()` method and a `Switch` class that depends on `LightBulb`, possessing a `bulb` attribute of type `LightBulb` and an `operate()` method.  A dashed arrow labeled 'Depends' points from `Switch` to `LightBulb`, indicating a direct dependency. This design is marked with an 'X,' suggesting it's flawed. The right side presents an improved design using an interface.  A `Switchable` interface is defined with a `turnOn()` method. The `LightBulb` class implements this interface. A `Switch` class now has a `device` attribute of type `Switchable`, decoupling it from the specific `LightBulb` implementation. A dashed arrow labeled 'Depends' points from `Switch` to `Switchable`, representing a dependency on the interface, not a specific class. This design is marked with a checkmark, indicating its correctness.  Both sides use standard UML class diagram notation, with '+' indicating public methods and '-' indicating private attributes." loading="lazy" width="624" height="256" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/oop-fundamentals/image-3-10-ULKJVD4B.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Dependency Inversion Principle (DIP)</figcaption></div></figure>
+<h4 id="best-practices-4">Best Practices</h4>
+<p>With this decoupled design in place, here are guidelines to ensure DIP compliance:</p>
+<ul>
+<li>Introduce interfaces or abstract classes to represent dependencies, allowing high-level modules to depend on these abstractions.</li>
+<li>Use dependency injection to inject concrete implementations into high-level modules through their abstractions. This promotes loose coupling.</li>
+</ul>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>This chapter has helped you understand how to use Encapsulation, Abstraction, Inheritance, Polymorphism, and the SOLID principles. These concepts form the backbone of robust software design, enabling you to create flexible, maintainable, and scalable systems. Applying these tools will help you articulate clear design decisions, justify your approach, and demonstrate adherence to industry-standard practices.</p>
+<p>To further refine your skills and deepen your expertise, explore the following resources:</p>
+<ul>
+<li><em>‘Clean Code: A Handbook of Agile Software Craftsmanship’</em> by Robert C. Martin</li>
+<li><em>‘Design Patterns: Elements of Reusable Object-Oriented Software’</em> by Erich Gamma, Richard Helm, Ralph Johnson, and John Vlissides.</li>
+<li>‘Tidy First?: A Personal Exercise in Empirical Software Design’ by Kent Beck</li>
+</ul>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="a-framework-for-the-ood-interview.html">← Previous</a>
+        <a href="design-a-parking-lot.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

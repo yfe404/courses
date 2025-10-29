@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Two Pointers - Coding Patterns</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../coding-patterns.html">Coding Patterns</a> /
+        Introduction to Two Pointers
+    </div>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        
+        <a href="is-palindrome-valid.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">comparisons</span> Introduction to Two Pointers
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/coding-patterns/two-pointers/introduction-to-two-pointers" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><h1>Introduction to Two Pointers</h1></header><h2 id="intuition">Intuition</h2>
+<p>As the name implies, a two-pointer pattern refers to an algorithm that utilizes two pointers. But what is a pointer? It's a variable that represents an index or position within a data structure, like an array or linked list. Many algorithms just use a single pointer to attain or keep track of a single element:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="The image represents a visual depiction of data insertion or modification within a data structure, likely an array or list.  A small, orange square containing the letter 'i' acts as an indicator or pointer, positioned above a sequence of numbers enclosed in square brackets: `[ ... 14 5 5 20 ... ]`.  A downward-pointing orange arrow originates from the 'i' indicator and points directly to the number '5', suggesting that the 'i' represents a position or index within the data structure, and the arrow indicates the insertion or modification is occurring at that specific index. The ellipses (...) indicate that there are additional elements before and after the visible portion of the sequence.  The overall diagram illustrates a simple data manipulation operation, focusing on the insertion or update of a value at a particular index within a larger dataset." loading="lazy" width="195" height="50" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/introduction-to-two-pointers/image-01-00-1-OA7SGCBK.svg" style="color: transparent;"></div></figure>
+<p>Introducing a second pointer opens a new world of possibilities. Most importantly, we can now make <strong>comparisons</strong>. With pointers at two different positions, we can compare the elements at those positions and make decisions based on the comparison:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of a comparison step within a sorting algorithm, likely a comparison-based sort like bubble sort or insertion sort.  The diagram shows a numerical array `nums` represented as `[... 14 5 5 20 ...]`, indicating a partial view of a larger array.  Two index variables, `i` (in an orange box) and `j` (in a light-blue box), point to elements 14 and 5 respectively within the array.  Arrows descend from `i` and `j` to highlight these selected elements.  To the right, a dashed-line box describes a function call `compare(nums[i], nums[j])`, which implies a comparison operation between the values at indices `i` and `j` (14 and 5 in this instance).  A right-pointing arrow from this box leads to the text 'make decision,' indicating that the result of the comparison (whether `nums[i]` &gt; `nums[j]`, `nums[i]` &lt; `nums[j]`, or `nums[i]` == `nums[j]`) will determine the next step in the sorting algorithm." loading="lazy" width="431" height="56" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/introduction-to-two-pointers/image-01-00-2-Y7CSNC5F.svg" style="color: transparent;"></div></figure>
+<p>In many cases, such comparisons are made using two nested for-loops, which takes <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span> time, where <code>n</code> denotes the length of the data structure. In the code snippet below, <code>i</code> and <code>j</code> are two pointers used to compare every two elements of an array:</p>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-0-tab-0" aria-controls="rc-tabs-0-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-1" aria-controls="rc-tabs-0-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-2" aria-controls="rc-tabs-0-panel-2">Java</div></div><div data-node-key="3" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-3" aria-controls="rc-tabs-0-panel-3">Cpp</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-0-more-popup" id="rc-tabs-0-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-0-panel-0" aria-labelledby="rc-tabs-0-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):
+    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i + <span class="hljs-number">1</span>, n):
+        compare(nums[i], nums[j])
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<p>Often, this approach does not take advantage of <strong>predictable dynamics</strong> that might exist in a data structure. An example of a data structure with predictable dynamics is a sorted array: when we move a pointer in a sorted array, we can predict whether the value being moved to is greater or smaller. For example, moving a pointer to the right in an ascending array guarantees we're moving to a value greater than or equal to the current one:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating a coding pattern or prediction within a sorted array.  At the top, a small orange square containing the letter 'i' points downwards, indicating an index or iterator.  Below, a sorted integer array `[1 2 3 4]` is shown, with a grey line underneath labeled 'sorted array'.  A dashed-line box at the bottom contains a prediction statement written in a pseudo-code style: 'prediction: if nums[i] == 2, then nums[i + 1] ≥ 2'. This statement suggests that if the element at index 'i' in the `nums` array is equal to 2, then the element at the next index (i+1) must be greater than or equal to 2. The arrow from 'i' implies that 'i' is used to index into the array, likely as part of an algorithm or conditional check." loading="lazy" width="407" height="117" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/introduction-to-two-pointers/image-01-00-3-ASETSKFQ.svg" style="color: transparent;"></div></figure>
+<p>As you can see, data structures with predictable dynamics let us move pointers in a logical way. Taking advantage of this predictability can lead to improved time and space complexity, which we will illustrate with real interview problems in this chapter.</p>
+<h2 id="two-pointer-strategies">Two-pointer Strategies</h2>
+<p>Two-pointer algorithms usually take only <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> time by eliminating the need for nested for-loops. There are three main strategies for using two pointers.</p>
+<p><strong>Inward traversal</strong><br>
+This approach has pointers starting at opposite ends of the data structure and moving inward toward each other:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of a two-pointer approach in a coding pattern, likely for array traversal or similar operations.  The diagram shows a sequence of eight black dots enclosed within square brackets, representing elements in a data structure.  Above the dots, two rectangular boxes are labeled 'left' (in orange) and 'right' (in light blue).  Dashed orange lines connect the 'left' box to the first four dots, indicating a pointer traversing from left to right across this section. Similarly, dashed light blue lines connect the 'right' box to the last four dots, showing a pointer moving from right to left.  Both pointers converge on the central dot, suggesting a meeting point in the algorithm. The arrows from the 'left' and 'right' boxes point downwards, indicating the direction of pointer movement towards the center. The overall structure illustrates a common algorithm strategy where two pointers start from opposite ends of a data structure and move towards each other until they meet or a specific condition is met." loading="lazy" width="238" height="56" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/introduction-to-two-pointers/image-01-00-4-SFTU7WGJ.svg" style="color: transparent;"></div></figure>
+<p>The pointers move toward the center, adjusting their positions based on comparisons, until a certain condition is met, or they meet/cross each other. This is ideal for problems where we need to compare elements from different ends of a data structure.</p>
+<p><strong>Unidirectional traversal</strong><br>
+In this approach, both pointers start at the same end of the data structure (usually the beginning) and move in the same direction:</p>
+ 
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="The image represents a visual depiction of a two-pointer approach to traversing a data structure, likely an array or list.  The structure is shown as a sequence of black dots enclosed within square brackets `[ ]`, representing individual elements.  An orange rectangle labeled 'left' points a downward arrow to the leftmost element within a subset of the dots.  Dashed orange lines with arrowheads connect this element to the next few elements to its right, indicating a traversal from left to right.  Similarly, a light-blue rectangle labeled 'right' points a downward arrow to the rightmost element within a different subset of the dots.  Dashed light-blue lines with arrowheads connect this element to the preceding few elements to its left, indicating a traversal from right to left.  The two pointers, indicated by the orange and light-blue arrows, are moving towards the center of the data structure, suggesting a merging or comparison process commonly used in algorithms like merge sort or two-pointer techniques for finding pairs with a specific sum." loading="lazy" width="243" height="56" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/introduction-to-two-pointers/image-01-00-5-2KI3FUD6.svg" style="color: transparent;"></div></figure>
+<p>These pointers generally serve two different but supplementary purposes. A common application of this is when we want one pointer to find information (usually the right pointer) and another to keep track of information (usually the left pointer).</p>
+<p><strong>Staged traversal</strong><br>
+In this approach, we traverse with one pointer, and when it lands on an element that meets a certain condition, we traverse with the second pointer:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a diagram illustrating a coding pattern, likely related to data processing or algorithm execution.  The diagram shows two stages separated by a large right arrow. The first stage depicts a sequence of black dots enclosed in square brackets, representing data elements.  An orange rectangular box labeled 'first' points downwards with an arrow to the second element in the sequence, indicating a process or function ('first') acting upon this specific element.  The connection is shown with a dashed orange line forming a curved arc above the data sequence. The second stage, also enclosed in square brackets, shows the same data sequence but with a different transformation. A light-blue rectangular box labeled 'second' points downwards with an arrow to the second element in this new sequence, indicating a different process or function ('second') acting upon the same element. The connection is shown with a dashed light-blue line forming a curved arc above the data sequence. A third, identical orange box labeled 'first' is shown above the second stage, suggesting the 'first' process is applied again, possibly iteratively or in parallel with the 'second' process.  The overall transformation shows how the initial data sequence is modified by the sequential or parallel application of the 'first' and 'second' processes." loading="lazy" width="547" height="56" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/introduction-to-two-pointers/image-01-00-6-ZAL5SSYK.svg" style="color: transparent;"></div></figure>
+<p>Similar to unidirectional traversal, both pointers serve different purposes. Here, the first pointer is used to search for something, and once found, a second pointer finds additional information concerning the value at the first pointer.</p>
+<p>We discuss all of these techniques in detail throughout the problems in this chapter.</p>
+<h2 id="when-to-use-two-pointers">When To Use Two Pointers?</h2>
+<p>A two-pointer algorithm usually requires a linear data structure, such as an array or linked list. Otherwise, an indication that a problem can be solved using the two-pointer algorithm, is when the input follows a predictable dynamic, such as a <strong>sorted array</strong>.</p>
+<p>Predictable dynamics can take many forms. Take, for instance, a palindromic string. Its symmetrical pattern allows us to logically move two pointers toward the center. As you work through the problems in this chapter, you'll learn to recognize these predictable dynamics more easily.</p>
+<p>Another potential indicator that a problem can be solved using two pointers is if the problem asks for a <strong>pair of values</strong> or a result that can be generated from two values.</p>
+<h2 id="real-world-example">Real-world Example</h2>
+<p><strong>Garbage collection algorithms</strong>: In memory compaction – which is a key part of garbage collection – the goal is to free up contiguous memory space by eliminating gaps left by deallocated (aka dead) objects. A two-pointer technique helps achieve this efficiently: a 'scan' pointer traverses the heap to identify live objects, while a 'free' pointer keeps track of the next available space to where live objects should be relocated. As the 'scan' pointer moves, it skips over dead objects and shifts live objects to the position indicated by the 'free' pointer, compacting the memory by grouping all live objects together and freeing up continuous blocks of memory.</p>
+<h2 id="chapter-outline">Chapter Outline</h2>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a hierarchical diagram illustrating different coding patterns categorized under the umbrella term 'Two Pointers'.  A rounded rectangle at the top labeled 'Two Pointers' acts as the root node, branching down via dashed lines to three subordinate rectangular boxes representing distinct traversal types.  The leftmost box, 'Inward Traversal,' lists four sub-problems: 'Pair Sum - Sorted,' 'Triplet Sum,' 'Largest Container,' and 'Is Palindrome Valid.' The rightmost box, 'Unidirectional Traversal,' contains a single sub-problem: 'Shift Zeros to the End.'  Finally, the bottom box, 'Staged Traversal,' lists one sub-problem: 'Next Lexicographical Sequence.'  The dashed lines indicate a hierarchical relationship, showing how each traversal type falls under the broader 'Two Pointers' category, and the listed items are specific problems solvable using that traversal technique." loading="lazy" width="500" height="331" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/introduction-to-two-pointers/image-01-00-7-3JHPFTNV.svg" style="color: transparent;"></div></figure>
+<p>The two-pointer pattern is very versatile and, consequently, quite broad. As such, we want to cover more specialized variants of this algorithm in separate chapters, such as <em>Fast and Slow Pointers</em> and <em>Sliding Windows</em>.</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        
+        <a href="is-palindrome-valid.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube app - Mobile System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../mobile-system-design-interview.html">Mobile System Design Interview</a> /
+        YouTube app
+    </div>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="google-drive-app.html">← Previous</a>
+        <a href="mobile-system-design-building-blocks.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">09</span> YouTube app
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/mobile-system-design-interview/youtube-app" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">09</strong><h1>YouTube app</h1></header><p>Designing the YouTube mobile application poses a significant challenge in system architecture. With billions of hours of video streamed each day across diverse devices and network environments, delivering seamless playback on this scale requires careful planning. In this chapter, we will examine the essential components that enable the YouTube app to excel as a mobile system, guiding you through the design process step by step.</p>
+<p>YouTube operates on an extraordinary scale, serving over 2.5 billion active users who access content in more than 80 languages [1]. Mobile devices now dominate the platform, accounting for over 70% of total watch time as of early 2024 [2]. This shift underscores the importance of optimizing the mobile experience, a priority we will address throughout our design.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a screenshot of the YouTube mobile application.  At the top, a status bar displays the time '12:30' and standard mobile icons for Wi-Fi, notifications, search, and a user profile picture. Below this, the YouTube logo and title are prominent.  A horizontal navigation bar contains buttons for 'Explore,' 'All,' 'Baking,' 'Comedy,' and a partially visible fifth option. The main content area displays two video thumbnails. The top thumbnail shows a close-up of a bowl of zucchini spaghetti being eaten, with a video duration of '9:21' displayed in the corner.  Below the thumbnail, the video title 'How to: Plant Based Vegan Creamy Zucchini Spaghetti' is shown, along with channel information ('The Korean Vegan'), view count ('12K views'), and upload date ('2 months ago'). A three-dot menu icon is also present. The second thumbnail shows a family photo with a video duration of '8:47' and the title 'Our Story &amp; The Future of Made With Lau,' along with channel information ('Made with Lau'), view count ('26K views'), and upload date ('3 weeks ago').  A three-dot menu icon is also present. At the bottom of the screen, a navigation bar with icons and labels for 'Home,' 'Shorts,' a plus icon (likely for creating content), 'Subscriptions,' and 'Library' is visible.  The overall layout is typical of a mobile app, with clear visual separation between navigation, content, and video information." width="265" height="528" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(265px, 100vw), (max-width: 1200px) min(265px, 80vw), min(265px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-1-EZOZCXGP.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: YouTube screenshot taken from the Google Play Store</figcaption></div></figure>
+<h2 id="step-1-understand-the-problem-and-establish-design-scope">Step 1: Understand the problem and establish design scope</h2>
+<p>Before diving into the design, we must first define its requirements and boundaries. Imagine we are discussing this with an interviewer to clarify the system's focus:</p>
+<p><strong>Candidate:</strong> To start, I would like to confirm the scope. Are we concentrating on the video consumption experience, such as browsing and playback, or should we also consider features for creators, such as video uploads or live streaming?<br>
+<strong>Interviewer</strong>: Please focus on video consumption: browsing and playback. Exclude content creation and live streaming.</p>
+<p><strong>Candidate</strong>: Very well. For consumption, I assume users need to browse recommended videos on a home feed and play them. The player should include controls such as play, pause, and seek, plus options for quality settings (e.g., 360p, 720p), subtitles, and alternate audio tracks. Does this match your vision?<br>
+<strong>Interviewer</strong>: Yes, that captures the key functionality.</p>
+<p><strong>Candidate</strong>: For playback, may I assume we can rely on an existing streaming solution, such as HLS or DASH, for adaptive streaming, or do we need to design that ourselves?<br>
+<strong>Interviewer</strong>: You can use an existing protocol; no need to build it from scratch.</p>
+<p><strong>Candidate</strong>: Excellent. To improve the experience, prefetching video recommendations for the video feed might help. Should we include that?<br>
+<strong>Interviewer</strong>: Yes, prefetching would be a valuable addition.</p>
+<p><strong>Candidate</strong>: Noted. Should we also incorporate features such as watch history for resuming videos or playlist management? What about social elements such as likes and comments?<br>
+<strong>Interviewer</strong>: Let's keep those outside our scope.</p>
+<p><strong>Candidate</strong>: Finally, for scale, how many daily active users (DAU) should we plan for?<br>
+<strong>Interviewer</strong>: Design for about 1 billion DAU worldwide.</p>
+<p>This exchange helps us establish a clear picture of what we are building and its constraints.</p>
+<h4 id="requirements">Requirements</h4>
+<p>Based on this, we are creating a YouTube-like mobile app centered on video consumption, with these features:</p>
+<ul>
+<li>Users can browse recommended videos in a home feed.</li>
+<li>Users can watch videos using a feature-rich player.</li>
+<li>The app prefetches video feed data to improve user experience.</li>
+</ul>
+<p>As for <strong>non-functional requirements</strong>, we need to build a system that ensures:</p>
+<ul>
+<li>Scalability: The app must handle 1 billion daily active users globally while adapting to diverse network conditions from high-speed Wi-Fi to spotty cellular connections.</li>
+<li>Performance: Users should experience smooth scrolling and video playback with efficient delivery of media content across all device types.</li>
+<li>Availability: The system needs to guarantee uninterrupted access to videos while supporting multiple languages and regions to serve a global audience.</li>
+</ul>
+<h4 id="ui-sketch">UI Sketch</h4>
+<p>Consider the primary screens of our app, as shown in Figure 2. The <strong>Home screen</strong> presents tailored video recommendations, while the <strong>Video Player screen</strong> displays the selected video with its controls.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two simplified wireframes of a mobile application screen, likely depicting a before-and-after scenario of a design change.  Both wireframes show a smartphone screen displaying a list of video content.  The left wireframe shows two video thumbnails, each represented by a dark gray rectangle with a play button symbol (a triangle within a circle) in the center, positioned vertically. Below each video thumbnail is a smaller, light gray rectangle, possibly representing a description or user interface element.  A small circle precedes each video thumbnail, potentially indicating a profile picture or other user-related information. The right wireframe shows a similar layout but with only one video thumbnail at the top.  Below the video is a light gray rectangle, similar to those in the left wireframe.  However, a larger, light gray rectangle is added below, suggesting the addition of a new feature, perhaps a comment section or expanded description.  The top right corner of the right wireframe shows three small icons: a heart (likely for liking), an upward-pointing arrow (possibly for sharing), and a shopping bag (suggesting a purchase option).  No explicit data flow or connections are shown between the two wireframes; the difference is purely visual, illustrating a design modification." loading="lazy" width="481" height="384" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/youtube-app/figure-9-2-RAN32ULZ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Basic sketch of our YouTube app</figcaption></div></figure>
+<p>With our scope set and a simple UI outlined, we can now explore how the app communicates with the backend.</p>
+<h2 id="step-2-api-design">Step 2: API design</h2>
+<p>Next, we design the API that connects the client to the backend.</p>
+<h3 id="network-protocol">Network protocol</h3>
+<p>For most of our client-server interactions, we will adopt a <strong>RESTful API over HTTP with JSON</strong> as our communication framework. This approach leverages REST's simple and intuitive design, while also offering wide compatibility with mobile clients and existing tools, making it a practical and efficient solution.</p>
+<p>At YouTube's scale, however, efficiency matters greatly. JSON can produce larger payloads, which can potentially slow down performance on mobile networks. An alternative, like gRPC with Protocol Buffers, offers compact and fast serialization, making it ideal for high-performance systems.</p>
+<p>While gRPC is highlighted as a potential optimization, it's a more specialized technology, and not every developer is familiar with it. For simplicity, we'll opt for a RESTful API in our design. However, if you're comfortable with gRPC, feel free to use it for the API design. It's a great option too.</p>
+<h3 id="endpoints">Endpoints</h3>
+<p>Let's define the API endpoints driving the app's core functionality.</p>
+<p>In this chapter, we will base our design on the real YouTube Data API [3]. It follows a REST-like architecture with some interesting deviations that offer valuable insights for designing mobile systems. At its core, it provides endpoints for accessing YouTube resources such as videos, playlists, and channels.</p>
+<h4 id="video-browsing">Video browsing</h4>
+<p>The videos endpoint has an interesting design choice worth looking at. The Video resource data model [4] contains rich metadata: everything from basic details to view counts and content restrictions. But not every client needs all this information at once!</p>
+<p>The YouTube API addresses over-fetching through a flexible part parameter in their video endpoint:</p>
+<pre><code>GET https://youtube.googleapis.com/youtube/v3/videos?
+      part=snippet,statistics,contentDetails&amp;
+      id=VIDEO_ID&amp;
+      maxResults=`{results}`&amp;pageToken=`{cursor}`
+</code></pre>
+<p>The part parameter here is key: it lets the client specify exactly which data fields to fetch, such as snippet for titles and thumbnails or statistics for view counts. This selective approach minimizes over-fetching, a critical consideration for mobile apps where every byte counts. It's not as dynamic as GraphQL, but it offers similar benefits with less overhead, keeping our design practical and efficient.</p>
+<p>This approach offers several benefits:</p>
+<ul>
+<li>Reduces network bandwidth usage by trimming response payloads.</li>
+<li>Improves server efficiency since it only needs to fetch the requested fields.</li>
+<li>Gives clients fine-grained control over data retrieval.</li>
+<li>Maintains REST's simplicity while adding field selection.</li>
+</ul>
+<div class="note-block"><p><strong>📝 Note:</strong></p><p>Unlike GraphQL, which allows field-by-field selection, this approach lets you choose from predefined sets of fields. While not as granular as GraphQL, it offers a practical balance: giving clients some control over the data they receive without adding too much complexity.</p></div>
+<h5 id="popular-videos-endpoint">Popular videos endpoint</h5>
+<p>When a user opens the app without signing in, we need to show trending content in their main feed. To fetch popular videos, we can use:</p>
+<pre><code>GET /youtube/v3/videos?part=snippet&amp;chart=mostPopular&amp;
+    maxResults=20&amp;regionCode=US
+</code></pre>
+<h5 id="video-details-endpoint">Video details endpoint</h5>
+<p>When a user taps a video, we need to fetch its full details to enrich the viewing experience. Here's how we handle it:</p>
+<pre><code>GET /youtube/v3/videos?id=VIDEO_ID&amp;
+    part=snippet,player,contentDetails,statistics
+</code></pre>
+<p>This call retrieves everything the app needs: metadata, such as the title and description, playback information via the player, and engagement metrics from statistics.</p>
+<h4 id="video-playback">Video playback</h4>
+<p>Unlike third-party apps, which must use YouTube’s IFrame Player API [5], we can feed streaming manifests directly to platform-specific video player APIs since we’re designing YouTube’s internal client.</p>
+<p>To achieve that, we can create a video playback endpoint that provides all necessary streaming information:</p>
+<pre><code>GET https://my-internal.googleapis.com/youtube/v3/videos/playback?
+      codecs=supportedCodecs&amp;
+      protocols=supportedStreamingVideoProtocols&amp;
+      language=preferredLanguage&amp;
+      subtitles=preferredSubtitles
+</code></pre>
+<p>The response delivers a streaming manifest (e.g., DASH or HLS) tailored to the device's capabilities, along with metadata such as subtitle options. We'll dive deeper into these streaming protocols later, but for now, this endpoint ensures smooth, adaptive playback.</p>
+<h2 id="step-3-high-level-client-architecture">Step 3: High-level client architecture</h2>
+<p>With the API design in place, let's shift our attention to the client-side architecture. Figure 3 sketches out the architecture of our YouTube app.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a client-server architecture for a video streaming application.  The client-side, labeled 'Client,' is divided into a 'UI layer' and a 'Data layer.' The UI layer contains a 'Navigator' component that controls the flow between a 'Home Screen' and a 'Video Player Screen.' The 'Video Player Screen' interacts with a 'Video Player UI component,' which receives data via HTTPS from a 'CDN' (Content Delivery Network).  An 'Image Loader' within the UI layer also fetches images via HTTPS from the CDN. The Data layer comprises a 'Browsing Repository,' a 'Videos Repository,' and a 'Network Dispatcher.' These components communicate with the server-side via an 'API Gateway' using HTTPS. The API Gateway interacts with a 'Backend' component, which in turn communicates with the CDN.  The 'Dependency Injection' layer facilitates communication between the UI and Data layers.  Data flows from the Backend, through the API Gateway, potentially to the CDN, and then to the client's UI components via HTTPS requests." loading="lazy" width="662" height="412" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/youtube-app/figure-9-3-VTUZEMX2.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: High-level architecture diagram of our YouTube app</figcaption></div></figure>
+<h3 id="server-side-components">Server-side components</h3>
+<p>Our system relies on several external services:</p>
+<ul>
+<li>The <strong>Backend</strong> manages video data, user interactions, and serves API requests over HTTP.</li>
+<li><strong>CDNs</strong> speed up the delivery of static assets, such as video content, thumbnails, and metadata, by caching them near users.</li>
+<li>The <strong>API Gateway</strong> acts as the front door for client requests, handling routing, security, authentication, and access control.</li>
+</ul>
+<p>CDNs play a crucial role in video streaming for several key reasons:</p>
+<ul>
+<li><strong>User experience</strong>: Users receive content from nearby CDN servers, rather than a distant central server. This significantly reduces loading times and buffering.</li>
+<li><strong>Scalability</strong>: When millions of users stream popular videos simultaneously, CDNs distribute the load across multiple servers. This prevents overloading any single server and ensures smooth playback for everyone.</li>
+<li><strong>Cost-effective delivery</strong>: Without CDNs, every video request would have to travel all the way to the origin servers, increasing both latency and bandwidth costs. CDNs optimize these costs by reducing the burden on primary infrastructure.</li>
+</ul>
+<p>Despite these benefits, CDN costs can become substantial as operations scale. This has prompted major streaming platforms to explore alternatives:</p>
+<ul>
+<li>Netflix developed its own CDN solution called Open Connect [6]. This custom approach gives them greater control over delivery costs while specifically optimizing for video content.</li>
+<li>Other companies form direct partnerships with Internet Service Providers, placing servers within ISP networks. This strategy can lower delivery costs while improving streaming quality.</li>
+</ul>
+<h3 id="client-architecture">Client architecture</h3>
+<p>The <strong>UI layer</strong> consists of three main screens: a <strong>Home Screen</strong> for browsing recommended videos, and a <strong>Video Player screen</strong> for seeing video details and watching them via the <strong>Video Player UI component</strong>. As with other apps, these screens have their corresponding state holder associated with them that exposes UI state and handles the business logic of the screens.</p>
+<p>The <strong>data layer</strong> manages the core functionality through the Browsing, Video, and History <strong>repositories</strong>. All of them would have their corresponding Remote Data Source that uses the <strong>Network Dispatcher</strong> to handle HTTP communication with the backend.</p>
+<h2 id="step-4-design-deep-dive">Step 4: Design deep dive</h2>
+<p>Now that we've established our high-level architecture, let's explore some key aspects of our system in more detail:</p>
+<ul>
+<li>Video streaming.</li>
+<li>Prefetching video feed data.</li>
+<li>Enhanced user experiences.</li>
+</ul>
+<h3 id="video-streaming">Video streaming</h3>
+<p>When designing a video streaming app like YouTube, creating a smooth viewing experience is key. Users expect videos to start fast and play without interruptions.</p>
+<p>Modern video streaming works differently from traditional downloading. Instead of waiting for the entire file to download, streaming breaks videos into small segments that load progressively:</p>
+<ol>
+<li>Playback begins after just the first few segments are downloaded.</li>
+<li>More segments load in the background as users watch.</li>
+<li>Video quality adjusts according to your connection speed.</li>
+<li>Played segments get cleared to save memory.</li>
+</ol>
+<p>This approach is well-suited to mobile environments. Loading only what's needed right now uses less memory and handles videos of any length. The app can also switch video quality when your connection changes, ensuring the best possible viewing experience wherever you are.</p>
+<h4 id="video-streaming-protocols">Video streaming protocols</h4>
+<p>Modern video streaming relies on several key protocols, each designed for specific scenarios:</p>
+<ul>
+<li><strong>HTTP Live Streaming (HLS)</strong> [7] is Apple's widely adopted protocol that breaks videos into small chunks delivered over standard HTTPS connections. This approach ensures smooth playback even when network conditions change. While especially strong on Apple devices, HLS works well across most platforms.</li>
+<li><strong>DASH (Dynamic Adaptive Streaming over HTTP)</strong> [8] follows similar principles to HLS but offers more flexibility as an open standard. Unlike HLS, DASH isn't tied to specific video codecs, giving developers more implementation freedom. This protocol has gained significant traction, especially outside the Apple ecosystem.</li>
+<li><strong>Common Media Application Format (CMAF)</strong> [9] bridges the gap between HLS and DASH by providing a unified container format. This standardization eliminates the need for separate content versions, simplifying deployment and reducing storage costs.</li>
+<li>Other notable protocols include WebRTC (Web Real-Time Communication) [10], the SRT (Secure Reliable Transport) protocol [11], and two older protocols, such as Real-Time Streaming Protocol (RTSP) [12] and Real-Time Messaging Protocol (RTMP) [13].</li>
+</ul>
+<p>When selecting a protocol, we need to consider the specific needs of our YouTube app, including latency (how quickly video starts playing), platform compatibility (support across Android and iOS devices and the capabilities of their ecosystem), and security needs (protecting content during transmission). For a deeper technical comparison of these protocols, several comprehensive resources are available [14] [15].</p>
+<div class="note-block"><p><strong>📝 Note:</strong> These protocols involve low-level technical details that you usually don't need to learn for system design interviews. What's important is understanding that different streaming protocols support different video formats and players, which influences your architecture choices.</p></div>
+<p>When building video streaming apps such as YouTube, Twitch, or Netflix, HLS and DASH are the leading protocols. They both support <strong>adaptive bitrate streaming</strong> [16], automatically adjusting video quality based on network conditions and device capabilities. For applications where minimizing delay matters, low-latency versions (LL-HLS and LL-DASH) are available.</p>
+<div class="note-block"><p><strong>📌 Remember!</strong> Adaptive streaming protocols such as HLS and DASH typically use adaptive bitrate streaming (ABR) to adjust video quality based on network conditions.</p></div>
+<p>Most major streaming platforms implement several protocols rather than just one. This ensures wide device compatibility and optimizes for different viewing scenarios. YouTube, for example, supports HLS, DASH, RTMP, and RTMPS, allowing third-party clients to choose the protocol that works best for them [17].</p>
+<h5 id="adaptive-bitrate-streaming">Adaptive bitrate streaming</h5>
+<p>Video apps need to handle changing network conditions as users move around, switch between WiFi and cellular, or experience congestion. <strong>Adaptive bitrate streaming</strong> solves this problem through:</p>
+<ol>
+<li><strong>Multiple quality versions</strong>
+<ul>
+<li>Videos are encoded at different quality levels (480p, 720p, 1080p).</li>
+<li>Each version offers a different balance of quality vs. bandwidth usage.</li>
+</ul>
+</li>
+<li><strong>Video segmentation</strong>
+<ul>
+<li>Content is split into small chunks (e.g., 2-10 seconds each).</li>
+<li>Every chunk is available in all quality variants.</li>
+<li>Smaller chunks allow for faster adaptation, but they increase server requests.</li>
+</ul>
+</li>
+<li><strong>Real-time quality switching</strong>
+<ul>
+<li>The player constantly monitors network speed and device performance.</li>
+<li>It selects the optimal quality for each upcoming segment.</li>
+<li>Quality can shift up or down as conditions change.</li>
+</ul>
+</li>
+</ol>
+<p>The player makes smart decisions by tracking download speeds, buffer levels, CPU/GPU usage, and device capabilities. When the connection improves, quality gradually increases. When things get worse, quality quickly drops to prevent buffering. In practice, mobile players use buffer-based or hybrid (buffer + throughput) algorithms to decide the next segment's bitrate. Because each decision only affects the next segment, the system can respond immediately to changing conditions.</p>
+<h4 id="video-streaming-on-android-and-ios">Video streaming on Android and iOS</h4>
+<p>For video streaming in mobile apps, the best options are the native solutions: <strong>ExoPlayer</strong> [18] <strong>on Android and AVPlayer</strong> [19] <strong>on iOS</strong>. These frameworks handle modern streaming formats such as HLS and MPEG-DASH while delivering smooth, reliable playback.</p>
+<p>The native solutions offer two key advantages: deep platform integration for optimal performance, such as hardware decoding, and extensive control over playback features (adaptive bitrate, subtitles, etc.). While third-party players such as VLC, JWPlayer, or Brightcove provide consistent APIs, the native solutions typically might be more customizable for specific use cases.</p>
+<h4 id="managing-video-content-subtitles-and-audio">Managing video content: Subtitles and audio</h4>
+<p>Modern video streaming services separate video, audio, and text components. This modular approach, used in protocols such as MPEG-DASH and HLS, creates a more flexible and efficient streaming experience. Let's look at how this works.</p>
+<h5 id="subtitle-and-caption-support">Subtitle and caption support</h5>
+<p>Both MPEG-DASH and HLS implement text elements, including subtitles and closed captions, through dedicated text tracks:</p>
+<ul>
+<li>HLS uses WebVTT format text tracks referenced in the main playlist (.m3u8) file</li>
+<li>MPEG-DASH supports multiple formats, including WebVTT and TTML (Timed Text Markup Language), defined in the manifest (.mpd) file</li>
+</ul>
+<div class="note-block"><p><strong>📌 Remember!</strong></p><p>Separate tracks are independent streams of content, such as audio, subtitles, or closed captions, that play alongside the main video. Each track contains its own data and timing information, allowing it to stay perfectly synchronized with the video playback. This separation makes it easier to handle different types of content while keeping everything in sync.</p></div>
+<p>Popular platforms like YouTube follow this approach because separating text from video offers several advantages:</p>
+<ul>
+<li>Reduces overall bandwidth usage since text takes minimal space compared to video.</li>
+<li>Enables multi-language support without duplicating video streams.</li>
+<li>Helps meet accessibility requirements with easily updatable captions.</li>
+<li>Allows real-time subtitle updates without re-processing video content.</li>
+</ul>
+<h4 id="thumbnails-implementation">Thumbnails implementation</h4>
+<p>When users scrub through a video's seek bar, like in Figure 4, the small previews you see are not actually built into standard streaming protocols, such as HLS or MPEG-DASH. Video services need to create this preview functionality separately. Let's look at two common approaches.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a video player interface showcasing a recipe.  The top section displays a video preview of creamy zucchini spaghetti in a light-colored bowl, with chopsticks partially visible. A play button is centrally located, and a timer showing '0:07' indicates the video's current position. A small 'x' is in the upper right corner, suggesting a close button. Below the video preview are four smaller thumbnail images, arranged horizontally. The leftmost thumbnail is labeled 'Intro,' depicting a close-up of the spaghetti being served. The next two thumbnails show additional shots of the prepared dish. The final thumbnail on the right shows a person preparing the dish.  At the very bottom, the text 'How to: Plant Based Vegan Creamy Zucchini Spaghetti' describes the video's content. The overall arrangement suggests a social media platform or app displaying a recipe video with preview images and a title." loading="lazy" width="502" height="349" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(502px, 100vw), (max-width: 1200px) min(502px, 80vw), min(502px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-4-SKC4FRPF.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: Precise seeking thumbnails on the YouTube Android app</figcaption></div></figure>
+<h5 id="sprite-sheets">Sprite sheets</h5>
+<p>One popular method uses <strong>sprite sheets</strong> (also called texture atlases) [20]. This approach combines multiple thumbnail images into a single file, which reduces server requests. While this works well for web streaming, it requires maintaining separate pre-generated images alongside each video. Figure 5 shows an example of this.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sprite sheet titled 'Sprite Sheet' showcasing various animation frames.  The sheet is arranged as a grid of 20 frames, predominantly featuring a series of animated characters in a forest setting.  These characters include a large, round, grey creature, a rabbit-like creature, and a small, flying squirrel-like creature.  The frames depict different actions and interactions between these characters, such as the large creature holding a stick, the squirrel flying, and the characters interacting with each other in various poses. The bottom four frames display text-based information. Two frames contain long lists of names, presumably credits for music and sound design by Jan Morgenstern. Another frame shows a copyright notice and a URL: www.bigbuckbunny.org. The final frame displays 'Special Thanks To' along with several logos.  The frames are uniformly sized and seamlessly arranged, suggesting they are intended for use in animation software.  The overall style is consistent, indicating a cohesive animation sequence.  A FastPix logo is present at the bottom." loading="lazy" width="602" height="392" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(602px, 100vw), (max-width: 1200px) min(602px, 80vw), min(602px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-5-GHZRW2IK.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Example of a sprite sheet for thumbnails—source FastPix [21]</figcaption></div></figure>
+<h5 id="adaptive-streaming">Adaptive streaming</h5>
+<p>The second approach leverages adaptive streaming technology to fetch low-resolution video frames for previews. YouTube mobile apps use this method for their seek previews, and it works particularly well:</p>
+<ol>
+<li>When a user moves the seek bar, the app requests that specific timestamp from the server, but at a much lower resolution (typically 144p or 240p).</li>
+<li>The server quickly delivers these low-bitrate segments, enabling smooth previews during seeking.</li>
+<li>Once the user selects their position, the app switches back to full-resolution video for normal playback.</li>
+</ol>
+<p>This approach offers several benefits for mobile applications:</p>
+<ul>
+<li>Shows actual video motion rather than static images, giving better context.</li>
+<li>Reuses existing streaming infrastructure, eliminating the need for separate systems.</li>
+<li>Avoids storing additional thumbnail assets, saving storage space.</li>
+<li>Delivers accurate, low-latency previews that match the actual content.</li>
+</ul>
+<p>Adaptive streaming aligns especially well with mobile apps, providing a smooth seeking experience while efficiently using device resources.</p>
+<h4 id="common-video-streaming-challenges">Common video streaming challenges</h4>
+<p>Building video streaming into mobile apps presents several key challenges that directly affect the user experience. Let's explore these challenges and practical approaches to address them.</p>
+<h5 id="memory-management">Memory management</h5>
+<p>Video playback demands significant memory, particularly challenging on mobile devices with limited resources. Mobile operating systems can terminate apps that consume excessive memory, making proper memory management critical for a reliable streaming experience.</p>
+<p>There are effective memory management strategies we can use:</p>
+<ul>
+<li><strong>Adaptive buffer sizing</strong> by maintaining smaller buffers on memory-constrained devices while using larger buffers on high-end devices for smoother playback.</li>
+<li><strong>Frame recycling</strong> by reusing video frame buffers instead of continuously allocating new memory.</li>
+<li><strong>Degrade gracefully</strong> by reducing quality when memory pressure increases, preventing playback failures.</li>
+<li><strong>Handle app state transitions</strong> properly to release resources when the app moves to the background.</li>
+</ul>
+<p>Memory monitoring is essential, and we should implement analytics that track memory usage patterns across different devices and playback scenarios to identify potential issues before they affect users.</p>
+<h5 id="battery-life-optimization">Battery life optimization</h5>
+<p>Video playback is one of the most power-intensive operations on mobile devices, affecting both processor and network usage.</p>
+<p>Some power consumption reduction techniques we can use are:</p>
+<ul>
+<li><strong>Adaptive quality selection</strong> by lowering resolution and bitrate when the battery is low or the device is not charging.</li>
+<li>Use <strong>hardware acceleration</strong> where available to reduce CPU load.</li>
+<li><strong>Pause video playback and suspend network</strong> operations when the app isn't visible.</li>
+</ul>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Mobile-specific optimizations make a significant difference. For example, on Android, using the Battery Saver API to detect power-saving mode and adjust video quality accordingly, or on iOS, responding to low-power mode notifications to reduce playback quality.</p></div>
+<h5 id="network-handling">Network handling</h5>
+<p>Mobile networks can be unpredictable, requiring thoughtful strategies to ensure a smooth user experience. To address these challenges, we can implement several robust network handling techniques:</p>
+<ul>
+<li><strong>Bandwidth adaptation</strong> by switching video quality based on available bandwidth using adaptive bitrate streaming.</li>
+<li><strong>Efficient retry logic</strong> by using exponential backoff with jitter to prevent network congestion during retries.</li>
+<li>Allowing <strong>pre-downloading videos</strong> for offline viewing when network conditions are favorable.</li>
+<li>Adjusting <strong>buffering strategies</strong> based on connection type (cellular vs. Wi-Fi).</li>
+</ul>
+<h5 id="advanced-streaming-optimizations">Advanced streaming optimizations</h5>
+<p>Beyond the basics, several advanced techniques can significantly improve the mobile streaming experience:</p>
+<ul>
+<li>Prioritize audio continuity over video during network constraints, as users are more sensitive to audio disruptions.</li>
+<li>Predictive buffering by analyzing viewing patterns to pre-buffer content that the user is likely to watch next.</li>
+<li>Optimize subtitle handling in mobile apps by caching text tracks for offline viewing and unreliable network conditions.</li>
+</ul>
+<p>Building efficient video streaming requires carefully balancing these challenges. The key is finding the right trade-offs between smooth playback, battery life, and network resilience based on your app's specific needs and user expectations.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Reddit improved Android video playback by customizing ExoPlayer specifically for short-form videos. This involved choosing efficient formats (MP4), optimizing caching and buffering strategies, and adjusting bandwidth estimation, which significantly reduced load times, playback errors, and rebuffering [22].</p><p>Netflix enhanced its 4K streaming by implementing shot-based encoding and dynamic optimization techniques, resulting in improved video quality and reduced bitrates [23]. In another resource, Netflix explains the development of a Unicode-based pipeline to process subtitles and closed captions efficiently across diverse languages and formats [24]. In this other example, see how Netflix improved audio streaming quality by introducing high-quality sound features that aim to deliver studio-quality, perceptually transparent audio to viewers [25].</p></div>
+<h3 id="prefetching-video-feed-data">Prefetching video feed data</h3>
+<p>When users open YouTube, they expect relevant content to appear instantly. To meet this expectation, mobile apps often prefetch feed data, so that content loads immediately even before the user starts interacting.</p>
+<p>Let's explore how to implement prefetching in a way that balances these user experience benefits with efficient resource usage.</p>
+<h4 id="design-options">Design options</h4>
+<p>Table 1 compares the key strategies we could use for prefetching feed data.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Option</th><th style="text-align: left;">Description</th><th style="text-align: left;">Advantages</th><th style="text-align: left;">Disadvantages</th></tr></thead><tbody><tr><td style="text-align: left;">Time-based prefetching</td><td style="text-align: left;">Fetch recommendations at regular intervals regardless of user activity.</td><td style="text-align: left;">Simple to implement and maintain. Predictable network usage patterns. Ensures content stays relatively fresh.</td><td style="text-align: left;">Can result in unnecessary data usage. Doesn't adapt to actual user behavior. Could miss important updates between intervals.</td></tr><tr><td style="text-align: left;">Event-based prefetching</td><td style="text-align: left;">Trigger prefetch based on specific events such as app background or foreground transitions.</td><td style="text-align: left;">Aligns naturally with user behavior. Reduces unnecessary network calls. More efficient resource utilization.</td><td style="text-align: left;">May miss optimal prefetching opportunities. Can lead to inconsistent content freshness. Requires more complex implementation logic.</td></tr><tr><td style="text-align: left;">Intelligent prefetching</td><td style="text-align: left;">Combine multiple signals (e.g., device state or use patterns) to determine optimal prefetch timing.</td><td style="text-align: left;">Optimizes both UX and resource usage. Adapts to individual usage patterns. Handles varying network conditions gracefully.</td><td style="text-align: left;">Most complex to implement. Requires careful tuning of prefetch parameters. Needs robust monitoring to ensure effectiveness.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 1: Trade-offs for different prefetching options</p></p>
+<p>Due to the scale we're operating at and the amount of user information we have available, we're implementing <strong>intelligent prefetching</strong>. We can decide when to prefetch content from the mobile app, taking into account signals such as device state (e.g., device charging or network type), user patterns (e.g., typical app open times), content relevance scores, and resource availability (e.g., battery levels).</p>
+<p>This data-driven approach helps us prefetch content at the optimal times, improving the user experience while being mindful of device resources.</p>
+<h4 id="implementation-details">Implementation details</h4>
+<p>To implement intelligent prefetching, the system may need to address the following considerations.</p>
+<h5 id="signal-collection-and-analysis">Signal collection and analysis</h5>
+<p>The key to smart prefetching starts with understanding user behavior. The client app should gather key signals about device status and how users interact with content, enabling the backend to deliver more personalized recommendations.</p>
+<p>We can implement a <strong>remote configuration</strong> system that allows the backend to guide client behavior. The prefetch configuration defines key parameters that control when and how clients should prefetch content, such as:</p>
+<ul>
+<li>The number of feed data to prefetch.</li>
+<li>Prefetch interval.</li>
+<li>Whether prefetching is allowed on mobile data.</li>
+<li>Battery and charging status considerations.</li>
+</ul>
+<h5 id="scoring-recommendations">Scoring recommendations</h5>
+<p>The backend uses a scoring system to prioritize recommendations for a particular user. Taking into account both the user's viewing history and how fresh and relevant the content is, we can define each recommendation with two key components:</p>
+<ul>
+<li>The relevanceScore measures how well content matches a user's interests, typically rated from 0-100 by the recommendation engine.</li>
+<li>The ttl (time-to-live) tells the client how long a recommendation remains valid.</li>
+</ul>
+<p>Content relevance isn't static. As user preferences change, the backend can update recommendation scores. When this happens, the client refreshes its cached recommendations, ensuring that users always see the most current and personalized content.</p>
+<h5 id="prefetch-scheduler">Prefetch scheduler</h5>
+<p>The client uses a background scheduler to manage prefetching operations. Guided by the backend's configuration, this scheduler optimizes content prefetching while being mindful of system resources.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Android and iOS each provide their frameworks for handling background prefetching, though the core logic remains similar across platforms.</p><p><strong>On Android, the WorkManager API</strong> [26] handles scheduling background tasks. It provides built-in support for constraints such as Wi-Fi availability and charging status. When specific prefetch times are needed, we can incorporate them into the WorkManager's scheduling logic.</p><p><strong>iOS uses the Background Tasks framework</strong> [27] for similar purposes. While it lets us set preferred execution times through earliestBeginDate, we'll need to implement our own checks for conditions such as network availability and battery status.</p><p>Both platforms may delay or batch background tasks to optimize system resources. Our implementation should handle these scheduling variations gracefully to ensure reliable prefetching regardless of when the system executes the task.</p></div>
+<h5 id="adaptive-optimization">Adaptive optimization</h5>
+<p>The real power comes from continuous optimization. The client monitors user interactions and reports usage patterns back to the backend. This creates a feedback loop that allows dynamic prefetching:</p>
+<ul>
+<li>Increase frequency during high-engagement periods.</li>
+<li>Reduce or pause prefetching during low-usage times.</li>
+</ul>
+<h4 id="challenges-in-prefetching">Challenges in prefetching</h4>
+<p>While prefetching enhances the user experience by delivering instant content, it also presents challenges that must be carefully addressed.</p>
+<h5 id="device-resource-management">Device resource management</h5>
+<p>Prefetching operations consume device resources and can increase data usage, especially for users on metered connections. We should:</p>
+<ul>
+<li>Restrict recommendation prefetching to Wi-Fi by default, with opt-in for cellular networks.</li>
+<li>Pause prefetching when the battery is low (e.g., below 20%).</li>
+<li>On lower-end devices, reduce prefetching frequency and volume.</li>
+<li>Implement adaptive refresh intervals based on content type and user engagement patterns.</li>
+</ul>
+<h5 id="memory-constraints">Memory constraints</h5>
+<p>Feed data prefetching can consume significant memory, especially when caching thumbnails:</p>
+<ul>
+<li>Implement size limits for the prefetch cache based on device capabilities.</li>
+<li>Use efficient image loading libraries that support downsampling and memory-efficient caching.</li>
+<li>Clear older cache entries when the app receives memory pressure warnings from the OS.</li>
+<li>Remove stale recommendations when user preferences change significantly.</li>
+</ul>
+<h5 id="measuring-prefetch-effectiveness">Measuring prefetch effectiveness</h5>
+<p>To ensure our prefetching strategy actually improves the user experience, we should:</p>
+<ul>
+<li>Track how quickly users can see recommendations when opening the app.</li>
+<li>Measure engagement rates with prefetched recommendations vs. non-prefetched ones.</li>
+<li>Calculate what percentage of prefetched videos are actually watched.</li>
+<li>Track data efficiency metrics such as bytes prefetched but never viewed to understand resource waste.</li>
+<li>Monitor battery consumption patterns to balance prefetching benefits against device power usage.</li>
+</ul>
+<p>This data-driven approach helps refine our prefetching algorithms over time, creating a feedback loop that continuously improves the user experience while optimizing resource usage.</p>
+<h4 id="architecture-updates-for-pre-fetching-video-recommendations">Architecture updates for pre-fetching video recommendations</h4>
+<p>Let's explore how we'll modify our architecture to support video recommendations prefetching in the YouTube app. As shown in Figure 6, we're adding several key components that work together to deliver a seamless recommendation experience.</p>
+<p>First, we introduce a new <strong>Recommendations Repository</strong> that provides curated video suggestions to the existing Browsing Repository, utilizing both local and remote data sources. To keep recommendations up to date, we're adding a <strong>Recommendations Prefetching Service</strong> component. When triggered by the operating system, it works with our new <strong>Device Monitor</strong> to check conditions such as battery level and network status. If conditions are favorable, it initiates a backend sync through the remote data source to refresh our recommendations.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a video recommendation application.  The diagram is enclosed within a rounded rectangle labeled 'Client,' containing a gray rectangle labeled 'Dependency Injection.'  Inside this client boundary are several components: a 'Browsing Repository,' a 'Recommendations Repository,' a 'Recommendations Local DataSource,' a 'Recommendations Prefetching Service,' and a 'Device Monitor.'  The 'Videos DB' is depicted as a cylinder below these components, labeled as the 'Data layer.'  Data flows from the 'Videos DB' to the 'Recommendations Local DataSource,' which in turn feeds into the 'Recommendations Repository.'  The 'Recommendations Repository' also receives data from the 'Recommendations Remote DataSource.'  The 'Recommendations Prefetching Service' receives data from the 'Recommendations Repository' and the 'Recommendations Remote DataSource.'  The 'Recommendations Remote DataSource' interacts with a 'Network Dispatcher,' which communicates with an 'API Gateway' via 'https' to a 'Backend' component.  Finally, the 'Browsing Repository' receives data from the 'Recommendations Repository,' and the 'Client' interacts with the 'Browsing Repository.'  The 'Device Monitor' feeds into the 'Recommendations Prefetching Service.'  All components within the 'Client' boundary appear to be interconnected through the 'Dependency Injection' mechanism." loading="lazy" width="602" height="301" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/youtube-app/figure-9-6-OX2SGS6P.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: Intelligent prefetching related updates to the data layer</figcaption></div></figure>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Facebook's mobile app prefetches video recommendation metadata by monitoring the in-memory pool of videos as users scroll. When the pool drops below a threshold, it sends a request with user signals to fetch and rank new personalized video candidates, which are then cached for smooth playback [28].</p><p>Facebook's Feed recommendation engine utilizes AI to personalize content by analyzing user interactions and predicting engagement. It ranks posts based on relevance scores derived from various signals, ensuring users see content most pertinent to their interests [29].</p></div>
+<h3 id="enhanced-user-experiences">Enhanced user experiences</h3>
+<p>The interviewer may sometimes add extra requirements to the problem. For example, what if they ask you to discuss how to enhance the user experience by addressing specific mobile user needs?</p>
+<p>In this section, we'll answer this question by focusing on three key areas: gesture-based video controls, background audio playback, and Picture-in-Picture support.</p>
+<h4 id="gesture-based-video-controls">Gesture-based video controls</h4>
+<p>Traditional video player controls with visible buttons and sliders can feel clunky on mobile devices with limited screen space. Implementing gesture-based controls creates a more immersive viewing experience by allowing users to interact directly with the video content. Some common controls are swipe to seek and tap-based volume and brightness control.</p>
+<p>From a technical perspective, we need to implement the following components:</p>
+<ol>
+<li>A <strong>GestureDetector</strong> component that captures and interprets touch input from the user, identifying specific patterns such as swipes, taps, and pinches.</li>
+<li>The <strong>VideoControlHandler</strong> receives interpreted gestures from the detector and translates them into commands for the video player.</li>
+<li>With <strong>visual feedback mechanisms</strong>, we can provide subtle on-screen indicators when gestures are recognized, helping users understand the result of their actions.</li>
+</ol>
+<p>The implementation must carefully handle:</p>
+<ul>
+<li>Distinguishing between similar gestures (e.g., horizontal swipe vs. diagonal swipe).</li>
+<li>Conflict resolution when multiple gesture patterns overlap.</li>
+<li>Accessibility considerations for users who cannot perform certain gestures.</li>
+</ul>
+<p>The technical challenge lies in creating a responsive system that feels natural while properly integrating with the video player's core functionality.</p>
+<h4 id="background-audio-playback">Background audio playback</h4>
+<p>Many YouTube videos are valuable for their audio content, even when users aren't actively watching, such as music, podcasts, or news. Implementing background audio playback allows users to continue listening while using other apps or when their device is locked.</p>
+<h5 id="mode-switching-logic">Mode switching logic</h5>
+<p>When users navigate away from the app or lock their device, we need seamless transitions between video and audio-only modes. We'd follow these steps:</p>
+<ol>
+<li>Listen for app lifecycle events to determine when the app moves to the background.</li>
+<li>When in audio-only mode, release video rendering resources while maintaining audio playback.</li>
+<li>Switch to audio-only streams when in background mode to save data usage.</li>
+</ol>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>To enable background audio-only playback in our apps:</p><ul>
+<li>
+<p>On Android, we can implement a foreground service [30] with media notifications to maintain playback priority using the Jetpack Media3 APIs [31].</p>
+</li>
+<li>
+<p>On iOS, we can use the AVAudioSession [32] with the appropriate category and options to continue playback when the app enters the background.</p>
+</li>
+</ul></div>
+<h5 id="user-control-and-preferences">User control and preferences</h5>
+<p>To provide a great user experience, we should respect user preferences regarding background playback. We should:</p>
+<ul>
+<li>Allow users to enable/disable automatic background playback.</li>
+<li>Provide settings for audio-only mode on cellular networks to reduce data usage.</li>
+<li>Consider different behavior for premium versus free users, as background playback is often a premium feature.</li>
+</ul>
+<h4 id="picture-in-picture-mode">Picture-in-Picture mode</h4>
+<p>Picture-in-Picture (PiP) mode [33] allows users to continue watching videos in a small, floating window while using other apps. This feature enhances multitasking capabilities and keeps users engaged with content even when they need to switch contexts. Figure 7 shows this feature in action.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mobile phone screen displaying a video player interface. The screen is predominantly black, with a rectangular video player occupying the central portion.  The video shows a snowboarder on a snowy mountain slope.  The video player includes a close button (an 'X' in the top left corner), a full-screen button (a square with an arrow pointing out in the top right corner), a play/pause button (||) centered below the video, and two circular buttons with a '10' inside, positioned on either side of the play/pause button, likely representing a 10-second skip forward or backward functionality. A thin horizontal progress bar is visible below the video. Above and below the video player are rows of six gray, square placeholders, likely representing icons for additional features or controls, though their specific functions are not indicated. The overall arrangement is vertically oriented, with the video player sandwiched between two rows of these placeholder icons.  The phone screen itself is bordered by a slightly lighter, almost teal, background." loading="lazy" width="215" height="398" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(215px, 100vw), (max-width: 1200px) min(215px, 80vw), min(215px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fyoutube-app%2Ffigure-9-7-GP42UGTB.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7: Example of Picture-in-Picture mode,</figcaption></div></figure>
+<p>taken from YouTube Help pages.</p>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>On iOS, PiP is supported natively starting from iOS 9 on iPads and iOS 14 on iPhones. PiP is managed through AVPictureInPictureController [34], which provides a straightforward API for enabling PiP playback with AVPlayerLayer or AVPlayerViewController instances.</p><p>On Android, starting from Android 8.0 (API level 26), you can call enterPictureInPictureMode with a configured PictureInPictureParams object on an Activity to enter PiP mode if supported by the device and system settings. For more details, refer to the Android developer documentation [35].</p></div>
+<h5 id="optimizing-the-pip-experience">Optimizing the PiP experience</h5>
+<p>Beyond basic implementation, we can implement several optimizations to improve the PiP experience:</p>
+<ul>
+<li>Automatically enter PiP when users press the home button or switch apps while watching a video.</li>
+<li>In PiP mode, simplify controls to essential functions (play/pause, close) that are easily accessible in the smaller interface.</li>
+<li>Reduce video quality in PiP mode to save bandwidth and processing power.</li>
+<li>Pause non-essential animations and background tasks when in PiP mode.</li>
+<li>When users tap the PiP window to return to the app, restore the exact state they left.</li>
+</ul>
+<h4 id="coordinating-enhanced-user-experiences">Coordinating enhanced user experiences</h4>
+<p>The value of gesture-based controls, background audio playback, and picture-in-picture mode lies in their integration into a unified system. Gesture functionality, for instance, should remain consistent whether the video is displayed full-screen or in PiP mode. Similarly, transitioning to background playback must preserve playback position, enabling users to resume effortlessly.</p>
+<p>By ensuring these features interoperate harmoniously, the application delivers a coherent and adaptable experience that aligns with mobile design principles.</p>
+<h2 id="step-5-wrap-up">Step 5: Wrap-up</h2>
+<p>In this chapter, we've designed a YouTube mobile client focused on delivering high-quality video content while maintaining a responsive user experience. We built the system around a robust REST API with JSON that can handle multiple clients.</p>
+<p>In the deep dive section, we explored how to implement adaptive streaming through protocols such as DASH and HLS, which automatically adjust video quality based on available bandwidth and device capabilities. We also developed an intelligent prefetching system that anticipates and fetches video feed data by analyzing user behavior and device resources. Finally, we explored ways to enhance the user experience through gesture controls, background audio playback, and Picture-in-Picture mode.</p>
+<p>If time permits during the interview or if you want to showcase more advanced capabilities, here are some compelling features to explore:</p>
+<ul>
+<li>Live streaming platform [36]: Design a low-latency streaming system with integrated chat features, including smart message handling and content moderation to maintain quality conversations.</li>
+<li>Smart content management: Develop a comprehensive playlist [37] system that works offline and enables seamless sharing across platforms through deep links.</li>
+<li>Unified device experience: Create a system that synchronizes viewing progress and queues across devices, allowing users to seamlessly switch between platforms.</li>
+<li>Monetization integration: Incorporate an Ad service with sophisticated video preloading and video stream insertion capabilities.</li>
+</ul>
+<h2 id="resources">Resources</h2>
+<p>[1] YouTube 2024 demographics: <a href="https://blog.hubspot.com/marketing/youtube-demographics" target="_blank" rel="noopener noreferrer">https://blog.hubspot.com/marketing/youtube-demographics</a><br>
+[2] YouTube 2024 statistics: <a href="https://whop.com/blog/youtube-statistics" target="_blank" rel="noopener noreferrer">https://whop.com/blog/youtube-statistics</a><br>
+[3] YouTube Data API: <a href="https://developers.google.com/youtube/v3/docs/videos" target="_blank" rel="noopener noreferrer">https://developers.google.com/youtube/v3/docs/videos</a><br>
+[4] YouTube Video resource definition: <a href="https://developers.google.com/youtube/v3/docs/videos#contentDetails.definition" target="_blank" rel="noopener noreferrer">https://developers.google.com/youtube/v3/docs/videos#contentDetails.definition</a><br>
+[5] YouTube IFrame Player API: <a href="https://developers.google.com/youtube/iframe_api_reference" target="_blank" rel="noopener noreferrer">https://developers.google.com/youtube/iframe_api_reference</a><br>
+[6] Netflix's CDN Open Connect: <a href="https://openconnect.netflix.com/" target="_blank" rel="noopener noreferrer">https://openconnect.netflix.com/</a><br>
+[7] HTTP Live Streaming (HLS) protocol: <a href="https://en.wikipedia.org/wiki/HTTP%5C_Live%5C_Streaming" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/HTTP\_Live\_Streaming</a><br>
+[8] Dynamic Adaptive Streaming over HTTP protocol: <a href="https://en.wikipedia.org/wiki/Dynamic%5C_Adaptive%5C_Streaming%5C_over%5C_HTTP" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Dynamic\_Adaptive\_Streaming\_over\_HTTP</a><br>
+[9] Common Media Application Format (CMAF): <a href="https://www.wowza.com/blog/what-is-cmaf" target="_blank" rel="noopener noreferrer">https://www.wowza.com/blog/what-is-cmaf</a><br>
+[10] WebRTC: <a href="https://en.wikipedia.org/wiki/WebRTC" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/WebRTC</a><br>
+[11] Secure Reliable Transport (SRT): <a href="https://en.wikipedia.org/wiki/Secure%5C_Reliable%5C_Transport" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Secure\_Reliable\_Transport</a><br>
+[12] Real-Time Streaming Protocol (RTSP): <a href="https://en.wikipedia.org/wiki/Real-Time%5C_Streaming%5C_Protocol" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Real-Time\_Streaming\_Protocol</a><br>
+[13]: Real-Time Messaging Protocol (RTMP): <a href="https://en.wikipedia.org/wiki/Real-Time%5C_Messaging%5C_Protocol" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Real-Time\_Messaging\_Protocol</a><br>
+[14] Video Streaming Protocols: What Are They &amp; How to Choose The Best One: <a href="https://getstream.io/blog/streaming-protocols/" target="_blank" rel="noopener noreferrer">https://getstream.io/blog/streaming-protocols/</a><br>
+[15] Streaming Protocols: Everything You Need to Know: <a href="https://www.wowza.com/blog/streaming-protocols" target="_blank" rel="noopener noreferrer">https://www.wowza.com/blog/streaming-protocols</a><br>
+[16] Adaptive bitrate streaming: <a href="https://en.wikipedia.org/wiki/Adaptive%5C_bitrate%5C_streaming" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Adaptive\_bitrate\_streaming</a><br>
+[17] YouTube Live Streaming Ingestion Protocol Comparison: <a href="https://developers.google.com/youtube/v3/live/guides/ingestion-protocol-comparison" target="_blank" rel="noopener noreferrer">https://developers.google.com/youtube/v3/live/guides/ingestion-protocol-comparison</a><br>
+[18] Android's Exoplayer: <a href="https://developer.android.com/media/media3/exoplayer" target="_blank" rel="noopener noreferrer">https://developer.android.com/media/media3/exoplayer</a><br>
+[19] iOS AVPlayer: <a href="https://developer.apple.com/documentation/avfoundation/avplayer/" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/avfoundation/avplayer/</a><br>
+[20] Texture atlas: <a href="https://en.wikipedia.org/wiki/Texture%5C_atlas" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Texture\_atlas</a><br>
+[21] FastPix sprite sheets: <a href="https://www.fastpix.io/blog/create-video-previews-with-sprite-sheets-for-streaming" target="_blank" rel="noopener noreferrer">https://www.fastpix.io/blog/create-video-previews-with-sprite-sheets-for-streaming</a><br>
+[22] Reddit's improvement to video playback: <a href="https://proandroiddev.com/improving-video-playback-with-exoplayer-7ac55e9bd0af" target="_blank" rel="noopener noreferrer">https://proandroiddev.com/improving-video-playback-with-exoplayer-7ac55e9bd0af</a><br>
+[23] Netflix's shot-based encodes for 4K streaming: <a href="https://netflixtechblog.com/optimized-shot-based-encodes-for-4k-now-streaming-47b516b10bbb" target="_blank" rel="noopener noreferrer">https://netflixtechblog.com/optimized-shot-based-encodes-for-4k-now-streaming-47b516b10bbb</a><br>
+[24] Netflix's scalable system for ingestion and delivery of timed text: <a href="https://netflixtechblog.com/a-scalable-system-for-ingestion-and-delivery-of-timed-text-6f4287a8a600" target="_blank" rel="noopener noreferrer">https://netflixtechblog.com/a-scalable-system-for-ingestion-and-delivery-of-timed-text-6f4287a8a600</a><br>
+[25] Netflix's studio quality experience with high-quality audio: <a href="https://netflixtechblog.com/engineering-a-studio-quality-experience-with-high-quality-audio-at-netflix-eaa0b6145f32" target="_blank" rel="noopener noreferrer">https://netflixtechblog.com/engineering-a-studio-quality-experience-with-high-quality-audio-at-netflix-eaa0b6145f32</a><br>
+[26] Android's WorkManager API: <a href="https://developer.android.com/topic/libraries/architecture/workmanager" target="_blank" rel="noopener noreferrer">https://developer.android.com/topic/libraries/architecture/workmanager</a><br>
+[27] iOS' Background Tasks framework: <a href="https://developer.apple.com/documentation/backgroundtasks" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/backgroundtasks</a><br>
+[28] Inside Facebook's video delivery system: <a href="https://engineering.fb.com/2024/12/10/video-engineering/inside-facebooks-video-delivery-system" target="_blank" rel="noopener noreferrer">https://engineering.fb.com/2024/12/10/video-engineering/inside-facebooks-video-delivery-system</a><br>
+[29] Overview of Facebook Feed recommendations: <a href="https://transparency.meta.com/features/explaining-ranking/fb-feed-recommendations/" target="_blank" rel="noopener noreferrer">https://transparency.meta.com/features/explaining-ranking/fb-feed-recommendations/</a><br>
+[30] Android foreground services: <a href="https://developer.android.com/develop/background-work/services/fgs" target="_blank" rel="noopener noreferrer">https://developer.android.com/develop/background-work/services/fgs</a><br>
+[31] Android Jetpack Media3 APIs: <a href="https://developer.android.com/media/media3" target="_blank" rel="noopener noreferrer">https://developer.android.com/media/media3</a><br>
+[32] iOS' AVAudioSession API: <a href="https://developer.apple.com/documentation/avfaudio/avaudiosession" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/avfaudio/avaudiosession</a><br>
+[33] Picture-in-picture mode: <a href="https://en.wikipedia.org/wiki/Picture-in-picture" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Picture-in-picture</a><br>
+[34] iOS Picture-in-Picture APIs: <a href="https://developer.apple.com/documentation/avkit/avpictureinpicturecontroller" target="_blank" rel="noopener noreferrer">https://developer.apple.com/documentation/avkit/avpictureinpicturecontroller</a><br>
+[35] Android Picture-in-Picture APIs: <a href="https://developer.android.com/develop/ui/views/picture-in-picture" target="_blank" rel="noopener noreferrer">https://developer.android.com/develop/ui/views/picture-in-picture</a><br>
+[36] Live streaming: <a href="https://en.wikipedia.org/wiki/Live%5C_streaming" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Live\_streaming</a><br>
+[37] Playlist system: <a href="https://en.wikipedia.org/wiki/Playlist" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/Playlist</a></p>
+<pre><code></code></pre>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="google-drive-app.html">← Previous</a>
+        <a href="mobile-system-design-building-blocks.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

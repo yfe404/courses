@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pair Sum - Sorted - Coding Patterns</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../coding-patterns.html">Coding Patterns</a> /
+        Pair Sum - Sorted
+    </div>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="next-lexicographical-sequence.html">← Previous</a>
+        <a href="shift-zeros-to-the-end.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">indexes of any pair of numbers</span> Pair Sum - Sorted
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/coding-patterns/two-pointers/pair-sum-sorted" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><h1>Pair Sum - Sorted</h1></header><div class="style_problemDescription__T4cPe"><p>Given an array of integers sorted in ascending order and a target value, return the <strong>indexes of any pair of numbers</strong> in the array that <strong>sum to the target</strong>. The order of the indexes in the result doesn't matter. If no pair is found, return an empty array.</p><h4 id="example-1">Example 1:</h4><pre><code class="hljs language-python">Input: nums = [-<span class="hljs-number">5</span>, -<span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>], target = <span class="hljs-number">7</span>
+Output: [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>]
+</code></pre><p>Explanation: <code>nums[2] + nums[3] = 3 + 4 = 7</code></p><h4 id="example-2">Example 2:</h4><pre><code class="hljs language-python">Input: nums = [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>], target = <span class="hljs-number">2</span>
+Output: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>]
+</code></pre><p>Explanation: other valid outputs could be <code>[1, 0]</code>, <code>[0, 2]</code>, <code>[2, 0]</code>, <code>[1, 2]</code> or <code>[2, 1]</code>.</p></div>
+<h2 id="intuition">Intuition</h2>
+<p>The brute force solution to this problem involves checking all possible pairs. This is done using two nested loops: an outer loop that traverses the array for the first element of the pair, and an inner loop that traverses the rest of the array to find the second element. Below is the code snippet for this approach:</p>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-0-tab-0" aria-controls="rc-tabs-0-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-1" aria-controls="rc-tabs-0-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-2" aria-controls="rc-tabs-0-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-0-more-popup" id="rc-tabs-0-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-0-panel-0" aria-labelledby="rc-tabs-0-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span>
+  
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">pair_sum_sorted_brute_force</span>(<span class="hljs-params">nums: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>], target: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]:
+    n = <span class="hljs-built_in">len</span>(nums)
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):
+        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i + <span class="hljs-number">1</span>, n):
+            <span class="hljs-keyword">if</span> nums[i] + nums[j] == target:
+                <span class="hljs-keyword">return</span> [i, j]
+    <span class="hljs-keyword">return</span> []
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<p>This approach has a time complexity of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> denotes the length of the array. This approach does not take into account that the input array is sorted. Could we use this fact to come up with a more efficient solution?</p>
+<p>A <strong>two-pointer approach</strong> is worth considering here because a sorted array allows us to move the pointers in a logical way. Let's see how this works in the example below:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a sample input for a coding problem likely related to finding pairs of numbers within an array that sum to a target value.  The image shows an integer array `[-5, -2, 3, 4, 6]` enclosed in square brackets, with the index of each element subtly displayed below it (0 through 4).  A comma separates the array from the statement 'target = 7,' which specifies the target sum to be found.  The arrangement implies that the algorithm should search within the provided array for two numbers that add up to 7.  The indices are not explicitly part of the input data but are visually provided to aid understanding of the array's structure." loading="lazy" width="290" height="31" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/pair-sum-sorted/image-01-01-1-GSLVICE3.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>A good place to start is by looking at the smallest and largest values: the first and last elements, respectively. The sum of these two values is 1.</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a simple summation operation on an array.  Two orange rectangular boxes labeled 'left' and 'right' point downwards with arrows towards a numerical array [-5, -2, 3, 4, 6].  The 'left' arrow points to the first two elements of the array, [-5, -2], while the 'right' arrow points to the last three elements, [3, 4, 6].  The array elements are indexed below with numbers 0 through 4, indicating their positions.  A separate, light-grey, dashed-line rectangular box displays the result of the summation, showing 'sum = 1'. This implies that the sum of all elements in the array (-5 + -2 + 3 + 4 + 6) equals 1." loading="lazy" width="290" height="70" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/pair-sum-sorted/image-01-01-2-OIIAKQQK.svg" style="color: transparent;"></div></figure>
+<p>Since 1 is less than the target, we need to <strong>move one of our pointers</strong> to find a new pair with a larger sum.</p>
+<ul>
+<li>
+<p>Left pointer: The left pointer will always point to a value less than or equal to the value at the right pointer because the array is sorted. Incrementing it would result in a sum greater than or equal to the current sum of 1.</p>
+</li>
+<li>
+<p>Right pointer: Decrementing the right pointer would result in a sum that’s less than or equal to 1.</p>
+</li>
+</ul>
+<p>Therefore, we should increment the left pointer to find a larger sum:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a two-pointer algorithm, likely used to find a pair of numbers in a sorted array that sum to a target value (not explicitly shown but implied).  The top section shows an initial state with two pointers, labeled 'left' and 'right,' pointing to the beginning and end, respectively, of a sorted array [-5, -2, 3, 4, 6].  The indices (0, 1, 2, 3, 4) are shown below the array elements.  A dashed box shows the current sum (1, calculated as -5 + 6) being compared to a target value (7, also implied).  Since the sum (1) is less than 7, a solid arrow indicates that the 'left' pointer is incremented (left += 1). The bottom section illustrates the updated state after the pointer increment, where the 'left' pointer now points to -2.  The 'right' pointer remains unchanged. The dotted arrow emphasizes the movement of the 'left' pointer.  The overall diagram demonstrates a single iteration of the algorithm, highlighting the pointer movement based on the comparison of the current sum with the target value." loading="lazy" width="480" height="161" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/pair-sum-sorted/image-01-01-3-ITV7AUHM.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>Again, the sum of the values at those two pointers (4) is too small. So, let's increment the left pointer:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a coding pattern, likely illustrating a two-pointer approach or a similar algorithm operating on an array.  The top section shows an array `[-5, -2, 3, 4, 6]` with pointers labeled 'left' and 'right' initially pointing to the first and last elements respectively.  The indices of the array elements are shown below the array. A dashed box displays a condition: `sum = 4 &lt; 7`, indicating that the sum of elements pointed to by 'left' (3) and 'right' (6) is 4, which is less than 7.  A thick arrow connects this condition to another dashed box showing the consequence: `left += 1`, signifying that the 'left' pointer is incremented. The bottom section shows the state after this operation: the 'left' pointer has moved one position to the right, now pointing to the element 3, while the 'right' pointer remains unchanged. The 'left' pointer in the bottom section is highlighted in orange to emphasize its movement.  The overall diagram illustrates a step-by-step execution of a code segment that iterates through an array, potentially searching for a specific condition or performing a calculation based on the values pointed to by the 'left' and 'right' pointers." loading="lazy" width="480" height="153" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/pair-sum-sorted/image-01-01-4-5EETAG3M.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>Now, the sum (9) is too large. So, we should decrement the right pointer to find a pair of values with a smaller sum:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a visual depiction of a coding pattern, possibly illustrating a segment of an algorithm.  The top section shows an array `[-5, -2, 3, 4, 6]` with indices 0 through 4 labeled below.  Above the array, two rectangular boxes labeled 'left' and 'right' point downwards, indicating pointers or indices.  The 'left' pointer points to the element '3' (index 2), and the 'right' pointer points to the element '6' (index 4).  A dashed box to the right shows a calculation: 'sum = 9 &gt; 7', implying the sum of the elements pointed to by 'left' and 'right' (3 + 6 = 9) is greater than 7.  An arrow then points to another box indicating 'right -= 1', suggesting the 'right' pointer's index is decremented. The bottom section shows the updated state after this operation. The array remains the same, but the 'right' pointer (now orange) points to the element '4' (index 3), illustrating the effect of the decrement operation.  A dotted line shows the movement of the 'right' pointer from index 4 to index 3. The 'left' pointer remains unchanged." loading="lazy" width="480" height="153" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/pair-sum-sorted/image-01-01-5-UOKAUU5C.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>Finally, we found two numbers that yield a sum equal to the target. Let’s return their indexes:</p>
+<figure class="py-1"><div style="display: flex; justify-content: left;"><img alt="Image represents a diagram illustrating a coding pattern, possibly related to array processing or a divide-and-conquer algorithm.  At the top, two orange rectangular boxes labeled 'left' and 'right' are shown.  Arrows descend from these boxes, pointing to the elements '3' and '4' respectively, within a horizontal array represented as `[-5, -2, 3, 4, 6]`.  The array indices (0, 1, 2, 3, 4) are displayed beneath the corresponding array elements. A light gray, dashed-bordered rectangle contains the expression 'sum = 7 == 7', indicating a comparison where the sum of some values (implied to be '3' and '4') equals 7.  A thick arrow points from this comparison to the text 'return [left, right]', suggesting that if the comparison is true, the function returns an array containing the values 'left' and 'right'.  The overall diagram visually depicts the process of selecting elements from an array based on some condition (here, implicitly the sum of selected elements), and returning a result based on those selections." loading="lazy" width="570" height="69" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/pair-sum-sorted/image-01-01-6-C3CZ7WBU.svg" style="color: transparent;"></div></figure>
+<hr>
+<p>Above, we’ve demonstrated a two-pointer algorithm using inward traversal. Let’s summarize this logic. For any pair of values at <code>left</code> and <code>right</code>:</p>
+<ul>
+<li>
+<p>If their sum is less than the target, increment <code>left</code>, aiming to increase the sum towards the target value.</p>
+</li>
+<li>
+<p>If their sum is greater than the target, decrement <code>right</code>, aiming to decrease the sum towards the target value.</p>
+</li>
+<li>
+<p>If their sum is equal to the target value, return <code>[left, right]</code>.</p>
+</li>
+</ul>
+<p>We can stop moving the <code>left</code> and <code>right</code> pointers when they meet, as this indicates no pair summing to the target was found.</p>
+<div class="style_tryBanner__WFMKc"><div><div class="style_tryTitle__dVqce">Try it yourself</div><div class="style_tryDesc___lKzS">Write your solution to the problem before checking the reference implementation.</div></div><a target="_blank" href="/exercises/coding-patterns/two-pointers/pair-sum-sorted"><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_openBtn__F_m3N"><span>Open Code Editor</span></button></a></div>
+<h2 id="implementation">Implementation</h2>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-1-tab-0" aria-controls="rc-tabs-1-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-1-tab-1" aria-controls="rc-tabs-1-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-1-tab-2" aria-controls="rc-tabs-1-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-1-more-popup" id="rc-tabs-1-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-1-panel-0" aria-labelledby="rc-tabs-1-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span>
+       
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">pair_sum_sorted</span>(<span class="hljs-params">nums: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>], target: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]:
+    left, right = <span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(nums) - <span class="hljs-number">1</span>
+    <span class="hljs-keyword">while</span> left &lt; right:
+        <span class="hljs-built_in">sum</span> = nums[left] + nums[right]
+        <span class="hljs-comment"># If the sum is smaller, increment the left pointer, aiming to increase the</span>
+        <span class="hljs-comment"># sum towards the target value.</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">sum</span> &lt; target:
+            left += <span class="hljs-number">1</span>
+        <span class="hljs-comment"># If the sum is larger, decrement the right pointer, aiming to decrease the</span>
+        <span class="hljs-comment"># sum towards the target value.</span>
+        <span class="hljs-keyword">elif</span> <span class="hljs-built_in">sum</span> &gt; target:
+            right -= <span class="hljs-number">1</span>
+        <span class="hljs-comment"># If the target pair is found, return its indexes.</span>
+        <span class="hljs-keyword">else</span>:
+            <span class="hljs-keyword">return</span> [left, right]
+    <span class="hljs-keyword">return</span> []
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<h3 id="complexity-analysis">Complexity Analysis</h3>
+<p><strong>Time complexity:</strong> The time complexity of pair_sum_sorted is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> because we perform approximately <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> iterations using the two-pointer technique in the worst case.</p>
+<p><strong>Space complexity:</strong> We only allocated a constant number of variables, so the space complexity is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord">1</span><span class="mclose">)</span></span></span></span>.</p>
+<h3 id="test-cases">Test Cases</h3>
+<p>In addition to the examples already discussed, here are some other test cases you can use. These extra test cases cover different contexts to ensure the code works well across a range of inputs. Testing is important because it helps identify mistakes in your code, ensures the solution works for uncommon inputs, and brings attention to cases you might have overlooked.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Input</th><th style="text-align: left;">Expected output</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code>nums = [] target = 0</code></td><td style="text-align: left;"><code>[]</code></td><td style="text-align: left;">Tests an empty array.</td></tr><tr><td style="text-align: left;"><code>nums = [1] target = 1</code></td><td style="text-align: left;"><code>[]</code></td><td style="text-align: left;">Tests an array with just one element.</td></tr><tr><td style="text-align: left;"><code>nums = [2, 3] target = 5</code></td><td style="text-align: left;"><code>[0, 1]</code></td><td style="text-align: left;">Tests a two-element array that contains a pair that sums to the target.</td></tr><tr><td style="text-align: left;"><code>nums = [2, 4] target = 5</code></td><td style="text-align: left;"><code>[]</code></td><td style="text-align: left;">Tests a two-element array that doesn’t contain a pair that sums to the target.</td></tr><tr><td style="text-align: left;"><code>nums = [2, 2, 3] target = 5</code></td><td style="text-align: left;"><code>[0, 2]</code> or <code>[1, 2]</code></td><td style="text-align: left;">Testing an array with duplicate values.</td></tr><tr><td style="text-align: left;"><code>nums = [-1, 2, 3] target = 2</code></td><td style="text-align: left;"><code>[0, 2]</code></td><td style="text-align: left;">Tests if the algorithm works with a negative number in the target pair.</td></tr><tr><td style="text-align: left;"><code>nums = [-3, -2, -1] target = -5</code></td><td style="text-align: left;"><code>[0, 1]</code></td><td style="text-align: left;">Tests if the algorithm works with both numbers of the target pair being negative.</td></tr></tbody></table></div>
+<h2 id="interview-tip">Interview Tip</h2>
+<p><em>Tip: Consider all information provided.</em><br>
+When interviewers pose a problem, they sometimes provide only the minimum amount of information required for you to start solving it. Consequently, it’s crucial to thoroughly evaluate all that information to determine which details are essential for solving the problem efficiently. In this problem, the key to arriving at the optimal solution is recognizing that the input is sorted.</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="next-lexicographical-sequence.html">← Previous</a>
+        <a href="shift-zeros-to-the-end.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

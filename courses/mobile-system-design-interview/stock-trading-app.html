@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock trading app - Mobile System Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../mobile-system-design-interview.html">Mobile System Design Interview</a> /
+        Stock trading app
+    </div>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="chat-app.html">← Previous</a>
+        <a href="pagination-library.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">05</span> Stock trading app
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/mobile-system-design-interview/stock-trading-app" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">05</strong><h1>Stock trading app</h1></header><p>Stock trading apps tackle some unique technical challenges. They're not just another app. They're fast-moving platforms where timing is everything, and getting accurate, real-time information to users immediately can make a huge difference in their financial decisions. Figure 1 shows some of the most popular stock trading apps in the industry.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a collection of logos for different online brokerage firms, arranged in two rows.  The top row features, from left to right: E*TRADE's purple and teal arrow logo with the text 'E*TRADE' beside it; Robinhood's green app icon depicting a stylized leaf with the text 'Robinhood' to its right; and Trade Republic's black, wavy logo with the text 'Trade Republic' to its right. The bottom row displays, from left to right: Charles Schwab's light blue square logo with the text 'Charles Schwab' beside it; DEGIRO's light blue horizontal double-bar logo with the text 'DEGIRO' to its right; and eToro's green logo featuring a stylized 'e' flanked by bull horns, with the text 'eToro' to its right.  There are no connections or information flow depicted between the logos; they are simply presented as a visual list of different brokerage platforms." width="602" height="161" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/stock-trading-app/figure-5-1-NDJIMFOQ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1: Popular stock trading apps</figcaption></div></figure>
+<p>The core challenge lies in managing high-frequency data streams. Every price change and market shift needs to reach users with minimal delay, as even a few seconds of latency could mean missed opportunities.</p>
+<p>And it's not just about being fast. These apps handle real money and sensitive financial information, so security and reliability must be robust. We need to build in strong security, dependable APIs, and make sure we're following financial regulations to keep things running smoothly and safely.</p>
+<h2 id="step-1-understand-the-problem-and-establish-design-scope">Step 1: Understand the problem and establish design scope</h2>
+<p>To figure out what we're building, let's picture a quick conversation with an interviewer. This back-and-forth helps us define the app's main features and set some clear boundaries.</p>
+<p><strong>Candidate:</strong> Before we dive in, I'd like to understand the scope of the trading functionality we're building. What's our stock trading app focusing on? Just stocks, or are we considering other instruments, such as options and futures too?<br>
+<strong>Interviewer:</strong> Let's keep it straightforward for now and focus on stocks.</p>
+<p><strong>Candidate:</strong> Sounds good. I'm thinking of key features such as placing and canceling orders, viewing portfolio details, showing real-time prices, and historical data. Does that cover it?<br>
+<strong>Interviewer:</strong> Pretty much! Let's also add a simple chart for historical stock trends. It'll give users a better sense of what's happening.</p>
+<p><strong>Candidate:</strong> How about push notifications for price alerts? And what kind of scale are we looking at? Big user base across multiple markets?<br>
+<strong>Interviewer:</strong> Definitely add notifications. For scale, we're looking at around 500k daily active users across different markets. The app needs to handle market data for thousands of stocks with real-time price updates.</p>
+<p><strong>Candidate:</strong> Given the focus on security and compliance, I propose minimizing sensitive data storage on the device and implementing robust security measures. Should we include authentication in the scope?<br>
+<strong>Interviewer:</strong> Good call. Let's assume users are already authenticated. Tech-wise, consider this a greenfield project.</p>
+<h4 id="requirements">Requirements</h4>
+<p>Based on that discussion, here's what our stock trading app needs to deliver:</p>
+<ul>
+<li>Users can see their portfolio with live prices of stocks.</li>
+<li>Users can buy and sell stocks by placing and canceling orders.</li>
+<li>Users can see historical stock data in charts.</li>
+<li>The system sends price alert notifications.</li>
+</ul>
+<p>As for <strong>non-functional requirements</strong>, we need to build a system that ensures:</p>
+<ul>
+<li>Real-time data: Our system must push market updates to users with minimal delay, ensuring they have the most current information when making trading decisions.</li>
+<li>Performance: The UI must remain smooth even while handling streaming data and complex visualizations, and trades need to execute quickly and reliably.</li>
+<li>Security: Financial data must be protected at all times, with strong authentication mechanisms and full compliance with financial regulatory standards.</li>
+</ul>
+<p>Features that are <strong>out of scope</strong> for this exercise:</p>
+<ul>
+<li>Options and futures trading.</li>
+<li>User registration.</li>
+</ul>
+<h4 id="ui-sketch">UI sketch</h4>
+<p>Let's think about how the app will look. Figure 2 lays out the main screens:</p>
+<ul>
+<li>The <strong>Home screen</strong> (left) shows users their financial snapshot, portfolio, and recent orders at a glance.</li>
+<li>The <strong>Stock Detail screen</strong> (center) digs into a specific stock, with historical data and trading options.</li>
+<li>The <strong>Place Order modal</strong> (right) provides a streamlined experience for users to buy or sell.</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a three-screen mobile application workflow for stock trading. The first screen displays the user's portfolio, showing 'Funds:', a portfolio performance graph indicating upward ('Portfolio ↑') and downward ('↓') trends for 'Stock 1' and 'Stock 2' respectively, and a 'Last orders' section listing executed and open trades with stock symbols and prices.  A curved arrow connects this screen to the second screen, indicating data transfer. The second screen focuses on a specific stock ('Stock 1'), displaying its current price ('$ x.yz'), a price graph, and empty fields (likely for order details).  'BUY' and 'SELL' buttons are present. A filled circle on the 'SELL' button indicates the current interaction point.  Another curved arrow connects the 'SELL' button to the third screen. The third screen shows the same stock ('Stock 1') and price ('$ x.yz'), its graph, and a shaded section for order confirmation. This section includes 'Market price: $x.yz', fields for 'Quantity' and 'Total value' (both empty for user input), and a 'SELL' button to finalize the transaction.  The data flow is unidirectional: portfolio information feeds into the stock detail screen, and the order details from the stock detail screen are passed to the order confirmation screen." loading="lazy" width="602" height="308" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/stock-trading-app/figure-5-2-D3LIKSFO.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2: Basic sketch of the stock trading mobile app</figcaption></div></figure>
+<h2 id="step-2-api-design">Step 2: API design</h2>
+<p>Now we'll establish how our client and backend will communicate. We'll focus on the communication protocol, client-backend interactions, and core data models.</p>
+<h3 id="choosing-the-right-communication-protocol">Choosing the right communication protocol</h3>
+<p>The stock trading app requires two primary forms of interaction: standard client-server exchanges, such as submitting orders or retrieving portfolio details, and real-time updates, such as live stock price feeds. To meet these demands efficiently, we adopt a hybrid protocol strategy:</p>
+<ul>
+<li><strong>HTTP with REST APIs</strong> is ideal for client-initiated actions, such as placing orders, querying accounts, and retrieving historical data. REST offers a robust, scalable framework widely utilized in mobile development due to its structured request-response model.</li>
+<li><strong>WebSockets</strong> are a great option for delivering real-time data, including stock price changes and order status notifications. By maintaining a persistent, bidirectional connection, WebSockets enable the server to push updates to the client instantly, ensuring low-latency delivery of time-sensitive market information.</li>
+</ul>
+<p>This combination provides a good balance between standard request-response patterns and continuous data streaming. Many trading platforms such as TradeRepublic [1] use this tech stack, confirming its effectiveness at scale.</p>
+<h3 id="endpoints-and-data-models">Endpoints and data models</h3>
+<p>With the communication protocols established, let's dive into the specific endpoints and data models we'll need.</p>
+<h4 id="stocks">Stocks</h4>
+<p>These endpoints provide access to stock information and historical trends:</p>
+<ul>
+<li>
+<p><strong>GET /v1/stocks/<code>{symbol}</code></strong><br>
+retrieves detailed data for a specified stock, including current price, daily high/low, and percentage change.</p>
+</li>
+<li>
+<p><strong>GET /v1/stocks/<code>{symbol}</code>/history</strong><br>
+<strong>?interval=<code>{interval}</code>&amp;period=<code>{period}</code></strong><br>
+supplies historical price data, with parameters allowing customization of time intervals (e.g., 1m for one minute, 1d for one day) and periods (e.g., 1wk for one week, 3mo for three months).</p>
+</li>
+</ul>
+<p>The corresponding data model is:</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class Stock</strong> <br>id: String <br>symbol: String <br>name: String <br>currentPrice: BigDecimal <br>changePercent: BigDecimal <br>highPrice: BigDecimal ...</td><td style="text-align: left;"><strong>struct Stock</strong> <br>id: String <br>symbol: String <br>name: String <br>currentPrice: Decimal <br>changePercent: Decimal <br>highPrice: Decimal <br>...</td></tr></tbody></table></div>
+<div class="note-block"><p><strong>📌 Remember:</strong></p><p>For financial apps such as stock trading platforms, always use BigDecimal in Kotlin or Decimal in Swift instead of Float or Double types.</p><p>Floating-point types (Float/Double) can introduce subtle rounding errors that are unacceptable in financial contexts. BigDecimal provides exact decimal representation and precise arithmetic operations. While those operations are somewhat slower than primitive types, the guaranteed precision is essential for maintaining data integrity.</p></div>
+<h4 id="portfolio-and-orders">Portfolio and orders</h4>
+<p>These endpoints facilitate portfolio management and trading:</p>
+<ul>
+<li>
+<p><strong>GET /v1/portfolio</strong><br>
+provides the user's current portfolio, detailing owned stocks and quantities.</p>
+</li>
+<li>
+<p><strong>GET /v1/orders?status=<code>{status}</code>&amp;page=<code>{page}</code>&amp;limit=<code>{limit}</code></strong><br>
+returns a paginated list of orders, filterable by status (e.g., open, executed, canceled).</p>
+</li>
+<li>
+<p><strong>POST /v1/orders</strong><br>
+creates a new buy or sell order.</p>
+</li>
+<li>
+<p><strong>DELETE /v1/orders/<code>{orderId}</code></strong><br>
+cancels an existing order.</p>
+</li>
+</ul>
+<p>For order history, we implement <strong>offset pagination</strong>. This approach works well for this use case because:</p>
+<ul>
+<li>Orders rarely change after creation.</li>
+<li>Users typically focus on recent trading activity, and offset pagination provides efficient access to recent orders.</li>
+</ul>
+<p>The data models are defined as:</p>
+<div class="code-table"><table><thead><tr><th style="text-align: left;">Kotlin</th><th style="text-align: left;">Swift</th></tr></thead><tbody><tr><td style="text-align: left;"><strong>data class Portfolio</strong> <br>stocks: List&lt;PortfolioStock&gt;</td><td style="text-align: left;"><strong>struct Portfolio</strong> <br>stocks: [PortfolioStock]</td></tr><tr><td style="text-align: left;"><strong>data class PortfolioStock</strong> <br>stock: Stock <br>quantity: BigDecimal <br>averagePrice: BigDecimal</td><td style="text-align: left;"><strong>struct PortfolioStock</strong> <br>stock: Stock <br>quantity: Decimal <br>averagePrice: Decimal</td></tr><tr><td style="text-align: left;"><strong>data class Order</strong> <br>id: String <br>stockSymbol: String <br>quantity: BigDecimal <br>status: OrderStatus <br>createdAt: String ...</td><td style="text-align: left;"><strong>struct Order</strong> <br>id: String <br>stockSymbol: String <br>quantity: Decimal <br>status: OrderStatus <br>createdAt: String ...</td></tr><tr><td style="text-align: left;"><strong>enum class OrderStatus</strong> <br>OPEN, EXECUTED, CANCELED</td><td style="text-align: left;"><strong>enum OrderStatus</strong> <br>case open, executed, canceled</td></tr></tbody></table></div>
+<h4 id="notifications">Notifications</h4>
+<p>To support price alerts, we include:</p>
+<ul>
+<li>
+<p><strong>GET /v1/notifications</strong><br>
+gets all created alerts.</p>
+</li>
+<li>
+<p><strong>POST /v1/notifications</strong><br>
+establishes a new price alert for a stock.</p>
+</li>
+<li>
+<p><strong>DELETE /v1/notifications/<code>{id}</code></strong><br>
+deletes an existing alert.</p>
+</li>
+</ul>
+<h4 id="websocket-connection">WebSocket connection</h4>
+<p>For real-time functionality, we establish a WebSocket connection at wss://api.stocktrading.com/ws. This supports message types such as:</p>
+<ul>
+<li>stock-prices: Streams live price updates for subscribed stocks.</li>
+<li>order-updates: Reports changes in order status.</li>
+<li>portfolio-updates: Reflects portfolio value shifts due to market fluctuations.</li>
+</ul>
+<p>Clients subscribe to updates by sending events like:</p>
+<pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">"action"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"subscribe"</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">"channels"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">"name"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"stock-prices"</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">"symbols"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">"AAPL"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"GOOGL"</span><span class="hljs-punctuation">,</span> <span class="hljs-string">"MSFT"</span><span class="hljs-punctuation">]</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+<h2 id="step-3-high-level-client-architecture">Step 3: High-level client architecture</h2>
+<p>With our API design in place, let's develop the high-level mobile architecture. Figure 3 illustrates this architecture, with arrows showing the flow of data through the system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mobile application architecture diagram.  The diagram is divided into a client-side and a server-side. The client-side, labeled 'Client,' contains a 'UI layer' with components: 'Home Screen,' 'Stock Detail Screen,' 'Place Order Modal,' and 'Image Loader.'  Below these are corresponding 'State Holders' for each screen, managing their respective application states.  These UI components interact with a 'Data layer' containing 'Portfolio Repository,' 'Stocks Repository,' and 'Orders Repository,' which in turn access 'Portfolio Remote Data Source,' 'Stocks Remote Data Source,' and 'Orders Remote Data Source' respectively.  The data flow is facilitated by 'Dependency Injection.'  The server-side includes an 'API Gateway' communicating with a 'Backend' and a 'CDN' (Content Delivery Network) via HTTPS. The 'API Gateway' uses HTTPS for communication with the client and WSS (WebSockets) for real-time updates with the 'Real Time Updates Dispatcher.' The 'Backend' also interacts with a 'Third Party Push Notifications Provider' via HTTPS to send push notifications, managed by the client-side 'Push Notifications Client.'  The 'HTTP Network Dispatcher' handles HTTP requests.  The 'Navigator' component in the UI layer manages navigation between screens.  Data flows from the remote data sources to the repositories, then to the state holders, and finally to the UI components.  The image loader fetches images from the CDN." loading="lazy" width="602" height="471" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/stock-trading-app/figure-5-3-OTKO76PY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3: Stock trading high-level mobile architecture</figcaption></div></figure>
+<p>Let's see how the key components of our architecture interact with each other.</p>
+<h3 id="external-server-side-components">External server-side components</h3>
+<p>Before we get into the client itself, let's look at the external pieces it relies on:</p>
+<ul>
+<li>The <strong>Backend</strong> talks to the client through REST APIs and WebSockets, managing requests and keeping data consistent.</li>
+<li>The <strong>CDN</strong> speeds up access to static content such as historical data or chart assets by caching it near users.</li>
+<li>The <strong>Push Notifications Provider</strong> keeps users informed with timely alerts for price changes or order updates even when the app's in the background.</li>
+<li>The <strong>API Gateway</strong> is the gatekeeper that handles authentication and traffic, shielding the backend from overload or bad actors.</li>
+</ul>
+<h4 id="api-gateway">API Gateway</h4>
+<p>In our stock trading app, security is non-negotiable. We need robust authentication, careful request monitoring, and strict policy enforcement—all while maintaining a seamless user experience. This is where the API Gateway [2] plays a crucial role.</p>
+<p>Serving as our system's front door, the API Gateway validates and routes all incoming client requests to the appropriate backend services. It blocks any suspicious or unauthorized requests before they can reach our core systems.</p>
+<p>The API Gateway handles several key responsibilities:</p>
+<ul>
+<li>Security: It manages user authentication and authorization, implements rate limiting, and detects suspicious clients to protect our system.</li>
+<li>Traffic management: It balances load across services and controls request volumes to prevent system overload during peak trading hours.</li>
+<li>Request processing: It validates all incoming requests, transforms data formats when needed, and manages request/response headers to ensure proper communication.</li>
+<li>Monitoring: It tracks API usage, performance metrics, and error rates to maintain system health and identify potential issues early.</li>
+<li>Simplification: It provides a clean, unified API that shields mobile clients from the complexity of our backend architecture.</li>
+</ul>
+<h3 id="client-architecture">Client architecture</h3>
+<p>Our app follows a clean layered architecture that separates concerns between the UI and data layers, creating a more maintainable and testable codebase.</p>
+<p>The <strong>UI layer</strong> consists of three primary screens, each backed by its own state holder to manage presentation logic:</p>
+<ul>
+<li>The <strong>Home screen</strong> serves as the app's central hub, displaying the user's portfolio overview and recent trading activity.</li>
+<li>The <strong>Stock Detail screen</strong> provides comprehensive information about individual stocks, including price charts and key metrics.</li>
+<li>The <strong>Place Order modal</strong> offers a streamlined interface for executing buy and sell transactions.</li>
+</ul>
+<p>Behind the scenes, three specialized repositories handle the core business data in the <strong>data layer</strong>:</p>
+<ul>
+<li>The <strong>Portfolio repository</strong> serves as the single source of truth for the user's holdings, continuously synchronizing with real-time updates.</li>
+<li>The <strong>Stocks repository</strong> manages market data, ensuring users always see current pricing information.</li>
+<li>The <strong>Orders repository</strong> handles the creation, tracking, and execution status of all trading transactions.</li>
+</ul>
+<p>Complementing these components, the <strong>Push Notifications Client component</strong> listens for important alerts from our backend, ensuring users receive timely updates about price movements, order completions, and other critical events.</p>
+<h4 id="data-storage">Data storage</h4>
+<p>In our stock trading app, data freshness requirements vary across different types of application data:</p>
+<ul>
+<li><strong>For real-time market data</strong>, we'll implement in-memory caching only, avoiding disk storage. This approach:
+<ul>
+<li>Ensures users see the most current pricing for trading decisions.</li>
+<li>Maintains the data integrity expected in financial applications.</li>
+</ul>
+</li>
+<li><strong>For less time-sensitive information,</strong> such as historical charts and user preferences, we'll apply appropriate disk caching with clear expiration policies, balancing performance with accuracy.</li>
+</ul>
+<p>This architecture provides a solid foundation for our stock trading app. Now let's dive deeper into some of the more complex aspects of our system.</p>
+<h2 id="step-4-deep-dives">Step 4: Deep dives</h2>
+<p>There are some unique aspects of our app that deserve special attention. Let's take a closer look at creating historical stock price charts and real-time stock data.</p>
+<h3 id="creating-historical-stock-price-charts">Creating historical stock price charts</h3>
+<p>Visualizing historical price data is essential in any stock trading app. Historical stock data typically comes in various time frame options such as daily, weekly, monthly, yearly, and max views; each offering different insights to traders as shown in Figure 4.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mobile application screen displaying stock market information for Alphabet (GOOG).  The top section shows the company logo (G), ticker symbol (GOOG), company name (Alphabet), current stock price (172.79), change (2.86), percentage change (1.68%), and a note indicating the market is closed and the prices are in USD.  Below this, a tabbed navigation bar offers 'Overview,' 'Chart,' and 'Analysis' views. The currently selected 'Overview' tab shows a year-to-date performance summary (13.85% increase) and key financial metrics: Market Cap (2.11T), Day's Range (170.31 - 172.63), and 52-Week Range (147.98 - 222). The 'Chart' tab displays a line graph illustrating the stock's price fluctuation over different time periods (1D, 1W, 1M, 6M, 1Y, MAX), with corresponding price markers on the y-axis. A prominent green 'Trade' button is positioned below the 52W Range.  The bottom navigation bar provides icons and labels for 'Home,' 'Watchlist,' 'Portfolio,' 'Discover,' and 'Wallet' sections.  The top right corner features icons for notifications, menu options, and sharing." loading="lazy" width="291" height="576" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(291px, 100vw), (max-width: 1200px) min(291px, 80vw), min(291px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-4-ETH2E3ZF.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4: Screenshot of a historical stock price chart</figcaption></div></figure>
+<p>from the eToro Android app</p>
+<h4 id="data-density-considerations">Data density considerations</h4>
+<p>Each time frame presents unique data handling challenges. For instance, a 1-day chart might require 390 individual data points (one per minute during a 6.5-hour trading day), while a 5-year chart could theoretically contain over 1,250 daily data points or more than 260 weekly points.</p>
+<p>One key challenge when implementing historical charts is managing data density appropriately. More data points provide greater detail but come with performance costs:</p>
+<ul>
+<li><strong>High-density data</strong> (e.g., minute-by-minute prices over a month) can create rendering performance issues and excessive memory usage.</li>
+<li><strong>Too few data points</strong> might miss important price movements and lead to misleading visualizations.</li>
+</ul>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Different stock trading apps provide different user experiences. Many of these product decisions influence how the charts are designed and displayed. If you're interested in this topic, here's more information on how charts work in the Robinhood app [3] and in eTrade [4].</p></div>
+<h4 id="implementing-the-chart">Implementing the chart</h4>
+<p>Rendering historical stock charts on mobile devices presents unique challenges due to the combination of large datasets and limited screen space. Let's evaluate the different approaches available to us in Table 1:</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;"><strong>Option</strong></th><th style="text-align: left;"><strong>Description</strong></th><th style="text-align: left;"><strong>Advantages</strong></th><th style="text-align: left;"><strong>Disadvantages</strong></th></tr></thead><tbody><tr><td style="text-align: left;">Native graphics rendering</td><td style="text-align: left;">Using platform graphics APIs (e.g., Android Canvas, iOS Core Graphics) to draw chart UI elements manually.</td><td style="text-align: left;">Full control over visuals and performance. Smallest memory footprint. Direct hardware acceleration.</td><td style="text-align: left;">Complex implementation requiring platform-specific expertise. Significant development time. Duplicate code across platforms.</td></tr><tr><td style="text-align: left;">Third-party libraries</td><td style="text-align: left;">Using established mobile charting libraries (e.g., MPAndroidChart [5] or ChartsOrg/Charts [6]) that provide ready-made components.</td><td style="text-align: left;">Quick implementation with built-in features like zooming and gestures. Well-documented and maintained.</td><td style="text-align: left;">Performance overhead compared to native solutions. Potential integration challenges with native components.</td></tr><tr><td style="text-align: left;">WebView-based rendering</td><td style="text-align: left;">Embedding web tools (e.g., D3.js, Chart.js) or professional offerings (e.g., TradingView [7]) in a WebView.</td><td style="text-align: left;">Rich feature set from the web charting ecosystem. Consistent implementation across platforms.</td><td style="text-align: left;">Performance overhead and higher memory usage. WebView/native integration challenges and less native feel.</td></tr><tr><td style="text-align: left;">Server-side rendering with Image API</td><td style="text-align: left;">Generating charts server-side and delivering images to the client.</td><td style="text-align: left;">Minimal client-side processing requirements. Works consistently across all devices.</td><td style="text-align: left;">Limited interactivity. Network dependent. Higher server costs and bandwidth usage.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 1: Trade-offs for presenting historical stock price charts on the client</p></p>
+<p>Given our business context with multiple clients sharing the backend, we'll <strong>implement charts using WebView-based rendering</strong>. This approach allows us to maintain consistent visualization across platforms while leveraging powerful web-based charting libraries optimized for financial data visualization.</p>
+<h4 id="optimizing-webview-based-historical-chart-implementation">Optimizing WebView-based historical chart implementation</h4>
+<p>Implementing charts through WebViews presents several important challenges we need to address.</p>
+<h5 id="performance-impact">Performance impact</h5>
+<p>While WebViews offer flexibility, using complex JavaScript charting libraries such as D3.js or ECharts can strain device resources. We can mitigate this by:</p>
+<ul>
+<li>Isolating charts from high-priority flows, such as order execution.</li>
+<li>Pre-processing data server-side to reduce client strain.</li>
+<li>Streamlining updates to avoid redundant redraws.</li>
+<li>Performing delta updates on the charts after the initial full load.</li>
+</ul>
+<p>The historical stock data density also presents unique challenges. We should implement the following strategies:</p>
+<ul>
+<li>Pre-process historical data before passing it to the WebView to reduce JavaScript processing time, especially for longer time frames with more data points.</li>
+<li>Implement a phased loading approach for extended time periods, where lower-resolution data loads first, followed by higher-resolution details as needed.</li>
+</ul>
+<h5 id="interaction-and-responsiveness">Interaction and responsiveness</h5>
+<p>WebView-rendered charts may not match the smooth interactions of native implementations, particularly with complex user interactions. To ensure good performance, we:</p>
+<ul>
+<li>Offload computations to the backend or background threads where feasible.</li>
+<li>Validate performance across diverse devices.</li>
+</ul>
+<h5 id="visual-integration">Visual Integration</h5>
+<p>WebView components can sometimes feel disconnected from the native UI. To create a cohesive experience, we'll bridge this gap by:</p>
+<ul>
+<li>Aligning chart styles with the app's design system.</li>
+<li>Tuning WebView properties for a cohesive look.</li>
+<li>Adhering to platform UI best practices for familiarity.</li>
+</ul>
+<h5 id="platform-specific-challenges">Platform-Specific Challenges</h5>
+<p>Each OS presents unique hurdles:</p>
+<ul>
+<li>Android:
+<ul>
+<li>WebView updates independently from the app.</li>
+<li>Behavior may vary across devices and Android versions.</li>
+<li>Requires testing across different WebView implementations.</li>
+</ul>
+</li>
+<li>iOS:
+<ul>
+<li>WKWebView has specific performance characteristics.</li>
+<li>Local storage persistence needs careful handling.</li>
+<li>Memory management requires special attention.</li>
+</ul>
+</li>
+</ul>
+<p>By carefully considering these challenges during implementation, we can create chart experiences that balance functionality with performance while maintaining a native feel.</p>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>eToro opted to integrate the web-based TradingView [7] charting toolkit into their platform, delivering advanced interactive charts via a web component in their app.</p><p>Robinhood uses native drawing APIs to maximize performance and control on Android. They open sourced a custom Android library called Spark [8] for their sparkline charts.</p></div>
+<h3 id="real-time-stock-data">Real-time stock data</h3>
+<p>Stock prices fluctuate rapidly during trading hours, often changing multiple times per second. To display these dynamic changes, stock trading apps typically use intraday charts such as the one shown in Figure 5.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a mobile application screen displaying real-time stock information for Alphabet (C).  At the top, a menu icon (three horizontal lines) is present, along with a 'Following' indicator (a checkmark) suggesting the user is tracking this stock. Below, the company name 'Alphabet (C)' is prominently displayed, followed by its current share price ('157.06 €') and a percentage change ('-2.08%') indicated in red, signifying a price decrease. A line graph immediately follows, showing the stock's price fluctuation over different time periods (1D, 1W, 1M, 1Y, Max), selectable by the user.  Below the graph, a 'About' section provides a brief description of Alphabet Inc. as a holding company, listing its main segments (Google Services, Google Cloud, Other Bets), with an expandable section for more details. Further down, the 'Share price' (157.06 €) and 'Company value' (1.902T €) are shown. Finally, at the bottom, three interactive buttons are presented: 'Save' (presumably to save the stock to a watchlist), a refresh button (a circular arrow), and 'Buy' (to initiate a purchase), accompanied by a plus icon suggesting adding to an existing order.  The overall layout is clean and intuitive, providing a concise overview of Alphabet's stock performance and relevant information." loading="lazy" width="277" height="558" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(277px, 100vw), (max-width: 1200px) min(277px, 80vw), min(277px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fmobile-system-design-interview%2Fstock-trading-app%2Ffigure-5-5-OI7P5K2Q.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5: Screenshot of an intraday stock price chart</figcaption></div></figure>
+<p>from the Trade Republic Android app</p>
+<p>To ensure consistency across our app, <strong>we'll use the same WebView-based approach for both historical and intraday real-time data visualization</strong>. This provides a unified visual experience while simplifying maintenance, as we only need to maintain expertise in one charting technology stack.</p>
+<h4 id="design-options-for-real-time-chart-updates">Design options for real-time chart updates</h4>
+<p>To integrate real-time data into our WebView chart implementation, we need a strategy for updating the chart efficiently. Each approach has different implications for device resources such as battery life, processing power, and memory usage. Table 2 shows multiple options with their trade-offs:</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;"><strong>Option</strong></th><th style="text-align: left;"><strong>Description</strong></th><th style="text-align: left;"><strong>Advantages</strong></th><th style="text-align: left;"><strong>Disadvantages</strong></th></tr></thead><tbody><tr><td style="text-align: left;">Direct UI updates</td><td style="text-align: left;">Update the UI instantly with every new data point received from the WebSocket.</td><td style="text-align: left;">Simplest implementation. Ensures users see the most current data. Minimal latency between data receipt and display.</td><td style="text-align: left;">Can cause UI jank if updates are too frequent. High battery consumption. May overwhelm the main thread with excessive updates.</td></tr><tr><td style="text-align: left;">Buffered updates</td><td style="text-align: left;">Collect data changes in a buffer and update the UI at fixed intervals.</td><td style="text-align: left;">Reduces UI update frequency. More efficient for battery life. Smooths out frequent changes.</td><td style="text-align: left;">Introduces a small delay in displaying the latest data. May miss intermediate price points. Requires careful tuning of update intervals.</td></tr><tr><td style="text-align: left;">Priority-based updates</td><td style="text-align: left;">Assign different update priorities to different UI elements.</td><td style="text-align: left;">Focuses resources on the most important data. Allows critical information to update more frequently. Better overall user experience.</td><td style="text-align: left;">More complex implementation. Requires careful tuning of priorities. May cause user confusion if related data elements update at different rates.</td></tr></tbody></table></div>
+<p class="tableCaption"><p>Table 2: Trade-offs for displaying real-time UI updates</p></p>
+<p>For our stock trading app's intraday chart, we'll implement the <strong>buffered updates</strong> approach. This strategy provides the best balance between responsiveness and resource efficiency for a single chart element.</p>
+<div class="note-block"><p><strong>📝 Note:</strong> This decision assumes we're displaying just one intraday chart with real-time updates at a time. If product requirements change to display multiple charts simultaneously, we would need to reconsider our strategy and implement a hybrid solution with priority-based updates.</p></div>
+<h4 id="implementation-strategy">Implementation strategy</h4>
+<p>Our buffered update implementation for the WebView-based intraday chart consists of several key components:</p>
+<ol>
+<li>The Stocks repository contains <strong>data buffering logic</strong> that collects price updates from the WebSocket connection and maintains them in a queue.</li>
+<li>A <strong>scheduled updater</strong> runs at fixed intervals (e.g., every 1-2 seconds) to transfer the buffered price data to the WebView chart.</li>
+<li>A <strong>JavaScript bridge</strong> between the native code and WebView that efficiently transfers market data updates.</li>
+</ol>
+<h5 id="understanding-the-javascript-bridge">Understanding the JavaScript bridge</h5>
+<p>The stock chart runs as JavaScript within a WebView. Since the chart rendering happens in this JavaScript environment, we need a way to send our processed data from the native app to the WebView. This is where the JavaScript bridge comes in.</p>
+<p>The JavaScript bridge creates a communication channel between our native app code and the WebView chart. When real-time stock data arrives, it first comes to our native code through the WebSocket connection, not directly to the WebView. This approach has several benefits:</p>
+<ul>
+<li>Native code handles network connections and data processing more efficiently.</li>
+<li>We can format the data correctly before sending it for visualization.</li>
+<li>We can implement better buffering strategies at the native level.</li>
+</ul>
+<p>This setup creates a clear separation of duties:</p>
+<ul>
+<li><strong>Native code</strong> handles: Managing the WebSocket connection, receiving and validating incoming data, buffering updates to reduce processing overhead, pre-processing data for display, and determining when to send updates to the chart.</li>
+<li><strong>WebView code</strong> handles: Rendering the chart visualization, managing user interactions (zoom, pan, tap), and handling chart animations and transitions.</li>
+</ul>
+<p>The JavaScript bridge allows data to flow both ways:</p>
+<ol>
+<li><strong>Native to WebView</strong>: Sending stock updates, configuration changes, and user preferences.</li>
+<li><strong>WebView to Native</strong>: Communicating user interactions such as zooms, taps on data points, or feature toggles.</li>
+</ol>
+<div class="note-block"><p><strong>🛠️ Platform implementation details</strong></p><p>Buffered updates require efficient data stream management that needs to be sent through the JavaScript bridge to update the WebView.</p><p>On Android, we can leverage:</p><ul>
+<li>
+<p>The JavascriptInterface mechanism to establish reliable communication between native code and WebView charts.</p>
+</li>
+<li>
+<p>Kotlin Flows with appropriate dispatchers to handle buffering and throttling off the main thread.</p>
+</li>
+</ul><p>On iOS, we can leverage:</p><ul>
+<li>
+<p>WKUserContentController and WKScriptMessageHandler enable native-to-JavaScript communication.</p>
+</li>
+<li>
+<p>Combine framework's throttle and debounce operators to control update frequency.</p>
+</li>
+</ul></div>
+<h4 id="real-time-chart-update-data-flow">Real-time chart update data flow</h4>
+<p>Figure 6 maps the data journey when a user opens a stock's intraday chart, updating at real time:</p>
+<ol>
+<li>The Stocks remote data source fetches the current day's historical data via a REST API call to establish the baseline chart data.</li>
+<li>Simultaneously, the remote data source establishes a WebSocket connection for receiving real-time price updates.</li>
+<li>The Stocks repository combines these two sources and implements the buffered updates strategy:
+<ol>
+<li>The repository creates the data stream and emits the current day's historical data as the initial value.</li>
+<li>As WebSocket updates arrive, they're collected in a buffer within the repository.</li>
+<li>The repository doesn't send each update immediately to subscribers. Instead, it batches these updates and emits them at regular intervals.</li>
+</ol>
+</li>
+<li>The Stock detail state holder subscribes to this buffered data stream and is responsible for communicating with the JavaScript bridge to update the chart as new data arrives.</li>
+<li>The WebView chart renders these updates, creating the appearance of smooth, real-time data visualization.</li>
+</ol>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for displaying intraday stock values.  A user initiates the process by requesting to 'See intraday stock value graph,' which triggers a request to the 'Stock Detail Screen.' This screen interacts with a 'Stock Detail State Holder,' which in turn communicates with a 'Stocks Repository.' The 'Stocks Repository' receives data from two sources: 'HTTP Network Dispatcher' (1) and 'Real Time Updates Dispatcher' (2), both feeding into a 'Stocks Remote DataSource.'  The 'Stock Detail State Holder' (3) then sends data to a 'JavaScript Bridge' (4), which finally updates the 'Chart Rendering WebView' (5) to display the intraday stock graph to the user.  The numbered annotations (1-5) indicate the flow of data between components." loading="lazy" width="562" height="444" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/mobile-system-design-interview/stock-trading-app/figure-5-6-PHPX2I7Q.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6: Intraday stock value chart data flow</figcaption></div></figure>
+<h4 id="common-bottlenecks-and-optimizations">Common bottlenecks and optimizations</h4>
+<p>Several common issues can still affect real-time UI performance:</p>
+<ul>
+<li><strong>WebView-related bottlenecks</strong>. Frequent updates to the WebView can trigger expensive rendering operations. To minimize this impact, we:
+<ul>
+<li>Configure the charting library to use partial redraws, which update only the changed elements.</li>
+<li>Disable animations during high-frequency updates to reduce rendering overhead.</li>
+</ul>
+</li>
+<li><strong>Data processing bottlenecks</strong>. Processing incoming market data can sometimes become a bottleneck, especially when it involves complex calculations. To minimize this impact, we:
+<ul>
+<li>Move all data transformations to native code and execute them in a background thread before passing the data to the WebView.</li>
+<li>Pre-compute derived values rather than calculating them in JavaScript.</li>
+<li>Implement caching for computed values to prevent redundant calculations.</li>
+</ul>
+</li>
+<li><strong>Bridge communication overhead</strong>. Every call between native code and WebView has a cost. We optimize this by:
+<ul>
+<li>Batching multiple price updates into a single bridge communication.</li>
+<li>Using compact data formats to reduce serialization/deserialization costs.</li>
+<li>Maintaining a consistent update interval that balances freshness with performance.</li>
+</ul>
+</li>
+<li><strong>Intermittent connectivity</strong>. Mobile networks are inherently unreliable. When connectivity issues occur:
+<ul>
+<li>Clearly indicate when the data is stale due to connection loss.</li>
+<li>Implement exponential backoff for reconnection attempts.</li>
+</ul>
+</li>
+<li><strong>Battery impact</strong>. Real-time updates can significantly impact device battery life. We should:
+<ul>
+<li>Stop real-time updates when the app is in the background.</li>
+<li>Implement adaptive throttling based on battery level.</li>
+</ul>
+</li>
+</ul>
+<p>As our app grows in complexity and user base, our real-time update system needs to scale accordingly. Several aspects of our design ensure this scalability:</p>
+<ul>
+<li><strong>WebSocket message filtering</strong>: We implement server-side filtering to ensure clients only receive the specific data they need, reducing client-side processing as the app adds features.</li>
+<li><strong>Buffer size</strong>: Our buffer needs to be large enough to accommodate all price updates between refresh intervals, even during periods of high market volatility. For most stocks, a buffer capacity of 10-20 price points should be sufficient.</li>
+<li><strong>Adaptive scheduling</strong>: We can implement adaptive scheduling that adjusts update frequency based on market conditions, device state, and user engagement when the user is actively looking at their data and the app is in the foreground:
+<ul>
+<li>Increase frequency during market hours with high volatility.</li>
+<li>Allow users to adjust the frequency based on battery level and device performance.</li>
+</ul>
+</li>
+</ul>
+<div class="note-block"><p><strong>🔍 Industry insights:</strong></p><p>Institutions such as J.P. Morgan or Commerzbank, and trading platforms like Binomo, use SciChart's [9] native engine to power real-time stock dashboards [10].</p><p>Coinbase's exchange platform exposes a WebSocket feed to broadcast live market data for orders and trades [11].</p></div>
+<h2 id="step-5-wrap-up">Step 5: Wrap-up</h2>
+<p>In this chapter, we've designed a mobile stock trading app that delivers core functionality for investment management. Our system supports viewing real-time stock prices, executing trades through placing and canceling orders, analyzing historical price data through charts, and receiving timely price alerts.</p>
+<p>The architecture combines REST APIs for standard operations with WebSockets for real-time updates. We've implemented a layered client architecture that separates UI and data concerns, making the codebase both maintainable and testable. We also covered creating both historical and real-time intraday stock value charts.</p>
+<p>For those preparing to discuss this in a Mobile System Design interview, consider exploring these extensions to deepen the conversation:</p>
+<ul>
+<li>Offline functionality: Designing a system for caching and local operation when network connectivity is limited.</li>
+<li>Cross-platform considerations: Discussing how the architecture would adapt to support web and other platforms</li>
+<li>Regulatory Compliance: Address the specific compliance requirements and regulations that govern stock trading in different regions.</li>
+<li>Personalized UI: Offer customizable dashboards or watchlists, enhancing engagement through tailored experiences.</li>
+</ul>
+<h2 id="references">References</h2>
+<p>[1] TradeRepublic's state of Android in 2024 with REST and WebSocket protocols:<br>
+<a href="https://engineering.traderepublic.com/state-of-android-at-tr-2024-edition-bc032620b83e" target="_blank" rel="noopener noreferrer">https://engineering.traderepublic.com/state-of-android-at-tr-2024-edition-bc032620b83e</a><br>
+[2] API Gateway: <a href="https://en.wikipedia.org/wiki/API%5C_management%5C#gateway" target="_blank" rel="noopener noreferrer">https://en.wikipedia.org/wiki/API\_management\#gateway</a><br>
+[3] Robinhood's charts: <a href="https://robinhood.com/us/en/support/articles/using-charts/" target="_blank" rel="noopener noreferrer">https://robinhood.com/us/en/support/articles/using-charts/</a><br>
+[4] ETrade's charts: <a href="https://us.etrade.com/knowledge/library/getting-started/power-etrade-charting-enhancements" target="_blank" rel="noopener noreferrer">https://us.etrade.com/knowledge/library/getting-started/power-etrade-charting-enhancements</a><br>
+[5] MPAndroidChart: <a href="https://github.com/PhilJay/MPAndroidChart" target="_blank" rel="noopener noreferrer">https://github.com/PhilJay/MPAndroidChart</a><br>
+[6] iOS Charts library: <a href="https://github.com/ChartsOrg/Charts" target="_blank" rel="noopener noreferrer">https://github.com/ChartsOrg/Charts</a><br>
+[7] TradingView: <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">https://www.tradingview.com/</a><br>
+[8] Robinhood's Spark Android library: <a href="https://github.com/robinhood/spark" target="_blank" rel="noopener noreferrer">https://github.com/robinhood/spark</a><br>
+[9] SciChart: <a href="https://www.scichart.com/" target="_blank" rel="noopener noreferrer">https://www.scichart.com/</a><br>
+[10] SciChart usage in the industry: <a href="https://www.scichart.com/blog/ios-android-native-apps-vs-javascript" target="_blank" rel="noopener noreferrer">https://www.scichart.com/blog/ios-android-native-apps-vs-javascript</a><br>
+[11] Coinbase WebSocket approach for real-time updates: <a href="https://docs.cdp.coinbase.com/exchange/docs/websocket-overview" target="_blank" rel="noopener noreferrer">https://docs.cdp.coinbase.com/exchange/docs/websocket-overview</a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../mobile-system-design-interview.html">← Course Contents</a>
+        <a href="chat-app.html">← Previous</a>
+        <a href="pagination-library.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

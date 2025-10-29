@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triplet Sum - Coding Patterns</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../coding-patterns.html">Coding Patterns</a> /
+        Triplet Sum
+    </div>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="shift-zeros-to-the-end.html">← Previous</a>
+        
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">sort the input</span> Triplet Sum
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/coding-patterns/two-pointers/triplet-sum" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><h1>Triplet Sum</h1></header><div class="style_problemDescription__T4cPe"><p>Given an array of integers, return all triplets <code>[a, b, c]</code> such that <code>a + b + c = 0</code> . The solution must not contain duplicate triplets (e.g., <code>[1, 2, 3]</code> and <code>[2, 3, 1]</code> are considered duplicates). If no such triplets are found, return an empty array.</p><p>Each triplet can be arranged in any order, and the output can be returned in any order.</p><h4 id="example">Example:</h4><pre><code class="hljs language-python">Input: nums = [<span class="hljs-number">0</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, -<span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+Output: [[-<span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>], [-<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]]
+</code></pre></div>
+<h2 id="intuition">Intuition</h2>
+<p>A brute force solution involves checking every possible triplet in the array to see if they sum to zero. This can be done using three nested loops, iterating through each combination of three elements.</p>
+<p>Duplicate triplets can be avoided by sorting each triplet, which ensures that identical triplets with different representations (e.g., <code>[1, 3, 2]</code> and <code>[3, 2, 1]</code>) are ordered consistently (e.g., <code>[1, 2, 3]</code>). Once sorted, we can add these triplets to a hash set. This way, if the same triplet is encountered again, the hash set will only keep one instance. Below is the code snippet for this approach:</p>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-0-tab-0" aria-controls="rc-tabs-0-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-1" aria-controls="rc-tabs-0-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-0-tab-2" aria-controls="rc-tabs-0-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-0-more-popup" id="rc-tabs-0-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-0-panel-0" aria-labelledby="rc-tabs-0-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span>
+   
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">triplet_sum_brute_force</span>(<span class="hljs-params">nums: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]</span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]]:
+    n = <span class="hljs-built_in">len</span>(nums)
+    <span class="hljs-comment"># Use a hash set to ensure we don't add duplicate triplets.</span>
+    triplets = <span class="hljs-built_in">set</span>()
+    <span class="hljs-comment"># Iterate through the indexes of all triplets.</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(n):
+        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(i + <span class="hljs-number">1</span>, n):
+            <span class="hljs-keyword">for</span> k <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(j + <span class="hljs-number">1</span>, n):
+                <span class="hljs-keyword">if</span> nums[i] + nums[j] + nums[k] == <span class="hljs-number">0</span>:
+                    <span class="hljs-comment"># Sort the triplet before including it in the hash set.</span>
+                    triplet = <span class="hljs-built_in">tuple</span>(<span class="hljs-built_in">sorted</span>([nums[i], nums[j], nums[k]]))
+                    triplets.add(triplet)
+    <span class="hljs-keyword">return</span> [<span class="hljs-built_in">list</span>(triplet) <span class="hljs-keyword">for</span> triplet <span class="hljs-keyword">in</span> triplets]
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<p>This solution is quite inefficient with a time complexity of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>3</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^3)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> denotes the length of the input array. How can we do better?</p>
+<p>Let’s see if we can find at least one triplet that sums to 0. Notice that if we fix one of the numbers in a triplet, the problem can be reduced to finding the other two. This leads to the following observation:</p>
+<blockquote>
+<p>For any triplet [a, b, c], if we fix 'a', we can focus on finding a pair <code>[b, c]</code> that sums to '-a' <code>(a + b + c = 0 → b + c = -a)</code>.</p>
+</blockquote>
+<p>Sound familiar? That's because the problem of finding a pair of numbers that sum to a target has already been addressed by <em>Pair Sum - Sorted</em>. However, we can only use that algorithm on a sorted array. So, the first thing we should do is <strong>sort the input</strong>. Consider the following example:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of a sorting operation.  The image shows an unsorted array `[-1, 2, -2, 1, -1, 2]` enclosed in square brackets on the left.  A rightward-pointing arrow labeled 'sort' connects this initial array to a second array `[-2, -1, -1, 1, 2, 2]` also enclosed in square brackets on the right. The arrow indicates the transformation of the input array (on the left) into the sorted output array (on the right) using a sorting algorithm (implied by the label 'sort').  The numbers within each array represent the elements of the array, and their order demonstrates the before-and-after effect of the sorting process.  The output array shows the elements of the input array arranged in ascending order." loading="lazy" width="534" height="28" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/triplet-sum/image-01-02-1-A36R4A4P.svg" style="color: transparent;"></div></figure>
+<p>Now, starting at the first element, -2 (i.e., 'a'), we'll use the <code>pair_sum_sorted</code> method on the rest of the array to find a pair whose sum equals 2 (i.e., '-a'):</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a visual depiction of the `pair_sum_sorted` function's execution on a sorted array `[-2, -1, -1, 1, 2, 2]`, aiming to find triplets summing to a target of 2.  The top shows the input array `a` labeled with 'i' indicating an index. An arrow points downwards to the function call `pair_sum_sorted([-1, -1, 1, 2, 2], target = 2)`, excluding the initial -2. The function iteratively uses two pointers, `left` and `right`, initially pointing to the first and last elements of the sub-array, respectively.  Each step shows the current array section, the positions of `left` and `right` highlighted in orange boxes, the calculated `sum` of the elements at these positions, and the resulting adjustment to `left` or `right` based on whether the `sum` is less than, greater than, or equal to the target.  The process continues until `left` and `right` cross, at which point 'no pairs found' is indicated, implying no triplet starting with -2 sums to 2.  Finally, a concluding statement 'no triplet exists that starts with -2' summarizes the function's outcome." loading="lazy" width="520" height="516" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/triplet-sum/image-01-02-2-GBLVHF4M.svg" style="color: transparent;"></div></figure>
+<p>As you can see, when we called pair_sum_sorted, we did not find a pair with a sum of 2. This indicates that there are no triplets starting with -2 that add up to 0.</p>
+<hr>
+<p>So, let's increment our main pointer, <code>i</code>, and try again.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a flowchart illustrating the `pair_sum_sorted` algorithm.  The algorithm starts with a sorted input array `[-2, -1, -1, 1, 2, 2]` labeled 'a'.  The function `pair_sum_sorted([-1, 1, 2, 2], target = 1)` is then called, indicating a search for pairs summing to 1 within the sub-array `[-1, 1, 2, 2]`.  Two pointers, `left` and `right`, initially point to the first and last elements of this sub-array respectively. The algorithm iteratively checks the sum of the elements pointed to by `left` and `right`. If the sum equals the target (1), a pair is found ([-1, 2], labeled 'b' and 'c'), and `left` is incremented to find more pairs. If the sum is greater than the target, `right` is decremented. If the sum is less than the target, `left` is incremented (not explicitly shown but implied). This process continues until `left` and `right` cross, at which point the algorithm terminates. The final result, pairs found `[-1, 2]`, is shown, along with a note indicating how these pairs are added to a result array.  The flowchart visually depicts the flow of control and data manipulation within the algorithm, showing the changes in pointer positions and the conditional logic based on the sum of the elements." loading="lazy" width="624" height="459" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/triplet-sum/image-01-02-3-XR7EOGIZ.svg" style="color: transparent;"></div></figure>
+<p>This time, we found one pair that resulted in a valid triplet.</p>
+<p>If we continue this process for the rest of the array, we find that <code>[-1, -1, 2]</code> is the only triplet whose sum is 0.</p>
+<hr>
+<p>There’s an important difference between the <code>pair_sum_sorted</code> implementation in <em>Pair Sum - Sorted</em> and the one in this problem: for this problem, we don’t stop when we find one pair, we keep going until all target pairs are found.</p>
+<p><strong>Handling duplicate triplets</strong><br>
+Something we previously glossed over is how to avoid adding duplicate triplets. There are two cases in which this happens. Consider the example below:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a one-dimensional array or list of integers enclosed within square brackets.  The array contains nine integer elements: -4, -4, -2, 0, 0, 1, 2, and 3. These elements are arranged sequentially from left to right, separated by spaces. No other components, connections, or information flow are depicted; the image solely presents the data structure itself.  There are no URLs, parameters, or other labels beyond the numerical values and the enclosing brackets." loading="lazy" width="256" height="17" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/triplet-sum/image-01-02-4-RKMQCNYS.svg" style="color: transparent;"></div></figure>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder accentunder="true"><mtext>Case&nbsp;1:&nbsp;duplicate&nbsp;‘a’&nbsp;values</mtext><mo stretchy="true">‾</mo></munder></mrow><annotation encoding="application/x-tex">\underline{\text{Case 1: duplicate ‘a’ values}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0889em; vertical-align: -0.3944em;"></span><span class="mord underline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.6944em;"><span style="top: -2.6456em;"><span class="pstrut" style="height: 3em;"></span><span class="underline-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">Case&nbsp;1:&nbsp;duplicate&nbsp;‘a’&nbsp;values</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.3944em;"><span></span></span></span></span></span></span></span></span></p>
+<p>The first instance where duplicates may occur is when seeking pairs for triplets that start with the same ‘a’ value:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two identical examples of a data transformation process.  Each example shows a sequence of numbers arranged into three labeled groups: 'a', 'b', and 'c'. Group 'a' contains the numbers [-4, -4, -2, 0], group 'b' contains [0, 1, 2], and group 'c' contains [3].  A rightward arrow indicates a transformation where the first element from each group ('a', 'b', and 'c') – specifically -4, 0, and 3 – are extracted and combined to form a new data structure labeled 'triplet [-4 1 3]'.  The arrangement is replicated identically below the first example, emphasizing the consistent application of the transformation rule.  The labels 'a', 'b', and 'c' are consistently placed above their respective number groups in both examples." loading="lazy" width="458" height="74" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/triplet-sum/image-01-02-5-TXGNCZDQ.svg" style="color: transparent;"></div></figure>
+<p>Since pair_sum_sorted would look for pairs that sum ‘-a’ in both instances, we’d naturally end up with the same pairs and, hence, the same triplets.</p>
+<p>To avoid picking the same 'a' value, we keep increasing <code>i</code> (where <code>num[i]</code> represents the value 'a') until it reaches a different number from the previous one. We do this before we start looking for pairs using the <code>pair_sum_sorted</code> method. This logic works because the array is sorted, meaning equal numbers are next to each other. The code snippet for checking duplicate 'a' values looks like this:</p>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-1-tab-0" aria-controls="rc-tabs-1-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-1-tab-1" aria-controls="rc-tabs-1-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-1-tab-2" aria-controls="rc-tabs-1-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-1-more-popup" id="rc-tabs-1-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-1-panel-0" aria-labelledby="rc-tabs-1-tab-0"><pre><code class="hljs language-python"><span class="hljs-comment"># To prevent duplicate triplets, ensure 'a' is not a repeat of the previous element</span>
+<span class="hljs-comment"># in the sorted array.</span>
+<span class="hljs-keyword">if</span> i &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">and</span> nums[i] == nums[i - <span class="hljs-number">1</span>]:
+    <span class="hljs-keyword">continue</span>
+<span class="hljs-meta">... </span>Find triplets ...
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<hr>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder accentunder="true"><mtext>Case&nbsp;2:&nbsp;duplicate&nbsp;‘b’&nbsp;values</mtext><mo stretchy="true">‾</mo></munder></mrow><annotation encoding="application/x-tex">\underline{\text{Case 2: duplicate ‘b’ values}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0889em; vertical-align: -0.3944em;"></span><span class="mord underline"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height: 0.6944em;"><span style="top: -2.6456em;"><span class="pstrut" style="height: 3em;"></span><span class="underline-line" style="border-bottom-width: 0.04em;"></span></span><span style="top: -3em;"><span class="pstrut" style="height: 3em;"></span><span class="mord"><span class="mord text"><span class="mord">Case&nbsp;2:&nbsp;duplicate&nbsp;‘b’&nbsp;values</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height: 0.3944em;"><span></span></span></span></span></span></span></span></span></p>
+<p>As for the second case, consider what happens during <code>pair_sum_sorted</code> when we encounter a similar issue. For a fixed target value (‘-a’), pairs that start with the same number ‘b’ will always be the same:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents two examples of extracting a triplet from a larger array.  Each example shows a numerical array enclosed in square brackets, containing the elements [-4, -4, -2, 0, 0, 1, 2, 3].  Above each element within the array, labels 'a', 'b', and 'c' are placed to identify sections. In both examples, a sub-array consisting of three elements is highlighted with a cyan-colored box.  The first example highlights the elements 0, 0, and 1 (labeled b, b, and c respectively), while the second example highlights the elements 0, 0, and 1 (labeled a, b, and c respectively). A rightward arrow connects each array to the resulting 'triplet,' which is represented as [-2, 0, 2] in both cases.  Note that the triplet's values are not directly taken from the highlighted sub-array but rather seem to be a result of some transformation or operation not explicitly shown in the diagram." loading="lazy" width="458" height="71" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/coding-patterns/two-pointers/triplet-sum/image-01-02-6-Z75F3BAY.svg" style="color: transparent;"></div></figure>
+<p>The remedy for this is the same as before: ensure the current ‘b’ value isn’t the same as the previous value.</p>
+<p>It’s important to note that we don’t need to explicitly handle duplicate 'c' values. The adjustments made to avoid duplicate 'a' and 'b' values ensure each pair <code>[a, b]</code> is unique. Since 'c' is determined by the equation <code>c = -(a + b)</code>, each unique <code>[a, b]</code> pair will result in a unique 'c' value. Therefore, by just avoiding duplicates in 'a' and 'b', we automatically avoid duplicates in the <code>[a, b, c]</code> triplets.</p>
+<p><strong>Optimization</strong><br>
+An interesting observation is that triplets that sum to 0 cannot be formed using positive numbers alone. Therefore, we can stop trying to find triplets once we reach a positive ‘a’ value since this implies that ‘b’ and ‘c’ would also be positive.</p>
+<div class="style_tryBanner__WFMKc"><div><div class="style_tryTitle__dVqce">Try it yourself</div><div class="style_tryDesc___lKzS">Write your solution to the problem before checking the reference implementation.</div></div><a target="_blank" href="/exercises/coding-patterns/two-pointers/triplet-sum"><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_openBtn__F_m3N"><span>Open Code Editor</span></button></a></div>
+<h2 id="implementation">Implementation</h2>
+<p>From the above intuition, we know we need to slightly modify the <code>pair_sum_sorted</code> function to avoid duplicate triplets. We also need to pass in a start value to indicate the beginning of the subarray on which we want to perform the pair-sum algorithm. Otherwise, the two-pointer logic remains nearly identical to that of <em>Pair Sum - Sorted</em>.</p>
+<div class="style_codeTabsWrap__jMkKK"><div class="ant-tabs ant-tabs-top ant-tabs-card style_codeTabs__DEEq6 css-133v4sd"><div role="tablist" aria-orientation="horizontal" class="ant-tabs-nav"><div class="ant-tabs-nav-wrap"><div class="ant-tabs-nav-list" style="transform: translate(0px, 0px);"><div data-node-key="0" class="ant-tabs-tab ant-tabs-tab-active"><div role="tab" aria-selected="true" class="ant-tabs-tab-btn" tabindex="0" id="rc-tabs-2-tab-0" aria-controls="rc-tabs-2-panel-0">Python</div></div><div data-node-key="1" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-2-tab-1" aria-controls="rc-tabs-2-panel-1">JavaScript</div></div><div data-node-key="2" class="ant-tabs-tab"><div role="tab" aria-selected="false" class="ant-tabs-tab-btn" tabindex="-1" id="rc-tabs-2-tab-2" aria-controls="rc-tabs-2-panel-2">Java</div></div><div class="ant-tabs-ink-bar ant-tabs-ink-bar-animated" style="width: 77.5938px; left: 38.7969px; transform: translateX(-50%);"></div></div></div><div class="ant-tabs-nav-operations ant-tabs-nav-operations-hidden"><button type="button" class="ant-tabs-nav-more" aria-haspopup="listbox" aria-controls="rc-tabs-2-more-popup" id="rc-tabs-2-more" aria-expanded="false" style="visibility: hidden; order: 1;"><span role="img" aria-label="ellipsis" class="anticon anticon-ellipsis"><svg viewBox="64 64 896 896" focusable="false" data-icon="ellipsis" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M176 511a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0zm280 0a56 56 0 10112 0 56 56 0 10-112 0z"></path></svg></span></button></div></div><div class="ant-tabs-content-holder"><div class="ant-tabs-content ant-tabs-content-top"><div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-tabs-tabpane ant-tabs-tabpane-active" id="rc-tabs-2-panel-0" aria-labelledby="rc-tabs-2-tab-0"><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">List</span>
+  
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">triplet_sum</span>(<span class="hljs-params">nums: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]</span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]]:
+    triplets = []
+    nums.sort()
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(nums)):
+        <span class="hljs-comment"># Optimization: triplets consisting of only positive numbers will never sum</span>
+        <span class="hljs-comment"># to 0.</span>
+        <span class="hljs-keyword">if</span> nums[i] &gt; <span class="hljs-number">0</span>:
+            <span class="hljs-keyword">break</span>
+        <span class="hljs-comment"># To avoid duplicate triplets, skip 'a' if it's the same as the previous</span>
+        <span class="hljs-comment"># number.</span>
+        <span class="hljs-keyword">if</span> i &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">and</span> nums[i] == nums[i - <span class="hljs-number">1</span>]:
+            <span class="hljs-keyword">continue</span>
+        <span class="hljs-comment"># Find all pairs that sum to a target of '-a' ('-nums[i]').</span>
+        pairs = pair_sum_sorted_all_pairs(nums, i + <span class="hljs-number">1</span>, -nums[i])
+        <span class="hljs-keyword">for</span> pair <span class="hljs-keyword">in</span> pairs:
+            triplets.append([nums[i]] + pair)
+    <span class="hljs-keyword">return</span> triplets
+  
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">pair_sum_sorted_all_pairs</span>(<span class="hljs-params">nums: <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>], start: <span class="hljs-built_in">int</span>, target: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-type">List</span>[<span class="hljs-built_in">int</span>]:
+    pairs = []
+    left, right = start, <span class="hljs-built_in">len</span>(nums) - <span class="hljs-number">1</span>
+    <span class="hljs-keyword">while</span> left &lt; right:
+        <span class="hljs-built_in">sum</span> = nums[left] + nums[right]
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">sum</span> == target:
+            pairs.append([nums[left], nums[right]])
+            left += <span class="hljs-number">1</span> <span class="hljs-comment"># To avoid duplicate '[b, c]' pairs, skip 'b' if it’s the same as the # previous number.</span>
+            <span class="hljs-keyword">while</span> left &lt; right <span class="hljs-keyword">and</span> nums[left] == nums[left - <span class="hljs-number">1</span>]:
+                left += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">elif</span> <span class="hljs-built_in">sum</span> &lt; target:
+            left += <span class="hljs-number">1</span> 
+        <span class="hljs-keyword">else</span>:
+            right -= <span class="hljs-number">1</span>
+    <span class="hljs-keyword">return</span> pairs
+</code></pre><button type="button" class="ant-btn css-133v4sd ant-btn-default ant-btn-color-default ant-btn-variant-outlined style_copyBtn__4MbAa"><img alt="" loading="lazy" width="16" height="16" decoding="async" data-nimg="1" src="https://bytebytego.com/_next/static/media/copy.3248da0c.svg" style="color: transparent;"></button></div></div></div></div></div>
+<h3 id="complexity-analysis">Complexity Analysis</h3>
+<p><strong>Time complexity:</strong> The time complexity of <code>triplet_sum</code> is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>. Here’s why:</p>
+<ul>
+<li>We first sort the array, which takes <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mi>log</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n\log(n))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right: 0.1667em;"></span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">))</span></span></span></span> time.</li>
+<li>Then, for each of the <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> elements in the array, we call <code>pair_sum_sorted_all_pairs</code> at most once, which runs in <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> time.</li>
+</ul>
+<p>Therefore, the overall time complexity is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>+</mo><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log(n))+O(n^2)=O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right: 0.01389em;">g</span></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">))</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right: 0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right: 0.2778em;"></span></span><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>.</p>
+<p><strong>Space complexity:</strong> The space complexity is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mclose">)</span></span></span></span> due to the space taken up by Python’s sorting algorithm. It's important to note that this complexity does not include the output array triplets because we’re only concerned with the additional space used by the algorithm, not the space needed for the output itself.</p>
+<p>If the interviewer asks what the space complexity would be if we included the output array, it would be <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>. This is because the <code>pair_sum_sorted_all_pairs</code> function, in the worst case, can add approximately <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> pairs to the output. Since this function is called approximately <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.4306em;"></span><span class="mord mathnormal">n</span></span></span></span> times, the overall space complexity is <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 1.0641em; vertical-align: -0.25em;"></span><span class="mord mathnormal" style="margin-right: 0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height: 0.8141em;"><span style="top: -3.063em; margin-right: 0.05em;"><span class="pstrut" style="height: 2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>.</p>
+<h3 id="test-cases">Test Cases</h3>
+<p>In addition to the examples already covered in this explanation, below are some others to consider when testing your code.</p>
+<div class="table-wrap" style="--table-min-width: 640px;"><table><thead><tr><th style="text-align: left;">Input</th><th style="text-align: left;">Expected output</th><th style="text-align: left;">Description</th></tr></thead><tbody><tr><td style="text-align: left;"><code>nums = []</code></td><td style="text-align: left;"><code>[]</code></td><td style="text-align: left;">Tests an empty array.</td></tr><tr><td style="text-align: left;"><code>nums = [0]</code></td><td style="text-align: left;"><code>[]</code></td><td style="text-align: left;">Tests a single-element array.</td></tr><tr><td style="text-align: left;"><code>nums = [1, -1]</code></td><td style="text-align: left;"><code>[]</code></td><td style="text-align: left;">Tests a two-element array.</td></tr><tr><td style="text-align: left;"><code>nums = [0, 0, 0]</code></td><td style="text-align: left;"><code>[0, 0, 0]</code></td><td style="text-align: left;">Tests an array where all three of its values are the same.</td></tr><tr><td style="text-align: left;"><code>nums = [1, 0, 1]</code></td><td style="text-align: left;"><code>[]</code></td><td style="text-align: left;">Tests an array with no triplets that sum to 0.</td></tr><tr><td style="text-align: left;"><code>nums = [0, 0, 1, -1, 1, -1]</code></td><td style="text-align: left;"><code>[-1, 0, 1]</code></td><td style="text-align: left;">Tests an array with duplicate triplets.</td></tr></tbody></table></div>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../coding-patterns.html">← Course Contents</a>
+        <a href="shift-zeros-to-the-end.html">← Previous</a>
+        
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

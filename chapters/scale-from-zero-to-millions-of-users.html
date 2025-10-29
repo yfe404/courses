@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>02 - Scale From Zero To Millions Of Users</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="join-the-community.html">← Previous</a>
+        <a href="back-of-the-envelope-estimation.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">02</span> Scale From Zero To Millions Of Users
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/system-design-interview/scale-from-zero-to-millions-of-users" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">02</strong><h1>Scale From Zero To Millions Of Users</h1></header><p>Designing a system that supports millions of users is challenging, and it is a journey that requires continuous refinement and endless improvement. In this chapter, we build a system that supports a single user and gradually scale it up to serve millions of users. After reading this chapter, you will master a handful of techniques that will help you to crack the system design interview questions.</p>
+<h2 id="single-server-setup">Single server setup</h2>
+<p>A journey of a thousand miles begins with a single step, and building a complex system is no different. To start with something simple, everything is running on a single server. Figure 1 shows the illustration of a single server setup where everything is running on one server: web app, database, cache, etc.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified client-server architecture with DNS resolution.  A rounded rectangle labeled 'User' contains icons for a 'Web browser' and a 'Mobile app.'  The web browser requests the website using the domain name 'www.mysite.com,' while the mobile app uses 'api.mysite.com.' Both requests are directed to a DNS server (represented by a globe with 'DNS' inscribed), which resolves the domain names into IP addresses.  The IP address is then sent back to the user's devices.  These IP addresses then direct the requests to a single 'Web server' (represented by a green rectangle) within a dashed-line box, which handles both the website requests ('www.mysite.com') and the API requests ('api.mysite.com') from the web browser and mobile app respectively.  The arrows indicate the direction of information flow, showing the requests from the user, the DNS lookup, and the responses from the web server." width="500" height="292" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-1-WCFZBBLA.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 1</figcaption></div></figure>
+<p>To understand this setup, it is helpful to investigate the request flow and traffic source. Let us first look at the request flow (Figure 2).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified client-server architecture diagram illustrating the process of accessing a website.  A user, represented by a web browser and a mobile app icons within a rounded rectangle labeled 'User,' initiates the process.  The user's device first sends a request (1) to a DNS server with the domain name 'api.mysite.com'. The DNS server responds (2) with the IP address '15.125.23.214'.  The user's device then uses this IP address (3) to connect to a web server, depicted as a green rectangle labeled 'Web server' within a dashed-line box.  The web server sends back an HTML page (4) to the user's device, completing the request.  The arrows indicate the direction of information flow, showing the request and response between the user's device, the DNS server, and the web server.  Numbers in circles correspond to the steps in the process." width="500" height="287" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-2-GPY73ZNO.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 2</figcaption></div></figure>
+<p>1. Users access websites through domain names, such as api.mysite.com. Usually, the Domain Name System (DNS) is a paid service provided by 3rd parties and not hosted by our servers.</p>
+<p>2. Internet Protocol (IP) address is returned to the browser or mobile app. In the example, IP address 15.125.23.214 is returned.</p>
+<p>3. Once the IP address is obtained, Hypertext Transfer Protocol (HTTP) [1] requests are sent directly to your web server.</p>
+<p>4. The web server returns HTML pages or JSON response for rendering.</p>
+<p>Next, let us examine the traffic source. The traffic to your web server comes from two sources: web application and mobile application.</p>
+<ul>
+<li>
+<p>Web application: it uses a combination of server-side languages (Java, Python, etc.) to handle business logic, storage, etc., and client-side languages (HTML and JavaScript) for presentation.</p>
+</li>
+<li>
+<p>Mobile application: HTTP protocol is the communication protocol between the mobile app and the web server. JavaScript Object Notation (JSON) is commonly used API response format to transfer data due to its simplicity. An example of the API response in JSON format is shown below:</p>
+</li>
+</ul>
+<p><em>GET /users/12&nbsp;– Retrieve user object for id = 12</em></p>
+<pre><code>{
+   "id":12,
+   "firstName":"John",
+   "lastName":"Smith",
+   "address":{
+      "streetAddress":"21 2nd Street",
+      "city":"New York",
+      "state":"NY",
+      "postalCode":10021
+   },
+   "phoneNumbers":[
+      "212 555-1234",
+      "646 555-4567"
+   ]
+}
+</code></pre>
+<h2 id="database">Database</h2>
+<p>With the growth of the user base, one server is not enough, and we need multiple servers: one for web/mobile traffic, the other for the database (Figure 3). Separating web/mobile traffic (web tier) and database (data tier) servers allows them to be scaled independently.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture diagram showing the interaction between a user, a website, and a database.  A user, accessing via either a web browser or a mobile app, initiates a request to `www.mysite.com`. This domain name is resolved to an IP address via a DNS (Domain Name System) server. The request then reaches a web server, labeled as such, which handles `www.mysite.com` requests.  Simultaneously, the mobile app makes a request to `api.mysite.com`, which also points to the same web server. The web server acts as an intermediary, sending `read/write/update` requests to a database (labeled 'DB') and receiving 'return data' in response.  The dashed lines around the web server and database suggest these are separate components or services.  The overall flow depicts a typical client-server architecture with a database backend." loading="lazy" width="600" height="335" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-3-2P4MNG7C.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 3</figcaption></div></figure>
+<h3 id="which-databases-to-use">Which databases to use?</h3>
+<p>You can choose between a traditional relational database and a non-relational database. Let us examine their differences.</p>
+<p>Relational databases are also called a relational database management system (RDBMS) or SQL database. The most popular ones are MySQL, Oracle database, PostgreSQL, etc. Relational databases represent and store data in tables and rows. You can perform join operations using SQL across different database tables.</p>
+<p>Non-Relational databases are also called NoSQL databases. Popular ones are CouchDB, Neo4j, Cassandra, HBase, Amazon DynamoDB, etc. [2]. These databases are grouped into four categories: key-value stores, graph stores, column stores, and document stores. Join operations are generally not supported in non-relational databases.</p>
+<p>For most developers, relational databases are the best option because they have been around for over 40 years and historically, they have worked well. However, if relational databases are not suitable for your specific use cases, it is critical to explore beyond relational databases. Non-relational databases might be the right choice if:</p>
+<ul>
+<li>
+<p>Your application requires super-low latency.</p>
+</li>
+<li>
+<p>Your data are unstructured, or you do not have any relational data.</p>
+</li>
+<li>
+<p>You only need to serialize and deserialize data (JSON, XML, YAML, etc.).</p>
+</li>
+<li>
+<p>You need to store a massive amount of data.</p>
+</li>
+</ul>
+
+<h2 id="vertical-scaling-vs-horizontal-scaling">Vertical scaling vs horizontal scaling</h2>
+<p>Vertical scaling, referred to as “scale up”, means the process of adding more power (CPU, RAM, etc.) to your servers. Horizontal scaling, referred to as “scale-out”, allows you to scale by adding more servers into your pool of resources.</p>
+<p>When traffic is low, vertical scaling is a great option, and the simplicity of vertical scaling is its main advantage. Unfortunately, it comes with serious limitations.</p>
+<ul>
+<li>
+<p>Vertical scaling has a hard limit. It is impossible to add unlimited CPU and memory to a single server.</p>
+</li>
+<li>
+<p>Vertical scaling does not have failover and redundancy. If one server goes down, the website/app goes down with it completely.</p>
+</li>
+</ul>
+<p>Horizontal scaling is more desirable for large scale applications due to the limitations of vertical scaling.</p>
+<p>In the previous design, users are connected to the web server directly. Users will unable to access the website if the web server is offline. In another scenario, if many users access the web server simultaneously and it reaches the web server’s load limit, users generally experience slower response or fail to connect to the server. A load balancer is the best technique to address these problems.</p>
+<h2 id="load-balancer">Load balancer</h2>
+<p>A load balancer evenly distributes incoming traffic among web servers that are defined in a load-balanced set. Figure 4 shows how a load balancer works.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified client-server architecture with load balancing.  A user, accessing via either a web browser or mobile app, initiates a request to `mywebsite.com`. This request first goes to a DNS server, which resolves the domain name `mywebsite.com` to its corresponding public IP address, `88.88.88.1`.  This IP address points to a load balancer, which receives the request from the user over the public IP. The load balancer then forwards the request to one of two servers (Server1 or Server2) using their private IP addresses (`10.0.0.1` and `10.0.0.2` respectively), distributing the load between them.  A table shows the domain name and its associated IP address mapping used by the DNS server.  The two servers are grouped within a dashed-line box, visually representing their internal network.  The arrows indicate the direction of information flow." loading="lazy" width="600" height="506" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-4-2EGRRANZ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 4</figcaption></div></figure>
+<p>As shown in Figure 4, users connect to the public IP of the load balancer directly. With this setup, web servers are unreachable directly by clients anymore. For better security, private IPs are used for communication between servers. A private IP is an IP address reachable only between servers in the same network; however, it is unreachable over the internet. The load balancer communicates with web servers through private IPs.</p>
+<p>In Figure 4, after a load balancer and a second web server are added, we successfully solved no failover issue and improved the availability of the web tier. Details are explained below:</p>
+<ul>
+<li>
+<p>If server 1 goes offline, all the traffic will be routed to server 2. This prevents the website from going offline. We will also add a new healthy web server to the server pool to balance the load.</p>
+</li>
+<li>
+<p>If the website traffic grows rapidly, and two servers are not enough to handle the traffic, the load balancer can handle this problem gracefully. You only need to add more servers to the web server pool, and the load balancer automatically starts to send requests to them.</p>
+</li>
+</ul>
+<p>Now the web tier looks good, what about the data tier? The current design has one database, so it does not support failover and redundancy. Database replication is a common technique to address those problems. Let us take a look.</p>
+<h2 id="database-replication">Database replication</h2>
+<p>Quoted from Wikipedia: “Database&nbsp;replication can be used in many&nbsp;database management systems, usually with a master/slave relationship between the original (master) and the copies (slaves)” [3].</p>
+<p>A master database generally only supports write operations. A slave database gets copies of the data from the master database and only supports read operations. All the data-modifying commands like insert, delete, or update must be sent to the master database. Most applications require a much higher ratio of reads to writes; thus, the number of slave databases in a system is usually larger than the number of master databases. Figure 5 shows a master database with multiple slave databases.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a database replication architecture.  At the top, a cluster of three green boxes labeled 'Web servers' is depicted.  These web servers connect via dark-blue lines to a central, blue cylindrical database labeled 'Master DB,' sending 'writes' to it.  The 'Master DB' then replicates its data via dark-blue lines labeled 'DB replication' to three other blue cylindrical databases, labeled 'Slave DB1,' 'Slave DB2,' and 'Slave DB3.'  The web servers also connect to these slave databases via green lines, performing 'reads' from them.  This setup indicates a master-slave replication strategy where the master database handles all write operations, and the slave databases handle read operations, distributing the read load and improving performance.  The entire system is enclosed within a light-blue rounded rectangle." loading="lazy" width="500" height="528" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/scale-from-zero-to-millions-of-users/figure-1-5-TJLQVE5N.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 5</figcaption></div></figure>
+<p>Advantages of database replication:</p>
+<ul>
+<li>
+<p>Better performance: In the master-slave model, all writes and updates happen in master nodes; whereas, read operations are distributed across slave nodes. This model improves performance because it allows more queries to be processed in parallel.</p>
+</li>
+<li>
+<p>Reliability: If one of your database servers is destroyed by a natural disaster, such as a typhoon or an earthquake, data is still preserved. You do not need to worry about data loss because data is replicated across multiple locations.</p>
+</li>
+<li>
+<p>High availability: By replicating data across different locations, your website remains in operation even if a database is offline as you can access data stored in another database server.</p>
+</li>
+</ul>
+<p>In the previous section, we discussed how a load balancer helped to improve system availability. We ask the same question here: what if one of the databases goes offline? The architectural design discussed in Figure 5 can handle this case:</p>
+<ul>
+<li>
+<p>If only one slave database is available and it goes offline, read operations will be directed to the master database temporarily. As soon as the issue is found, a new slave database will replace the old one. In case multiple slave databases are available, read operations are redirected to other healthy slave databases. A new database server will replace the old one.</p>
+</li>
+<li>
+<p>If the master database goes offline, a slave database will be promoted to be the new master. All the database operations will be temporarily executed on the new master database. A new slave database will replace the old one for data replication immediately. In production systems, promoting a new master is more complicated as the data in a slave database might not be up to date. The missing data needs to be updated by running data recovery scripts. Although some other replication methods like multi-masters and circular replication could help, those setups are more complicated; and their discussions are beyond the scope of this course. Interested readers should refer to the listed reference materials [4] [5].</p>
+</li>
+</ul>
+<p>Figure 6 shows the system design after adding the load balancer and database replication.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified web application architecture.  A user, accessing via a web browser or mobile app, initiates a request to `www.mysite.com`. This domain name is resolved to an IP address via a DNS server. The request then reaches a load balancer, which distributes traffic across two web servers (`Server 1` and `Server 2`) labeled as the 'Web tier'.  These servers communicate with a database system ('Data tier') consisting of a master database (`Master DB`) and a slave database (`Slave DB`).  The web servers send write requests to the master database and read requests to either the master or slave database. The master database replicates data to the slave database, ensuring data consistency and redundancy.  The load balancer uses `api.mysite.com` as the internal endpoint for communication with the web servers.  The entire architecture is visually divided into three tiers: the user tier (user and their access methods), the web tier (load balancer and web servers), and the data tier (master and slave databases).  The arrows indicate the flow of requests and data between components, with labels like 'Write,' 'Read,' and 'Replicate' clarifying the type of interaction." loading="lazy" width="500" height="529" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-6-L2YNDDKF.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 6</figcaption></div></figure>
+<p>Let us take a look at the design:</p>
+<ul>
+<li>
+<p>A user gets the IP address of the load balancer from DNS.</p>
+</li>
+<li>
+<p>A user connects the load balancer with this IP address.</p>
+</li>
+<li>
+<p>The HTTP request is routed to either Server 1 or Server 2.</p>
+</li>
+<li>
+<p>A web server reads user data from a slave database.</p>
+</li>
+<li>
+<p>A web server routes any data-modifying operations to the master database. This includes write, update, and delete operations.</p>
+</li>
+</ul>
+<p>Now, you have a solid understanding of the web and data tiers, it is time to improve the load/response time. This can be done by adding a cache layer and shifting static content (JavaScript/CSS/image/video files) to the content delivery network (CDN).</p>
+<h2 id="cache">Cache</h2>
+<p>A cache is a temporary storage area that stores the result of expensive responses or frequently accessed data in memory so that subsequent requests are served more quickly. As illustrated in Figure 6, every time a new web page loads, one or more database calls are executed to fetch data. The application performance is greatly affected by calling the database repeatedly. The cache can mitigate this problem.</p>
+<h3 id="cache-tier">Cache tier</h3>
+<p>The cache tier is a temporary data store layer, much faster than the database. The benefits of having a separate cache tier include better system performance, ability to reduce database workloads, and the ability to scale the cache tier independently. Figure 7 shows a possible setup of a cache server:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified system architecture illustrating data retrieval from a cache and database.  The diagram shows three main components: a green rectangular 'Web server,' a blue square labeled 'CACHE' representing a cache, and a blue cylindrical 'Database' component labeled 'DB.'  A green arrow connects the cache to the web server, labeled '1. If data exists in cache, read data from cache,' indicating data flows from the cache to the web server. A blue arrow connects the database to the cache, labeled '2.1 If data doesn't exist in cache,...,' showing data retrieval from the database to the cache when the data is not found in the cache. Another blue arrow connects the cache back to the web server, labeled '2.2 Return data to the web server,' indicating the data's return path to the web server after being fetched either from the cache or the database.  The overall flow depicts a common caching strategy where the web server first checks the cache; if the data is present, it's directly returned; otherwise, the database is queried, the data is retrieved, stored in the cache, and then returned to the web server." loading="lazy" width="750" height="115" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/scale-from-zero-to-millions-of-users/figure-1-7-GGNXNZX6.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 7</figcaption></div></figure>
+<p>After receiving a request, a web server first checks if the cache has the available response. If it has, it sends data back to the client. If not, it queries the database, stores the response in cache, and sends it back to the client. This caching strategy is called a read-through cache. Other caching strategies are available depending on the data type, size, and access patterns. A previous study explains how different caching strategies work [6].</p>
+<p>Interacting with cache servers is simple because most cache servers provide APIs for common programming languages. The following code snippet shows typical Memcached APIs:</p>
+<pre><code>SECONDS = 1
+cache.set('myKey, 'hi there', 3600 * SECONDS)
+cache.get('myKey')
+</code></pre>
+<h3 id="considerations-for-using-cache">Considerations for using cache</h3>
+<p>Here are a few considerations for using a cache system:</p>
+<ul>
+<li>
+<p>Decide when to use cache. Consider using cache when data is read frequently but modified infrequently. Since cached data is stored in volatile memory, a cache server is not ideal for persisting data. For instance, if a cache server restarts, all the data in memory is lost. Thus, important data should be saved in persistent data stores.</p>
+</li>
+<li>
+<p>Expiration policy. It is a good practice to implement an expiration policy. Once cached data is expired, it is removed from the cache. When there is no expiration policy, cached data will be stored in the memory permanently. It is advisable not to make the expiration date too short as this will cause the system to reload data from the database too frequently. Meanwhile, it is advisable not to make the expiration date too long as the data can become stale.</p>
+</li>
+<li>
+<p>Consistency: This involves keeping the data store and the cache in sync. Inconsistency can happen because data-modifying operations on the data store and cache are not in a single transaction. When scaling across multiple regions, maintaining consistency between the data store and cache is challenging. For further details, refer to the paper titled “Scaling Memcache at Facebook” published by Facebook [7].</p>
+</li>
+<li>
+<p>Mitigating failures: A single cache server represents a potential single point of failure (SPOF), defined in Wikipedia as follows: “A single point of failure (SPOF) is a part of a system that, if it fails, will stop the entire system from working” [8]. As a result, multiple cache servers across different data centers are recommended to avoid SPOF. Another recommended approach is to overprovision the required memory by certain percentages. This provides a buffer as the memory usage increases.</p>
+</li>
+</ul>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating a single point of failure.  Three client devices, labeled 'User A,' 'User B,' and 'User C,' each represented by a laptop icon, are connected via blue lines to a single, vertically oriented, light-green rectangular box labeled 'Single Server.'  Arrows on the lines indicate the direction of data flow, showing that each user is sending requests to the single server. Above the server, the text 'Single Point of Failure' highlights the vulnerability of this architecture; if the single server fails, all three users will lose access to the service.  The diagram's simplicity emphasizes the central role of the single server and the risk associated with its potential failure." loading="lazy" width="400" height="276" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(400px, 100vw), (max-width: 1200px) min(400px, 80vw), min(400px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-8-AVKYQBAQ.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 8</figcaption></div></figure>
+<ul>
+<li>Eviction Policy: Once the cache is full, any requests to add items to the cache might cause existing items to be removed. This is called cache eviction. Least-recently-used (LRU) is the most popular cache eviction policy. Other eviction policies, such as the Least Frequently Used (LFU) or First in First Out (FIFO), can be adopted to satisfy different use cases.</li>
+</ul>
+<h2 id="content-delivery-network-cdn">Content delivery network (CDN)</h2>
+<p>A CDN is a network of geographically dispersed servers used to deliver static content. CDN servers cache static content like images, videos, CSS, JavaScript files, etc.</p>
+<p>Dynamic content caching is a relatively new concept and beyond the scope of this course. It enables the caching of HTML pages that are based on request path, query strings, cookies, and request headers. Refer to the article mentioned in reference material [9] for more about this. This course focuses on how to use CDN to cache static content.</p>
+<p>Here is how CDN works at the high-level: when a user visits a website, a CDN server closest to the user will deliver static content. Intuitively, the further users are from CDN servers, the slower the website loads. For example, if CDN servers are in San Francisco, users in Los Angeles will get content faster than users in Europe. Figure 9 is a great example that shows how CDN improves load time.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating the interaction between clients, a CDN (Content Delivery Network), and an origin server.  Two rectangular boxes labeled 'Client' represent users requesting content.  One client connects directly to a rectangular box labeled 'Origin,' taking 120ms, representing the time it takes to retrieve data from the origin server. The other client connects to a light-blue cloud icon labeled 'CDN' (with a lightning bolt inside, symbolizing speed), which takes 30ms.  This CDN then connects to the 'Origin' server.  The text 'Viewer does not support full SVG 1.1' is present below the CDN, indicating a potential limitation of the visualization tool used to create the diagram.  Arrows indicate the direction of data flow, showing that the CDN acts as an intermediary, caching content to reduce latency for clients compared to directly accessing the origin server.  The numbers '30ms' and '120ms' represent the latency in milliseconds for each connection path." loading="lazy" width="500" height="250" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/scale-from-zero-to-millions-of-users/figure-1-9-SA7OOP7O.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 9</figcaption></div></figure>
+<p>Figure 10 demonstrates the CDN workflow.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture illustrating how a Content Delivery Network (CDN) serves images to users.  Two users, labeled 'User A' and 'User B,' are depicted as laptops.  Each user requests an image ('image.png') from the CDN, represented as a light-blue cloud with a lightning bolt symbolizing speed. Solid arrows indicate the requests (labeled '1. get image.png' and '5. get image.png') and responses ('4. return image.png' and '6. return image.png') between the users and the CDN.  If the CDN doesn't have the image, dashed arrows show a request ('2. if not in CDN, get image.png from server') to a green rectangular 'Server' component, which then sends the image to the CDN ('3. store image.png in CDN').  This ensures that subsequent requests for the same image from other users are served quickly from the CDN's cache, improving performance and reducing load on the server." loading="lazy" width="600" height="193" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-10-E6HDAMPH.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 10</figcaption></div></figure>
+<p>1. User A tries to get image.png by using an image URL. The URL’s domain is provided by the CDN provider. The following two image URLs are samples used to demonstrate what image URLs look like on Amazon and Akamai CDNs:</p>
+<ul>
+<li>
+<p><code>https://mysite.cloudfront.net/logo.jpg</code></p>
+</li>
+<li>
+<p><code>https://mysite.akamai.com/image-manager/img/logo.jpg</code></p>
+</li>
+</ul>
+<p>2. If the CDN server does not have image.png in the cache, the CDN server requests the file from the origin, which can be a web server or online storage like Amazon S3.</p>
+<p>3. The origin returns image.png to the CDN server, which includes optional HTTP header Time-to-Live (TTL) which describes how long the image is cached.</p>
+<p>4. The CDN caches the image and returns it to User A. The image remains cached in the CDN until the TTL expires.</p>
+<p>5. User B sends a request to get the same image.</p>
+<p>6. The image is returned from the cache as long as the TTL has not expired.</p>
+<h3 id="considerations-of-using-a-cdn">Considerations of using a CDN</h3>
+<ul>
+<li>
+<p>Cost: CDNs are run by third-party providers, and you are charged for data transfers in and out of the CDN. Caching infrequently used assets provides no significant benefits so you should consider moving them out of the CDN.</p>
+</li>
+<li>
+<p>Setting an appropriate cache expiry: For time-sensitive content, setting a cache expiry time is important. The cache expiry time should neither be too long nor too short. If it is too long, the content might no longer be fresh. If it is too short, it can cause repeat reloading of content from origin servers to the CDN.</p>
+</li>
+<li>
+<p>CDN fallback: You should consider how your website/application copes with CDN failure. If there is a temporary CDN outage, clients should be able to detect the problem and request resources from the origin.</p>
+</li>
+<li>
+<p>Invalidating files: You can remove a file from the CDN before it expires by performing one of the following operations:</p>
+</li>
+<li>
+<p>Invalidate the CDN object using APIs provided by CDN vendors.</p>
+</li>
+<li>
+<p>Use object versioning to serve a different version of the object. To version an object, you can add a parameter to the URL, such as a version number. For example, version number 2 is added to the query string: image.png?v=2.</p>
+</li>
+</ul>
+<p>Figure 11 shows the design after the CDN and cache are added.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating a typical web application deployment.  The diagram starts with a user accessing the application via a web browser or mobile app, which then sends a request to a DNS server.  The DNS resolves the domain names (www.mysite.com and api.mysite.com) and directs the request to a load balancer. The load balancer distributes traffic across two web servers (Server1 and Server2) within a 'Web tier'. These servers communicate with a database system in a 'Data tier', consisting of a master database (Master DB) and a slave database (Slave DB) with replication occurring from the master to the slave.  Both web servers also connect to a separate cache (labeled 'CACHE') for improved performance.  The entire system is connected to a CDN (Content Delivery Network) for faster content delivery to users globally.  Solid lines represent primary data flow, while dashed lines indicate secondary or replicated data flow.  Green lines highlight the connection between the web servers and the cache." loading="lazy" width="600" height="620" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-11-VI5Z74Q2.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 11</figcaption></div></figure>
+<p>1. Static assets (JS, CSS, images, etc.,) are no longer served by web servers. They are fetched from the CDN for better performance.</p>
+<p>2. The database load is lightened by caching data.</p>
+<h2 id="stateless-web-tier">Stateless web tier</h2>
+<p>Now it is time to consider scaling the web tier horizontally. For this, we need to move state (for instance user session data) out of the web tier. A good practice is to store session data in the persistent storage such as relational database or NoSQL. Each web server in the cluster can access state data from databases. This is called stateless web tier.</p>
+<h3 id="stateful-architecture">Stateful architecture</h3>
+<p>A stateful server and stateless server has some key differences. A stateful server remembers client data (state) from one request to the next. A stateless server keeps no state information.</p>
+<p>Figure 12 shows an example of a stateful architecture.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram showing three separate servers (Server 1, Server 2, Server 3) each handling a different user (User A, User B, User C respectively).  Each user, represented by a laptop icon, sends an 'http request' to their designated server.  The servers are depicted as rounded rectangles, each containing a green rectangle symbolizing a database and a list of data stored: session data and a profile image for the corresponding user.  The connections between the users and servers are shown as blue arrows indicating the direction of the HTTP requests.  There is no apparent interaction or data flow between the servers themselves; each operates independently to serve its assigned user." loading="lazy" width="700" height="407" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(700px, 100vw), (max-width: 1200px) min(700px, 80vw), min(700px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-12-WTWFBLWX.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 12</figcaption></div></figure>
+<p>In Figure 12, user A’s session data and profile image are stored in Server 1. To authenticate User A, HTTP requests must be routed to Server 1. If a request is sent to other servers like Server 2, authentication would fail because Server 2 does not contain User A’s session data. Similarly, all HTTP requests from User B must be routed to Server 2; all requests from User C must be sent to Server 3.</p>
+<p>The issue is that every request from the same client must be routed to the same server. This can be done with sticky sessions in most load balancers [10]; however, this adds the overhead. Adding or removing servers is much more difficult with this approach. It is also challenging to handle server failures.</p>
+<h3 id="stateless-architecture">Stateless architecture</h3>
+<p>Figure 13 shows the stateless architecture.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified client-server architecture. Three clients, labeled 'User A,' 'User B,' and 'User C,' each represented by a laptop icon, send 'http request' messages (indicated by blue arrows with labels) to a cluster of three 'Web servers' (depicted as green vertical rectangles within a dashed blue box).  The web servers collectively process these requests.  After processing, the web servers then access a 'Shared Storage' (represented by a blue cylinder containing curly braces `{}`), indicated by a downward blue arrow labeled 'fetch state.' This shared storage likely contains data needed to fulfill the user requests.  The overall diagram illustrates a system where multiple users interact with a set of web servers that share a common data store." loading="lazy" width="500" height="446" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(500px, 100vw), (max-width: 1200px) min(500px, 80vw), min(500px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-13-WILHQ2SA.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 13</figcaption></div></figure>
+<p>In this stateless architecture, HTTP requests from users can be sent to any web servers, which fetch state data from a shared data store. State data is stored in a shared data store and kept out of web servers. A stateless system is simpler, more robust, and scalable.</p>
+<p>Figure 14 shows the updated design with a stateless web tier.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a web application.  Users access the application via web browsers or mobile apps, initially resolving `www.mysite.com` (for web) or `api.mysite.com` (for mobile) through a DNS server.  These requests are then routed to a CDN (Content Delivery Network) for faster content delivery.  The requests subsequently reach a load balancer, distributing traffic across four application servers (Server1-Server4) which are auto-scaled (indicated by '① Auto scale').  These servers connect to a database system consisting of a master database and two slave databases, with replication occurring between the master and slaves.  Additionally, the servers interact with a cache for improved performance and a NoSQL database, likely for specific data storage needs.  Connections between the servers and databases are shown as dashed lines, suggesting asynchronous communication.  The green line indicates a connection from Server3 to the cache, while the purple line shows a connection from Server3 to the NoSQL database.  The blue lines represent the main flow of requests and data." loading="lazy" width="600" height="566" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-14-CCBCQMO6.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 14</figcaption></div></figure>
+<p>In Figure 14, we move the session data out of the web tier and store them in the persistent data store. The shared data store could be a relational database, Memcached/Redis, NoSQL, etc. The NoSQL data store is chosen as it is easy to scale. Autoscaling means adding or removing web servers automatically based on the traffic load. After the state data is removed out of web servers, auto-scaling of the web tier is easily achieved by adding or removing servers based on traffic load.</p>
+<p>Your website grows rapidly and attracts a significant number of users internationally. To improve availability and provide a better user experience across wider geographical areas, supporting multiple data centers is crucial.</p>
+<h2 id="data-centers">Data centers</h2>
+<p>Figure 15 shows an example setup with two data centers. In normal operation, users are geoDNS-routed, also known as geo-routed, to the closest data center, with a split traffic of <em>x%</em> in US-East and <em>(100 – x)%</em> in US-West. geoDNS is a DNS service that allows domain names to be resolved to IP addresses based on the location of a user.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a website.  A user, accessing via web browser (www.mysite.com) or mobile app (api.mysite.com), initiates a request that first resolves through a DNS server.  The request then proceeds to a CDN (Content Delivery Network) for caching and faster delivery.  From the CDN, the request hits a load balancer, which distributes traffic across two geographically separate data centers (DC1: US-East and DC2: US-West) based on geo-routing. Each data center contains multiple web servers, which in turn access databases and caches for data retrieval.  The web servers are connected to their respective databases and caches.  Additionally, both data centers' web servers connect to a central NoSQL database via thick purple lines, suggesting a shared data layer or a specific data synchronization mechanism.  The connections between web servers and their respective caches are shown in green and blue, while the connections to the NoSQL database are shown in purple.  The load balancer uses geo-routing to direct requests to the closest data center, optimizing latency." loading="lazy" width="600" height="596" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-15-GICUI26J.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 15</figcaption></div></figure>
+<p>In the event of any significant data center outage, we direct all traffic to a healthy data center. In Figure 16, data center 2 (US-West) is offline, and 100% of the traffic is routed to data center 1 (US-East).</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a website, `www.mysite.com`, and its API, `api.mysite.com`.  Users access the system via web browsers and mobile apps, initially resolving the domain name through a DNS server.  Traffic is then directed to a load balancer, which distributes requests across two data centers (DC1 in US-East and DC2 in US-West).  The load balancer shows a red 'X' indicating that it's not directing traffic to DC2 (100% traffic goes to DC1). Each data center contains multiple web servers, which in turn access databases and caches.  A dark purple line shows that both data centers' web servers also access a NoSQL database.  The entire system is connected to a CDN (Content Delivery Network) for faster content delivery.  The diagram clearly illustrates the flow of user requests, the distribution of load, and the interaction between different components of the system, including the databases, caches, and the NoSQL database." loading="lazy" width="600" height="586" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-16-DUWJTBCU.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 16</figcaption></div></figure>
+<p>Several technical challenges must be resolved to achieve multi-data center setup:</p>
+<ul>
+<li>
+<p>Traffic redirection: Effective tools are needed to direct traffic to the correct data center. GeoDNS can be used to direct traffic to the nearest data center depending on where a user is located.</p>
+</li>
+<li>
+<p>Data synchronization: Users from different regions could use different local databases or caches. In failover cases, traffic might be routed to a data center where data is unavailable. A common strategy is to replicate data across multiple data centers. A previous study shows how Netflix implements asynchronous multi-data center replication [11].</p>
+</li>
+<li>
+<p>Test and deployment: With multi-data center setup, it is important to test your website/application at different locations. Automated deployment tools are vital to keep services consistent through all the data centers [11].</p>
+</li>
+</ul>
+<p>To further scale our system, we need to decouple different components of the system so they can be scaled independently. Messaging queue is a key strategy employed by many real-world distributed systems to solve this problem.</p>
+<h2 id="message-queue">Message queue</h2>
+<p>A message queue is a durable component, stored in memory, that supports asynchronous communication. It serves as a buffer and distributes asynchronous requests. The basic architecture of a message queue is simple. Input services, called producers/publishers, create messages, and publish them to a message queue. Other services or servers, called consumers/subscribers, connect to the queue, and perform actions defined by the messages. The model is shown in Figure 17.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a producer-consumer architecture using a message queue.  A rectangular box labeled 'Producer' is connected via a solid arrow labeled 'publish' to a hexagonal box representing a 'Message Queue'.  Inside the message queue are three envelope icons, symbolizing messages.  The message queue is connected to a rectangular box labeled 'Consumer' via two arrows. A solid arrow labeled 'consume' indicates the flow of messages from the queue to the consumer. A dashed arrow labeled 'subscribe' points from the consumer back to the message queue, illustrating the consumer's subscription to the queue for receiving messages.  Below the diagram, the text 'Viewer MessageQueue.svg 1.1.1' indicates the diagram's source and version." loading="lazy" width="600" height="94" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/scale-from-zero-to-millions-of-users/figure-1-17-J2NLNRNY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 17</figcaption></div></figure>
+<p>Decoupling makes the message queue a preferred architecture for building a scalable and reliable application. With the message queue, the producer can post a message to the queue when the consumer is unavailable to process it. The consumer can read messages from the queue even when the producer is unavailable.</p>
+<p>Consider the following use case: your application supports photo customization, including cropping, sharpening, blurring, etc. Those customization tasks take time to complete. In Figure 18, web servers publish photo processing jobs to the message queue. Photo processing workers pick up jobs from the message queue and asynchronously perform photo customization tasks. The producer and the consumer can be scaled independently. When the size of the queue becomes large, more workers are added to reduce the processing time. However, if the queue is empty most of the time, the number of workers can be reduced.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram illustrating a message queue used for photo processing.  On the left, a group of three vertically stacked green rectangles labeled 'Producer' and further described as 'Web servers' are depicted within a dashed light-blue box.  These represent web servers that publish messages. A solid dark-blue arrow labeled 'publish' connects the Producer to a central component: a dark-blue, trapezoidal box containing three icons resembling envelopes, representing a message queue labeled 'queue for photo processing'.  A second solid dark-blue arrow labeled 'consume' extends from the queue to a group of three vertically stacked green rectangles on the right, labeled 'Consumer' and further described as 'Photo processing workers', also enclosed in a dashed light-blue box.  These represent worker servers that consume messages from the queue to process photos. The overall flow shows web servers publishing photo processing tasks to a queue, which are then consumed and processed by dedicated worker servers." loading="lazy" width="600" height="122" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/scale-from-zero-to-millions-of-users/figure-1-18-P3WDK5LN.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 18</figcaption></div></figure>
+<h2 id="logging-metrics-automation">Logging, metrics, automation</h2>
+<p>When working with a small website that runs on a few servers, logging, metrics, and automation support are good practices but not a necessity. However, now that your site has grown to serve a large business, investing in those tools is essential.</p>
+<p>Logging: Monitoring error logs is important because it helps to identify errors and problems in the system. You can monitor error logs at per server level or use tools to aggregate them to a centralized service for easy search and viewing.</p>
+<p>Metrics: Collecting different types of metrics help us to gain business insights and understand the health status of the system. Some of the following metrics are useful:</p>
+<ul>
+<li>
+<p>Host level metrics: CPU, Memory, disk I/O, etc.</p>
+</li>
+<li>
+<p>Aggregated level metrics: for example, the performance of the entire database tier, cache tier, etc.</p>
+</li>
+<li>
+<p>Key business metrics: daily active users, retention, revenue, etc.</p>
+</li>
+</ul>
+<p>Automation: When a system gets big and complex, we need to build or leverage automation tools to improve productivity. Continuous integration is a good practice, in which each code check-in is verified through automation, allowing teams to detect problems early. Besides, automating your build, test, deploy process, etc. could improve developer productivity significantly.</p>
+<p>Adding message queues and different tools</p>
+<p>Figure 19 shows the updated design. Due to the space constraint, only one data center is shown in the figure.</p>
+<p>1. The design includes a message queue, which helps to make the system more loosely coupled and failure resilient.</p>
+<p>2. Logging, monitoring, metrics, and automation tools are included.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a web application.  A user, accessing via web browser (www.mysite.com) or mobile app (api.mysite.com), initiates a request that first goes through a DNS server.  The request then reaches a load balancer, distributing traffic to multiple web servers within a data center (DC1).  The web servers interact with databases and caches for data retrieval.  A green arrow shows the web servers using caches. A blue arrow shows the web servers using databases.  A purple arrow indicates that after processing, the web servers send messages to a message queue.  These messages are then processed by a set of workers, which subsequently write data to a NoSQL database.  The entire system is fronted by a CDN (Content Delivery Network) for faster content delivery.  Finally, a separate component labeled 'Tools' (2) at the bottom shows monitoring, logging, metrics, and automation functionalities, suggesting a robust operational monitoring and management system." loading="lazy" width="600" height="762" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-19-MOPDW7TD.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 19</figcaption></div></figure>
+<p>As the data grows every day, your database gets more overloaded. It is time to scale the data tier.</p>
+<h2 id="database-scaling">Database scaling</h2>
+<p>There are two broad approaches for database scaling: vertical scaling and horizontal scaling.</p>
+<h3 id="vertical-scaling">Vertical scaling</h3>
+<p>Vertical scaling, also known as scaling up, is the scaling by adding more power (CPU, RAM, DISK, etc.) to an existing machine. There are some powerful database servers. According to Amazon Relational Database Service (RDS) [12], you can get a database server with 24 TB of RAM. This kind of powerful database server could store and handle lots of data. For example, stackoverflow.com in 2013 had over 10 million monthly unique visitors, but it only had 1 master database [13]. However, vertical scaling comes with some serious drawbacks:</p>
+<ul>
+<li>
+<p>You can add more CPU, RAM, etc. to your database server, but there are hardware limits. If you have a large user base, a single server is not enough.</p>
+</li>
+<li>
+<p>Greater risk of single point of failures.</p>
+</li>
+<li>
+<p>The overall cost of vertical scaling is high. Powerful servers are much more expensive.</p>
+</li>
+</ul>
+<h3 id="horizontal-scaling">Horizontal scaling</h3>
+<p>Horizontal scaling, also known as sharding, is the practice of adding more servers. Figure 20 compares vertical scaling with horizontal scaling.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a comparison between vertical and horizontal scaling in system design.  The diagram is enclosed within a dashed blue rectangle. On the left, under the label 'Vertical Scaling (Increase CPU, RAM, DISK, etc)', three vertically stacked, light-green rectangles of decreasing size represent a single server with its resources increased over time. A thick, upward-pointing blue arrow indicates the increase in resources.  To the right, under the label 'Horizontal Scaling (Add more servers)', six light-green rectangles are arranged in two rows of three, representing multiple servers added to handle increased load. A thick, rightward-pointing blue arrow indicates the addition of more servers. The word 'VS' is placed between the vertical and horizontal scaling representations, clearly indicating a comparison.  The bottom of the diagram contains the text 'Viewer does not support full SVG 1.1,' indicating a limitation of the viewer used to display the image." loading="lazy" width="600" height="414" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/scale-from-zero-to-millions-of-users/figure-1-20-VLGHMELC.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 20</figcaption></div></figure>
+<p>Sharding separates large databases into smaller, more easily managed parts called shards. Each shard shares the same schema, though the actual data on each shard is unique to the shard.</p>
+<p>Figure 21 shows an example of sharded databases. User data is allocated to a database server based on user IDs. Anytime you access data, a hash function is used to find the corresponding shard. In our example, <em>user_id % 4</em> is used as the hash function. If the result equals to 0, shard 0 is used to store and fetch data. If the result equals to 1, shard 1 is used. The same logic applies to other shards.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simple data sharding scheme.  A diamond-shaped decision node labeled 'user_id % 4' acts as a routing mechanism.  This node takes a user ID as input and performs a modulo 4 operation. The result of this operation (the remainder after dividing the user ID by 4) determines which of four cylindrical database instances (labeled 0, 1, 2, and 3) will store the data for that specific user.  A light-blue line connects the decision node to each database instance, visually representing the data flow.  Each database instance represents a shard, and the modulo operation distributes user data evenly across these four shards, improving scalability and reducing load on any single database.  The text 'Viewer does not support full SVG 1.1' at the bottom is a browser-related message unrelated to the core diagram's functionality." loading="lazy" width="400" height="275" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/scale-from-zero-to-millions-of-users/figure-1-21-ZDWDWEO5.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 21</figcaption></div></figure>
+<p>Figure 22 shows the user table in sharded databases.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a database sharding scheme.  Four cylindrical database shards, labeled 'Shard 0,' 'Shard 1,' 'Shard 2,' and 'Shard 3,' are depicted. Each shard contains a table named 'Users' with columns 'user_id...' and an unspecified second column.  The 'user_id...' column in each shard contains a subset of user IDs; Shard 0 holds IDs 0, 4, and presumably others indicated by '...'; Shard 1 holds IDs 1, 5, and others; Shard 2 holds IDs 2, 6, and others; and Shard 3 holds IDs 3, 7, and others.  The arrangement suggests a horizontal partitioning strategy where user IDs are distributed across the shards, likely based on a modulo operation or similar hashing function to ensure even distribution. There are no explicit connections drawn between the shards, implying independent access to each shard." loading="lazy" width="500" height="621" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/system-design-interview/scale-from-zero-to-millions-of-users/figure-1-22-FI2MHR5M.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 22</figcaption></div></figure>
+<p>The most important factor to consider when implementing a sharding strategy is the choice of the sharding key. Sharding key (known as a partition key) consists of one or more columns that determine how data is distributed. As shown in Figure 22, <em>“user_id”</em> is the sharding key. A sharding key allows you to retrieve and modify data efficiently by routing database queries to the correct database. When choosing a sharding key, one of the most important criteria is to choose a key that can evenly distributed data.</p>
+<p>Sharding is a great technique to scale the database but it is far from a perfect solution. It introduces complexities and new challenges to the system:</p>
+<p><strong>Resharding data</strong>: Resharding data is needed when 1) a single shard could no longer hold more data due to rapid growth. 2) Certain shards might experience shard exhaustion faster than others due to uneven data distribution. When shard exhaustion happens, it requires updating the sharding function and moving data around. Consistent hashing is a commonly used technique to solve this problem.</p>
+<p><strong>Celebrity problem</strong>: This is also called a hotspot key problem. Excessive access to a specific shard could cause server overload. Imagine data for Katy Perry, Justin Bieber, and Lady Gaga all end up on the same shard. For social applications, that shard will be overwhelmed with read operations. To solve this problem, we may need to allocate a shard for each celebrity. Each shard might even require further partition.</p>
+<p><strong>Join and de-normalization</strong>: Once a database has been sharded across multiple servers, it is hard to perform join operations across database shards. A common workaround is to de-normalize the database so that queries can be performed in a single table.</p>
+<p>In Figure 23, we shard databases to support rapidly increasing data traffic. At the same time, some of the non-relational functionalities are moved to a NoSQL data store to reduce the database load. Here is an article that covers many use cases of NoSQL [14].</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a system architecture diagram for a web application.  A user, accessing via web browser (www.mysite.com) or mobile app (api.mysite.com), initiates a request that first resolves through a DNS server. The request then goes to a CDN (Content Delivery Network) before reaching a load balancer distributing traffic across multiple web servers within a data center (DC1).  These web servers interact with a sharded database (labeled 'Databases,' numbered 1), a cache layer for improved performance, and a message queue.  Data is also written to a NoSQL database (labeled 'NoSQL,' numbered 2).  A separate set of workers processes tasks from the message queue.  Finally, a 'Tools' section at the bottom shows components for logging, metrics, monitoring, and automation, suggesting a robust system monitoring and management infrastructure.  The connections between components show the flow of requests and data, with green lines indicating data flow to the cache, purple lines indicating data flow to the NoSQL database, and blue lines representing the main request flow." loading="lazy" width="600" height="757" decoding="async" data-nimg="1" sizes="(max-width: 840px) min(600px, 100vw), (max-width: 1200px) min(600px, 80vw), min(600px, 80vw)" srcset="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=640&amp;q=75 640w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=750&amp;q=75 750w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=828&amp;q=75 828w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=1080&amp;q=75 1080w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=1200&amp;q=75 1200w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=1920&amp;q=75 1920w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=2048&amp;q=75 2048w, https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=3840&amp;q=75 3840w" src="https://bytebytego.com/_next/image?url=%2Fimages%2Fcourses%2Fsystem-design-interview%2Fscale-from-zero-to-millions-of-users%2Ffigure-1-23-3IYFN6Q6.png&amp;w=3840&amp;q=75" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Figure 23</figcaption></div></figure>
+<h2 id="millions-of-users-and-beyond">Millions of users and beyond</h2>
+<p>Scaling a system is an iterative process. Iterating on what we have learned in this chapter could get us far. More fine-tuning and new strategies are needed to scale beyond millions of users. For example, you might need to optimize your system and decouple the system to even smaller services. All the techniques learned in this chapter should provide a good foundation to tackle new challenges. To conclude this chapter, we provide a summary of how we scale our system to support millions of users:</p>
+<ul>
+<li>
+<p>Keep web tier stateless</p>
+</li>
+<li>
+<p>Build redundancy at every tier</p>
+</li>
+<li>
+<p>Cache data as much as you can</p>
+</li>
+<li>
+<p>Support multiple data centers</p>
+</li>
+<li>
+<p>Host static assets in CDN</p>
+</li>
+<li>
+<p>Scale your data tier by sharding</p>
+</li>
+<li>
+<p>Split tiers into individual services</p>
+</li>
+<li>
+<p>Monitor your system and use automation tools</p>
+</li>
+</ul>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="reference-materials">Reference materials</h2>
+<p>[1] Hypertext Transfer Protocol: <a href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol</u></a></p>
+<p>[2] Should you go Beyond Relational Databases?:<br>
+<a href="https://blog.teamtreehouse.com/should-you-go-beyond-relational-databases" target="_blank" rel="noopener noreferrer"><u>https://blog.teamtreehouse.com/should-you-go-beyond-relational-databases</u></a></p>
+<p>[3] Replication: <a href="https://en.wikipedia.org/wiki/Replication_(computing)" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Replication_(computing)</u></a></p>
+<p>[4] Multi-master replication:<br>
+<a href="https://en.wikipedia.org/wiki/Multi-master_replication" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Multi-master_replication</u></a></p>
+<p>[5] NDB Cluster Replication: Bidirectional and Circular Replication:<br>
+<a href="https://dev.mysql.com/doc/refman/8.4/en/mysql-cluster-replication-multi-source.html" target="_blank" rel="noopener noreferrer"><u>https://dev.mysql.com/doc/refman/8.4/en/mysql-cluster-replication-multi-source.html</u></a></p>
+<p>[6] Caching Strategies and How to Choose the Right One:<br>
+<a href="https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/" target="_blank" rel="noopener noreferrer"><u>https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/</u></a></p>
+<p>[7] R. Nishtala etc. al., "Scaling Memcache at Facebook," 10th USENIX Symposium on Networked Systems Design and Implementation (NSDI ’13):
+<a href="https://www.usenix.org/system/files/conference/nsdi13/nsdi13-final170_update.pdf" target="_blank" rel="noopener noreferrer"><u>https://www.usenix.org/system/files/conference/nsdi13/nsdi13-final170_update.pdf</u></a></p>
+<p>[8] Single point of failure: <a href="https://en.wikipedia.org/wiki/Single_point_of_failure" target="_blank" rel="noopener noreferrer"><u>https://en.wikipedia.org/wiki/Single_point_of_failure</u></a></p>
+<p>[9] Amazon CloudFront Dynamic Content Delivery:<br>
+<a href="https://aws.amazon.com/cloudfront/dynamic-content/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/cloudfront/dynamic-content/</u></a></p>
+<p>[10] Configure Sticky Sessions for Your Classic Load Balancer:<br>
+<a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-sticky-sessions.html" target="_blank" rel="noopener noreferrer"><u>https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-sticky-sessions.html</u></a></p>
+<p>[11] Active-Active for Multi-Regional Resiliency:<br>
+<a href="https://netflixtechblog.com/active-active-for-multi-regional-resiliency-c47719f6685b" target="_blank" rel="noopener noreferrer"><u>https://netflixtechblog.com/active-active-for-multi-regional-resiliency-c47719f6685b</u></a></p>
+<p>[12] Amazon EC2 High Memory Instances:<br>
+<a href="https://aws.amazon.com/ec2/instance-types/high-memory/" target="_blank" rel="noopener noreferrer"><u>https://aws.amazon.com/ec2/instance-types/high-memory/</u></a></p>
+<p>[13] What it takes to run Stack Overflow:<br>
+<a href="http://nickcraver.com/blog/2013/11/22/what-it-takes-to-run-stack-overflow" target="_blank" rel="noopener noreferrer"><u>http://nickcraver.com/blog/2013/11/22/what-it-takes-to-run-stack-overflow</u></a></p>
+<p>[14] What The Heck Are You Actually Using NoSQL For:<br>
+<a href="http://highscalability.com/blog/2010/12/6/what-the-heck-are-you-actually-using-nosql-for.html" target="_blank" rel="noopener noreferrer"><u>http://highscalability.com/blog/2010/12/6/what-the-heck-are-you-actually-using-nosql-for.html</u></a></p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../index.html">← Table of Contents</a>
+        <a href="join-the-community.html">← Previous</a>
+        <a href="back-of-the-envelope-estimation.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

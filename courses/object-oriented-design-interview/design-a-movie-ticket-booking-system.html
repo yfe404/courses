@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a Movie Ticket Booking System - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design a Movie Ticket Booking System
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-parking-lot.html">← Previous</a>
+        <a href="design-a-unix-file-search-system.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">05</span> Design a Movie Ticket Booking System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/movie-ticket-booking-system" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">05</strong><h1>Design a Movie Ticket Booking System</h1></header><p>In this chapter, we’ll walk through the design of a Movie Ticket Booking System. It’s used to assess your ability to model real-world systems and apply object-oriented principles to create a well-structured solution. The goal is to carefully define the classes that represent key entities in a movie booking system, such as rooms, screenings, and movies. We’ll aim to build a clear and functional structure that captures the essential interactions between these components, making the system intuitive and scalable.</p>
+<p>Let’s move on to gathering the specific requirements through a simulated interview scenario.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified schematic of a movie theater.  The main focus is a large, grey rectangular screen dominating the central area.  To either side of the screen, on the upper walls, are depicted two square speakers, each with a single, centrally located, dark circle representing the speaker cone.  Below the screen, arranged in neat rows, are numerous grey, uniformly sized seats representing the audience seating area. The seats are arranged in a grid-like pattern, filling the lower portion of the image.  The overall style is simplistic, using only basic shapes and shading to convey the scene; there are no additional labels, text, URLs, or parameters present. The image suggests a basic architectural layout of a movie theater, focusing on the key components: screen, speakers, and seating." loading="lazy" width="530" height="330" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-1-T2BO4U27.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Movie Theater</figcaption></div></figure>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>Here is an example of a typical prompt an interviewer might give:</p>
+<p>“Imagine you’re trying to book tickets for a blockbuster movie on a busy weekend. You log into the booking system, browse through the available showtimes, select your preferred seats, and proceed to book them. Within moments, your tickets are confirmed, and you receive a digital ticket. Behind the scenes, the system is efficiently managing seat availability, tracking screenings, and calculating ticket costs. Now, let’s design a movie ticket booking system that handles all of this seamlessly.”</p>
+<p>To refine the system’s scope, the candidate might ask the following questions:</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate:</strong> Does the system support finding and booking tickets across different cinemas and rooms?<br>
+<strong>Interviewer</strong>: Yes, users can search for available tickets across multiple cinemas, each containing multiple rooms.</p>
+<p><strong>Candidate</strong>: Does the system allow scheduling multiple screenings of the same movie across different rooms and times?<br>
+<strong>Interviewer</strong>: Yes, each movie can have different screenings scheduled across various rooms and times in the same cinema or different cinemas.</p>
+<p><strong>Candidate</strong>: Does the system support different pricing tiers for seats within the same screening?<br>
+<strong>Interviewer</strong>: Yes, each seat can have its pricing strategy, such as normal, premium, or VIP, affecting the ticket price.</p>
+<p><strong>Candidate</strong>: Can a user book multiple tickets in a single order, and how does the system calculate the total cost?<br>
+<strong>Interviewer</strong>: Yes, users can combine multiple tickets into one order for a specific screening. The system calculates the total cost by summing the prices of all selected seats based on their rate classes.</p>
+<p><strong>Candidate</strong>: Does the system need to handle payment processing as part of the booking process?<br>
+<strong>Interviewer</strong>: For this design, we can ignore payment processing and focus on browsing, scheduling, seat selection, and booking tickets.</p>
+<p><strong>Candidate</strong>: What happens when a user books a ticket for a specific seat?<br>
+<strong>Interviewer</strong>: The system should create a ticket with the screening, seat, and price based on the seat’s pricing strategy, then add it to the screening’s ticket list, marking the seat as booked.</p>
+<h3 id="requirements">Requirements</h3>
+<p>Based on the questions and answers, the following functional requirements can be identified:</p>
+<h4 id="movie-and-screening-management">Movie and screening management</h4>
+<ul>
+<li>Each cinema is located at a specific location and contains multiple rooms.</li>
+<li>Movies can have multiple screenings scheduled across different rooms, cinemas, and time slots.</li>
+</ul>
+<h4 id="seat-management-and-pricing">Seat management and pricing</h4>
+<ul>
+<li>Each room has a grid of seats available for booking.</li>
+<li>Seats within a room can have varying pricing strategies (e.g., normal, premium, VIP) that affect ticket prices.</li>
+</ul>
+<h4 id="user-search-and-book-flow">User search and book flow</h4>
+<ul>
+<li>Users can find and book available tickets.</li>
+<li>A ticket represents a specific seat to watch a movie in a room at a particular time.</li>
+<li>A user can book multiple tickets within the same order.</li>
+<li>The total cost for an order is computed by summing the prices of all selected seats, based on their pricing tiers.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>Fast searches for screenings for a smooth user experience.</li>
+<li>Basic error handling should prevent booking conflicts, such as double-booking the same seat.</li>
+</ul>
+<p>With these requirements in hand, the next step is to identify the core objects that will form the backbone of our system.</p>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>To build a modular and maintainable system, we’ll define objects that represent distinct entities with clear responsibilities. Here are the core objects:</p>
+<ul>
+<li><strong>Movie</strong>: Represents a specific movie shown in cinemas, capturing its essential details like title and duration.</li>
+</ul>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We separate Movie from Screening to distinguish fixed movie
+data from dynamic screening schedules, improving reusability and clarity.</p></div>
+<ul>
+<li><strong>Cinema</strong>: Models a physical location where movies are screened, containing multiple rooms.</li>
+<li><strong>Room</strong>: Defines a screening space within a cinema, tied to a unique layout of seats.</li>
+</ul>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> Separating Room from Layout allows rooms to share or customize
+seating arrangements, enhancing flexibility.</p></div>
+<ul>
+<li><strong>Layout</strong>: Organizes the seating arrangement in a room as a grid, managing seat positions.</li>
+<li><strong>Seat</strong>: Represents an individual seat in a room linked to a pricing strategy.</li>
+<li><strong>Screening</strong>: Combines a movie, a room, and a time slot to define when and where a movie is shown.</li>
+<li><strong>Ticket</strong>: Captures a customer’s choice of a specific seat for a screening, including its price.</li>
+<li><strong>Order</strong>: Groups multiple tickets purchased together into a single transaction, tracking the total cost.</li>
+</ul>
+<p><strong>Alternative approach:</strong> We could merge Room and Layout into one class, but this limits flexibility if rooms need varied layouts. Another option is adding a Customer class, but since the focus is on booking mechanics, we prioritize ticket-related entities.</p>
+<p><strong>Interview Tip:</strong> When presenting objects in an interview, explain why you chose them and how they meet the requirements. Mention alternatives (e.g., combining classes) to show you’ve considered different options and their trade-offs.</p>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>Now that we know the core objects and their roles, the next step is to create classes and methods to build the movie ticket booking system.</p>
+<h3 id="movie">Movie</h3>
+<p>The Movie class captures essential details about a specific movie in the system. It focuses on static information, title, genre, and duration, data that remains constant across all screenings of that film. It stands apart from a Screening, which ties a movie to a room and time slot for a particular showing.</p>
+<p>Below is the UML diagram for the Movie class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a 'Movie' class in an object-oriented programming context.  The diagram is a rectangular box with a top section showing a large 'C' inside a circle (indicating a class) followed by the class name 'Movie'. Below this, the box lists three attributes of the Movie class, each prefixed with a square checkbox: 'String title', 'String genre', and 'int durationInMinutes'.  These attributes define the data that each Movie object will hold, specifying that the title and genre are string values, and the duration is an integer representing the movie's length in minutes. There are no methods or relationships to other classes depicted in this particular diagram." loading="lazy" width="295" height="175" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-2-7RMXNYUD.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We designed the Movie class to be a standalone entity, independent
+of cinema-specific or scheduling contexts. This isolation allows the same Movie
+to be reused across multiple cinemas and screenings without data duplication.</p></div>
+<h3 id="seat">Seat</h3>
+<p>The Seat class holds key details about an individual seat, including its unique number. It uses the strategy pattern, implemented through the PricingStrategy interface with concrete classes like NormalRate, PremiumRate, and VIPRate, to manage price calculation flexibly.</p>
+<p>The strategy pattern benefits the system in two key ways:</p>
+<ul>
+<li>It promotes extensibility, making it easy to add new rate classes.</li>
+<li>It reduces code redundancy by using a single Seat class for all pricing variations.</li>
+</ul>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the Strategy design pattern.  The central component is an interface named `PricingStrategy`, which declares a single method `BigDecimal getPrice()`.  Three concrete classes, `NormalRate`, `PremiumRate`, and `VIPRate`, implement this interface, each providing its own specific implementation of the `getPrice()` method to calculate the price differently.  Dashed lines indicate that these three classes implement the `PricingStrategy` interface.  Another class, `Seat`, is shown; it contains a `String seatNumber` attribute and a `PricingStrategy pricingStrategy` attribute, demonstrating composition.  The `Seat` class uses the `PricingStrategy` interface to dynamically determine the price of a seat, allowing for flexible pricing models without modifying the `Seat` class itself.  The overall structure shows how different pricing strategies can be easily swapped and used by the `Seat` class." loading="lazy" width="624" height="197" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-3-XHLJZHNM.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Seat and PricingStrategy Design</figcaption></div></figure>
+<p><strong>Alternate approach:</strong> We could embed pricing logic directly in Seat, but this reduces flexibility if pricing rules change. The strategy pattern, while more complex, supports future extensions.</p>
+<p>The Seat class relies on a Layout to define its position in a room’s seating grid, focusing solely on seat-specific data like its number and pricing strategy.</p>
+<p><em>Note</em>: To learn more about the Strategy pattern and its everyday use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-parking-lot">Parking Lot</a></strong> chapter of the book.</p>
+<h3 id="layout">Layout</h3>
+<p>The Layout class acts as a bridge between individual seats and cinema rooms. It organizes seats into a grid structure defined by rows and columns. It uses a nested map (Map&lt;Integer, Map&lt;Integer, Seat&gt;&gt;) for efficient seat lookup, where the outer map’s key is the row number, the inner map’s key is the column number within that row, and the value is the Seat object at that position (row → column → seat).</p>
+<p>It also maintains an index (Map&lt;String, Seat&gt;) to locate seats by their seat numbers quickly. This design simplifies managing seats across multiple theater rooms, ensuring easy access to seat data for booking purposes.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Layout` class in an object-oriented design.  The class contains four private member variables: `rows` and `columns` (both integers representing the dimensions of the layout), `seatsByNumber` (a map associating seat numbers (Strings) with `Seat` objects), and `seatsByPosition` (a nested map using row and column integers as keys to access `Seat` objects).  The class also defines five public methods: a constructor `Layout(int rows, int columns)` that initializes the layout dimensions; `addSeat(String seatNumber, int row, int column, Seat seat)` to add a seat to the layout; `getSeatByNumber(String seatNumber)` and `getSeatByPosition(int row, int column)` to retrieve seats using their number or position; and `getAllSeats()` to retrieve a list of all seats in the layout.  The diagram visually depicts the class name, member variables, and methods, clearly showing their access modifiers (public or private) and data types.  No URLs or parameters beyond those explicitly defined in the method signatures are present." loading="lazy" width="550" height="236" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-4-R6L2XMI7.svg" style="color: transparent;"></div></figure>
+<p><strong>Alternative approach:</strong> In Layout, we use a nested map (Map&lt;Integer, Map&lt;Integer, Seat&gt;&gt;) for seat arrangement instead of a 2D array. This allows dynamic row creation with computeIfAbsent and supports variable row sizes. A 2D array for Layout could work for fixed-size rooms but lacks flexibility for irregular layouts or dynamic additions.</p>
+<p><strong>Interview Tip:</strong> When coding, explain why you chose a data structure (e.g., map vs. array) and how it supports your design goals.</p>
+<h3 id="cinema-and-room">Cinema and Room</h3>
+<p>The Cinema and Room classes structure the cinema system by leveraging the seat and layout framework. A Cinema contains multiple Room instances, exemplifying composition where one class holds another as an attribute. Each Room, in turn, includes a Layout to define its seat arrangement.</p>
+<p>Together, these classes form a model of a cinema, with Cinema managing locations and rooms, and Room organizing seat layouts. Their composition ensures a clear hierarchy for managing theater spaces.</p>
+<p>Below are the representations of these classes.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram showing the relationship between two classes: `Cinema` and `Room`.  The `Cinema` class, on the left, has three attributes: a `String` named `name`, a `String` named `location`, and a `List&lt;Room&gt;` named `rooms`. It also has two methods: a constructor `Cinema(String name, String location)` that takes a name and location as input, and a method `void addRoom(Room room)` that takes a `Room` object as input. The `Room` class, on the right, has two attributes: a `String` named `roomNumber` and a `Layout` object named `layout`.  There is an implicit composition relationship between `Cinema` and `Room`, indicated by the `List&lt;Room&gt;` attribute within the `Cinema` class, suggesting that a `Cinema` object contains multiple `Room` objects.  No explicit connection lines are drawn between the classes, but the `addRoom` method in the `Cinema` class implies a one-to-many relationship where a `Cinema` can have many `Rooms`." loading="lazy" width="590" height="166" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-5-K53ZDUD7.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Cinema and Room classes</figcaption></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> We structured the Cinema and Room with a compositional relationship
+to simulate a real-world cinema with multiple screening rooms. This design allows
+each Room to operate independently with its layout and schedule, while the Cinema
+provides a unified context.</p></div>
+<h3 id="screening">Screening</h3>
+<p>With the cinema structure in place, the Screening class defines a specific showing of a movie in a particular room at a scheduled time. It combines a Movie, a Room, and time details into a single entity.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a 'Screening' class in an object-oriented programming context.  The diagram is a rectangular box with the class name 'Screening' in the upper right corner, preceded by a 'C' symbol indicating it's a class. Inside the box, four lines define the class's attributes: 'Movie movie,' 'Room room,' 'DateTime startTime,' and 'DateTime endTime.'  Each attribute line begins with a square, indicating that these are instance variables.  Finally, a separate line, starting with a filled circle, defines a method named 'getDuration()' which returns a 'Duration' value, suggesting this method calculates the duration of the screening based on the `startTime` and `endTime` attributes.  There are no connections or information flows depicted beyond the internal structure of the 'Screening' class itself." loading="lazy" width="258" height="187" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-6-CXRGCTUI.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The Screening class centralizes scheduling details, making it
+easier to manage showtimes across cinemas. It ensures a clear separation of concerns
+and simplifies schedule management.</p></div>
+<h3 id="ticket">Ticket</h3>
+<p>The Ticket class represents a purchased seat for a specific Screening, combining a Screening and a Seat.</p>
+<p>It includes a price attribute, capturing the seat’s cost at the time of purchase. This design, despite the Seat class using a strategy pattern for pricing, ensures the ticket price remains fixed, independent of any future changes to the seat’s pricing strategy.</p>
+<p>Here is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram, specifically depicting a class named 'Ticket'.  The class is represented by a rectangle divided into two sections. The top section displays a large 'C' inside a circle, indicating a class, followed by the class name 'Ticket'. The lower section lists the class's attributes, each preceded by a square checkbox. These attributes are: 'Screening screening' (suggesting an object of a Screening class), 'Seat seat' (suggesting an object of a Seat class), and 'BigDecimal price' (indicating a numerical price attribute using the BigDecimal data type for precision).  There are no methods shown, only attributes, and no connections or relationships to other classes are depicted beyond the implied relationships through the attribute types." loading="lazy" width="259" height="160" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-7-EYFNG4OL.svg" style="color: transparent;"></div></figure>
+<h3 id="order">Order</h3>
+<p>The Order class groups multiple tickets into a single transaction, capturing all tickets purchased together at a specific time. It tracks the order’s timestamp and provides the total cost of the tickets.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `Order` class in an object-oriented programming context.  The diagram is a rectangular box with the class name 'Order' and a 'C' symbol indicating it's a class, prominently displayed at the top.  Below this, the class's attributes are listed, preceded by a minus sign (–): a `List&lt;Ticket&gt;` named `tickets` representing a list of Ticket objects, and a `LocalDateTime` object named `orderDate` representing the order's date and time.  Further down, the class's methods are shown, preceded by a plus sign (+): a constructor `Order(LocalDateTime orderDate)` that takes a `LocalDateTime` object as input, a `void addTicket(Ticket ticket)` method to add a `Ticket` object to the `tickets` list, a `BigDecimal calculateTotalPrice()` method that returns the total price of the order as a `BigDecimal`, and a `List&lt;Ticket&gt; getAllTickets()` method that returns the list of `Ticket` objects associated with the order.  No connections to other classes are shown, implying this is a partial view of a larger class diagram." loading="lazy" width="341" height="204" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-8-KHRJNUWD.svg" style="color: transparent;"></div></figure>
+<h3 id="screeningmanager">ScreeningManager</h3>
+<p>Modeling classes like Movie, Seat, and Ticket alone does not create a complete system. To address this, we design a ScreeningManager class that manages key operations, such as searching for screenings of specific movies, identifying available seats, and storing purchased tickets.</p>
+<p>The following UML diagram shows the ScreeningManager structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram showcasing the `ScreeningManager` class.  The class contains two private member variables: `screeningsByMovie`, a map where keys are `Movie` objects and values are lists of `Screening` objects; and `ticketsByScreening`, a map with `Screening` objects as keys and lists of `Ticket` objects as values.  The class also includes five public methods: `addScreening`, which takes a `Movie` and a `Screening` as input and presumably adds the screening to the appropriate map; `addTicket`, which adds a `Ticket` to the list associated with a given `Screening`; `getScreeningsForMovie`, returning a list of `Screening` objects for a given `Movie`; `getTicketsForScreening`, returning a list of `Ticket` objects for a given `Screening`; and `getAvailableSeats`, which returns a list of `Seat` objects for a given `Screening`.  The diagram illustrates the internal data structure and functionality of the `ScreeningManager`, suggesting it's responsible for managing screenings, associating them with movies, and tracking tickets sold for each screening." loading="lazy" width="549" height="216" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-9-VBALQNZV.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The ScreeningManager class serves as a central coordinator for
+screening and ticket-related operations. An alternative could be to embed these
+operations in the Cinema class, with each cinema managing its screenings and tickets.
+However, this would couple the static cinema attributes (e.g., location and rooms)
+with the logic for scheduling and booking, reducing the system's modularity and
+maintainability.</p></div>
+<h3 id="moviebookingsystem">MovieBookingSystem</h3>
+<p>The MovieBookingSystem class is the final piece that brings all components together. It integrates the list of movies, cinema locations, and an instance of ScreeningManager into a cohesive system. It acts as a facade, streamlining user interactions by delegating tasks to underlying classes like ScreeningManager, Movie, and Cinema.</p>
+<p>Through MovieBookingSystem, key operations, such as adding movies or cinemas, finding screenings for a movie, checking available seats, and booking tickets, are centralized. This design enhances usability by offering a single entry point for these functions while preserving modularity, as each task remains handled by its respective class.</p>
+<p>Here is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `MovieBookingSystem`.  The diagram shows a single class, `MovieBookingSystem`, which contains three private member variables: a list of `Movie` objects named `movies`, a list of `Cinema` objects named `cinemas`, and a `ScreeningManager` object named `screeningManager`.  The class also defines eight public methods: `addMovie()`, which adds a movie; `addCinema()`, which adds a cinema; `addScreening()`, which adds a screening for a given movie; `bookTicket()`, which books a ticket for a specific screening and seat; `getScreeningsForMovie()`, which returns a list of screenings for a given movie; `getAvailableSeats()`, which returns a list of available seats for a given screening; `getTicketsForScreening()`, which returns a list of tickets for a given screening; and `getTicketCount()`, which returns the number of tickets sold for a given screening.  The methods demonstrate the system's functionality for managing movies, cinemas, screenings, seats, and tickets.  No external connections or data flows beyond the class itself are depicted." loading="lazy" width="497" height="266" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-10-ONU5T6QU.svg" style="color: transparent;"></div></figure>
+<p><strong>Alternate approach:</strong> We designed the MovieBookingSystem class as a facade to provide a simplified interface for client code. An alternative could be to allow client code to directly interact with classes like ScreeningManager or Cinema. However, this would increase coupling between clients and internal components, potentially leading to fragile and error-prone interactions. The facade pattern enhances maintainability and simplifies system interactions.</p>
+<h3 id="complete-class-diagram">Complete Class Diagram</h3>
+<p>Below is the class diagram of our movie ticket booking system.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the object-oriented design of a movie booking system.  The `MovieBookingSystem` class at the top manages lists of `Movie` and `Cinema` objects, and contains a `ScreeningManager` object.  The `ScreeningManager` class maintains two maps: one mapping `Movie` objects to lists of their associated `Screening` objects (`screeningsByMovie`), and another mapping `Screening` objects to lists of their `Ticket` objects (`ticketsByScreening`).  It also includes methods for adding screenings and tickets.  A `Screening` object is composed of a `Movie`, a `Room`, and start and end times, with a method to calculate its duration.  A `Cinema` contains a list of `Room` objects, each having a `roomNumber` and a `Layout`. The `Layout` class manages seat arrangements using maps to access seats by number or position, and provides methods to add and retrieve seats.  A `Seat` object has a `seatNumber` and a `PricingStrategy`, which is an interface implemented by `NormalRate`, `PremiumRate`, and `VIPRate` classes, each defining a method to get the price.  The `Order` class manages a list of `Ticket` objects and an order date, allowing for ticket addition and total price calculation.  The relationships between classes are shown through aggregation (e.g., `Cinema` contains `Room`) and composition (e.g., `Screening` is composed of `Movie` and `Room`).  Data flows primarily through method calls, for example, the `MovieBookingSystem` uses the `ScreeningManager` to manage screenings and tickets." loading="lazy" width="624" height="927" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/image-5-11-YBN3QBZZ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Class Diagram of Movie Ticket Booking System</figcaption></div></figure>
+<h2 id="code---movie-ticket-booking-system">Code - Movie Ticket Booking System</h2>
+<p>In this section, we’ll implement the core functionalities of the movie ticket booking system, focusing on key areas such as handling cinema and movie listings, scheduling screenings, managing seat selection and availability, and processing ticket bookings through an order system.</p>
+<h3 id="movie-1">Movie</h3>
+<p>The Movie class represents the static details of a film, such as its title, genre, and duration, which remain consistent across all screenings. The class is designed to be immutable, as it does not include setter methods, ensuring that movie details cannot be altered once the object is created. This immutability guarantees data integrity and reflects the static nature of a movie’s attributes.</p>
+<p>Below is the code implementation of this class:</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Movie</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String title;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String genre;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> durationInMinutes;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Movie</span><span class="hljs-params">(String title, String genre, <span class="hljs-type">int</span> durationInMinutes)</span> {
+        <span class="hljs-built_in">this</span>.title = title;
+        <span class="hljs-built_in">this</span>.genre = genre;
+        <span class="hljs-built_in">this</span>.durationInMinutes = durationInMinutes;
+    }
+
+    <span class="hljs-keyword">public</span> Duration <span class="hljs-title function_">getDuration</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Duration.ofMinutes(durationInMinutes);
+    }
+
+    <span class="hljs-comment">// getter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p>The getDuration method converts the stored durationInMinutes value into a Duration object, offering a standardized and convenient way to represent and utilize the movie's length for tasks such as scheduling screenings or calculating screening durations.</p>
+<h3 id="cinema">Cinema</h3>
+<p>The Cinema class represents a cinema with attributes such as its name, location, and collection of Room objects. The rooms attribute is implemented as a dynamic List, allowing the addition of rooms at runtime using the addRoom method. This design provides flexibility, as cinemas can have varying numbers of rooms.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Cinema</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String location;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;Room&gt; rooms;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Cinema</span><span class="hljs-params">(String name, String location)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.location = location;
+        <span class="hljs-built_in">this</span>.rooms = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addRoom</span><span class="hljs-params">(Room room)</span> {
+        rooms.add(room);
+    }
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<h3 id="room">Room</h3>
+<p>The Room class represents a theater room within a cinema, with attributes such as its unique room number and a Layout object that defines its seating arrangement.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Room</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String roomNumber;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Layout layout;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Room</span><span class="hljs-params">(String roomNumber, Layout layout)</span> {
+        <span class="hljs-built_in">this</span>.roomNumber = roomNumber;
+        <span class="hljs-built_in">this</span>.layout = layout;
+    }
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<h3 id="layout-1">Layout</h3>
+<p>The Layout class defines the seating arrangement of a cinema room, tracking its rows and columns to form a grid. It uses a nested map (Map&lt;Integer, Map&lt;Integer, Seat&gt;&gt;) for locating seats by row and column positions, and a separate map (Map&lt;String, Seat&gt;) for quick lookup by unique seat numbers.</p>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Represents the seating layout of a cinema room.</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Layout</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> rows;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> columns;
+
+    <span class="hljs-comment">// Maps seat numbers (e.g., "0-0") to Seat objects for direct access</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Seat&gt; seatsByNumber;
+
+    <span class="hljs-comment">// Nested map for position-based access (row → column → seat)</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;Integer, Map&lt;Integer, Seat&gt;&gt; seatsByPosition;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Layout</span><span class="hljs-params">(<span class="hljs-type">int</span> rows, <span class="hljs-type">int</span> columns)</span> {
+        <span class="hljs-built_in">this</span>.rows = rows;
+        <span class="hljs-built_in">this</span>.columns = columns;
+        <span class="hljs-built_in">this</span>.seatsByNumber = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+        <span class="hljs-built_in">this</span>.seatsByPosition = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+        initializeLayout();
+    }
+
+    <span class="hljs-comment">// Creates seats for all positions with default null pricing</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">initializeLayout</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; rows; i++) {
+            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; j &lt; columns; j++) {
+                <span class="hljs-type">String</span> <span class="hljs-variable">seatNumber</span> <span class="hljs-operator">=</span> i + <span class="hljs-string">"-"</span> + j;
+                addSeat(seatNumber, i, j, <span class="hljs-keyword">new</span> <span class="hljs-title class_">Seat</span>(seatNumber, <span class="hljs-literal">null</span>));
+            }
+        }
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addSeat</span><span class="hljs-params">(String seatNumber, <span class="hljs-type">int</span> row, <span class="hljs-type">int</span> column, Seat seat)</span> {
+        <span class="hljs-comment">// Store seat in number-based lookup map</span>
+        seatsByNumber.put(seatNumber, seat);
+        <span class="hljs-comment">// Store seat in position-based lookup map</span>
+        seatsByPosition.computeIfAbsent(row, k -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;()).put(column, seat);
+    }
+
+    <span class="hljs-keyword">public</span> Seat <span class="hljs-title function_">getSeatByNumber</span><span class="hljs-params">(String seatNumber)</span> {
+        <span class="hljs-keyword">return</span> seatsByNumber.get(seatNumber);
+    }
+
+    <span class="hljs-comment">// Gets a seat by its row and column position</span>
+    <span class="hljs-keyword">public</span> Seat <span class="hljs-title function_">getSeatByPosition</span><span class="hljs-params">(<span class="hljs-type">int</span> row, <span class="hljs-type">int</span> column)</span> {
+        Map&lt;Integer, Seat&gt; rowSeats = seatsByPosition.get(row);
+        <span class="hljs-keyword">return</span> (rowSeats != <span class="hljs-literal">null</span>) ? rowSeats.get(column) : <span class="hljs-literal">null</span>;
+    }
+
+    <span class="hljs-keyword">public</span> List&lt;Seat&gt; <span class="hljs-title function_">getAllSeats</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> List.copyOf(seatsByNumber.values());
+    }
+}
+</code></pre>
+<ul>
+<li>The addSeat method employs the computeIfAbsent technique to dynamically create rows in the nested map as needed, streamlining the addition of seats without requiring pre-initialization of the entire grid.</li>
+<li>The getSeatByNumber method retrieves a seat based on its unique string identifier, enhancing lookup efficiency.</li>
+<li>The getSeatByPosition method accesses a seat using its row and column coordinates, supporting precise seat selection.</li>
+<li>The getAllSeats method returns an unmodifiable list of all seats, ensuring safe access to the seating data.</li>
+</ul>
+<p>Layout integrates with the Room class to provide the seating structure, working alongside Seat objects to support the ticket booking process, such as availability and pricing.</p>
+<p><strong>Implementation choice:</strong> We used a nested Map&lt;Integer, Map&lt;Integer, Seat&gt;&gt; for the seat grid and a Map&lt;String, Seat&gt; for seat number lookup in the Layout class, as these structures provide efficient O(1) access by row-column or seat number. The nested map supports dynamic row creation via computeIfAbsent. An alternative could be a 2D array (Seat[][]) for the grid, which is simpler for fixed-size layouts and offers direct index-based access. However, arrays lack flexibility for irregular layouts (e.g., missing seats) and require pre-allocation.</p>
+<h3 id="seat-1">Seat</h3>
+<p>The Seat class represents an individual seat in a cinema room with attributes such as its unique seatNumber and associated PricingStrategy. The PricingStrategy provides dynamic pricing for each seat, enabling the system to assign different pricing logic (e.g., normal, premium, VIP) without modifying the Seat class itself.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Seat</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String seatNumber;
+    <span class="hljs-keyword">private</span> PricingStrategy pricingStrategy;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Seat</span><span class="hljs-params">(String seatNumber, PricingStrategy pricingStrategy)</span> {
+        <span class="hljs-built_in">this</span>.seatNumber = seatNumber;
+        <span class="hljs-built_in">this</span>.pricingStrategy = pricingStrategy;
+    }
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p><strong>Alternate Approach:</strong> We implemented the Seat class with a PricingStrategy interface reference, delegating pricing logic to the strategy pattern. An alternative could be to store the price info directly in Seat, with an enum for seat type (e.g., NORMAL, PREMIUM). However, this would embed pricing logic in Seat, making it harder to modify and extend pricing rules without changing the class.</p>
+<h3 id="pricingstrategy">PricingStrategy</h3>
+<p>The PricingStrategy interface establishes a contract requiring the implementation of a getPrice() method to provide a seat’s price. Concrete classes, like NormalRate, PremiumRate, and VIPRate, encapsulate fixed price values for different seat types, reflecting their respective pricing tiers.</p>
+<p>By associating a PricingStrategy with each seat, the system achieves flexibility and extensibility in pricing, adhering to the <strong>Open-Closed Principle</strong>: new pricing strategies can be added without modifying existing code.</p>
+<p>Here is the implementation of this interface and its concrete classes.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">PricingStrategy</span> {
+    BigDecimal <span class="hljs-title function_">getPrice</span><span class="hljs-params">()</span>;
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">NormalRate</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">PricingStrategy</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal price;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">NormalRate</span><span class="hljs-params">(BigDecimal price)</span> {
+        <span class="hljs-built_in">this</span>.price = price;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">getPrice</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> price;
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PremiumRate</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">PricingStrategy</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal price;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">PremiumRate</span><span class="hljs-params">(BigDecimal price)</span> {
+        <span class="hljs-built_in">this</span>.price = price;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">getPrice</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> price;
+    }
+}
+
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">VIPRate</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">PricingStrategy</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal price;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">VIPRate</span><span class="hljs-params">(BigDecimal price)</span> {
+        <span class="hljs-built_in">this</span>.price = price;
+    }
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">getPrice</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> price;
+    }
+}
+</code></pre>
+<h3 id="screening-1">Screening</h3>
+<p>The Screening class combines a Movie with a specific room, time, and duration, representing a scheduled instance of that movie being played in a particular cinema room. While the Movie class captures attributes intrinsic to the film itself, the Screening class incorporates contextual details about when and where the movie is being presented, making it specific to a time slot and location.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Represents a scheduled screening of a movie in a specific cinema room.</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Screening</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Movie movie;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Room room;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> LocalDateTime startTime;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> LocalDateTime endTime;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Screening</span><span class="hljs-params">(Movie movie, Room room, LocalDateTime startTime, LocalDateTime endTime)</span> {
+        <span class="hljs-built_in">this</span>.movie = movie;
+        <span class="hljs-built_in">this</span>.room = room;
+        <span class="hljs-built_in">this</span>.startTime = startTime;
+        <span class="hljs-built_in">this</span>.endTime = endTime;
+    }
+
+    <span class="hljs-keyword">public</span> Duration <span class="hljs-title function_">getDuration</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> Duration.between(startTime, endTime);
+    } <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+</code></pre>
+<p>The class provides a getDuration() method to calculate the duration of the screening based on its start and end times.</p>
+<h3 id="ticket-1">Ticket</h3>
+<p>The Ticket class represents a single unit of purchase in the ticket booking system. It connects a Screening (scheduled movie instance) with a specific Seat and assigns a price at the time of booking. This design ensures that the ticket encapsulates all necessary details for a single booking, making it central to the ticketing process.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Ticket</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Screening screening;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Seat seat;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal price;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Ticket</span><span class="hljs-params">(Screening screening, Seat seat, BigDecimal price)</span> {
+        <span class="hljs-built_in">this</span>.screening = screening;
+        <span class="hljs-built_in">this</span>.seat = seat;
+        <span class="hljs-built_in">this</span>.price = price;
+    }
+
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<h3 id="order-1">Order</h3>
+<p>The Order class represents a single transaction in the movie ticket booking system. It encapsulates a collection of Ticket objects purchased together and records the date and time of the order (orderDate). This design ensures that all tickets associated with a single booking are grouped and tracked cohesively.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Order</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;Ticket&gt; tickets;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> LocalDateTime orderDate;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Order</span><span class="hljs-params">(LocalDateTime orderDate)</span> {
+        <span class="hljs-built_in">this</span>.tickets = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+        <span class="hljs-built_in">this</span>.orderDate = orderDate;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addTicket</span><span class="hljs-params">(Ticket ticket)</span> {
+        tickets.add(ticket);
+    }
+
+    <span class="hljs-comment">// Calculates the total price of all tickets in the order</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateTotalPrice</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> tickets.stream().map(Ticket::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<h3 id="screeningmanager-1">ScreeningManager</h3>
+<p>The ScreeningManager class serves as a centralized manager for showtimes and tickets within the movie ticket booking system. It maintains mappings between Movie objects and their corresponding Screening instances, as well as between Screening objects and their associated Ticket objects. This design ensures that the system can dynamically manage showtimes and ticket bookings while maintaining clear relationships between components.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Manages the relationships between movies, screenings, and tickets in the booking system</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ScreeningManager</span> {
+    <span class="hljs-comment">// Maps movies to their scheduled screenings</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;Movie, List&lt;Screening&gt;&gt; screeningsByMovie;
+    <span class="hljs-comment">// Maps screenings to tickets sold for that screening</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;Screening, List&lt;Ticket&gt;&gt; ticketsByScreening;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ScreeningManager</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.screeningsByMovie = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+        <span class="hljs-built_in">this</span>.ticketsByScreening = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addScreening</span><span class="hljs-params">(Movie movie, Screening screening)</span> {
+        screeningsByMovie.computeIfAbsent(movie, k -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;()).add(screening);
+    }
+
+    <span class="hljs-comment">// Returns all screenings for a specific movie</span>
+    <span class="hljs-keyword">public</span> List&lt;Screening&gt; <span class="hljs-title function_">getScreeningsForMovie</span><span class="hljs-params">(Movie movie)</span> {
+        <span class="hljs-keyword">return</span> screeningsByMovie.getOrDefault(movie, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;());
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addTicket</span><span class="hljs-params">(Screening screening, Ticket ticket)</span> {
+        ticketsByScreening.computeIfAbsent(screening, k -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;()).add(ticket);
+    }
+
+    <span class="hljs-comment">// Returns all tickets sold for a specific screening</span>
+    <span class="hljs-keyword">public</span> List&lt;Ticket&gt; <span class="hljs-title function_">getTicketsForScreening</span><span class="hljs-params">(Screening screening)</span> {
+        <span class="hljs-keyword">return</span> ticketsByScreening.getOrDefault(screening, <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;());
+    }
+
+    <span class="hljs-comment">// Calculates which seats are still available for a screening</span>
+    <span class="hljs-keyword">public</span> List&lt;Seat&gt; <span class="hljs-title function_">getAvailableSeats</span><span class="hljs-params">(Screening screening)</span> {
+        List&lt;Seat&gt; allSeats = screening.getRoom().getLayout().getAllSeats();
+        List&lt;Ticket&gt; bookedTickets = getTicketsForScreening(screening);
+
+        List&lt;Seat&gt; availableSeats = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(allSeats);
+        <span class="hljs-keyword">for</span> (Ticket ticket : bookedTickets) {
+            availableSeats.remove(ticket.getSeat());
+        }
+        <span class="hljs-keyword">return</span> availableSeats;
+    }
+}
+</code></pre>
+<ul>
+<li>The addScreening and addTicket methods use computeIfAbsent to dynamically initialize the lists for a movie’s screenings or a screening’s tickets if they do not already exist.</li>
+<li>The getAvailableSeats method determines which seats are available for a given screening. It retrieves all seats from the room's Layout and removes seats that are already associated with tickets for the screening. This logic ensures accurate seat availability by dynamically reflecting the current booking status.</li>
+</ul>
+<p><strong>Implementation choice</strong>: We used a Map&lt;Movie, List&lt;Screening&gt;&gt; for movie-to-screening mappings and a Map&lt;Screening, List&lt;Ticket&gt;&gt; for screening-to-ticket mappings. These maps provide O(1) lookup, optimizing search and booking operations. An alternative could be a List&lt;Screening&gt; and List&lt;Ticket&gt; with manual filtering to find relevant entries, but this would result in O(n) search times. The map-based approach is more efficient and scalable for managing large numbers of screenings and tickets.</p>
+<h3 id="moviebookingsystem-1">MovieBookingSystem</h3>
+<p>The MovieBookingSystem class serves as a facade for the movie ticket booking system, providing a simplified interface for managing the core data and operations. It abstracts away the complexities of interacting with underlying components, such as ScreeningManager, while maintaining seamless integration with Movie, Cinema, Screening, and Seat.</p>
+<p>Below is the code implementation of this class:</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Manages the complete movie booking system operations</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MovieBookingSystem</span> {
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;Movie&gt; movies;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;Cinema&gt; cinemas;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> ScreeningManager screeningManager;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">MovieBookingSystem</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.movies = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+        <span class="hljs-built_in">this</span>.cinemas = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+        <span class="hljs-built_in">this</span>.screeningManager = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ScreeningManager</span>();
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addMovie</span><span class="hljs-params">(Movie movie)</span> {
+        movies.add(movie);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addCinema</span><span class="hljs-params">(Cinema cinema)</span> {
+        cinemas.add(cinema);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addScreening</span><span class="hljs-params">(Movie movie, Screening screening)</span> {
+        screeningManager.addScreening(movie, screening);
+    }
+
+    <span class="hljs-comment">// Books a ticket for a specific seat at a screening</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">bookTicket</span><span class="hljs-params">(Screening screening, Seat seat)</span> {
+        <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">price</span> <span class="hljs-operator">=</span> seat.getPricingStrategy().getPrice();
+        <span class="hljs-type">Ticket</span> <span class="hljs-variable">ticket</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Ticket</span>(screening, seat, price);
+        screeningManager.addTicket(screening, ticket);
+    }
+
+    <span class="hljs-comment">// Returns all screenings for a specific movie</span>
+    <span class="hljs-keyword">public</span> List&lt;Screening&gt; <span class="hljs-title function_">getScreeningsForMovie</span><span class="hljs-params">(Movie movie)</span> {
+        <span class="hljs-keyword">return</span> screeningManager.getScreeningsForMovie(movie);
+    }
+
+    <span class="hljs-comment">// Returns all available seats for a screening</span>
+    <span class="hljs-keyword">public</span> List&lt;Seat&gt; <span class="hljs-title function_">getAvailableSeats</span><span class="hljs-params">(Screening screening)</span> {
+        <span class="hljs-keyword">return</span> screeningManager.getAvailableSeats(screening);
+    }
+
+    <span class="hljs-comment">// Returns the number of tickets sold for a screening</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getTicketCount</span><span class="hljs-params">(Screening screening)</span> {
+        <span class="hljs-keyword">return</span> screeningManager.getTicketsForScreening(screening).size();
+    }
+
+    <span class="hljs-comment">// Returns the list of tickets for a screening</span>
+    <span class="hljs-keyword">public</span> List&lt;Ticket&gt; <span class="hljs-title function_">getTicketsForScreening</span><span class="hljs-params">(Screening screening)</span> {
+        <span class="hljs-keyword">return</span> screeningManager.getTicketsForScreening(screening);
+    } <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+</code></pre>
+<p>Key functionalities include adding movies and cinemas, retrieving available seats for a specific screening, finding screenings for a given movie, and booking tickets.</p>
+<p>The bookTicket method dynamically calculates the price of a ticket using the associated seat’s PricingStrategy. It then creates a new Ticket instance, associating it with the specified screening and seat, and stores it in the ScreeningManager.</p>
+<h2 id="deep-dive-topics">Deep Dive Topics</h2>
+<p>Now that the basic design is complete, the interviewer might ask you to enhance the movie ticket system’s functionality or accommodate more complex use cases.</p>
+<h3 id="handling-concurrent-bookings">Handling concurrent bookings</h3>
+<p>In OOD interviews, concurrency is often discussed for systems like movie ticket booking, where multiple users interact simultaneously. Concurrency adds complexity and requires understanding basic threading concepts. During an interview, ask the interviewer if concurrency needs to be handled in the system.</p>
+<h4 id="problem-race-condition">Problem: Race condition</h4>
+<p>A race condition occurs when two users attempt to book the same seat at the same time, potentially leading to both receiving confirmation, causing a double-booking. This undermines the system’s reliability and user experience.</p>
+<h4 id="solution-pessimistic-and-optimistic-locking">Solution: Pessimistic and Optimistic locking</h4>
+<p>To prevent race conditions, we can use locking mechanisms to ensure only one user books a seat at a time, turning parallel actions into sequential ones. There are two common approaches: pessimistic locking and optimistic locking, each with distinct trade-offs.</p>
+<p><strong>Pessimistic Locking</strong>: This strategy acquires an exclusive lock on a seat at the start of a user's booking process, preventing concurrent access by other users until the lock is released. The lock is held throughout the transaction, spanning seat selection, booking confirmation, or cancellation, ensuring sole access to the seat. For instance, when a user selects a seat, the system locks it until the booking is finalized or abandoned. To mitigate the risk of indefinite locks due to system failures, a timeout mechanism (e.g., 30 seconds) automatically releases the lock if the transaction remains incomplete. Pessimistic locking is well-suited for scenarios with high contention, where multiple users frequently attempt to book the same seat, as it guarantees exclusive access. Its drawback is increased latency due to lock acquisition and release overhead, which can impact system performance under heavy load.</p>
+<p><strong>Optimistic Locking</strong>: This strategy avoids locking seats during the booking process, instead verifying seat availability at the transaction's final stage. If another user has booked the seat in the interim, the transaction fails, requiring the user to retry. Optimistic locking is lightweight and efficient in low-contention scenarios, where simultaneous booking attempts for the same seat are rare, minimizing the need for retries. However, in high-contention environments, frequent conflicts can lead to multiple retries, degrading user experience, and increasing system load. This approach relies on atomic checks (e.g., using synchronized blocks or database transactions) to ensure consistency during the final validation.</p>
+<p>We provide implementation for both locking strategies below.</p>
+<h4 id="implementation-pessimistic-locking">Implementation: Pessimistic locking</h4>
+<p>To implement pessimistic locking, we introduce a SeatLockManager class that uses Java’s concurrency features to manage temporary seat locks. It uses a ConcurrentHashMap for thread-safe access and synchronizes critical methods to prevent race conditions during lock creation and cleanup. Each lock has a timeout to prevent permanent holds if a process fails.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SeatLockManager</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, SeatLock&gt; lockedSeats = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConcurrentHashMap</span>&lt;&gt;();
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Duration lockDuration;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">SeatLockManager</span><span class="hljs-params">(Duration lockDuration)</span> {
+        <span class="hljs-built_in">this</span>.lockDuration = lockDuration;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">lockSeat</span><span class="hljs-params">(Screening screening, Seat seat, String userId)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">lockKey</span> <span class="hljs-operator">=</span> generateLockKey(screening, seat);
+
+        <span class="hljs-comment">// Clean up lock if expired (on-demand cleanup when another process attempts to lock)</span>
+        cleanupLockIfExpired(lockKey);
+        <span class="hljs-comment">// Check if a seat is already locked</span>
+        <span class="hljs-keyword">if</span> (isLocked(screening, seat)) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+        }
+
+        <span class="hljs-comment">// Create a new lock with expiration time</span>
+        <span class="hljs-type">SeatLock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SeatLock</span>(userId, LocalDateTime.now().plus(lockDuration));
+        lockedSeats.put(lockKey, lock);
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isLocked</span><span class="hljs-params">(Screening screening, Seat seat)</span> {
+        <span class="hljs-type">String</span> <span class="hljs-variable">lockKey</span> <span class="hljs-operator">=</span> generateLockKey(screening, seat);
+
+        <span class="hljs-comment">// Clean up lock if expired (on-demand cleanup)</span>
+        cleanupLockIfExpired(lockKey);
+
+        <span class="hljs-comment">// If we reach here, either no lock exists or it's valid</span>
+        <span class="hljs-keyword">return</span> lockedSeats.containsKey(lockKey);
+    }
+
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">cleanupLockIfExpired</span><span class="hljs-params">(String lockKey)</span> {
+        <span class="hljs-type">SeatLock</span> <span class="hljs-variable">lock</span> <span class="hljs-operator">=</span> lockedSeats.get(lockKey);
+        <span class="hljs-keyword">if</span> (lock != <span class="hljs-literal">null</span> &amp;&amp; lock.isExpired()) {
+            lockedSeats.remove(lockKey);
+        }
+    }
+
+    <span class="hljs-keyword">private</span> String <span class="hljs-title function_">generateLockKey</span><span class="hljs-params">(Screening screening, Seat seat)</span> {
+        <span class="hljs-keyword">return</span> screening.getId() + <span class="hljs-string">"-"</span> + seat.getSeatNumber();
+    }
+
+    <span class="hljs-comment">// SeatLock inner class</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SeatLock</span> {
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String userId;
+        <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> LocalDateTime expirationTime;
+
+        <span class="hljs-keyword">public</span> <span class="hljs-title function_">SeatLock</span><span class="hljs-params">(String userId, LocalDateTime expirationTime)</span> {
+            <span class="hljs-built_in">this</span>.userId = userId;
+            <span class="hljs-built_in">this</span>.expirationTime = expirationTime;
+        }
+
+        <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isExpired</span><span class="hljs-params">()</span> {
+            <span class="hljs-keyword">return</span> LocalDateTime.now().isAfter(expirationTime);
+        }
+
+        <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getUserId</span><span class="hljs-params">()</span> {
+            <span class="hljs-keyword">return</span> userId;
+        }
+    }
+}
+
+</code></pre>
+<ul>
+<li><strong>lockSeat(Screening, Seat, String)</strong>: Synchronously attempts to lock a seat for a user by generating a unique lock key, cleaning up any expired locks, and checking if the seat is currently locked. If the seat is available, it creates and stores a new lock with an expiration timestamp to ensure the lock is temporary.</li>
+<li><strong>isLocked(Screening, Seat)</strong>: Checks if a valid lock exists after cleaning up expired locks.</li>
+<li><strong>cleanupLockIfExpired(String)</strong>: Removes expired locks from lockedSeats to free the seat.</li>
+</ul>
+<h4 id="implementation-optimistic-locking">Implementation: Optimistic locking</h4>
+<p>In the optimistic locking approach, the ScreeningManager class is updated to verify seat availability just before finalizing a booking, without acquiring a persistent lock beforehand. The synchronized keyword is used to ensure that the availability check and the booking operation execute atomically, preventing race conditions that could lead to double-booking.</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Simplified optimistic locking in ScreeningManager</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">synchronized</span> Ticket <span class="hljs-title function_">bookSeatOptimistically</span><span class="hljs-params">(Screening screening, Seat seat)</span> {
+    <span class="hljs-comment">// First check if a seat is available (optimistic)</span>
+    <span class="hljs-keyword">if</span> (isSeatBooked(screening, seat)) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">IllegalStateException</span>(<span class="hljs-string">"Seat is already booked"</span>);
+    }
+
+    <span class="hljs-comment">// Create ticket - at this point, we're optimistically assuming</span>
+    <span class="hljs-comment">// the seat is still available</span>
+    <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">price</span> <span class="hljs-operator">=</span> seat.getPricingStrategy().getPrice();
+    <span class="hljs-type">Ticket</span> <span class="hljs-variable">ticket</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Ticket</span>(screening, seat, price);
+
+    <span class="hljs-comment">// Add to booking system - this effectively "reserves" the seat</span>
+    ticketsByScreening.computeIfAbsent(screening, k -&gt; <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;()).add(ticket);
+
+    <span class="hljs-keyword">return</span> ticket;
+}
+
+<span class="hljs-comment">// Helper method to check if a seat is already booked</span>
+<span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isSeatBooked</span><span class="hljs-params">(Screening screening, Seat seat)</span> {
+    List&lt;Ticket&gt; tickets = getTicketsForScreening(screening);
+    <span class="hljs-keyword">return</span> tickets.stream().anyMatch(ticket -&gt; ticket.getSeat().equals(seat));
+}
+</code></pre>
+<p><strong>bookSeatOptimistically(Screening, Seat)</strong>: Checks if the seat is booked, creates a Ticket, and atomically adds it to the screening’s ticket list.</p>
+<p>This implementation is lightweight and suitable when race conditions are infrequent, but it may require users to retry if a booking fails due to a conflict.</p>
+<div class="info-box"><img alt="Interview Tip" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/movie-ticket-booking-system/tip-GITEWM5S.svg" style="color: transparent;"><p><strong>Interview Tip:</strong> In an OOD interview, discussing concurrency shows your ability
+to handle advanced scenarios. For the movie ticket booking system, pessimistic
+locking is often preferred for popular screenings with high contention, while optimistic
+locking suits simpler cases with fewer conflicts. Ask the interviewer which approach
+aligns with their expectations, and implement a basic solution like those above.</p></div>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>In this chapter, we gathered requirements for the Movie Ticket Booking System through a series of thoughtful questions and answers. We then identified the core objects involved, designed the class structure, and implemented the key components of the system.</p>
+<p>A key takeaway from this design is the significance of modularity and adherence to the single responsibility principle. Each component, such as the Movie, ScreeningManager, Seat, and Order classes, handles a distinct responsibility, ensuring the system remains maintainable and adaptable for future enhancements.</p>
+<p>Our design choices, such as separating Movie and Screening or using a strategy pattern for pricing, prioritize flexibility and scalability. An alternative, like merging Screening and Ticket, might simplify the model but could complicate individual seat management. In an interview, revisiting these decisions and explaining their rationale showcases your critical thinking ability.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-a-parking-lot.html">← Previous</a>
+        <a href="design-a-unix-file-search-system.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design a Grocery Store System - Object Oriented Design Interview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #454545;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 1.2em 0 0.6em 0;
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 1em 0 0.5em 0;
+    line-height: 1.4;
+}
+
+p {
+    margin: 0.8em 0;
+}
+
+a {
+    color: #0077aa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul, ol {
+    margin: 0.8em 0;
+    padding-left: 2em;
+}
+
+li {
+    margin: 0.4em 0;
+}
+
+code, pre {
+    background: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+code {
+    padding: 2px 5px;
+}
+
+pre {
+    padding: 10px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+}
+
+figure {
+    margin: 1.5em 0;
+    text-align: center;
+}
+
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 0.5em;
+}
+
+.chapter-number {
+    font-weight: bold;
+    color: #0077aa;
+}
+
+.nav {
+    margin: 2em 0;
+    padding: 1em 0;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav a {
+    margin-right: 1em;
+}
+
+.toc {
+    list-style: none;
+    padding: 0;
+}
+
+.toc li {
+    margin: 0.8em 0;
+}
+
+.course-section {
+    margin: 2em 0;
+}
+
+.course-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #0077aa;
+    margin: 1.5em 0 0.8em 0;
+}
+
+.metadata {
+    font-size: 0.9em;
+    color: #888;
+    margin: 2em 0 1em 0;
+}
+
+.breadcrumb {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 1em;
+}
+
+.breadcrumb a {
+    color: #0077aa;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+}</style>
+</head>
+<body>
+    <div class="breadcrumb">
+        <a href="../../index.html">Home</a> /
+        <a href="../object-oriented-design-interview.html">Object Oriented Design Interview</a> /
+        Design a Grocery Store System
+    </div>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-an-elevator-system.html">← Previous</a>
+        <a href="design-a-tic-tac-toe-game.html">Next →</a>
+    </div>
+
+    <main>
+        <h1>
+            <span class="chapter-number">09</span> Design a Grocery Store System
+        </h1>
+
+        <div class="metadata">
+            <a href="https://bytebytego.com/courses/object-oriented-design-interview/grocery-store-system" target="_blank" rel="noopener">Original source</a>
+        </div>
+
+        <article>
+            <header><strong class="style_chapter__grtAe">09</strong><h1>Design a Grocery Store System</h1></header><p>In this chapter, we will explore the design of a grocery store system. This system is tailored for grocery store workers to streamline operations like managing the item catalog, configuring pricing, and applying discounts.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a simplified graphical user interface (GUI) for a 'Grocery Store' application displayed on a computer monitor.  The monitor's screen shows the title 'Grocery Store' at the top. Below the title, four rectangular buttons are arranged in a 2x2 grid.  From left to right, top to bottom, the buttons are labeled 'Item Catalog,' 'Pricing,' 'Discounts,' and 'Settings.'  No information flows between the buttons; they are presented as independent access points to different sections or functionalities within the application.  The buttons are light gray with darker gray text. The monitor itself is depicted as a simple gray rectangle with a stand. There are no URLs, parameters, or other external connections shown in the image.  The overall design is minimalistic and focuses on the basic structure of the application's main menu." loading="lazy" width="595" height="371" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-1-OKDF2ZPY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Grocery Store System</figcaption></div></figure>
+<h2 id="requirements-gathering">Requirements Gathering</h2>
+<p>Here is an example of a typical prompt an interviewer might give:</p>
+<p>“Imagine you’re at a grocery store, filling your cart with fresh produce, snacks, and household essentials. At the checkout, the cashier scans each item, and the system instantly tracks the order, applies any discounts, and displays the final total. Behind the scenes, the system is seamlessly managing the item catalog, updating inventory as stock arrives or sells, and ensuring every transaction is smooth and accurate. Now, let’s design a grocery store system that does all this.”</p>
+<h3 id="requirements-clarification">Requirements clarification</h3>
+<p>Here is an example of how a conversation between a candidate and an interviewer might unfold:</p>
+<p><strong>Candidate:</strong> What are the primary operations the grocery store system needs to support?<br>
+<strong>Interviewer:</strong> The system should support store workers, including shipment handlers and cashiers, in managing the item catalog, tracking inventory, and processing customer checkouts with applicable discounts.</p>
+<p><strong>Candidate</strong>: I’d like to confirm my understanding of the checkout process. The cashier scans or enters a code for each item, and the system keeps track of the order. It calculates the subtotal, applies any discounts, and updates the total. Once all items are entered, the cashier sees the final amount, accepts payment, and provides change if needed. A receipt is then generated. Does this sound correct?<br>
+<strong>Interviewer:</strong> Yes, that’s an accurate understanding of the system.</p>
+<p><strong>Candidate:</strong> How should the system handle inventory management?<br>
+<strong>Interviewer:</strong> The system should track inventory for all items, increasing inventory when new stock arrives and automatically decreasing inventory during checkout for items sold.</p>
+<p><strong>Candidate:</strong> Should the system categorize items into different categories, such as food, beverages, etc.?<br>
+<strong>Interviewer:</strong> Yes, that’s a good idea.</p>
+<p><strong>Candidate:</strong> For discounts, can I assume it works this way? The system should track discount campaigns, which can apply to specific items or categories. If multiple discounts apply to the same item, the system should automatically apply the highest discount.<br>
+<strong>Interviewer:</strong> That sounds great.</p>
+<h3 id="requirements">Requirements</h3>
+<p>This question has multiple requirements, so grouping similar ones makes it easier to manage and track. The requirements can be broken down into four groups.</p>
+<p><strong>Catalog management</strong></p>
+<ul>
+<li>Admins can add, update, and remove items from the catalog.</li>
+<li>The catalog tracks item details, including name, category, price, and barcode.</li>
+</ul>
+<p><strong>Inventory management</strong></p>
+<ul>
+<li>Shipment handlers can update inventory when shipments arrive.</li>
+<li>The system should automatically decrease inventory when items are sold.</li>
+</ul>
+<p><strong>Checkout process</strong></p>
+<ul>
+<li>Cashiers can scan barcodes or manually enter item codes to build an order.</li>
+<li>Cashiers can view details of the active order, including items, discounts, and the subtotal.</li>
+<li>The system calculates and applies relevant discounts automatically.</li>
+<li>Cashiers can finalize an order, calculate the total, handle payments, and calculate change.</li>
+<li>A detailed receipt is generated.</li>
+</ul>
+<p><strong>Discount campaigns</strong></p>
+<ul>
+<li>Admins can define discount campaigns for specific items or categories.</li>
+<li>If multiple discounts apply to an item, the system selects the highest discount.</li>
+</ul>
+<p>Below are the non-functional requirements:</p>
+<ul>
+<li>The system should provide clear, user-friendly error messages (e.g., for invalid barcodes or insufficient inventory) to the cashier.</li>
+<li>The system’s components (catalog, inventory, checkout, discounts) must be modular to allow updates or replacements of individual modules without affecting the entire system.</li>
+</ul>
+<h2 id="identify-core-objects">Identify Core Objects</h2>
+<p>Before diving into the design, it’s important to enumerate the core objects.</p>
+<ul>
+<li><strong>Item</strong>: Represents an individual product in the grocery store, encapsulating details such as name, barcode, category, and price.</li>
+<li><strong>Catalog</strong>: Acts as the central repository for all items, managing the collection of products and supporting operations like adding, updating, and removing items.</li>
+<li><strong>Inventory</strong>: Tracks the stock levels for each item. It updates the count of available items when new stock arrives (via shipments) or when items are sold during the checkout process.</li>
+<li><strong>Order</strong>: This object tracks the ongoing checkout process. It manages details such as the items in the order, active discounts, and the calculation of subtotals and total prices. This data is used to generate a receipt once the order is finalized.</li>
+<li><strong>DiscountCampaign:</strong> The DiscountCampaign object defines promotional rules for applying discounts.</li>
+</ul>
+<h2 id="design-class-diagram">Design Class Diagram</h2>
+<p>Now that we know the core objects and their roles, the next step is to create classes and methods that turn the requirements into an easy-to-maintain system. Let’s take a closer look.</p>
+<h4 id="item">Item</h4>
+<p>The first component in our class diagram is the Item class, which represents individual products in the store. It encapsulates attributes like name, barcode, category, and price.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a class named 'Item'.  The class is represented by a rectangular box with the letter 'C' in a circle at the top-left corner, indicating it's a class.  The name 'Item' is written to the right of the 'C' symbol. Inside the rectangle, four attributes are listed, each prefixed with a square checkbox: 'String name', 'String barcode', 'String category', and 'BigDecimal price'.  These attributes define the data members of the 'Item' class, specifying their data types (String for name, barcode, and category; and BigDecimal for price).  There are no methods or relationships shown in this diagram; it solely focuses on the attributes of the 'Item' class." loading="lazy" width="220" height="180" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-2-I76WBLE6.svg" style="color: transparent;"></div></figure>
+<h4 id="catalog">Catalog</h4>
+<p>The Catalog class is responsible for maintaining a structured list of all available products, each uniquely identified by a barcode. It provides methods to add, update, remove, and retrieve items.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a `Catalog` class.  The diagram is a rectangular box with the class name 'Catalog' and a 'C' symbol indicating it's a class, positioned in the upper-right corner. Inside the box, three components are listed: a private member variable `items` declared as a `Map&lt;String, Item&gt;`, suggesting it stores items using their string barcode as keys and `Item` objects as values. Below this, three public methods are defined: `updateltem(Item item)` (presumably updates an existing item), `removeltem(Item item)` (removes an item from the catalog), and `getItem(String barcode)` (retrieves an item based on its barcode).  There are no connections or information flows depicted beyond the internal structure of the `Catalog` class itself." loading="lazy" width="331" height="175" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-3-HNYW6M54.svg" style="color: transparent;"></div></figure>
+<h4 id="inventory">Inventory</h4>
+<p>Building on the Catalog class, the Inventory class is a critical component of the grocery store system, responsible for managing stock levels of items. It maintains a mapping between each item's barcode and its corresponding stock quantity.</p>
+<p>Here is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a class named 'Inventory'.  The class contains a private member variable `stock` which is a map with String keys (representing barcodes) and Integer values (representing the quantity in stock).  The class also includes three public methods: `addStock`, which takes a barcode (String) and count (integer) as input and adds that quantity to the stock; `reduceStock`, which takes a barcode (String) and count (integer) and subtracts that quantity from the stock; and `getStock`, which takes a barcode (String) as input and returns an integer representing the current stock level for that barcode.  The diagram visually shows the class name, member variable, and methods, clearly indicating their access modifiers (private for `stock` and public for the methods) and data types." loading="lazy" width="488" height="184" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-4-E4RVAO3P.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> To ensure modularity and maintainability, we have deliberately
+separated static product details from dynamic stock levels: Static Data (Catalog):
+Product metadata, such as name, category, and price, is managed by the Catalog
+class. This allows consistent, centralized handling of product information that
+does not change frequently. Dynamic Data (Inventory): Stock levels, which change
+frequently due to operations like sales and shipments, are managed independently
+in the Inventory class.</p></div>
+<p>This separation simplifies both classes and adheres to the Single Responsibility Principle, ensuring each class focuses on a distinct aspect of the system.</p>
+<h4 id="discountcriteria">DiscountCriteria</h4>
+<p>The DiscountCriteria interface encapsulates the logic to determine whether a discount applies to an item. It provides a flexible, extensible framework for defining applicability checks, such as item-based and category-based criteria, allowing the system to support diverse discount rules without modifying existing code.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating an interface `DiscountCriteria` and its two implementing classes, `CategoryBasedCriteria` and `ItemBasedCriteria`.  The `DiscountCriteria` interface is depicted at the top, denoted by the `I` symbol, and contains a single method: `boolean isApplicable(Item item)`. This method takes an `Item` object as input and returns a boolean value indicating whether a discount is applicable.  Below, `CategoryBasedCriteria` and `ItemBasedCriteria` are shown as classes (denoted by `C`), each implementing the `DiscountCriteria` interface via a dashed-line inheritance arrow.  `CategoryBasedCriteria` has a private member variable `String category`, while `ItemBasedCriteria` has a private member variable `String itemId`.  The diagram shows that both classes implement the `isApplicable` method, suggesting that they each define their own logic for determining discount applicability based on either the item's category or its ID, respectively." loading="lazy" width="497" height="251" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-5-Y7KTXGCQ.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">DiscountCriteria interface and concrete classes</figcaption></div></figure>
+<p><strong>CategoryBasedCriteria:</strong> The CategoryBasedCriteria determines whether a discount is applicable by verifying if an item belongs to a specific category. For example, if the discount targets the "Beverages" category and the item's category is "Beverages," the discount is applicable. This approach is ideal for campaigns that focus on broad groups of products, such as category-wide promotions.</p>
+<p><strong>ItemBasedCriteria</strong>: The ItemBasedCriteria checks whether a discount applies to a specific item by matching its unique identifier. For instance, if the discount applies to an item with ID 12345 and the item's ID is 12345, the discount is considered applicable. This criterion is particularly useful for campaigns targeting specific products, such as special promotions or clearance discounts for individual items.</p>
+<h4 id="discountcalculationstrategy">DiscountCalculationStrategy</h4>
+<p>The DiscountCalculationStrategy interface encapsulates the logic for calculating discounts. It uses the Strategy Pattern to provide flexibility in applying a variety of discount types, such as fixed amount-based or percentage-based discounts.</p>
+<p>Below is the representation of this interface.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a UML class diagram illustrating the Strategy design pattern.  At the top is an interface, `DiscountCalculationStrategy`, defining a single method: `BigDecimal calculateDiscountedPrice(BigDecimal originalPrice)`. This method takes a `BigDecimal` representing the original price as input and returns a `BigDecimal` representing the discounted price.  Below the interface, two classes, `AmountBasedStrategy` and `PercentageBasedStrategy`, implement this interface.  Dashed lines with open arrowheads indicate that these classes implement the interface. `AmountBasedStrategy` contains a private member variable `BigDecimal discountAmount`, while `PercentageBasedStrategy` contains a private member variable `BigDecimal discountPercentage`.  The diagram shows how different discount calculation strategies can be implemented and used interchangeably, adhering to the common interface `DiscountCalculationStrategy`." loading="lazy" width="563" height="216" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-6-YE2QJBHY.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">DiscountCalculationStrategy interface and concrete classes</figcaption></div></figure>
+<p><strong>AmountBasedStrategy</strong>: This strategy applies a fixed discount amount to the original price. For example, if the original price is $100 and the discount amount is $20, the resulting price after the discount will be $80. This approach is straightforward and is ideal for campaigns offering a constant monetary reduction.</p>
+<p><strong>PercentageBasedStrategy</strong>: This strategy applies a percentage-based discount to the original price. For instance, if the original price is $100 and the discount percentage is 20%, the price after the discount will be $80. This strategy is particularly useful for campaigns offering proportional reductions, such as seasonal or category-based discounts.</p>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> This design is highly extensible, as new discount strategies,
+such as tiered discounts or "Buy X Get Y Free," can be added seamlessly without
+modifying the existing implementation, adhering to the Open/Closed Principle.</p></div>
+<h4 id="discountcampaign">DiscountCampaign</h4>
+<p>Now, we design the DiscountCampaign class, which models active discount campaigns and is a key component for applying discounts. It leverages the Strategy Pattern to encapsulate different calculation strategies (e.g., percentage-based or fixed-amount discounts), ensuring flexibility in how discounts are computed. The class uses a DiscountCriteria interface to specify which items qualify for a discount, such as those in a particular category or with a specific barcode, allowing precise targeting of promotions while maintaining extensibility for new applicability rules.</p>
+<p>The UML diagram below illustrates this structure.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `DiscountCampaign` class.  The diagram shows the class name `DiscountCampaign` at the top, indicated by the letter 'C' in a circle.  Below this, the class contains four private member variables: `discountId` and `name` (both Strings), `criteria` (of type `DiscountCriteria`), and `calculationStrategy` (of type `DiscountCalculationStrategy`).  Finally, the class includes two public methods: `isApplicable`, which takes an `Item` object as input and returns a boolean value, and `calculateDiscount`, which takes an `OrderItem` object as input and returns a `BigDecimal` value representing the calculated discount.  The diagram visually depicts the internal structure of the `DiscountCampaign` class, showing its attributes and methods, and implicitly suggests a design pattern where the discount calculation logic is encapsulated within a separate `DiscountCalculationStrategy` object." loading="lazy" width="466" height="199" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-7-SKQ2E4QT.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> By separating the applicability logic (criteria) from the calculation
+strategy, the class is more modular and easier to extend. New criteria types or
+calculation strategies can be added without modifying the existing implementation.</p></div>
+<h4 id="orderitem">OrderItem</h4>
+<p>The next component is the OrderItem class, which represents a specific item in an order, along with its quantity. It encapsulates methods to calculate the total price for the item, based on its unit price and quantity.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `OrderItem` class.  The diagram is a rectangular box with the class name 'OrderItem' and a 'C' symbol indicating it's a class, prominently displayed at the top.  Below this, the diagram lists two private member variables: `Item item` (of type `Item`) and `int quantity` (an integer representing the quantity of the item).  Finally, it shows two public methods: `BigDecimal calculatePrice()` which presumably calculates the price of the order item, and `BigDecimal calculatePriceWithDiscount(DiscountCampaign newDiscount)`, which calculates the price considering a discount, taking a `DiscountCampaign` object as a parameter named `newDiscount`.  No connections or information flow to or from other classes is depicted; the diagram solely focuses on the internal structure and methods of the `OrderItem` class." loading="lazy" width="578" height="137" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-8-RK66CMKD.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The OrderItem class separates item-level details from the higher-level
+order. This ensures that each item's quantity and price logic are encapsulated,
+making the design modular and easier to maintain.</p></div>
+<h4 id="order">Order</h4>
+<p>The Order class represents an active transaction during the checkout process. It tracks the list of items in order, along with any applied discounts. The class provides methods to calculate the subtotal (before discounts) and the total amount (after discounts).</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for an `Order` class in an object-oriented system.  The diagram shows the `Order` class, denoted by a 'C' in a circle, containing four attributes: a `String` named `orderId`, a `List&lt;OrderItem&gt;` named `items`, a `Map&lt;OrderItem, DiscountCampaign&gt;` named `appliedDiscounts`, and a `BigDecimal` named `paymentAmount`.  The class also includes five methods: `addItem(OrderItem item)` which adds an item to the order; `calculateSubtotal()`, `calculateTotal()`, and `calculateChange()`, all returning a `BigDecimal` representing calculated values; and `applyDiscount(OrderItem item, DiscountCampaign discount)`, which applies a discount to a specific item in the order.  The attributes describe the data held within an `Order` object, while the methods define the actions that can be performed on an `Order` object.  There are no connections to other classes explicitly shown in this diagram, but the presence of `OrderItem` and `DiscountCampaign` suggests dependencies on other classes." loading="lazy" width="575" height="243" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-9-4B4ID6DV.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The Order class focuses on managing transactional data for the
+checkout process. It delegates the handling of individual item quantities to the
+OrderItem class, ensuring a clean separation of responsibilities.</p></div>
+<h4 id="receipt">Receipt</h4>
+<p>The Receipt class acts as the final record of a completed transaction, consolidating all relevant details into a formatted output for the customer. It includes essential transaction information such as the order summary, payment details, and any changes to be given to the customer.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a 'Receipt' class in object-oriented programming.  The diagram is a rectangular box with the label 'Receipt' preceded by a 'C' symbol within a circle, indicating it's a class. Inside the box, three lines define private instance variables: a String named 'receiptId', an 'Order' object named 'order', and a Date object named 'issueDate'.  Below these, a line defines a public method: a function named 'printReceipt()' that returns a String.  The diagram visually depicts the internal structure of the Receipt class, showing its data members (attributes) and its behavior (method) in a clear and concise manner.  The use of 'String', 'Order', and 'Date' specifies the data types of the variables.  The minus sign ('-') before the variables indicates private access, while the plus sign ('+') before the method indicates public access." loading="lazy" width="223" height="158" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-10-DVYMNR2X.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> The Receipt class focuses solely on presenting transaction data
+in a customer-friendly format. It delegates all business logic, such as order calculations
+and discount handling, to the Order and OrderItem classes. This ensures the receipt
+remains lightweight and dedicated to its role as a transaction summary.</p></div>
+<h4 id="checkout">Checkout</h4>
+<p>Moving on to the Checkout class, which encapsulates the logic for handling the checkout process within the grocery store system. It maintains an active Order object to track the transaction details. Additionally, it applies active discount campaigns by determining their applicability and performing calculations.</p>
+<p>Below is the representation of this class.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram depicting a `Checkout` class.  The class is denoted by a rectangle divided into two sections. The top section lists two private member variables: `Order currentOrder`, representing the current order being processed, and `List&lt;DiscountCampaign&gt; activeDiscounts`, a list containing active discount campaigns applicable to the order. The bottom section details the class's public methods: `startNewOrder()`, initiating a new order; `addItemToOrder(Item item, int quantity)`, adding an item to the current order with its quantity; `getOrderTotal()`, returning the total amount of the current order as a `BigDecimal`; `processPayment(BigDecimal paymentAmount)`, processing a payment with a given `BigDecimal` amount; and `getReceipt()`, returning a `Receipt` object.  The class is clearly identified with a 'C' symbol in a circle preceding the class name 'Checkout'.  No external connections or data flows are shown; the diagram focuses solely on the internal structure and functionality of the `Checkout` class." loading="lazy" width="535" height="211" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-11-PL45OV3E.svg" style="color: transparent;"></div></figure>
+<div class="info-box"><img alt="Design Choice" loading="lazy" width="20" height="20" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/design-choice-T3SCDB4L.svg" style="color: transparent;"><p><strong>Design choice:</strong> Despite its central role, the Checkout class remains lightweight
+because the responsibilities for managing items, discounts, and calculations are
+delegated to well-separated components such as Order, DiscountCampaign, and the
+underlying strategy classes. This modular design ensures a clean separation of
+concerns and keeps the checkout logic manageable.</p></div>
+<h4 id="grocerystoresystem">GroceryStoreSystem</h4>
+<p>Finally, we design the GroceryStoreSystem class, which serves as a facade that simplifies interaction with the components of the system, such as the Catalog, Inventory, and Checkout. By providing a unified interface, it abstracts away the underlying complexity, making the system easier for clients to use. In an interview, this facade also allows us to validate that we have addressed the requirements by mapping them to the facade methods.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram for a `GroceryStoreSystem`.  The diagram shows a class named `GroceryStoreSystem` with a grayed-out 'C' indicating it's a class.  Inside the class definition, four private member variables are listed: `Catalog catalog`, `Inventory inventory`, `List&lt;DiscountCampaign&gt; activeDiscounts`, and `Checkout checkout`. These represent the system's catalog of items, its inventory levels, a list of active discount campaigns, and the checkout functionality, respectively. Below the member variables, five public member functions are defined: `addOrUpdateltem(Item item)` to add or update an item; `updateInventory(String barcode, int count)` to update inventory for a given item; `addDiscountCampaign(DiscountCampaign discount)` to add a discount campaign; `removeltem(String barcode)` to remove an item; and `getItemByBarcode(String barcode)` to retrieve an item by its barcode.  There are no connections or information flows depicted between the `GroceryStoreSystem` class and any other classes; it stands alone as a self-contained representation of the system's structure and functionality." loading="lazy" width="464" height="222" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-12-J35DG7KF.svg" style="color: transparent;"></div></figure>
+<h4 id="complete-class-diagram">Complete Class Diagram</h4>
+<p>Below is the complete class diagram of our grocery store system. The detailed methods and attributes are skipped to make the diagram more readable.</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the object-oriented design of a GroceryStoreSystem.  The system's core class, `GroceryStoreSystem`, has aggregate relationships with `Catalog`, `Inventory`, and `Checkout`.  `Catalog` manages a `Map` of `Item` objects, accessible by barcode, with methods to update and remove items. `Inventory` tracks item stock levels using a `Map` of barcodes and counts, providing methods for adding, reducing, and retrieving stock. `Checkout` manages the current order, a list of active discounts (`List&lt;DiscountCampaign&gt;`), and provides methods to start a new order, add items (specifying quantity), calculate the order total, process payments, and retrieve a `Receipt`. The `Receipt` class stores the receipt ID, the `Order` object, the issue date, and a method to print the receipt.  The `Order` class contains a list of `Orderltem` objects, a map tracking applied discounts (`Map&lt;Orderltem, DiscountCampaign&gt;`), and methods to add items, calculate subtotals, totals, and change, and apply discounts.  `Orderltem` contains an `Item` object, quantity, and methods to calculate price with and without discounts.  `DiscountCampaign` includes a discount ID, name, `DiscountCriteria`, and `DiscountCalculationStrategy`, with methods to check applicability and calculate discounts.  `DiscountCriteria` (an interface) and `DiscountCalculationStrategy` (an interface) define contracts for determining discount applicability and calculating discounted prices, respectively.  The relationships between classes are shown using aggregation (diamond) and association (line) symbols, indicating the composition and interaction between different components of the system." loading="lazy" width="624" height="925" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-13-7HDBZPTE.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Class Diagram of Grocery Store System</figcaption></div></figure>
+<h2 id="code---grocery-store-system">Code - Grocery Store System</h2>
+<p>In this section, we’ll implement the core functionality of the grocery store system, focusing on key areas such as managing products and inventory, and streamlining the checkout process, including discount handling.</p>
+<h4 id="item-1">Item</h4>
+<p>We implement the Item class, which encapsulates product attributes, including the name, barcode, category, and price. It is designed as a simple data container with no business logic, making it easy to use and maintain.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Item</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String name;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String barcode;
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String category;
+    <span class="hljs-keyword">private</span> BigDecimal price;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Item</span><span class="hljs-params">(String name, String barcode, String category, BigDecimal price)</span> {
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.barcode = barcode;
+        <span class="hljs-built_in">this</span>.category = category;
+        <span class="hljs-built_in">this</span>.price = price;
+    }
+
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<h4 id="catalog-1">Catalog</h4>
+<p>We define the Catalog class, which acts as the centralized repository for managing the store's item inventory. Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Catalog</span> {
+    <span class="hljs-comment">// Map of barcodes to their corresponding items</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Item&gt; items = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateItem</span><span class="hljs-params">(Item item)</span> {
+        items.put(item.getBarcode(), item);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeItem</span><span class="hljs-params">(String barcode)</span> {
+        items.remove(barcode);
+    }
+
+    <span class="hljs-keyword">public</span> Item <span class="hljs-title function_">getItem</span><span class="hljs-params">(String barcode)</span> {
+        <span class="hljs-keyword">return</span> items.get(barcode);
+    }
+}
+
+</code></pre>
+<p><strong>Implementation note</strong>: The class uses a Map&lt;String, Item&gt; to store items, where the barcode serves as the key. The hash map ensures efficient lookups, updates, and deletions.</p>
+<h4 id="inventory-1">Inventory</h4>
+<p>The Inventory class manages the stock levels of items, associating each item's barcode with its available quantity. It provides methods to handle stock operations, such as adding new stock, decreasing stock for sales, and querying the current stock levels for a specific item.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Inventory</span> {
+    <span class="hljs-comment">// Map of barcodes to their stock quantities</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, Integer&gt; stock = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addStock</span><span class="hljs-params">(String barcode, <span class="hljs-type">int</span> count)</span> {
+        stock.put(barcode, stock.getOrDefault(barcode, <span class="hljs-number">0</span>) + count);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">reduceStock</span><span class="hljs-params">(String barcode, <span class="hljs-type">int</span> count)</span> {
+        stock.put(barcode, stock.getOrDefault(barcode, <span class="hljs-number">0</span>) - count);
+    }
+
+    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getStock</span><span class="hljs-params">(String barcode)</span> {
+        <span class="hljs-keyword">return</span> stock.getOrDefault(barcode, <span class="hljs-number">0</span>);
+    }
+}
+
+</code></pre>
+<ul>
+<li><strong>addStock(String barcode, int count)</strong>: Increases the stock for the specified barcode.</li>
+<li><strong>reduceStock(String barcode, int count)</strong>: Decreases the stock for the specified barcode.</li>
+<li><strong>getStock(String barcode)</strong>: Returns the current stock count for the specified barcode.</li>
+</ul>
+<p><strong>Implementation choice:</strong> The Inventory class uses a HashMap to map barcodes to stock quantities, enabling O(1) average-case time complexity for updates and queries. This supports efficient inventory management during sales and shipments, which is crucial for maintaining accurate stock levels in a busy store.</p>
+<h4 id="discountcampaign-1">DiscountCampaign</h4>
+<p>The DiscountCampaign class models promotional rules for applying discounts. It separates the logic for determining discount applicability (using DiscountCriteria) from the calculation of discount values (using DiscountCalculationStrategy). This design ensures flexibility and extensibility for various discount configurations.</p>
+<p>Below is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DiscountCampaign</span> {
+    <span class="hljs-comment">// Unique identifier for the discount campaign</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String discountId;
+    <span class="hljs-comment">// Name of the discount campaign</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String name;
+    <span class="hljs-comment">// Criteria that determines if the discount applies to an item or category</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DiscountCriteria criteria;
+    <span class="hljs-comment">// Strategy for calculating the discounted price</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DiscountCalculationStrategy calculationStrategy;
+
+    <span class="hljs-comment">// Creates a new discount campaign with the specified details</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DiscountCampaign</span><span class="hljs-params">(
+            String discountId,
+            String name,
+            DiscountCriteria criteria,
+            DiscountCalculationStrategy calculationStrategy)</span> {
+        <span class="hljs-built_in">this</span>.discountId = discountId;
+        <span class="hljs-built_in">this</span>.name = name;
+        <span class="hljs-built_in">this</span>.criteria = criteria;
+        <span class="hljs-built_in">this</span>.calculationStrategy = calculationStrategy;
+    }
+
+    <span class="hljs-comment">// Checks if this discount applies to the given item</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isApplicable</span><span class="hljs-params">(Item item)</span> {
+        <span class="hljs-keyword">return</span> criteria.isApplicable(item);
+    }
+
+    <span class="hljs-comment">// Calculates the discounted price for the given order item</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateDiscount</span><span class="hljs-params">(OrderItem item)</span> {
+        <span class="hljs-keyword">return</span> calculationStrategy.calculateDiscountedPrice(item.calculatePrice());
+    }
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p><strong>isApplicable(Item item)</strong>: Check if the discount applies to a given item based on the defined criteria. Returns true if applicable; otherwise, false.</p>
+<p><strong>calculateDiscount(BigDecimal price)</strong>: Computes the discount amount using the specified calculationStrategy. Supports both percentage-based and fixed-amount calculations.</p>
+<p><strong>Implementation choice:</strong> The DiscountCampaign class uses composition to hold a single DiscountCriteria and DiscountCalculationStrategy, leveraging polymorphism for flexible discount configurations. This allows each campaign to combine one applicability rule and one calculation method, simplifying the implementation while supporting diverse promotions.</p>
+<p><em>Note</em>: For brevity, the code for DiscountCriteria and DiscountCalculationStrategy is omitted. These interfaces define applicability checks (e.g., category or item matching) and discount calculations (e.g., percentage-based), respectively.</p>
+<h4 id="orderitem-1">OrderItem</h4>
+<p>The OrderItem class tracks an individual product within an order, along with its quantity. It calculates the total cost for the item by multiplying its unit price by the quantity, enabling seamless integration with the order's subtotal and total calculations.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OrderItem</span> {
+    <span class="hljs-comment">// The item being ordered</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Item item;
+    <span class="hljs-comment">// Quantity of the item</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-type">int</span> quantity;
+
+    <span class="hljs-comment">// Creates a new order item with the specified item and quantity</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">OrderItem</span><span class="hljs-params">(Item item, <span class="hljs-type">int</span> quantity)</span> {
+        <span class="hljs-built_in">this</span>.item = item;
+        <span class="hljs-built_in">this</span>.quantity = quantity;
+    }
+
+    <span class="hljs-comment">// Calculates the total price for this order item without any discount</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculatePrice</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> item.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
+
+    <span class="hljs-comment">// Calculates the total price for this order item with the given discount</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculatePriceWithDiscount</span><span class="hljs-params">(DiscountCampaign newDiscount)</span> {
+        <span class="hljs-keyword">return</span> newDiscount.calculateDiscount(<span class="hljs-built_in">this</span>);
+    } <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p>calculatePriceWithDiscount(DiscountCampaign newDiscount): This method computes the item's total price after applying a given discount campaign. Instead of simply returning the base price (unit price × quantity), it factors in the discount to determine the adjusted price.</p>
+<h4 id="order-1">Order</h4>
+<p>The Order class handles customer transactions by maintaining a list of purchased items and their associated discounts. It dynamically calculates the subtotal and total amounts based on the items currently included in the order and the discounts applied to them at the time of calculation.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Order</span> {
+    <span class="hljs-comment">// Unique identifier for the order</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> String orderId;
+    <span class="hljs-comment">// List of items in the order</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;OrderItem&gt; items = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+    <span class="hljs-comment">// Map of items to their applied discounts</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;OrderItem, DiscountCampaign&gt; appliedDiscounts = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();
+    <span class="hljs-comment">// Amount paid by the customer</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">paymentAmount</span> <span class="hljs-operator">=</span> BigDecimal.ZERO;
+
+    <span class="hljs-comment">// Creates a new order with a random UUID</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Order</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.orderId = String.valueOf(UUID.randomUUID());
+    }
+
+    <span class="hljs-comment">// Adds an item to the order</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addItem</span><span class="hljs-params">(OrderItem item)</span> {
+        items.add(item);
+    }
+
+    <span class="hljs-comment">// Calculates the subtotal of all items without discounts</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateSubtotal</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> items.stream()
+                .map(OrderItem::calculatePrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    <span class="hljs-comment">// Calculates the total price including all applied discounts</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateTotal</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> items.stream()
+                .map(
+                        item -&gt; {
+                            <span class="hljs-type">DiscountCampaign</span> <span class="hljs-variable">discount</span> <span class="hljs-operator">=</span> appliedDiscounts.get(item);
+                            <span class="hljs-keyword">return</span> discount != <span class="hljs-literal">null</span>
+                                    ? item.calculatePriceWithDiscount(discount)
+                                    : item.calculatePrice();
+                        })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    <span class="hljs-comment">// Applies a discount to a specific item in the order</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">applyDiscount</span><span class="hljs-params">(OrderItem item, DiscountCampaign discount)</span> {
+        appliedDiscounts.put(item, discount);
+    }
+
+    <span class="hljs-comment">// Calculates the change to be returned to the customer</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateChange</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> paymentAmount.subtract(calculateTotal());
+    }
+    <span class="hljs-comment">// getter and setter methods are omitted for brevity</span>
+}
+
+</code></pre>
+<p><strong>Implementation choice:</strong> The Order class uses an ArrayList for fast O(1) item additions via addItem and efficient O(n) iteration for calculateSubtotal and calculateTotal, ideal for small grocery orders. Similarly, a HashMap&lt;OrderItem, DiscountCampaign&gt; tracks discounts per item, providing O(1) average-case lookups and updates.</p>
+<h4 id="checkout-1">Checkout</h4>
+<p>The Checkout class orchestrates the transaction process by integrating the order and discount campaigns. It allows items to be added to an order, applies relevant discounts, and finalizes the payment.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Checkout</span> {
+    <span class="hljs-comment">// Current order being processed</span>
+    <span class="hljs-keyword">private</span> Order currentOrder;
+    <span class="hljs-comment">// List of active discount campaigns</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;DiscountCampaign&gt; activeDiscounts;
+
+    <span class="hljs-comment">// Creates a new checkout with the given active discounts</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Checkout</span><span class="hljs-params">(List&lt;DiscountCampaign&gt; activeDiscounts)</span> {
+        <span class="hljs-built_in">this</span>.activeDiscounts = activeDiscounts;
+        startNewOrder();
+    }
+
+    <span class="hljs-comment">// Starts a new order</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">startNewOrder</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.currentOrder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Order</span>();
+    }
+
+    <span class="hljs-comment">// Processes the payment and returns the change</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">processPayment</span><span class="hljs-params">(BigDecimal paymentAmount)</span> {
+        currentOrder.setPayment(paymentAmount);
+        <span class="hljs-keyword">return</span> currentOrder.calculateChange();
+    }
+
+    <span class="hljs-comment">// Adds an item to the current order and applies applicable discounts</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addItemToOrder</span><span class="hljs-params">(Item item, <span class="hljs-type">int</span> quantity)</span> {
+        <span class="hljs-type">OrderItem</span> <span class="hljs-variable">orderItem</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OrderItem</span>(item, quantity);
+        currentOrder.addItem(orderItem);
+
+        <span class="hljs-keyword">for</span> (DiscountCampaign newDiscount : activeDiscounts) {
+            <span class="hljs-keyword">if</span> (newDiscount.isApplicable(item)) {
+                <span class="hljs-comment">// if there are multiple newDiscount that apply to item, apply the higher one</span>
+                <span class="hljs-keyword">if</span> (currentOrder.getAppliedDiscounts().containsKey(orderItem)) {
+                    <span class="hljs-type">DiscountCampaign</span> <span class="hljs-variable">existingDiscount</span> <span class="hljs-operator">=</span>
+                            currentOrder.getAppliedDiscounts().get(orderItem);
+                    <span class="hljs-keyword">if</span> (orderItem
+                                    .calculatePriceWithDiscount(newDiscount)
+                                    .compareTo(
+                                            orderItem.calculatePriceWithDiscount(existingDiscount))
+                            &gt; <span class="hljs-number">0</span>) {
+                        currentOrder.applyDiscount(orderItem, newDiscount);
+                    }
+                } <span class="hljs-keyword">else</span> {
+                    currentOrder.applyDiscount(orderItem, newDiscount);
+                }
+            }
+        }
+    }
+
+    <span class="hljs-comment">// Generates a receipt for the current order</span>
+    <span class="hljs-keyword">public</span> Receipt <span class="hljs-title function_">getReceipt</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Receipt</span>(currentOrder);
+    }
+
+    <span class="hljs-comment">// Calculates the total amount for the current order</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">getOrderTotal</span><span class="hljs-params">()</span> {
+        <span class="hljs-keyword">return</span> currentOrder.calculateTotal();
+    }
+}
+
+</code></pre>
+<p><strong>Implementation choice:</strong> The Checkout class uses an ArrayList to store active discounts, enabling linear iteration (O(n)) to evaluate applicability and select the highest discount. This is efficient given the small number of active campaigns.</p>
+<h4 id="grocerystoresystem-1">GroceryStoreSystem</h4>
+<p>Finally, we implement the GroceryStoreSystem class that provides a unified interface to interact with the system's other components, including the catalog, inventory, discount campaigns, and checkout. It simplifies client interactions and ensures consistency across operations such as managing products, applying discounts, and processing customer transactions.</p>
+<p>Here is the implementation of this class.</p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">GroceryStoreSystem</span> {
+    <span class="hljs-comment">// Product catalog containing all available items</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Catalog catalog;
+    <span class="hljs-comment">// Inventory tracking system</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Inventory inventory;
+    <span class="hljs-comment">// List of active discount campaigns</span>
+    <span class="hljs-keyword">private</span> List&lt;DiscountCampaign&gt; activeDiscounts = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();
+    <span class="hljs-comment">// Checkout system for processing orders</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Checkout checkout;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">GroceryStoreSystem</span><span class="hljs-params">()</span> {
+        <span class="hljs-built_in">this</span>.catalog = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Catalog</span>();
+        <span class="hljs-built_in">this</span>.inventory = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Inventory</span>();
+        <span class="hljs-built_in">this</span>.checkout = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Checkout</span>(activeDiscounts);
+    }
+
+    <span class="hljs-comment">// Adds or updates an item in the catalog</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addOrUpdateItem</span><span class="hljs-params">(Item item)</span> {
+        catalog.updateItem(item);
+    }
+
+    <span class="hljs-comment">// Updates the inventory count for an item</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">updateInventory</span><span class="hljs-params">(String barcode, <span class="hljs-type">int</span> count)</span> {
+        inventory.addStock(barcode, count);
+    }
+
+    <span class="hljs-comment">// Adds a new discount campaign to the system</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addDiscountCampaign</span><span class="hljs-params">(DiscountCampaign discount)</span> {
+        activeDiscounts.add(discount);
+    }
+
+    <span class="hljs-comment">// Retrieves an item from the catalog by its barcode</span>
+    <span class="hljs-keyword">public</span> Item <span class="hljs-title function_">getItemByBarcode</span><span class="hljs-params">(String barcode)</span> {
+        <span class="hljs-keyword">return</span> catalog.getItem(barcode);
+    }
+
+    <span class="hljs-comment">// Removes an item from the catalog</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeItem</span><span class="hljs-params">(String barcode)</span> {
+        catalog.removeItem(barcode);
+    }
+}
+
+</code></pre>
+<h2 id="deep-dive-topics">Deep Dive Topics</h2>
+<p>In this section, we’ll explore some common follow-up topics interviewers may ask about the grocery store system.</p>
+<h3 id="flexible-discount-criteria">Flexible Discount Criteria</h3>
+<p>The current design encapsulates discount logic into two components:</p>
+<ul>
+<li><strong>Criteria</strong>: Determines whether an item qualifies for a discount.</li>
+<li><strong>Price Calculation Strategy</strong>: Computes the discounted price for eligible items.</li>
+</ul>
+<p>This design provides reusability by allowing different combinations of discount policies to be expressed without duplicating code. However, what if the interviewer asks you to implement more complex composite discounts, such as:</p>
+<ul>
+<li>"If total electronics purchases exceed $100, apply a 10% discount; if they exceed $200, apply a 20% discount."</li>
+<li>"Buy at least 3 units of the same item in the food category for a special price."</li>
+</ul>
+<p>These scenarios require combining multiple criteria and calculations. We can handle such complexity by enhancing the design using the Composite Pattern for criteria and the Decorator Pattern for sequential calculations.</p>
+<p><em>Note</em>: To learn more about the Composite Pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/design-a-unix-file-search">Unix File Search</a></strong> chapter of the book.</p>
+<h3 id="combining-multiple-criteria">Combining Multiple Criteria</h3>
+<p>To address nested or combined criteria, we will use the Composite Pattern, which is particularly well-suited for scenarios where hierarchical structures or combinations of logic are required. Composite criteria allow us to combine multiple rules (e.g., category-based, item-based) using logical operators like <strong>AND</strong> and <strong>OR</strong>, without hardcoding the logic. For example, it can check if an item belongs to a specific category and meets a minimum price threshold.</p>
+<h4 id="design-changes">Design changes</h4>
+<p>Add a CompositeCriteria class to support combining criteria.</p>
+<h4 id="code-changes">Code changes</h4>
+<p>Below is an example of how to implement CompositeCriteria:</p>
+<pre><code class="hljs language-java"><span class="hljs-comment">// Composite criteria that combines multiple discount criteria</span>
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CompositeCriteria</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">DiscountCriteria</span> {
+    <span class="hljs-comment">// List of criteria to be combined</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;DiscountCriteria&gt; criteriaList;
+
+    <span class="hljs-comment">// Creates a new composite criteria with the given list of criteria</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">CompositeCriteria</span><span class="hljs-params">(List&lt;DiscountCriteria&gt; criteriaList)</span> {
+        <span class="hljs-built_in">this</span>.criteriaList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;(criteriaList);
+    }
+
+    <span class="hljs-comment">// Checks if the item satisfies all the criteria in the list</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isApplicable</span><span class="hljs-params">(Item item)</span> {
+        <span class="hljs-keyword">return</span> criteriaList.stream().allMatch(criteria -&gt; criteria.isApplicable(item));
+    }
+
+    <span class="hljs-comment">// Adds a new criteria to the composite</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addCriteria</span><span class="hljs-params">(DiscountCriteria criteria)</span> {
+        criteriaList.add(criteria);
+    }
+
+    <span class="hljs-comment">// Removes a criteria from the composite</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">removeCriteria</span><span class="hljs-params">(DiscountCriteria criteria)</span> {
+        criteriaList.remove(criteria);
+    }
+}
+</code></pre>
+<h3 id="layering-discount-calculations">Layering Discount Calculations</h3>
+<p>To manage sequential discount calculations, we can use the <strong>Decorator Pattern</strong>. By wrapping multiple calculation strategies, we can apply discounts in a specific order without modifying the underlying strategy logic. For example:</p>
+<ul>
+<li>Apply a fixed discount first.</li>
+<li>Then apply a percentage-based discount to the remaining price.</li>
+</ul>
+<p><em>Note</em>: To learn more about the Decorator Pattern and its common use cases, refer to the <strong><a href="/courses/object-oriented-design-interview/grocery-store-system#further-reading-decorator-design-pattern">Further Reading</a></strong> section at the end of this chapter.</p>
+<h4 id="design-changes-1">Design changes</h4>
+<ul>
+<li>Introduce decorators like FixedDiscountDecorator and PercentageDiscountDecorator to wrap existing strategies.</li>
+</ul>
+<h4 id="code-changes-1">Code changes</h4>
+<p>Below are examples of implementing decorators:</p>
+<p><strong>FixedDiscountDecorator</strong></p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">FixedDiscountDecorator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">DiscountCalculationStrategy</span> {
+    <span class="hljs-comment">// The strategy being decorated</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DiscountCalculationStrategy strategy;
+    <span class="hljs-comment">// The fixed amount to be added to the discount</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal fixedAmount;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">FixedDiscountDecorator</span><span class="hljs-params">(DiscountCalculationStrategy strategy, BigDecimal fixedAmount)</span> {
+        <span class="hljs-built_in">this</span>.strategy = strategy;
+        <span class="hljs-built_in">this</span>.fixedAmount = fixedAmount;
+    }
+
+    <span class="hljs-comment">// Calculates the discounted price by applying both the base strategy and the fixed amount</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateDiscountedPrice</span><span class="hljs-params">(BigDecimal originalPrice)</span> {
+        <span class="hljs-keyword">return</span> strategy.calculateDiscountedPrice(originalPrice).subtract(fixedAmount);
+    }
+}
+
+</code></pre>
+<p><strong>PercentageDiscountDecorator</strong></p>
+<pre><code class="hljs language-java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PercentageDiscountDecorator</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">DiscountCalculationStrategy</span> {
+    <span class="hljs-comment">// The strategy being decorated</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> DiscountCalculationStrategy strategy;
+    <span class="hljs-comment">// The additional percentage to be discounted</span>
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> BigDecimal additionalPercentage;
+
+    <span class="hljs-keyword">public</span> <span class="hljs-title function_">PercentageDiscountDecorator</span><span class="hljs-params">(
+            DiscountCalculationStrategy strategy, BigDecimal additionalPercentage)</span> {
+        <span class="hljs-built_in">this</span>.strategy = strategy;
+        <span class="hljs-built_in">this</span>.additionalPercentage = additionalPercentage;
+    }
+
+    <span class="hljs-comment">// Calculates the discounted price by applying both the base strategy and the additional</span>
+    <span class="hljs-comment">// percentage</span>
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> BigDecimal <span class="hljs-title function_">calculateDiscountedPrice</span><span class="hljs-params">(BigDecimal originalPrice)</span> {
+        <span class="hljs-type">BigDecimal</span> <span class="hljs-variable">baseDiscountedPrice</span> <span class="hljs-operator">=</span> strategy.calculateDiscountedPrice(originalPrice);
+        <span class="hljs-keyword">return</span> baseDiscountedPrice.multiply(
+                BigDecimal.ONE.subtract(additionalPercentage.divide(BigDecimal.valueOf(<span class="hljs-number">100</span>))));
+    }
+}
+
+</code></pre>
+<p>By combining nested criteria and sequential calculation strategies, we can design a highly flexible discount system capable of handling even the most complex scenarios. This design approach not only simplifies implementation but also demonstrates a deep understanding of abstraction and extensibility principles, which are crucial in object-oriented design interviews.</p>
+<h2 id="wrap-up">Wrap Up</h2>
+<p>In this chapter, we designed a grocery store system. We tried to solve the grocery store problem in a step-by-step manner, just like a candidate would do in an actual object-oriented design interview. We started off by listing down the requirements through a series of question/answer formats between the candidate and the interviewer. We then identified the core objects, followed by the class diagram of the grocery store, and presented the implementation code.</p>
+<p>The most important takeaway is the clear separation of concerns, where each component, such as Catalog, Inventory, Order, and DiscountCampaign, focuses on a specific responsibility. This modularity not only simplifies individual components but also ensures they integrate seamlessly.</p>
+<p>In the deep dive section, we explored advanced topics like implementing composite discounts and layering multiple calculation strategies. These enhancements showcase how abstraction and extensibility can handle complex real-world scenarios, such as applying tiered discounts or combining fixed and percentage-based discounts.</p>
+<p>Congratulations on getting this far! Now give yourself a pat on the back. Good job!</p>
+<h2 id="further-reading-decorator-design-pattern">Further Reading: Decorator Design Pattern</h2>
+<p>This section gives a quick overview of the design patterns used in this chapter. It’s helpful if you’re new to these patterns or need a refresher to better understand the design choices.</p>
+<h3 id="decorator-design-pattern">Decorator design pattern</h3>
+<p>Decorator is a structural design pattern that allows you to add new behaviors to an object by wrapping it in another object that provides the additional functionality, without modifying the original object’s code.</p>
+<p>In the grocery store system design, we have used the Decorator pattern to layer multiple discount calculations by wrapping a DiscountCalculationStrategy object in decorator classes like FixedDiscountDecorator and PercentageDiscountDecorator. This allows the system to apply discounts sequentially, such as a fixed amount followed by a percentage reduction, during checkout without altering the core discount strategy.</p>
+<p>To illustrate the Decorator pattern in another domain, consider a text formatting system where a document editor applies styles like bold or italic to text content to enhance its appearance.</p>
+<p><strong>Problem</strong></p>
+<p>Imagine you’re developing a text editor where users can format text with styles like bold, italic, or underline. Initially, you might handle these by modifying the Text class with conditional logic or creating subclasses for each style combination (e.g., BoldText, BoldItalicText). However, this leads to complex code or an explosion of subclasses, making it difficult to add new styles (e.g., strikethrough) or combine multiple styles (e.g., bold and italic).</p>
+<p><strong>Solution</strong></p>
+<p>The Decorator Pattern addresses this by creating decorator classes that implement the same interface as the Text class and wrap a Text object to add new behaviors. For example, a BoldDecorator wraps a Text object to add bold formatting to its display, while an ItalicDecorator adds italic formatting. The editor interacts with the decorated text through the same interface, enabling seamless style application. Decorators can be stacked to combine styles (e.g., bold and italic), providing flexibility without altering the Text class.</p>
+<p>Here’s a simple diagram showing the Decorator pattern for text formatting:</p>
+<figure class="py-1"><div style="display: flex; justify-content: center;"><img alt="Image represents a class diagram illustrating the Decorator design pattern.  At the top is an interface named `Text` with a single method `String render()`.  Below, `PlainText` is a class implementing the `Text` interface, also possessing a `String render()` method.  Two further classes, `BoldDecorator` and `ItalicDecorator`, both implement the `Text` interface and contain a private field `Text text` and a `String render()` method.  Dashed lines indicate that `PlainText` implements `Text` through inheritance. Solid lines with filled diamonds show that `BoldDecorator` and `ItalicDecorator` have a composition relationship with `Text`, indicated by the label 'wraps'.  This signifies that `BoldDecorator` and `ItalicDecorator` 'wrap' an instance of the `Text` interface (which could be `PlainText` or another decorated `Text` object) to add functionality (bolding or italicizing) to the rendering process." loading="lazy" width="549" height="264" decoding="async" data-nimg="1" src="https://bytebytego.com/images/courses/object-oriented-design-interview/grocery-store-system/image-9-14-7XXD62YS.svg" style="color: transparent;"></div><div style="display: flex; justify-content: center;"><figcaption class="py-1">Text interface and concrete classes</figcaption></div></figure>
+<p>Text is the common interface that PlainText, BoldDecorator, and ItalicDecorator implement. The advantage is that we can treat all objects uniformly through the Text interface, allowing decorators to wrap and enhance text formatting, like bold or italic, without knowing the underlying object’s type.</p>
+<p><strong>When to use</strong></p>
+<p>The Decorator design pattern is useful in scenarios:</p>
+<ul>
+<li>When you need to add features or behaviors to objects dynamically at runtime without modifying their code.</li>
+<li>When subclassing results in too many combinations of features (e.g., BoldItalicText), composition is a simpler alternative.</li>
+</ul>
+        </article>
+    </main>
+
+    <div class="nav">
+        <a href="../object-oriented-design-interview.html">← Course Contents</a>
+        <a href="design-an-elevator-system.html">← Previous</a>
+        <a href="design-a-tic-tac-toe-game.html">Next →</a>
+    </div>
+
+    <footer class="metadata">
+        <p>Scraped on 10/10/2025</p>
+    </footer>
+</body>
+</html>
